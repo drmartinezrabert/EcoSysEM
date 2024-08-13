@@ -1,0 +1,32 @@
+IUPAC,Formula,Phase,Value,REF
+Nitrogen,N2,FW,1300,Sander2023
+Nitrogen,N2,SW,1300,Asm.
+Oxygen,O2,FW,1500,Sander2023
+Oxygen,O2,SW,1500,Sander2023
+Argon,Ar,FW,1700,Sander2023
+Argon,Ar,SW,1700,Asm.
+Carbon dioxide,CO2,FW,2300,Sander2023
+Carbon dioxide,CO2,SW,2600,Sander2023
+Neon,Ne,FW,470,Sander2023
+Helium,He,FW,83,Sander2023
+Methane,CH4,FW,1600,Sander2023
+Methane,CH4,SW,1100,Sander2023
+Krypton,Kr,FW,1900,Sander2023
+Hydrogen,H2,FW,490,Sander2023
+Hydrogen,H2,SW,490,Asm.
+Nitrous oxide,N2O,FW,2600,Sander2023
+Nitrous oxide,N2O,SW,2600,Sander2023
+Carbon monoxide,CO,FW,1300,Sander2023
+Carbon monoxide,CO,SW,1400,Sander2023
+Xenon,Xe,FW,2300,Sander2023
+Ozone,O3,FW,2800,Sander2023
+Nitrogen dioxide,NO2,FW,2400,Sander2023
+Iodine,I2,FW,4300,Sander2023
+Ammonia,NH3,FW,4200,Sander2023
+Ammonia,NH3,SW,4200,Asm.
+Nitric oxide,NO,FW,1600,Sander2023
+Nitric oxide,NO,SW,1600,Asm.
+Sulfur dioxide,SO2,FW,2900,Sander2023
+Sulfur dioxide,SO2,SW,2900,Asm.
+Hydrogen sulfide,H2S,FW,2100,Sander2023
+Hydrogen sulfide,H2S,SW,2100,Asm.
