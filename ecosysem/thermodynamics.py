@@ -89,9 +89,9 @@ class ThP:
     def setThP():
         pass
 
-class Equilibrium:
+class ThEq:
     """
-    Class for chemical/ion and interphase (G-L) equilibrium.
+    Class for calulation of chemical/ion and interphase (G-L) equilibriums.
     
     """
     
@@ -157,17 +157,17 @@ class Equilibrium:
         pass
     
 #- DEBUGGING -#
-# Hs, notNaN = Equilibrium.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
+# Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
 # print(Hs)
 # print(notNaN)
 # print(Hs)
-# Equilibrium.pHSpeciation()
+# ThEq.pHSpeciation()
 # ThP.getThP('HenrySolub', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
 #-------------#
 
 #- Info of functions and examples -#
 ### Get Henry's law solubility constants (Hs)
-#> Equilibrium.solubilityHenry(compounds, wType, temperature), where wType: 'FW', 'SW'
-# Hs, notNaN = Equilibrium.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15])
+#> ThEq.solubilityHenry(compounds, wType, temperature), where wType: 'FW', 'SW'
+# Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15])
 # print(Hs)
 #----------------------------------#
