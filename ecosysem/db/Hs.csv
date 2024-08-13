@@ -1,0 +1,32 @@
+IUPAC,Formula,Phase,Value,REF
+Nitrogen,N2,FW,6.40E-06,Sander2023
+Nitrogen,N2,SW,5.10E-06,Murray1969
+Oxygen,O2,FW,1.30E-05,Sander2023
+Oxygen,O2,SW,1.24E-05,Sander2023
+Argon,Ar,FW,1.40E-05,Sander2023
+Argon,Ar,SW,1.15E-05,Murray1970
+Carbon dioxide,CO2,FW,3.40E-04,Sander2023
+Carbon dioxide,CO2,SW,2.80E-04,Sander2023
+Neon,Ne,FW,4.50E-06,Sander2023
+Helium,He,FW,3.80E-06,Sander2023
+Methane,CH4,FW,1.40E-05,Sander2023
+Methane,CH4,SW,1.20E-05,Sander2023
+Krypton,Kr,FW,2.50E-05,Sander2023
+Hydrogen,H2,FW,7.70E-06,Sander2023
+Hydrogen,H2,SW,7.05E-06,Crozier1974
+Nitrous oxide,N2O,FW,2.40E-04,Sander2023
+Nitrous oxide,N2O,SW,2.10E-04,Sander2023
+Carbon monoxide,CO,FW,9.70E-06,Sander2023
+Carbon monoxide,CO,SW,8.00E-06,Sander2023
+Xenon,Xe,FW,4.30E-05,Sander2023
+Ozone,O3,FW,1.00E-04,Sander2023
+Nitrogen dioxide,NO2,FW,1.20E-04,Sander2023
+Iodine,I2,FW,2.80E-02,Sander2023
+Ammonia,NH3,FW,5.90E-01,Sander2023
+Ammonia,NH3,SW,1.04E-01,Hedengren2000
+Nitric oxide,NO,FW,1.90E-05,Sander2023
+Nitric oxide,NO,SW,1.75E-05,Zacharia2005
+Sulfur dioxide,SO2,FW,1.30E-02,Sander2023
+Sulfur dioxide,SO2,SW,1.30E-02,Douabul1979
+Hydrogen sulfide,H2S,FW,1.00E-03,Sander2023
+Hydrogen sulfide,H2S,SW,4.36E-04,Douabul2005
