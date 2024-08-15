@@ -1,0 +1,16 @@
+Compounds,NH3/NH4+ (First deP),HNO2/NO2- (First deP),HNO3/NO3- (First deP),H2CO3/HCO3-/CO3-2 (First deP),H2CO3/HCO3-/CO3-2 (Second deP),H2SO4/HSO4-/SO4-2 (First deP),H2SO4/HSO4-/SO4-2 (Second deP),H2O/OH- (First deP)
+H+,1,1,1,1,1,1,1,1
+NH4+,-1,,,,,,,
+NH3,1,,,,,,,
+HNO2,,-1,,,,,,
+NO2-,,1,,,,,,
+HNO3,,,-1,,,,,
+NO3-,,,1,,,,,
+H2CO3,,,,-1,,,,
+HCO3-,,,,1,-1,,,
+CO3-2,,,,,1,,,
+H2SO4,,,,,,-1,,
+HSO4-,,,,,,1,-1,
+SO4-2,,,,,,,1,
+H2O,,,,,,,,-1
+OH-,,,,,,,,1
