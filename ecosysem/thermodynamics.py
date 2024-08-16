@@ -4,19 +4,20 @@ Created on Wed Aug  7 18:09:14 2024
 
 @author: 2424069M
 """
+from reactions import Reactions as Rxn
 
 import pandas as pd
 import numpy as np
+import sys
 # import os
 # import matplotlib.pyplot as plt
-# import sys
 
 class ThP:
     """
     Class for thermodynamic parameters.
     
     """
-    # Database directory
+    # Directory of databases
     path = 'db\\'
     
     def checkThP(typeParam, db, compounds, phase):
@@ -55,12 +56,12 @@ class ThP:
     
     def getThP(typeParam, compounds, phase):
         """
-        Function to get thermodynamic parameters. 
+        Function to get thermodynamic parameters from csv file. 
 
         Parameters
         ----------
         typeParam : STR
-            What parameters are requested. 
+            What parameters are requested, matching with csv name. E.g.:
                 - 'Hs': Henry's solubility constant.
                 - 'B': Temperature dependecy of Henry's solubility constant.
                 - '...': ...
@@ -85,9 +86,75 @@ class ThP:
         notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         
         return Param, notNaN
+    
+    def getDeltaGr(deltaGf, mRxn):
+        """
+        Function to get gibbs free energy of reaction from gibbs formation.
+
+        Parameters
+        ----------
+        deltaGf : LIST or np.array
+            Gibbs free energy of formation.
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+
+        Returns
+        -------
+        deltaGr : np.array
+            Gibbs free energy of reaction.
+    
+        """
+        deltaGr = deltaGf @ mRxn
         
-    def setThP():
-        pass
+        return deltaGr
+    
+    def getDeltaHr(deltaHf, mRxn):
+        """
+        Function to get enthalpy of reaction from enthalpy of formation.
+
+        Parameters
+        ----------
+        deltaHf : LIST or np.array
+            Enthalpy of formation.
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+
+        Returns
+        -------
+        deltaHr : np.array
+            Enthalpy of reaction.
+    
+        """
+        deltaHr = deltaHf @ mRxn
+        
+        return deltaHr
+    
+    def getKeq(compounds, mRxn, temperature):
+        """
+        Function to get equilibrium constants from DeltaG.
+
+        Parameters
+        ----------
+        compounds : STR or np.array
+            Requested compound(s).
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+        temperature: FLOAT
+            Absolute temperature [K]
+
+        Returns
+        -------
+        Keq : np.array
+            Equilibrium constants.
+    
+        """
+        # Constants
+        R = 0.0083144598   # Universal gas constant [kJ/mol/K]
+        deltaGf, notNaN = ThP.getThP('deltaG', compounds, 'L')
+        deltaGr = ThP.getDeltaGr(deltaGf, mRxn)
+        Keq = np.exp(deltaGr / (-R * temperature))
+        
+        return Keq
 
 class ThEq:
     """
@@ -134,27 +201,104 @@ class ThEq:
         else:
             print('!EcosysEM.Error: No water type selected. Use one of the following wType:\n'+
               '                 \'FW\'      - Fresh Water.\n'+
-              '                 \'SW\'      - Sew Water.')  
+              '                 \'SW\'      - Sew Water.')
             return None, None
     
-    def pHSpeciation():
+    def pHSpeciation(compounds, pH, temperature, Ct, rAllConc = False):
         """
-        Lorem ipsum...
-    
+        Calculate pH (or ion) speciation of selected compounds.
+
         Parameters
         ----------
-        PARAM : TYPE
-            DESCRIPTION.
-        PARAM : TYPE
-            DESCRIPTION.
-    
+        compounds : STR or LIST
+            Requested compound(s).
+        pH : FlOAT, LIST or np.array
+                Set of pH.
+        temperature : FLOAT, LIST or np.array
+            Set of temperature for pH speciation [K].
+        Ct : LIST or np.array
+            Total concentrations of compounds.
+        rAllConc : BOOL
+            Option to select if return all compound species or only preferred.
+
         Returns
         -------
-        PARAM : TYPE
-            DESCRIPTION.
+        sConcentration : np.array
+            Concentrations of selected compound species.
+            If rAllConc = False: (compounds)x(pH)x(total concentration).
+            If rAllConc = True: (compounds)x(species)x(pH)x(total concentration).
+            Where species: [B], [B-], [B-2], [B-3].
     
         """
-        pass
+        if not isinstance(Ct, list): Ct = [Ct]
+        H = np.power(10, -abs(np.array(pH)))
+        #- DEBUGGING -#
+        print(f'Compounds: {compounds}')
+        print(f'[H+]: {H}')
+        print(f'Temperature: {temperature}')
+        print(f'[Ct]: {Ct}')
+        print(f'All concentrations: {rAllConc}')
+        print('=======================')    
+        print('')
+        #-------------#
+        rSpec = np.empty(0)
+        for iCompound in compounds:
+            # Reactions.getRxn -> only returns 1 reaction
+            rComp, mRxn, infoRxn = Rxn.getRxn('pHSpeciation', iCompound)
+            if not rComp:
+                print('!EcoSysEM.Warning: Check `pHSpeciation` file(s) (`reactions/` folder).')
+                sys.exit()
+            reqSp = rComp.index(iCompound) - 1 # Requested compound species
+            # Acid dissociation constants (Ka)
+            transDict = {'First deP': 0, 'Second deP': 1, 'Third deP': 2}
+            intRxn = [transDict[letter] for letter in infoRxn]
+            Kai = ThP.getKeq(rComp, mRxn, temperature)
+            Ka = np.zeros(3)
+            Ka[intRxn] = Kai
+            # Speciation
+            theta = H**3 + (Ka[0] * H**2) + (Ka[0] * Ka[1] * H) + Ka[0] * Ka[1] * Ka[2]
+            mSpec = np.empty(0)
+            for iC in Ct:
+                mSpec_aux = np.array([iC * H**3 / theta,                    # [B]
+                                      Ka[0] * iC * H**2 / theta,            # [B-]
+                                      Ka[0] * Ka[1] * iC * H / theta,       # [B-2]
+                                      Ka[0] * Ka[1] * Ka[2] * iC / theta])  # [B-3]
+                if mSpec.shape[0] == 0:
+                    mSpec = mSpec_aux
+                else:
+                    mSpec = np.dstack((mSpec, mSpec_aux))
+            if not rAllConc:
+                mSpec = mSpec[reqSp, :, :]
+            # Result Speciation matrix
+            if rSpec.shape[0] == 0:
+                rSpec = mSpec
+            else:
+                rSpec = np.stack([rSpec, mSpec])
+            #- DEBUGGING -#            
+            # print(iCompound)
+            # print('------------')
+            # print(f'rComp:\n {rComp}')
+            # print(f'mRxn:\n {mRxn}')
+            # print(f'infoRxn:\n {infoRxn}')
+            # print(f'Ka: {Ka}')
+            # print('------------')
+            # print('mSpec')
+            # print(mSpec)
+            # print(f'Shape: {mSpec.shape}')
+            #-------------#
+        #- DEBUGGING -#
+        print('rSpec')
+        print(rSpec)
+        print(f'Shape: {rSpec.shape}')
+        #-------------#
+        
+        return rSpec
+            
+class ThSA:
+    """
+    Class for thermodynamic state analysis of environment.
+    
+    """
     
 #- DEBUGGING -#
 # Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
@@ -162,7 +306,14 @@ class ThEq:
 # print(notNaN)
 # print(Hs)
 # ThEq.pHSpeciation()
-# ThP.getThP('HenrySolub', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
+# ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
+
+ThEq.pHSpeciation(['HCO3-', 'NH3'], 
+                  [6.5, 7.0, 7.5],
+                  293.15,
+                  [0.0, 0.25, 0.5, 0.75, 1.0],
+                  False)
+# , 'NH5'
 #-------------#
 
 #- Info of functions and examples -#
