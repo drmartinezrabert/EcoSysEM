@@ -270,7 +270,7 @@ class ThEq:
 
     def plotpHSpeciation(compounds, pH, temperature):
         """
-        Plotting of pH (or ion) speciation of requested compound.
+        Plotting of pH (or ion) speciation of requested compound(s).
 
         Parameters
         ----------
