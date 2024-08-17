@@ -269,7 +269,7 @@ class ThEq:
                     else:
                         rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
         rSpec = np.squeeze(rSpec)
-        
+
         return rSpec
             
 class ThSA:
@@ -286,24 +286,23 @@ class ThSA:
 # ThEq.pHSpeciation()
 # ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
 
+# (species)x(pH)x(total concentration)x(temperature)x(compounds)
 t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
                       [293.15, 298.15],                     # T: 2
                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
                       True)                                 # Species: 4 (if True)
-# (species)x(pH)x(total concentration)x(temperature)x(compounds)
 # print(t.shape)
 # print(t)
 # print('')
 t_2 = t[:, 2, :, -1, :]
 print(t_2.shape)
 print(t_2)
-
-# a = ThEq.pHSpeciation(['HCO3-', 'NH4+'],            # Compounds: 2
-#                       7.0,                   # pH: 1
-#                       298.15,     # T: 1
-#                       1.0,                   # Ct: 1
-#                       False)                        # Species: 4 (if True)
+# a = ThEq.pHSpeciation(['HCO3-', 'NH4+'],  # Compounds: 2
+#                       7.0,                # pH: 1
+#                       298.15,             # T: 1
+#                       1.0,                # Ct: 1
+#                       False)              # Species: 4 (if True)
 # print(a.shape)
 # print(a)
 
