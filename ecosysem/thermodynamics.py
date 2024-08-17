@@ -83,7 +83,7 @@ class ThP:
         dParam = pd.read_csv(ThP.path + typeParam + '.csv')
         dParam = dParam.set_index('Formula').loc[compounds].reset_index()
         Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
-        notNaN = ThP.checkThP(typeParam, dParam, compounds, phase) 
+        notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         return Param, notNaN
     
     def getDeltaGr(deltaGf, mRxn):
@@ -346,7 +346,7 @@ class ThSA:
 # print(a)
 ## Plot pH Speciation
 pH = np.arange(0, 14, 0.5)
-ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
+ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S', 'H2SO3'], pH, 298.15)
 #-------------#
 
 #- Info of functions and examples -#
