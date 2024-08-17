@@ -265,12 +265,13 @@ class ThEq:
                         rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
         rSpec = np.squeeze(rSpec)
         return rSpec
-            
+
 class ThSA:
     """
     Class for thermodynamic state analysis of environment.
     
     """
+    pass
     
 #- DEBUGGING -#
 # Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
@@ -279,19 +280,17 @@ class ThSA:
 # print(Hs)
 # ThEq.pHSpeciation()
 # ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
-
-# (species)x(pH)x(total concentration)x(temperature)x(compounds)
-t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
-                      [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
-                      [293.15, 298.15],                     # T: 2
-                      [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
-                      True)                                 # Species: 4 (if True)
+# t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
+#                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
+#                       [293.15, 298.15],                     # T: 2
+#                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
+#                       True)                                 # Species: 4 (if True)
 # print(t.shape)
 # print(t)
 # print('')
-t_2 = t[:, 2, :, -1, :]
-print(t_2.shape)
-print(t_2)
+# t_2 = t[:, 2, :, -1, :]
+# print(t_2.shape)
+# print(t_2)
 # a = ThEq.pHSpeciation(['HCO3-', 'NH4+'],  # Compounds: 2
 #                       7.0,                # pH: 1
 #                       298.15,             # T: 1
@@ -299,8 +298,6 @@ print(t_2)
 #                       False)              # Species: 4 (if True)
 # print(a.shape)
 # print(a)
-
-# , 'NH5'
 #-------------#
 
 #- Info of functions and examples -#
@@ -308,4 +305,13 @@ print(t_2)
 #> ThEq.solubilityHenry(compounds, wType, temperature), where wType: 'FW', 'SW'
 # Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15])
 # print(Hs)
+### Calculate pH (or ion) speciation of selected compounds.
+#> pHSpeciation(compounds, pH, temperature, Ct, rAllConc = False)
+#> return.shape: (species)x(pH)x(total concentration)x(temperature)x(compounds)
+# t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
+#                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
+#                       [293.15, 298.15],                     # T: 2
+#                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
+#                       True)                                 # Species: 4 (if True)
+# print(t)
 #----------------------------------#
