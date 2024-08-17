@@ -223,74 +223,52 @@ class ThEq:
 
         Returns
         -------
-        sConcentration : np.array
+        rSpec : np.array
             Concentrations of selected compound species.
-            If rAllConc = False: (compounds)x(pH)x(total concentration).
-            If rAllConc = True: (compounds)x(species)x(pH)x(total concentration).
+            If rAllConc = False: (pH)x(total concentration)x(temperature)x(compounds).
+            If rAllConc = True: (species)x(pH)x(total concentration)x(temperature)x(compounds).
             Where species: [B], [B-], [B-2], [B-3].
     
         """
+        if not isinstance(temperature, list): temperature = [temperature]
+        if not isinstance(pH, list): pH = [pH]
         if not isinstance(Ct, list): Ct = [Ct]
+        nCompounds = len(compounds)
+        nTemperature = len(temperature)
+        npH = len(pH)
+        nCt = len(Ct)
         H = np.power(10, -abs(np.array(pH)))
-        #- DEBUGGING -#
-        print(f'Compounds: {compounds}')
-        print(f'[H+]: {H}')
-        print(f'Temperature: {temperature}')
-        print(f'[Ct]: {Ct}')
-        print(f'All concentrations: {rAllConc}')
-        print('=======================')    
-        print('')
-        #-------------#
-        rSpec = np.empty(0)
-        for iCompound in compounds:
+        if rAllConc:
+            rSpec = np.empty([4, npH, nCt, nTemperature, nCompounds])
+        else:
+            rSpec = np.empty([npH, nCt, nTemperature, nCompounds])
+        for idCompound, iCompound in enumerate(compounds):
             # Reactions.getRxn -> only returns 1 reaction
             rComp, mRxn, infoRxn = Rxn.getRxn('pHSpeciation', iCompound)
             if not rComp:
                 print('!EcoSysEM.Warning: Check `pHSpeciation` file(s) (`reactions/` folder).')
                 sys.exit()
-            reqSp = rComp.index(iCompound) - 1 # Requested compound species
-            # Acid dissociation constants (Ka)
-            transDict = {'First deP': 0, 'Second deP': 1, 'Third deP': 2}
-            intRxn = [transDict[letter] for letter in infoRxn]
-            Kai = ThP.getKeq(rComp, mRxn, temperature)
-            Ka = np.zeros(3)
-            Ka[intRxn] = Kai
-            # Speciation
-            theta = H**3 + (Ka[0] * H**2) + (Ka[0] * Ka[1] * H) + Ka[0] * Ka[1] * Ka[2]
-            mSpec = np.empty(0)
-            for iC in Ct:
-                mSpec_aux = np.array([iC * H**3 / theta,                    # [B]
-                                      Ka[0] * iC * H**2 / theta,            # [B-]
-                                      Ka[0] * Ka[1] * iC * H / theta,       # [B-2]
-                                      Ka[0] * Ka[1] * Ka[2] * iC / theta])  # [B-3]
-                if mSpec.shape[0] == 0:
-                    mSpec = mSpec_aux
-                else:
-                    mSpec = np.dstack((mSpec, mSpec_aux))
-            if not rAllConc:
-                mSpec = mSpec[reqSp, :, :]
-            # Result Speciation matrix
-            if rSpec.shape[0] == 0:
-                rSpec = mSpec
-            else:
-                rSpec = np.stack([rSpec, mSpec])
-            #- DEBUGGING -#            
-            # print(iCompound)
-            # print('------------')
-            # print(f'rComp:\n {rComp}')
-            # print(f'mRxn:\n {mRxn}')
-            # print(f'infoRxn:\n {infoRxn}')
-            # print(f'Ka: {Ka}')
-            # print('------------')
-            # print('mSpec')
-            # print(mSpec)
-            # print(f'Shape: {mSpec.shape}')
-            #-------------#
-        #- DEBUGGING -#
-        print('rSpec')
-        print(rSpec)
-        print(f'Shape: {rSpec.shape}')
-        #-------------#
+            reqSp = rComp.index(iCompound) - 1 # Requested chemical species
+            for idTemperature, iTemperature in enumerate(temperature):
+                # Acid dissociation constants (Ka)
+                transDict = {'First deP': 0, 'Second deP': 1, 'Third deP': 2}
+                intRxn = [transDict[letter] for letter in infoRxn]
+                Kai = ThP.getKeq(rComp, mRxn, iTemperature)
+                Ka = np.zeros(3)
+                Ka[intRxn] = Kai
+                # Speciation
+                theta = H**3 + (Ka[0] * H**2) + (Ka[0] * Ka[1] * H) + Ka[0] * Ka[1] * Ka[2]
+                for idC, iC in enumerate(Ct):
+                    mSpec_aux = np.array([iC * H**3 / theta,                    # [B]
+                                          Ka[0] * iC * H**2 / theta,            # [B-]
+                                          Ka[0] * Ka[1] * iC * H / theta,       # [B-2]
+                                          Ka[0] * Ka[1] * Ka[2] * iC / theta])  # [B-3]
+                    # Speciation matrix
+                    if rAllConc:    
+                        rSpec[:,:,idC,idTemperature,idCompound] = mSpec_aux
+                    else:
+                        rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
+        rSpec = np.squeeze(rSpec)
         
         return rSpec
             
@@ -308,11 +286,27 @@ class ThSA:
 # ThEq.pHSpeciation()
 # ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
 
-ThEq.pHSpeciation(['HCO3-', 'NH3'], 
-                  [6.5, 7.0, 7.5],
-                  293.15,
-                  [0.0, 0.25, 0.5, 0.75, 1.0],
-                  False)
+t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
+                      [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
+                      [293.15, 298.15],                     # T: 2
+                      [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
+                      True)                                 # Species: 4 (if True)
+# (species)x(pH)x(total concentration)x(temperature)x(compounds)
+# print(t.shape)
+# print(t)
+# print('')
+t_2 = t[:, 2, :, -1, :]
+print(t_2.shape)
+print(t_2)
+
+# a = ThEq.pHSpeciation(['HCO3-', 'NH4+'],            # Compounds: 2
+#                       7.0,                   # pH: 1
+#                       298.15,     # T: 1
+#                       1.0,                   # Ct: 1
+#                       False)                        # Species: 4 (if True)
+# print(a.shape)
+# print(a)
+
 # , 'NH5'
 #-------------#
 
