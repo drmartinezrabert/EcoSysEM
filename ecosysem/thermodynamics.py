@@ -51,7 +51,6 @@ class ThP:
         if compNaN.size != 0:
             print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
             print(f'>> Returned compounds: {compnotNaN}.\n')
-            
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -83,8 +82,7 @@ class ThP:
         dParam = pd.read_csv(ThP.path + typeParam + '.csv')
         dParam = dParam.set_index('Formula').loc[compounds].reset_index()
         Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
-        notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
-        
+        notNaN = ThP.checkThP(typeParam, dParam, compounds, phase) 
         return Param, notNaN
     
     def getDeltaGr(deltaGf, mRxn):
@@ -104,8 +102,7 @@ class ThP:
             Gibbs free energy of reaction.
     
         """
-        deltaGr = deltaGf @ mRxn
-        
+        deltaGr = deltaGf @ mRxn 
         return deltaGr
     
     def getDeltaHr(deltaHf, mRxn):
@@ -126,7 +123,6 @@ class ThP:
     
         """
         deltaHr = deltaHf @ mRxn
-        
         return deltaHr
     
     def getKeq(compounds, mRxn, temperature):
@@ -153,12 +149,11 @@ class ThP:
         deltaGf, notNaN = ThP.getThP('deltaG', compounds, 'L')
         deltaGr = ThP.getDeltaGr(deltaGf, mRxn)
         Keq = np.exp(deltaGr / (-R * temperature))
-        
         return Keq
 
 class ThEq:
     """
-    Class for calulation of chemical/ion and interphase (G-L) equilibriums.
+    Class for calulation of chemical, ion and interphase (G-L) equilibriums.
     
     """
     
@@ -269,7 +264,6 @@ class ThEq:
                     else:
                         rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
         rSpec = np.squeeze(rSpec)
-
         return rSpec
             
 class ThSA:
