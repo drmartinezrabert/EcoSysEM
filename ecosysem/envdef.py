@@ -22,7 +22,7 @@ Functions
 
 ------------------------------------------------------------------------------
 """
-from thermodynamics import Equilibrium as eQ
+from thermodynamics import ThEq as eQ
 
 import pandas as pd
 import numpy as np
