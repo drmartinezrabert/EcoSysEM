@@ -8,6 +8,7 @@ from reactions import Reactions as Rxn
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import sys
 # import os
 # import matplotlib.pyplot as plt
@@ -225,9 +226,10 @@ class ThEq:
             Where species: [B], [B-], [B-2], [B-3].
     
         """
-        if not isinstance(temperature, list): temperature = [temperature]
-        if not isinstance(pH, list): pH = [pH]
-        if not isinstance(Ct, list): Ct = [Ct]
+        if isinstance(compounds, str): compounds = [compounds]
+        if isinstance(temperature, float or list): temperature = [temperature]
+        if isinstance(pH, float or int): pH = [pH]
+        if isinstance(Ct, float or int): Ct = [Ct]
         nCompounds = len(compounds)
         nTemperature = len(temperature)
         npH = len(pH)
@@ -259,12 +261,54 @@ class ThEq:
                                           Ka[0] * Ka[1] * iC * H / theta,       # [B-2]
                                           Ka[0] * Ka[1] * Ka[2] * iC / theta])  # [B-3]
                     # Speciation matrix
-                    if rAllConc:    
+                    if rAllConc:
                         rSpec[:,:,idC,idTemperature,idCompound] = mSpec_aux
                     else:
                         rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
         rSpec = np.squeeze(rSpec)
         return rSpec
+
+    def plotpHSpeciation(compounds, pH, temperature):
+        """
+        Plotting of pH (or ion) speciation of requested compound.
+
+        Parameters
+        ----------
+        compounds : STR or LIST
+            Requested compound(s).
+        temperature : FLOAT
+            Temperature for pH speciation [K]..
+        pH : LIST
+            Set of pH.
+
+        Returns
+        -------
+        None.
+
+        """
+        Ct = 1.0 # Total concentration [M]
+        if not isinstance(temperature, float):
+            print('!EcoSysEM.Warning: Temperature must be a FLOAT.')
+            sys.exit()
+        if isinstance(compounds, str): compounds = [compounds]
+        for iCompound in compounds:
+            Spec = ThEq.pHSpeciation(iCompound, pH, temperature, Ct, True)
+            nFrac = (Spec.T / Ct) * 100 # Molar fraction [%]
+            # Selection of involved chemical species
+            c_nFrac = np.nonzero(np.sum(nFrac, axis = 0))
+            nFrac = nFrac[:, c_nFrac[0]]
+            # Get name of chemical species
+            nCompounds = Rxn.getRxn('pHSpeciation', iCompound)[0][1:]
+            # Plotting
+            fig, ax = plt.subplots()
+            ax.plot(pH, nFrac)
+            ax.set_ylabel('Molar fraction (%)')
+            ax.set_xlabel('pH')
+            ax.set_xticks(np.arange(pH[0], pH[-1], 1))
+            ax.set_yticks(np.arange(0, 110, 10))
+            ax.margins(x = 0)
+            plt.legend(nCompounds, loc = 'center left', bbox_to_anchor = (1, 0.5))
+            plt.show()
 
 class ThSA:
     """
@@ -274,12 +318,14 @@ class ThSA:
     pass
     
 #- DEBUGGING -#
+## Henry's solubility
 # Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
 # print(Hs)
 # print(notNaN)
 # print(Hs)
-# ThEq.pHSpeciation()
+## Get thermodynamic paramether
 # ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
+## pH (ion) speciation
 # t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
 #                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
 #                       [293.15, 298.15],                     # T: 2
@@ -291,13 +337,16 @@ class ThSA:
 # t_2 = t[:, 2, :, -1, :]
 # print(t_2.shape)
 # print(t_2)
-# a = ThEq.pHSpeciation(['HCO3-', 'NH4+'],  # Compounds: 2
+# a = ThEq.pHSpeciation('HCO3-',  # Compounds: 2
 #                       7.0,                # pH: 1
 #                       298.15,             # T: 1
 #                       1.0,                # Ct: 1
 #                       False)              # Species: 4 (if True)
 # print(a.shape)
 # print(a)
+## Plot pH Speciation
+pH = np.arange(0, 14, 0.5)
+ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
 #-------------#
 
 #- Info of functions and examples -#
@@ -314,4 +363,8 @@ class ThSA:
 #                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
 #                       True)                                 # Species: 4 (if True)
 # print(t)
+### Plot pH (or ion) speciation
+#> plotpHSpeciation(compounds, pH, temperature), where temperature must be a FLOAT
+# pH = np.arange(0, 14, 0.5)
+# ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
 #----------------------------------#
