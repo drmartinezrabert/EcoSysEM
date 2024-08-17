@@ -39,7 +39,15 @@ class Reactions:
         dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
         dRxnAux = dRxn
         for iCompound in compounds:
-            dRxnAux = dRxnAux.filter(like = iCompound).dropna(how = 'all')
+            dRxnAux1 = dRxnAux.filter(like = iCompound+'/').dropna(how = 'all')
+            dRxnAux2 = dRxnAux.filter(like = '/'+iCompound+'/').dropna(how = 'all')
+            dRxnAux3 = dRxnAux.filter(like = '/'+iCompound).dropna(how = 'all')
+            if not dRxnAux1.empty:
+                dRxnAux = dRxnAux1
+            elif not dRxnAux2.empty:
+                dRxnAux = dRxnAux2
+            elif not dRxnAux3.empty:
+                dRxnAux = dRxnAux3
         dRxn = pd.concat([dRxn.iloc[dRxnAux.index, [0]], dRxnAux], axis=1).fillna(0)
         if dRxn.empty:
             print(f'!EcoSysEM.Warning: Reaction involving {compounds} not found.')
