@@ -41,7 +41,6 @@ class Reactions:
         for iCompound in compounds:
             dRxnAux = dRxnAux.filter(like = iCompound).dropna(how = 'all')
         dRxn = pd.concat([dRxn.iloc[dRxnAux.index, [0]], dRxnAux], axis=1).fillna(0)
-        
         if dRxn.empty:
             print(f'!EcoSysEM.Warning: Reaction involving {compounds} not found.')
             return None, None, None
@@ -65,7 +64,6 @@ class Reactions:
 
 #- Info of functions and examples -#
 ### Get reactions involving one or more compounds
-#> Reactions.getRxn(typeRxn, compound, path), where compound can be a string (one compound) or list (multiple compounds)
-# dR = Reactions.getRxn('pHSpeciation', 'NH3')
-# dR = Reactions.getRxn('pHSpeciation', ['HCO3-', 'CO3-2'])
+#> Reactions.getRxn(typeRxn, compounds), where compound can be a string (one compound) or list (multiple compounds)
+# rComp, mRxn, infoRxn = Reactions.getRxn('pHSpeciation', 'NH4+')
 #----------------------------------#
