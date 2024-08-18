@@ -86,34 +86,34 @@ class ThP:
         notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         return Param, notNaN
     
-    def getDeltaGr(deltaGf, mRxn):
+    def getDeltaG0r(deltaG0f, mRxn):
         """
-        Function to get gibbs free energy of reaction from gibbs formation.
+        Function to get gibbs free energy of reaction from DeltaG0f.
 
         Parameters
         ----------
-        deltaGf : LIST or np.array
-            Gibbs free energy of formation.
+        deltaG0f : LIST or np.array
+            Standard Gibbs free energy of formation.
         mRxn : np.array
             Reaction matrix. (compounds)x(reactions)
 
         Returns
         -------
-        deltaGr : np.array
+        deltaG0r : np.array
             Gibbs free energy of reaction.
     
         """
-        deltaGr = deltaGf @ mRxn 
-        return deltaGr
+        deltaG0r = deltaG0f @ mRxn 
+        return deltaG0r
     
-    def getDeltaHr(deltaHf, mRxn):
+    def getDeltaH0r(deltaH0f, mRxn):
         """
-        Function to get enthalpy of reaction from enthalpy of formation.
+        Function to get enthalpy of reaction from DeltaH0f.
 
         Parameters
         ----------
-        deltaHf : LIST or np.array
-            Enthalpy of formation.
+        deltaH0f : LIST or np.array
+            Standard enthalpy of formation.
         mRxn : np.array
             Reaction matrix. (compounds)x(reactions)
 
@@ -123,12 +123,12 @@ class ThP:
             Enthalpy of reaction.
     
         """
-        deltaHr = deltaHf @ mRxn
-        return deltaHr
+        deltaH0r = deltaH0f @ mRxn
+        return deltaH0r
     
     def getKeq(compounds, mRxn, temperature):
         """
-        Function to get equilibrium constants from DeltaG.
+        Function to get equilibrium constants from DeltaG0f.
 
         Parameters
         ----------
@@ -147,9 +147,9 @@ class ThP:
         """
         # Constants
         R = 0.0083144598   # Universal gas constant [kJ/mol/K]
-        deltaGf, notNaN = ThP.getThP('deltaG', compounds, 'L')
-        deltaGr = ThP.getDeltaGr(deltaGf, mRxn)
-        Keq = np.exp(deltaGr / (-R * temperature))
+        deltaG0f, notNaN = ThP.getThP('deltaG0f', compounds, 'L')
+        deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn)
+        Keq = np.exp(deltaG0r / (-R * temperature))
         return Keq
 
 class ThEq:
@@ -345,8 +345,10 @@ class ThSA:
 # print(a.shape)
 # print(a)
 ## Plot pH Speciation
-pH = np.arange(0, 14, 0.5)
-ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S', 'H2SO3'], pH, 298.15)
+pH = np.arange(0, 14, 0.25)
+ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 
+                       'H2S', 'H2SO3', 'H2CO3'], 
+                      pH, 298.15)
 #-------------#
 
 #- Info of functions and examples -#
