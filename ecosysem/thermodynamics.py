@@ -190,9 +190,9 @@ class ThEq:
                 notNaN = notNaN_Hs
             if any(temperature):
                 # Temperatures
-                t = np.c_[temperature]  # Absolute temperature [K]
-                Ts = 298.15             # Standard temperature [K]
-                Hs = Hs * np.exp(B.astype(float) * ((1 / t) - (1/Ts)))
+                t = np.c_[temperature]                                  # Absolute temperature [K]
+                Ts = 298.15                                             # Standard temperature [K]
+                Hs = Hs * np.exp(B.astype(float) * ((1 / t) - (1/Ts)))  # [mol/m3]
             return Hs, notNaN
         else:
             print('!EcosysEM.Error: No water type selected. Use one of the following wType:\n'+

@@ -108,7 +108,7 @@ class ISA(Environment):
                          'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.2e-4, 1.8182e-5, 
                                           5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
                                           1e-7, 9e-8, 7e-8, 2e-8, 1e-8, 
-                                          4e-9, 1e-9, 1e-9, 5e-11] # [vol%]
+                                          4e-9, 1e-9, 1e-9, 5e-11] # [%vol]
                           }
         dDC = pd.DataFrame(data = DryComposition)
         # super().__init__(temperature=None, pressure=None, pH=self, compounds=None, composition=None) # !!!
@@ -232,9 +232,9 @@ class ISA(Environment):
         Pi_FW = Pi[:, notNaN_HsFW]
         Pi_SW = Pi[:, notNaN_HsSW]
         # Liquid concentrations fresh water (Ci_LFW)
-        Ci_LFW = Pi_FW * Hs_FW * (1/1000)
+        Ci_LFW = Pi_FW * Hs_FW * (1/1000) # [mol/L]
         # Liquid concentrations sea water (Ci_LSW)
-        Ci_LSW = Pi_SW * Hs_SW * (1/1000)
+        Ci_LSW = Pi_SW * Hs_SW * (1/1000) # [mol/L]
         if phase == 'G':
             return Pi, Ci_G
         elif phase == 'L-FW':
