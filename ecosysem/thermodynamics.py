@@ -339,11 +339,18 @@ class ThSA:
 
         Returns
         -------
-        None.
+        DGr : np.array
+            Non-standard Gibbs free energy values.
+            E.g., (species)x(pH)x(total concentration)x(temperature)x(compounds).
+        infoRxn : LIST
+            Name of reactions given by the user (see reaction/metabolisms.csv).
 
         """
         if isinstance(compounds, str): compounds = [compounds]
         if isinstance(pH, int): pH = float(pH)
+        # Initialise variables
+        DGr = np.empty(0)
+        rInfoRxn = np.empty(0)
         # Reactions.getRxn -> only 1 compound in arguments
         for idCompound, iCompound in enumerate(compounds):
             rComp, mRxn, infoRxn = Rxn.getRxn('metabolisms', iCompound)
@@ -355,7 +362,6 @@ class ThSA:
             for iC in range(mRxn.shape[1]):
                 mRxn_aux = np.c_[mRxn[:, iC]]
                 cNonZ = np.nonzero(mRxn_aux)[:][0]
-                print(rComp)
                 rComp_aux = np.array(rComp)[cNonZ]
                 mRxn_aux = mRxn_aux[cNonZ]
                 infoRxn_aux = infoRxn[iC]
@@ -363,7 +369,7 @@ class ThSA:
                 cSubs = np.squeeze(mRxn_aux[np.where(rComp_aux == iCompound)])
                 if cSubs < 0:
                     vSelected = abs(mRxn_aux[cSubs.astype(int)]) # Stoichiometric parameter of selectec compound
-                    print(vSelected)
+                    # print(vSelected)
                     # Calculate DeltaG0r
                     deltaG0f = ThP.getThP('deltaG0f', rComp_aux, 'L')[0]
                     deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn_aux)              # kJ
@@ -376,10 +382,10 @@ class ThSA:
                     deltaH0r = deltaH0r / vSelected  # kJ/mol
                     deltaGr = deltaG0r * (T / Ts) + deltaH0r * ((Ts - T) / Ts)
                     #- DEBUGGING -#
-                    print(rComp_aux)
-                    print(mRxn_aux)
+                    # print(rComp_aux)
+                    # print(mRxn_aux)
                     print(infoRxn_aux)
-                    print('-------')
+                    print('-------------------------------------------')
                     print(f'DeltaG0r: {deltaG0r}')
                     print(f'DeltaGr (T={T}): {deltaGr}')
                     #-------------#
@@ -387,10 +393,10 @@ class ThSA:
                         # Calculate reaction quotient (Qr)
                         Qr = 0
                         R = 0.0083144598   # Universal gas constant [kJ/mol/K]
-                        uComp = np.array(list(Ct.keys()))
+                        uComp = np.array(list(Ct.keys())) # Compounds given by user (their concentrations)
                         findVComp = np.argwhere(uComp == iCompound).squeeze()
                         if findVComp.size == 0:
-                            print(f'!EcoSysEM.Error: Substrate concentrations for {iCompound} not found.')
+                            print(f'!EcoSysEM.Error: Compound concentration(s) for {iCompound} not found.')
                             sys.exit()
                         for idComp, iComp in enumerate(rComp_aux):
                             findComp = np.argwhere(uComp == iComp)
@@ -425,61 +431,14 @@ class ThSA:
                     
                     #- DEBBUGING -#
                     print(f'DeltaGr (Nernst): {deltaGr}')
-                    print('===========================')
+                    print('===========================================')
                     print('')
                     #-------------#
-                    
-"""
-if Ct:
-    # Calculate rection quotient (Qr)
-    npCt = np.array(list(Ct.items()), dtype = object).T
-    lenCt = [len(i) for i in npCt[1, :]]
-    cLen = len(set(lenCt)) == 1
-    if not cLen:
-        print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
-        sys.exit()
-    else:
-        uComp = np.array(npCt[0, :], ndmin=2)               # Compounds given by user
-        print(uComp)
-        iCt = np.array([i for i in npCt[1, :]])
-        print(iCt)
-        print('-----------')
-        #- TEST -#
-        stoich = np.empty(rComp_aux.shape)
-        for idComp, iComp in enumerate(rComp_aux):
-            print(iComp)
-            findComp = np.argwhere(np.squeeze(uComp) == iComp)
-            if findComp.size == 0:
-                if mRxn_aux[idComp] < 0:
-                    print(f'!EcoSysEM.Error: Substrate concentrations for {iComp} not found.')
-                    sys.exit()
-                elif mRxn_aux[idComp] > 0 and iComp == 'H+':
-                    if pH:
-                        print('pH!')
-                    else:
-                        pass
-                        # If no pH, neutral pH is assumed
-                        cH = [10**(-7) * np.ones(lenCt[0])]
-                        iCt = np.concatenate((iCt, cH), axis = 0)
-                elif mRxn_aux[idComp] > 0 and iComp != 'H+':
-                    if asm == 'stoich':
-                        print('Product no H+!')
-                uComp = np.concatenate((uComp, iComp) , axis = None)
-                print(iCt)
-                print(uComp)
-            iF = (mRxn_aux[np.argwhere(np.squeeze(uComp) == iComp)] / vSelected ).item() # .item() to avoid Decrepated NumPy 1.25 
-            stoich[idComp] = iF
-            print(stoich)
-        #--------#
-        print(iCt)
-        npCt = np.concatenate((uComp, stoich, iCt.T), axis=0)
-        print(npCt)
-        
-    #- DEBUGGING -#
-    print('-------------')
-    print('')
-    #-------------#
-"""
+                DGr = np.concatenate((DGr, deltaGr), axis = None)
+                rInfoRxn = np.concatenate((rInfoRxn, infoRxn_aux), axis = None)
+        print(f'List DGr: {DGr}')
+        print(f'List Info: {rInfoRxn}')
+        return DGr, rInfoRxn
     
 #- DEBUGGING -#
 ## Henry's solubility
@@ -519,8 +478,8 @@ conc = {'CO': [1.08e-10],
         'CO2': [2.78e-5],
         'NH3': [1.33e-6]}
 temperature = 255.65
-pH = 7.0
-ThSA.getDeltaGr(['CO', 'NH3'], temperature, conc, pH)
+pH = 8.0
+DGr, rInfoRxn = ThSA.getDeltaGr(['CO', 'NH3'], temperature, conc, pH)
 # #-------------#
 
 #- Info of functions and examples -#
@@ -542,3 +501,54 @@ ThSA.getDeltaGr(['CO', 'NH3'], temperature, conc, pH)
 # pH = np.arange(0, 14, 0.5)
 # ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
 #----------------------------------#
+
+#- PREV. CODE -#
+# if Ct:
+#     # Calculate rection quotient (Qr)
+#     npCt = np.array(list(Ct.items()), dtype = object).T
+#     lenCt = [len(i) for i in npCt[1, :]]
+#     cLen = len(set(lenCt)) == 1
+#     if not cLen:
+#         print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
+#         sys.exit()
+#     else:
+#         uComp = np.array(npCt[0, :], ndmin=2)               # Compounds given by user
+#         print(uComp)
+#         iCt = np.array([i for i in npCt[1, :]])
+#         print(iCt)
+#         print('-----------')
+#         #- TEST -#
+#         stoich = np.empty(rComp_aux.shape)
+#         for idComp, iComp in enumerate(rComp_aux):
+#             print(iComp)
+#             findComp = np.argwhere(np.squeeze(uComp) == iComp)
+#             if findComp.size == 0:
+#                 if mRxn_aux[idComp] < 0:
+#                     print(f'!EcoSysEM.Error: Substrate concentrations for {iComp} not found.')
+#                     sys.exit()
+#                 elif mRxn_aux[idComp] > 0 and iComp == 'H+':
+#                     if pH:
+#                         print('pH!')
+#                     else:
+#                         pass
+#                         # If no pH, neutral pH is assumed
+#                         cH = [10**(-7) * np.ones(lenCt[0])]
+#                         iCt = np.concatenate((iCt, cH), axis = 0)
+#                 elif mRxn_aux[idComp] > 0 and iComp != 'H+':
+#                     if asm == 'stoich':
+#                         print('Product no H+!')
+#                 uComp = np.concatenate((uComp, iComp) , axis = None)
+#                 print(iCt)
+#                 print(uComp)
+#             iF = (mRxn_aux[np.argwhere(np.squeeze(uComp) == iComp)] / vSelected ).item() # .item() to avoid Decrepated NumPy 1.25 
+#             stoich[idComp] = iF
+#             print(stoich)
+#         #--------#
+#         print(iCt)
+#         npCt = np.concatenate((uComp, stoich, iCt.T), axis=0)
+#         print(npCt)
+#     #- DEBUGGING -#
+#     print('-------------')
+#     print('')
+#     #-------------#
+#--------------#
