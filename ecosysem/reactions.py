@@ -39,9 +39,9 @@ class Reactions:
         dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
         dRxnAux = dRxn
         for iCompound in compounds:
-            dRxnAux1 = dRxnAux.filter(like = iCompound+'/').dropna(how = 'all')
-            dRxnAux2 = dRxnAux.filter(like = '/'+iCompound+'/').dropna(how = 'all')
-            dRxnAux3 = dRxnAux.filter(like = '/'+iCompound).dropna(how = 'all')
+            dRxnAux1 = dRxnAux.filter(regex = f'^{iCompound}/').dropna(how = 'all')
+            dRxnAux2 = dRxnAux.filter(regex = f'/{iCompound}/').dropna(how = 'all')
+            dRxnAux3 = dRxnAux.filter(like = f'/{iCompound} ').dropna(how = 'all')
             if not dRxnAux1.empty:
                 dRxnAux = dRxnAux1
             elif not dRxnAux2.empty:
@@ -66,12 +66,14 @@ class Reactions:
             return rComp, mRxn, infoRxn
 
 #- DEBUGGING -#
-# dR = Reactions.getRxn('pHSpeciation', 'H2CO3')
-# print(dR)
+
 #-------------#
 
 #- Info of functions and examples -#
 ### Get reactions involving one or more compounds
 #> Reactions.getRxn(typeRxn, compounds), where compound can be a string (one compound) or list (multiple compounds)
 # rComp, mRxn, infoRxn = Reactions.getRxn('pHSpeciation', 'NH4+')
+# print(rComp)
+# print(mRxn)
+# print(infoRxn)
 #----------------------------------#
