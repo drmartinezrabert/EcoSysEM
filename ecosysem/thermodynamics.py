@@ -397,11 +397,11 @@ class ThSA:
                     deltaH0f = ThP.getThP('deltaH0f', rComp_aux, 'L')[0]
                     deltaH0r = ThP.getDeltaH0r(deltaH0f, mRxn_aux)          # kJ
                     deltaH0r = deltaH0r / vSelected  # kJ/mol
-                    # Initialise result matrix
+                    # Initialise auxiliar result matrix (rDGr)
                     rDGr = np.empty([nT, npH, nCt])
                     for idT, iT in enumerate(T):
                         # Temperature influence (Gibbs–Helmholtz relationship)
-                        deltaGr = deltaG0r * (iT / Ts) + deltaH0r * ((Ts - iT) / Ts)
+                        deltaGTr = deltaG0r * (iT / Ts) + deltaH0r * ((Ts - iT) / Ts)
                         for idpH, ipH in enumerate(pH):
                             # Calculate reaction quotient (Qr)
                             if isinstance(Ct, dict):
@@ -435,8 +435,10 @@ class ThSA:
                                     # Calculation of reaction quotient (Qr)
                                     Qr += vi * np.log(iConc)
                                 # Concentration influence (Nernst relationship)
-                                deltaGr = deltaGr + R * iT * Qr
-                            rDGr[idT, idpH, :] = deltaGr
+                                deltaGr = deltaGTr + R * iT * Qr
+                                rDGr[idT, idpH, :] = deltaGr
+                            else:
+                                rDGr[idT, idpH, :] = deltaGTr
                     if DGr.size == 0:
                         DGr = rDGr
                     else:
@@ -444,6 +446,9 @@ class ThSA:
         DGr = DGr.reshape((nRxn, nT, npH, nCt))
         DGr = np.squeeze(DGr)
         return DGr, rInfoRxn
+    
+    def plotDeltaGr(compounds, coordinates, x, y, Ct = 1.0, Ct_associated = None):
+        pass
     
 #- DEBUGGING -#
 ## Henry's solubility
@@ -478,10 +483,11 @@ class ThSA:
 #                         'H2S', 'H2SO3', 'H2CO3'], 
 #                         pH, 298.15)
 ## Get DeltaGr (Thermodynamic state analysis)
-conc = {'CO': [1.08e-10, 1],
-        'O2': [3.40e-4, 1],
-        'CO2': [2.78e-5, 1],
-        'NH3': [1.33e-6, 1]}
+conc = {'CO': [1.08e-10],
+        'O2': [3.40e-4],
+        'CO2': [2.78e-5],
+        'NH3': [1.33e-6]}
+# temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
 temperature = 255.65
 pH = 7.0
 # ---------------------------------------
@@ -491,8 +497,10 @@ pH = 7.0
 #         'NH3': [1.33e-6, 1]}
 # temperature = [216.65, 255.65, 288.15]
 # pH = [2.0, 5.0, 8.0]
-DGr, rInfoRxn = ThSA.getDeltaGr(['CO', 'NH3'], temperature) #, conc) #, temperature, conc, pH)
-# #-------------#s
+DGr, rInfoRxn = ThSA.getDeltaGr(['CO', 'NH3'], temperature, conc, pH) #, temperature, conc, pH)
+print(DGr)
+print(rInfoRxn)
+# #-------------#
 
 #- Info of functions and examples -#
 ### Get Henry's law solubility constants (Hs)
