@@ -387,7 +387,7 @@ class ThSA:
                 # Reactions with iCompound as substrate
                 cSubs = np.squeeze(mRxn_aux[np.where(rComp_aux == iCompound)])
                 if cSubs < 0:
-                    vSelected = abs(mRxn_aux[cSubs.astype(int)]) # Stoichiometric parameter of selectec compound
+                    vSelected = abs(mRxn_aux[cSubs.astype(int)])                # Stoichiometric parameter of selectec compound
                     # print(vSelected)
                     # Calculate DeltaG0r
                     deltaG0f = ThP.getThP('deltaG0f', rComp_aux, 'L')[0]
@@ -395,7 +395,7 @@ class ThSA:
                     deltaG0r = deltaG0r / vSelected                             # kJ/mol
                     # Calculate DeltaH0r
                     deltaH0f = ThP.getThP('deltaH0f', rComp_aux, 'L')[0]
-                    deltaH0r = ThP.getDeltaH0r(deltaH0f, mRxn_aux)          # kJ
+                    deltaH0r = ThP.getDeltaH0r(deltaH0f, mRxn_aux)              # kJ
                     deltaH0r = deltaH0r / vSelected  # kJ/mol
                     # Initialise auxiliar result matrix (rDGr)
                     rDGr = np.empty([nT, npH, nCt])
@@ -406,15 +406,15 @@ class ThSA:
                             # Calculate reaction quotient (Qr)
                             if isinstance(Ct, dict):
                                 Qr = 0
-                                R = 0.0083144598   # Universal gas constant [kJ/mol/K]
-                                uComp = np.array(list(Ct.keys())) # Compounds given by user (their concentrations)
+                                R = 0.0083144598                                # Universal gas constant [kJ/mol/K]
+                                uComp = np.array(list(Ct.keys()))               # Compounds given by user (their concentrations)
                                 findVComp = np.argwhere(uComp == iCompound).squeeze()
                                 if findVComp.size == 0:
                                     print(f'!EcoSysEM.Error: Compound concentration(s) for {iCompound} not found.')
                                     sys.exit()
                                 for idComp, iComp in enumerate(rComp_aux):
                                     findComp = np.argwhere(uComp == iComp)
-                                    vi = mRxn_aux[idComp] / vSelected # Stoichiometric parameter (per unit of selected compound)
+                                    vi = mRxn_aux[idComp] / vSelected           # Stoichiometric parameter (per unit of selected compound)
                                     if findComp.size == 0:
                                         if vi < 0:
                                             print(f'!EcoSysEM.Error: Substrate concentration(s) for {iComp} not found.')
@@ -422,7 +422,7 @@ class ThSA:
                                         else:
                                             if iComp == 'H+':
                                                 iConc = 10**(-ipH) * np.ones((1, nCt))
-                                            elif iComp == 'H2O': # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
+                                            elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
                                                 iConc = 1.0 * np.ones((1, nCt))
                                             else: # [P] is calculated based on stoichiometry.
                                                 if asm == 'stoich':
@@ -431,6 +431,7 @@ class ThSA:
                                         iConc = Ct[iComp]
                                     # pH speciation
                                     if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                                        if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
                                         iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
                                     # Calculation of reaction quotient (Qr)
                                     Qr += vi * np.log(iConc)
