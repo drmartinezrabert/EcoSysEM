@@ -300,6 +300,8 @@ class ThEq:
             nFrac = nFrac[:, c_nFrac[0]]
             # Get name of chemical species
             nCompounds = Rxn.getRxn('pHSpeciation', iCompound)[0][1:]
+            # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+            nCompounds = [nC.replace('H2CO3', 'H2CO3 (CO2)') for nC in nCompounds]
             # Plotting
             fig, ax = plt.subplots()
             ax.plot(pH, nFrac)
