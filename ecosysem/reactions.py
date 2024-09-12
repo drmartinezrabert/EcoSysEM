@@ -107,7 +107,7 @@ class Reactions:
                 print(f'!EcoSysEM.Warning: Reaction {iRxn} not found.')
             else:
                 infoRxn = np.append(infoRxn, iRxn)
-        if infoRxn.shape[0] == 0:
+        if infoRxn.size == 0:
             return None, None, None
         else:
             dRxnF = dRxn[headers].dropna(how = 'all')
