@@ -70,18 +70,52 @@ class Reactions:
         if not infoRxn.any():
             infoRxn = None
         return rComp, mRxn, infoRxn
-        else:
-            rComp = list(dRxn['Compounds'])
-            mRxn = np.array(dRxn.loc[:, dRxn.columns != 'Compounds'])
-            headers = dRxn.columns.values[1:]
-            for iHead in headers:
-                if iHead.find('(') != -1:
-                    newInfo = iHead[iHead.find('(')+1:iHead.find(')')]
-                    infoRxn = np.append(infoRxn, newInfo)
-            if not infoRxn.any():
-                infoRxn = None
-            return rComp, mRxn, infoRxn
 
+    def getRxnByName(typeRxn, nameRxn):
+        """
+        Function to get reaction(s) with the info/name (parenthesis in Excel).
+        Do not use this function for pHSpeciation(). Instead use getRxnByComp().
+        
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'pHSpeciation': pH equilibrium
+                - 'metabolisms': metabolic activities
+        compounds : STR or LIST
+            Name(s) of requested compound(s).
+            STR - one compound; LIST - multiple compounds.
+        
+        Returns
+        -------
+        rComp : LIST
+            Involving compounds of reaction(s).
+        mRxn : np.array
+            Reaction matrix (compounds)x(reactions).        
+        
+        """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(nameRxn, list): nameRxn = list(nameRxn)
+        dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
+        headers = np.empty(0)
+        infoRxn = np.empty(0)
+        for iRxn in nameRxn:
+            dRxnAux = dRxn.filter(like = f'({iRxn})').dropna(how = 'all')
+            iHeader = dRxnAux.columns.values[0:]
+            headers = np.append(headers, iHeader)
+            if dRxnAux.empty:
+                print(f'!EcoSysEM.Warning: Reaction {iRxn} not found.')
+            else:
+                infoRxn = np.append(infoRxn, iRxn)
+        if infoRxn.shape[0] == 0:
+            return None, None, None
+        else:
+            dRxnF = dRxn[headers].dropna(how = 'all')
+            dRxnF = pd.concat([dRxn.iloc[dRxnF.index, [0]], dRxnF], axis=1).fillna(0)
+            rComp = list(dRxnF['Compounds'])
+            mRxn = np.array(dRxnF.loc[:, dRxnF.columns != 'Compounds'])
+            return rComp, mRxn, infoRxn
+        
 #- DEBUGGING -#
 
 #-------------#
@@ -89,8 +123,6 @@ class Reactions:
 #- Info of functions and examples -#
 ### Get reactions involving one or more compounds
 #> Reactions.getRxn(typeRxn, compounds), where compound can be a string (one compound) or list (multiple compounds)
-# rComp, mRxn, infoRxn = Reactions.getRxn('pHSpeciation', 'NH4+')
-# print(rComp)
 # print(mRxn)
 # print(infoRxn)
 #----------------------------------#
