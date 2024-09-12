@@ -319,13 +319,17 @@ class ThSA:
     
     """
     
-    def getDeltaGr(compounds, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich'):
+    def getDeltaGr(typeRxn, compounds, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich'):
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
 
         Parameters
         ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'pHSpeciation': pH equilibrium
+                - 'metabolisms': metabolic activities
         compounds : STR or LIST
             Requested compound(s).
         T : FLOAT
@@ -345,9 +349,10 @@ class ThSA:
             Non-standard Gibbs free energy values.
             Shape: (reactions)x(temperature)x(pH)x(total concentration)..
         infoRxn : LIST
-            Name of reactions given by the user (see reaction/metabolisms.csv).
+            Name of reactions given by the user (see reaction/{typeRxn}.csv).
 
         """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if isinstance(compounds, str): compounds = [compounds]
         if isinstance(T, float or int): T = [T]
         if isinstance(pH, float or int): pH = [pH]
@@ -371,10 +376,10 @@ class ThSA:
         rInfoRxn = np.empty(0)
         # Reactions.getRxn -> only 1 compound in arguments
         for idCompound, iCompound in enumerate(compounds):
-            rComp, mRxn, infoRxn = Rxn.getRxn('metabolisms', iCompound)
+            rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, iCompound)
             c_rComp = iCompound in rComp
             if not c_rComp:
-                print(f'!EcoSysEM.Warning: {iCompound} not found. Check `metabolisms` file(s) (`reactions/` folder).')
+                print(f'!EcoSysEM.Warning: {iCompound} not found. Check {typeRxn} file(s) (`reactions/` folder).')
                 sys.exit()
             # Separate reactions that share the compound
             for iC in range(mRxn.shape[1]):
@@ -500,7 +505,7 @@ pH = 7.0
 #         'NH3': [1.33e-6, 1]}
 # temperature = [216.65, 255.65, 288.15]
 # pH = [2.0, 5.0, 8.0]
-DGr, rInfoRxn = ThSA.getDeltaGr(['CO', 'NH3'], temperature, conc, pH) #, temperature, conc, pH)
+DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], temperature, conc, pH) #, temperature, conc, pH)
 print(DGr)
 print(rInfoRxn)
 # #-------------#
