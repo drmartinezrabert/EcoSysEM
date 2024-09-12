@@ -58,13 +58,6 @@ class Reactions:
         elif not dRxnAux3.empty:
             dRxnAux = dRxnAux3
         else:
-            if typeRxn != 'pHSpeciation':
-                print(f'!EcoSysEM.Warning: Reaction involving {compound} not found.')
-                return None, None, None
-            # print(dRxnAux)
-        dRxn = pd.concat([dRxn.iloc[dRxnAux.index, [0]], dRxnAux], axis=1).fillna(0)
-        if dRxn.empty:
-            print(f'!EcoSysEM.Warning: Reaction involving {compound} not found.')
             return None, None, None
         else:
             rComp = list(dRxn['Compounds'])
