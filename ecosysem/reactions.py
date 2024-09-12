@@ -132,9 +132,7 @@ class Reactions:
             dRxnAux = dRxn.filter(like = f'({iRxn})').dropna(how = 'all')
             iHeader = dRxnAux.columns.values[0:]
             headers = np.append(headers, iHeader)
-            if dRxnAux.empty:
-                print(f'!EcoSysEM.Warning: Reaction {iRxn} not found.')
-            else:
+            if not dRxnAux.empty:
                 infoRxn = np.append(infoRxn, iRxn)
         if infoRxn.size == 0:
             return None, None, None
