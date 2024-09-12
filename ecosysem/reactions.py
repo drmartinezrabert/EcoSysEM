@@ -59,6 +59,17 @@ class Reactions:
             dRxnAux = dRxnAux3
         else:
             return None, None, None
+        dRxn = pd.concat([dRxn.iloc[dRxnAux.index, [0]], dRxnAux], axis=1).fillna(0)
+        rComp = list(dRxn['Compounds'])
+        mRxn = np.array(dRxn.loc[:, dRxn.columns != 'Compounds'])
+        headers = dRxn.columns.values[1:]
+        for iHead in headers:
+            if iHead.find('(') != -1:
+                newInfo = iHead[iHead.find('(')+1:iHead.find(')')]
+                infoRxn = np.append(infoRxn, newInfo)
+        if not infoRxn.any():
+            infoRxn = None
+        return rComp, mRxn, infoRxn
         else:
             rComp = list(dRxn['Compounds'])
             mRxn = np.array(dRxn.loc[:, dRxn.columns != 'Compounds'])
