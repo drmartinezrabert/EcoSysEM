@@ -95,6 +95,7 @@ class Reactions:
         
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(nameRxn, list): nameRxn = [nameRxn]
         dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
         headers = np.empty(0)
         infoRxn = np.empty(0)
