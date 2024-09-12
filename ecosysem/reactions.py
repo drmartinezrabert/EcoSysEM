@@ -24,7 +24,7 @@ class Reactions:
                 - 'pHSpeciation': pH equilibrium
                 - 'metabolisms': metabolic activities
         compounds : STR or LIST
-            Name(s) of requested compound(s).
+            Name of requested compound.
             STR - one compound; LIST - multiple compounds.
         
         Returns
