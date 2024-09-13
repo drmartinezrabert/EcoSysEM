@@ -60,7 +60,7 @@ class Reactions:
             return None, None, None
         return rComp, mRxn, infoRxn
     
-    def getRxnByComp(typeRxn, compounds):
+    def getRxnByComp(typeRxn, compounds, warnings = False):
         """
         Function to get reaction(s) involving the requested compound.
     
@@ -73,7 +73,9 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        
+        warnings : BOOL
+            Display function warnings. Default: False.
+            
         Returns
         -------
         rComp : LIST
@@ -102,8 +104,8 @@ class Reactions:
             else:
                 dRxnAux = dRxnAux1
             if dRxnAux.empty:
-                if typeRxn != 'pHSpeciation':
-                    print(f'!EcoSysEM.Warning: Reactions with {iCompound} not found.')
+                if warnings:
+                    print(f'!EcoSysEM.Warning: Reactions with {iCompound} as a compound not found.')
             else:
                 iHeader = dRxnAux.columns.values[0:]
                 for iHead in iHeader:
@@ -122,7 +124,7 @@ class Reactions:
             mRxn = np.array(dRxnF.loc[:, dRxnF.columns != 'Compounds'])
             return rComp, mRxn, infoRxn
 
-    def getRxnByName(typeRxn, nameRxn):
+    def getRxnByName(typeRxn, nameRxn, warnings = False):
         """
         Function to get reaction(s) with the info/name (parenthesis in Excel).
         Do not use this function for pHSpeciation(). Instead use getRxnByComp().
@@ -136,6 +138,8 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
+        warnings : BOOL
+            Display function warnings. Default: False.
         
         Returns
         -------
@@ -156,6 +160,9 @@ class Reactions:
             headers = np.append(headers, iHeader)
             if not dRxnAux.empty:
                 infoRxn = np.append(infoRxn, iRxn)
+            else:
+                if warnings:
+                    print(f'!EcoSysEM.Warning: Reaction {iRxn} not found.')
         if infoRxn.size == 0:
             return None, None, None
         else:
