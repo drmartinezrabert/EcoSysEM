@@ -13,9 +13,9 @@ class Reactions:
     # Directory of reactions
     path = 'reactions\\'
     
-    def getRxnByComp(typeRxn, compound):
+    def getRxn(typeRxn, input_, warnings = False):
         """
-        Function to get reaction(s) involving the requested compound.
+        Function to get reaction(s) involving the requested compound or with the reaction name.
     
         Parameters
         ----------
@@ -23,9 +23,10 @@ class Reactions:
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'pHSpeciation': pH equilibrium
                 - 'metabolisms': metabolic activities
-        compounds : STR or LIST
-            Name of requested compound.
-            STR - one compound; LIST - multiple compounds.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        warnings : BOOL
+            Display function warnings. Default: False.
         
         Returns
         -------
@@ -37,6 +38,27 @@ class Reactions:
             Information of reaction if any (in parenthesis in csv/Excel file)
         
         """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        gRbC_rComp, gRbC_mRxn, gRbC_infoRxn = Reactions.getRxnByComp(typeRxn, input_, warnings)
+        gRbN_rComp, gRbN_mRxn, gRbN_infoRxn = Reactions.getRxnByName(typeRxn, input_, warnings)
+        if (gRbC_rComp is None) and (gRbN_rComp is None):
+            print(f'!EcoSysEM.Error: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
+            return None, None, None
+        elif gRbC_rComp is None:
+            rComp = gRbN_rComp
+            mRxn = gRbN_mRxn
+            infoRxn = gRbN_infoRxn
+        elif gRbN_rComp is None:
+            rComp = gRbC_rComp
+            mRxn = gRbC_mRxn
+            infoRxn = gRbC_infoRxn
+        elif (gRbC_rComp is not None) and (gRbN_rComp is not None):
+            print(f'!EcoSysEM.Error: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
+                  'All inputs must be the same type: compound or reaction. If a same name is used for a compound and a reaction, '
+                  'use `getRxnByComp()` or `getRxnByName()` instead.')
+            return None, None, None
+        return rComp, mRxn, infoRxn
     
     def getRxnByComp(typeRxn, compounds):
         """
