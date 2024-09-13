@@ -173,15 +173,16 @@ class Reactions:
             return rComp, mRxn, infoRxn
         
 #- DEBUGGING -#
-
 #-------------#
 
 #- Info of functions and examples -#
+### Function to get reactions by their name or involing component (calling getRxnByComp() and getRxnByName() functions)
+#> Reactions.getRxn(typeRxn, input_, warnings = False), where input_ can be a string (one compound/reaction) or list (multiple compounds/reactions)
+# rComp, mRxn, infoRxn = Reactions.getRxn('metabolisms', ['AOM', 'CMX'])
 ### Get reactions involving one or more compounds
-#> Reactions.getRxn(typeRxn, compounds), where compound can be a string (one compound) or list (multiple compounds)
-# print('')
-# rComp, mRxn, infoRxn = Reactions.getRxnByComp('metabolisms', ['NH3'])
-# print(rComp)
-# print(mRxn)
-# print(infoRxn)
+#> Reactions.getRxnByComp(typeRxn, compounds, warnings = False), where compounds can be a string (one compound) or list (multiple compounds)
+# rComp, mRxn, infoRxn = Reactions.getRxnByComp('metabolisms', ['NH3', 'CH4'])
+### Get reactions from their name (parenthesis in Excel/csv files)
+#> Reactions.getRxnByName(typeRxn, nameRxn, warnings = False), where nameRxn can be a string (one reaction) or list (multiple reactions)
+# rComp, mRxn, infoRxn = Reactions.getRxnByName('metabolisms', ['AOM', 'CMX'])
 #----------------------------------#
