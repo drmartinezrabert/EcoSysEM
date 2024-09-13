@@ -240,8 +240,9 @@ class ThEq:
         else:
             rSpec = np.empty([npH, nCt, nTemperature, nCompounds])
         for idCompound, iCompound in enumerate(compounds):
-            # Reactions.getRxn -> only returns 1 reaction
-            rComp, mRxn, infoRxn = Rxn.getRxn('pHSpeciation', iCompound)
+            rComp, mRxn, infoRxn = Rxn.getRxnByComp('pHSpeciation', iCompound)
+            if not rComp:
+                return Ct
             c_rComp = iCompound in rComp
             if not c_rComp:
                 # print('!EcoSysEM.Warning: Check `pHSpeciation` file(s) (`reactions/` folder).')
@@ -299,7 +300,7 @@ class ThEq:
             c_nFrac = np.nonzero(np.sum(nFrac, axis = 0))
             nFrac = nFrac[:, c_nFrac[0]]
             # Get name of chemical species
-            nCompounds = Rxn.getRxn('pHSpeciation', iCompound)[0][1:]
+            nCompounds = Rxn.getRxnByComp('pHSpeciation', iCompound)[0][1:]
             # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
             nCompounds = [nC.replace('H2CO3', 'H2CO3 (CO2)') for nC in nCompounds]
             # Plotting
