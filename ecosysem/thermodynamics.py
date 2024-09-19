@@ -244,7 +244,6 @@ class ThEq:
                 return Ct
             c_rComp = iCompound in rComp
             if not c_rComp:
-                # print('!EcoSysEM.Warning: Check `pHSpeciation` file(s) (`reactions/` folder).')
                 return Ct
             reqSp = rComp.index(iCompound) - 1 # Requested chemical species
             for idTemperature, iTemperature in enumerate(temperature):
