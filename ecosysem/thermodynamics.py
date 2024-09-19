@@ -318,7 +318,8 @@ class ThSA:
     
     """
     
-    def getDeltaGr(typeRxn, compounds, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich'):
+    def getDeltaGr(typeRxn, input_, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
+        # Specific DeltaGr (divided by selected compound, vSelected)
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -327,12 +328,13 @@ class ThSA:
         ----------
         typeRxn : STR
             What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'pHSpeciation': pH equilibrium
-                - 'metabolisms': metabolic activities
-        compounds : STR or LIST
-            Requested compound(s).
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
         T : FLOAT
-            Set of temperature [K]. By default: standard temperature (298.15 K)
+            Set of temperature [K]. By default: standard temperature (298.15 K).
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
@@ -341,6 +343,8 @@ class ThSA:
         asm : STRING
             Assumption when products are not present in the environment.
             By default: 'stoich' - stoichiometric concentrations.
+        warnings : BOOL
+            Display function warnings. Default: False.
 
         Returns
         -------
@@ -352,10 +356,10 @@ class ThSA:
 
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
-        if isinstance(compounds, str): compounds = [compounds]
+        if not isinstance(input_, list): input_ = [input_]
         if isinstance(T, float or int): T = [T]
-        if isinstance(pH, float or int): pH = [pH]
         nT = len(T)
+        if isinstance(pH, float or int): pH = [pH]
         npH = len(pH)
         # Check compound concentrations
         if isinstance(Ct, float):
@@ -368,91 +372,114 @@ class ThSA:
             if not cLen:
                 print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
                 sys.exit()
+            if not specComp and asm == 'stoich':
+                print('!EcoSysEM.Error: You have to give the main compound (with `specComp` argument) to estimate product concentrations.')
+                sys.exit()
             nCt = nCt[0]
+        # Get reactions
+        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+        nRxn = infoRxn.size
         # Initialise variables
         Ts = 298.15                                                             # Standard temperature [K]
-        DGr = np.empty(0)
-        rInfoRxn = np.empty(0)
-        # Reactions.getRxn -> only 1 compound in arguments
-        for idCompound, iCompound in enumerate(compounds):
-            rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, iCompound)
-            c_rComp = iCompound in rComp
-            if not c_rComp:
-                print(f'!EcoSysEM.Warning: {iCompound} not found. Check {typeRxn} file(s) (`reactions/` folder).')
-                sys.exit()
-            # Separate reactions that share the compound
-            for iC in range(mRxn.shape[1]):
-                mRxn_aux = np.c_[mRxn[:, iC]]
-                cNonZ = np.nonzero(mRxn_aux)[:][0]
-                rComp_aux = np.array(rComp)[cNonZ]
-                mRxn_aux = mRxn_aux[cNonZ]
-                infoRxn_aux = infoRxn[iC]
-                # Save of reaction name
-                rInfoRxn = np.concatenate((rInfoRxn, infoRxn_aux), axis = None)
-                nRxn = len(rInfoRxn)
-                # Reactions with iCompound as substrate
-                cSubs = np.squeeze(mRxn_aux[np.where(rComp_aux == iCompound)])
-                if cSubs < 0:
-                    vSelected = abs(mRxn_aux[cSubs.astype(int)])                # Stoichiometric parameter of selectec compound
-                    # print(vSelected)
-                    # Calculate DeltaG0r
-                    deltaG0f = ThP.getThP('deltaG0f', rComp_aux, 'L')[0]
-                    deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn_aux)              # kJ
-                    deltaG0r = deltaG0r / vSelected                             # kJ/mol
-                    # Calculate DeltaH0r
-                    deltaH0f = ThP.getThP('deltaH0f', rComp_aux, 'L')[0]
-                    deltaH0r = ThP.getDeltaH0r(deltaH0f, mRxn_aux)              # kJ
-                    deltaH0r = deltaH0r / vSelected  # kJ/mol
-                    # Initialise auxiliar result matrix (rDGr)
-                    rDGr = np.empty([nT, npH, nCt])
-                    for idT, iT in enumerate(T):
-                        # Temperature influence (Gibbs–Helmholtz relationship)
-                        deltaGTr = deltaG0r * (iT / Ts) + deltaH0r * ((Ts - iT) / Ts)
-                        for idpH, ipH in enumerate(pH):
-                            # Calculate reaction quotient (Qr)
-                            if isinstance(Ct, dict):
-                                Qr = 0
-                                R = 0.0083144598                                # Universal gas constant [kJ/mol/K]
-                                uComp = np.array(list(Ct.keys()))               # Compounds given by user (their concentrations)
-                                findVComp = np.argwhere(uComp == iCompound).squeeze()
-                                if findVComp.size == 0:
-                                    print(f'!EcoSysEM.Error: Compound concentration(s) for {iCompound} not found.')
-                                    sys.exit()
-                                for idComp, iComp in enumerate(rComp_aux):
-                                    findComp = np.argwhere(uComp == iComp)
-                                    vi = mRxn_aux[idComp] / vSelected           # Stoichiometric parameter (per unit of selected compound)
-                                    if findComp.size == 0:
-                                        if vi < 0:
-                                            print(f'!EcoSysEM.Error: Substrate concentration(s) for {iComp} not found.')
-                                            sys.exit()
-                                        else:
-                                            if iComp == 'H+':
-                                                iConc = 10**(-ipH) * np.ones((1, nCt))
-                                            elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
-                                                iConc = 1.0 * np.ones((1, nCt))
-                                            else: # [P] is calculated based on stoichiometry.
-                                                if asm == 'stoich':
-                                                    iConc = (vi) * Ct[uComp[findVComp]]
-                                    else:
-                                        iConc = Ct[iComp]
-                                    # pH speciation
-                                    if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                                        if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                        iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
-                                    # Calculation of reaction quotient (Qr)
-                                    Qr += vi * np.log(iConc)
-                                # Concentration influence (Nernst relationship)
-                                deltaGr = deltaGTr + R * iT * Qr
-                                rDGr[idT, idpH, :] = deltaGr
+        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        DGr = np.empty([nRxn, nT, npH, nCt])
+        
+        if specComp:
+            if specComp == True:
+                tSpecComp = 'compounds'
+                specComp = input_
+                for iSpecComp in specComp:
+                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                    if c_specComp.size == 0:
+                        print(f'!EcoSysEM.Error: {iSpecComp} was not found as a compound in {typeRxn}.csv file. ' 
+                              'Use the `specComp` argument to specify compounds or set it to False.')
+                        sys.exit()
+            else:
+                tSpecComp = 'reactions'
+                if isinstance(specComp, str): specComp = [specComp]
+                n_specComp = len(specComp)
+                if nRxn != n_specComp:
+                    print('!EcoSysEM.Error: Different number of reactions and specific compounds was found.')
+                    sys.exit()
+        # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
+        for idRxn, iRxn in enumerate(infoRxn):
+            # iVariables definition
+            rDGr = np.empty([nT, npH, nCt])                                     # Initialise auxiliar result matrix (rDGr)
+            i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
+            cNonZ = np.nonzero(i_mRxn)[:][0]
+            i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
+            i_mRxn = i_mRxn[cNonZ]              # mRxn_aux
+            if specComp:
+                vSelected = 0
+                if tSpecComp == 'compounds':
+                    for specComp_aux in specComp:
+                        c_specComp = np.squeeze(np.where(i_rComp == specComp_aux))
+                        if c_specComp.size > 0:
+                            if vSelected == 0:
+                                i_specComp = specComp_aux
                             else:
-                                rDGr[idT, idpH, :] = deltaGTr
-                    if DGr.size == 0:
-                        DGr = rDGr
+                                print('!EcoSysEM.Error: More than one specific compound has been used. Only one by reaction.')
+                                sys.exit()
+                else:
+                    i_specComp = specComp[idRxn]
+                    # Check if i_specComp are in reaction
+                    c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                    if c_specComp.size == 0:
+                        print(f'!EcoSysEM.Error: {i_specComp} was not found in reaction {iRxn}.')
+                        sys.exit()
+                # Stoichiometric parameter of selected compound
+                id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
+            else:
+                vSelected = 1.0
+            # Calculate DeltaG0r
+            deltaG0f = ThP.getThP('deltaG0f', i_rComp, 'L')[0]
+            deltaG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)                        # kJ
+            deltaG0r = deltaG0r / vSelected                                     # kJ/mol-i (if specDGr)
+            # Calculate DeltaH0r
+            deltaH0f = ThP.getThP('deltaH0f', i_rComp, 'L')[0]
+            deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
+            deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
+            for idT, iT in enumerate(T):
+                # Temperature influence (Gibbs–Helmholtz relationship)
+                deltaGTr = deltaG0r * (iT / Ts) + deltaH0r * ((Ts - iT) / Ts)
+                for idpH, ipH in enumerate(pH):
+                    if isinstance(Ct, dict):
+                        # Calculate reaction quotient (Qr)
+                        Qr = 0
+                        uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
+                        findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
+                        for idComp, iComp in enumerate(i_rComp):
+                            findComp = np.argwhere(uComp == iComp)
+                            vi = i_mRxn[idComp] / vSelected
+                            if findComp.size == 0:
+                                if vi < 0:
+                                    # iComp is a substrate
+                                    print(f'!EcoSysEM.Error: Substrate concentration(s) for {iComp} not found.')
+                                else:
+                                    if iComp == 'H+':
+                                        iConc = 10**(-ipH) * np.ones((1, nCt))
+                                    elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
+                                        iConc = 1.0 * np.ones((1, nCt))
+                                    else: # [P] is calculated based on stoichiometry.
+                                        if asm == 'stoich':
+                                            iConc = (vi) * Ct[uComp[findSpecComp]]
+                            else:
+                                iConc = Ct[iComp]
+                            # pH speciation
+                            if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                                iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
+                            # Calculation of reaction quotient (Qr)
+                            Qr += vi * np.log(iConc)
+                        # Concentration influence (Nernst relationship)
+                        deltaGr = deltaGTr + R * iT * Qr
+                        rDGr[idT, idpH, :] = deltaGr
                     else:
-                        DGr = np.concatenate((DGr, rDGr), axis = 0)
-        DGr = DGr.reshape((nRxn, nT, npH, nCt))
+                        rDGr[idT, idpH, :] = deltaGTr
+            DGr[idRxn, :, :, :] = rDGr
         DGr = np.squeeze(DGr)
-        return DGr, rInfoRxn
+        return DGr, infoRxn
     
     def plotDeltaGr(compounds, coordinates, x, y, Ct = 1.0, Ct_associated = None):
         pass
