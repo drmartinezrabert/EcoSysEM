@@ -517,13 +517,13 @@ class ThSA:
 #                         'H2S', 'H2SO3', 'H2CO3'], 
 #                         pH, 298.15)
 ## Get DeltaGr (Thermodynamic state analysis)
-conc = {'CO': [1.08e-10],
-        'O2': [3.40e-4],
-        'CO2': [2.78e-5],
-        'NH3': [1.33e-6]}
+# conc = {'CO': [1.08e-10],
+#         'O2': [3.40e-4],
+#         'CO2': [2.78e-5],
+#         'NH3': [1.33e-6]}
 # temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
-temperature = 255.65
-pH = 7.0
+# temperature = 255.65
+# pH = 7.0
 # ---------------------------------------
 # conc = {'CO': [1.08e-10, 1],
 #         'O2': [3.40e-4, 1],
@@ -531,10 +531,16 @@ pH = 7.0
 #         'NH3': [1.33e-6, 1]}
 # temperature = [216.65, 255.65, 288.15]
 # pH = [2.0, 5.0, 8.0]
-DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], temperature, conc, pH) #, temperature, conc, pH)
-print(DGr)
-print(rInfoRxn)
-# #-------------#
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], True, temperature, conc, pH)
+# print(DGr)
+# print(rInfoRxn)
+# print('')
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
+# print(DGr)
+# print(rInfoRxn)
+## Plot DeltaGr (Thermodynamic state analysis)
+
+#-------------#
 
 #- Info of functions and examples -#
 ### Get Henry's law solubility constants (Hs)
@@ -554,7 +560,16 @@ print(rInfoRxn)
 #> plotpHSpeciation(compounds, pH, temperature), where temperature must be a FLOAT
 # pH = np.arange(0, 14, 0.5)
 # ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
+#> getDeltaGr(typeRxn, input_, specComp, temperature, concentrations, pH, assumptions for products, warnings), where input_ can be compounds or reactions
+# conc = {'CO': [1.08e-10],
+#         'O2': [3.40e-4],
+#         'CO2': [2.78e-5],
+#         'NH3': [1.33e-6]}
+# temperature = 255.65
+# pH = 7.0
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], True, temperature, conc, pH)
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
 #----------------------------------#
 
-#- PREV. CODE -#s
+#- PREV. CODE -#
 #--------------#
