@@ -319,7 +319,6 @@ class ThSA:
     """
     
     def getDeltaGr(typeRxn, input_, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
-        # Specific DeltaGr (divided by selected compound, vSelected)
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -333,12 +332,12 @@ class ThSA:
             Name(s) of requested compound(s) or reaction(s).
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
-        T : FLOAT
+        T : FLOAT or LIST
             Set of temperature [K]. By default: standard temperature (298.15 K).
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
-        pH : LIST
+        pH : FLOAT or LIST
             Set of pH. By default: neutral pH (pH: 7.0)
         asm : STRING
             Assumption when products are not present in the environment.
@@ -481,8 +480,50 @@ class ThSA:
         DGr = np.squeeze(DGr)
         return DGr, infoRxn
     
-    def plotDeltaGr(compounds, coordinates, x, y, Ct = 1.0, Ct_associated = None):
-        pass
+    def plotDeltaGr(T, pH, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
+        """
+        Plot DeltaGr in function of pH, temperature and/or compound
+        concentrations.
+
+        Parameters
+        ----------
+        T : LIST or np.array
+            Set of temperatures [K].
+        pH : LIST or np.array
+            Set of pHs.
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
+           Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+            The default is 1.0.
+        Ct_associated : STR ('x' or 'y')
+            Set if concentration is associated to coordinate x or y. The default is None.
+            If None and Ct != 1.0, Ct is z automatically.
+        asm : STRING
+            Assumption when products are not present in the environment.
+            By default: 'stoich' - stoichiometric concentrations.
+        warnings : BOOL
+            Display function warnings. Default: False.
+
+        Returns
+        -------
+        Plot(s).
+
+        """
+        # Title of coordinates
+        x_title = 'pH'
+        y_title = 'Temperature (K)'
+        # 'isinstance()' code here
+        # ...
+        # ...
+        
+        DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
     
 #- DEBUGGING -#
 ## Henry's solubility
@@ -521,7 +562,6 @@ class ThSA:
 #         'O2': [3.40e-4],
 #         'CO2': [2.78e-5],
 #         'NH3': [1.33e-6]}
-# temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
 # temperature = 255.65
 # pH = 7.0
 # ---------------------------------------
@@ -538,38 +578,8 @@ class ThSA:
 # DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
 # print(DGr)
 # print(rInfoRxn)
+
 ## Plot DeltaGr (Thermodynamic state analysis)
-
+# temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
+# pH = []
 #-------------#
-
-#- Info of functions and examples -#
-### Get Henry's law solubility constants (Hs)
-#> ThEq.solubilityHenry(compounds, wType, temperature), where wType: 'FW', 'SW'
-# Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15])
-# print(Hs)
-### Calculate pH (or ion) speciation of selected compounds.
-#> pHSpeciation(compounds, pH, temperature, Ct, rAllConc = False)
-#> return.shape: (species)x(pH)x(total concentration)x(temperature)x(compounds)
-# t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
-#                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
-#                       [293.15, 298.15],                     # T: 2
-#                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
-#                       True)                                 # Species: 4 (if True)
-# print(t)
-### Plot pH (or ion) speciation
-#> plotpHSpeciation(compounds, pH, temperature), where temperature must be a FLOAT
-# pH = np.arange(0, 14, 0.5)
-# ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3', 'H2SO4', 'H2S'], pH, 298.15)
-#> getDeltaGr(typeRxn, input_, specComp, temperature, concentrations, pH, assumptions for products, warnings), where input_ can be compounds or reactions
-# conc = {'CO': [1.08e-10],
-#         'O2': [3.40e-4],
-#         'CO2': [2.78e-5],
-#         'NH3': [1.33e-6]}
-# temperature = 255.65
-# pH = 7.0
-# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], True, temperature, conc, pH)
-# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
-#----------------------------------#
-
-#- PREV. CODE -#
-#--------------#

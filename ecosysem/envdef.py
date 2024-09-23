@@ -302,11 +302,11 @@ class ISA(Environment):
         plt.show()
         
 # Define Earth's atmosphere
-envISA = ISA(0, 0.00 , 5.0) # ISA(Layer/s, H2O (%), pH)
+# envISA = ISA(0, 0.00, 5.0) # ISA(Layer/s, H2O (%), pH)
 
 #- DEBUGGING -#
 # pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All', ['O2','N2'])
-pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
+# pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
 # print('Parcial pressure (Pa)')
 # print(pG)
 # print('')
@@ -318,11 +318,11 @@ pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
 # print('')
 # print('Sea water concentration (M)')
 # print(L_SWp)
-envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
-envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
-envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-                          ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
+# envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
+# envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
+# envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
+# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
+#                           ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
 
 # print(envISA.altitude)
 # print(envISA.temperature)
@@ -335,27 +335,3 @@ envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True,
 # print(envISA.compositions)
 # print('')
 #-------------#
-
-#- Info of functions and examples -#
-### Modify composition of existing compounds or add new components (with respective compositions)
-#> setComposition(compounds, compositions) /lists or floats/
-# envISA.setComposition(['Test', 'N2'], [[0.5, 0.3], 0.49]) 
-# print(envISA.compositions)
-### Get Vertical Profiles of compounds in ISA
-#> setComposition(phase, compounds = None), where `phase`: 'G', 'L-FW', 'L-SW', 'L', 'All'.
-# envISA.getVerticalProfiles('L', ['N2', 'O2', 'Ar'], plot = None)  
-### Plotting Temperature and Pressure
-#> envISA.plotTandP()
-### Plotting profile of components
-#> plotCompsProfiles(verticalProfiles, yLabel {string}, logScale = True/False, compounds = None), logScale = True -> logarithmic scale in concentrations; compouds = list of strings
-#! If all profiles are obtained, it is not necessary to define the name of compounds
-# pG, cG,  L_FWp, L_SWp = envISA.getVerticalProfiles('All')
-# envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
-# envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
-# envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-#                          ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
-#----------------------------------#
-
-#- Old function versions -#
-#-------------------#
