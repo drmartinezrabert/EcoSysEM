@@ -87,7 +87,7 @@ class ISA(Environment):
                 - Goody & Yung (1989), doi: 10.1093/oso/9780195051346.001.0001
     
     """
-    def __init__(self, layers, H2O, pH):
+    def __init__(self, layers, H2O, pH, resolution = 1000):
         # Layers of the Earth's atmosphere (ISA)
         ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
@@ -114,6 +114,7 @@ class ISA(Environment):
         # super().__init__(temperature=None, pressure=None, pH=self, compounds=None, composition=None) # !!!
         self.layers = layers
         self.pH = pH
+        self.resolution = resolution
         self.computeTandP(layers, dISA)
         self.compounds = dDC['Compounds']
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
@@ -126,9 +127,10 @@ class ISA(Environment):
         
         """
         # Constants
-        R = 8.3144598   # Universal gas constant [J/mol/K]
-        g0 = 9.80665    # Gravitational acceleration [m/s^2]
-        M0 = 0.0289644  # Molar mass of Earth's air
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        resolution = self.resolution    # Resolution (number of altitude nodes per layer) [m]
         # Data from ISA to compute temperature
         if layers == 'All':
             layers = range(8)
@@ -142,7 +144,7 @@ class ISA(Environment):
         # Temperature calculation (ISA)
         alt = t = p = []
         for i in range(lapse_rate.size):
-            alt_aux = np.array(range(start_alt[i], end_alt[i], 1000))
+            alt_aux = np.array(range(start_alt[i], end_alt[i], resolution))
             # Temperature
             t_aux = base_T[i] + lapse_rate[i] * ((alt_aux - start_alt[i]) / 1000)
             # Pressure
