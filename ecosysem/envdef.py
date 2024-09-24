@@ -130,7 +130,7 @@ class ISA(Environment):
         R = 8.3144598                   # Universal gas constant [J/mol/K]
         g0 = 9.80665                    # Gravitational acceleration [m/s^2]
         M0 = 0.0289644                  # Molar mass of Earth's air
-        resolution = self.resolution    # Resolution (number of altitude nodes per layer) [m]
+        resolution = self.resolution    # Resolution (size of altitude nodes per layer) [m]
         # Data from ISA to compute temperature
         if layers == 'All':
             layers = range(8)
