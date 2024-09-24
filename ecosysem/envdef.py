@@ -136,7 +136,6 @@ class ISA(Environment):
             layers = range(8)
         elif type(layers) == int:
             layers = range(layers, layers+1)
-            print(layers)
         lapse_rate = (dISA.loc[layers]['Lapse rate']).to_numpy()
         base_T = (dISA.loc[layers]['Base temperature']).to_numpy()
         base_P = (dISA.loc[layers]['Base pressure']).to_numpy()
