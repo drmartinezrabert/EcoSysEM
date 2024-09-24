@@ -136,6 +136,7 @@ class ISA(Environment):
             layers = range(8)
         elif type(layers) == int:
             layers = range(layers, layers+1)
+            print(layers)
         lapse_rate = (dISA.loc[layers]['Lapse rate']).to_numpy()
         base_T = (dISA.loc[layers]['Base temperature']).to_numpy()
         base_P = (dISA.loc[layers]['Base pressure']).to_numpy()
@@ -157,7 +158,7 @@ class ISA(Environment):
             t = np.append(t, t_aux)
             p = np.append(p, p_aux)
         # Last value of arrays (Altitude, Temperature and Pressure)
-        alt_end = alt_aux[-1] + 1000
+        alt_end = min(alt_aux[-1] + resolution, end_alt[i])
         alt = np.append(alt, alt_end)
         t = np.append(t, base_T[-1] + lapse_rate[-1] * ((alt_end - start_alt[-1]) / 1000)) # Last T value
         if lapse_rate[-1] != 0:
