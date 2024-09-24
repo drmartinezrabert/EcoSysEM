@@ -236,7 +236,8 @@ class ISA(Environment):
         # Liquid concentrations sea water (Ci_LSW)
         Ci_LSW = Pi_SW * Hs_SW * (1/1000) # [mol/L]
         if phase == 'G':
-            return Pi, Ci_G
+            compounds_G = compounds.values
+            return Pi, Ci_G, compounds_G
         elif phase == 'L-FW':
             compounds_FW = compounds.values[notNaN_HsFW]
             return Ci_LFW, compounds_FW
@@ -248,9 +249,10 @@ class ISA(Environment):
             compounds_SW = compounds.values[notNaN_HsSW]
             return Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
         elif phase == 'All':
+            compounds_G = compounds.values
             compounds_FW = compounds.values[notNaN_HsFW]
             compounds_SW = compounds.values[notNaN_HsSW]
-            return Pi, Ci_G, Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
+            return Pi, Ci_G, Ci_LFW, Ci_LSW, compounds_G, compounds_FW, compounds_SW
         else:
             sys.exit('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
                      '                             \'G\'       - Gas.\n'+
@@ -270,10 +272,11 @@ class ISA(Environment):
         nameCompounds = compounds.values
         r = ISA.getVerticalProfiles(self, phase, compound)
         if phase == 'G':
+            nameCompounds_G = r[2]
             Pi = r[0]
-            dictPi = {nameCompounds[i]: Pi[:, i].tolist() for i in range(len(nameCompounds))}
+            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
             Ci_G = r[1]
-            dictCi_G = {nameCompounds[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds))}
+            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
             return dictPi, dictCi_G
         elif phase == 'L-FW':
             nameCompounds_FW = r[1]
@@ -294,12 +297,13 @@ class ISA(Environment):
             dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
             return dictCi_LFW, dictCi_LSW
         elif phase == 'All':
-            nameCompounds_FW = r[4]
-            nameCompounds_SW = r[5]
+            nameCompounds_G = r[4]
+            nameCompounds_FW = r[5]
+            nameCompounds_SW = r[6]
             Pi = r[0]
-            dictPi = {nameCompounds[i]: Pi[:, i].tolist() for i in range(len(nameCompounds))}
+            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
             Ci_G = r[1]
-            dictCi_G = {nameCompounds[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds))}
+            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
             Ci_LFW = r[2]
             dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
             Ci_LSW = r[3]
