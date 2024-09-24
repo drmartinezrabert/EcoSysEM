@@ -238,13 +238,19 @@ class ISA(Environment):
         if phase == 'G':
             return Pi, Ci_G
         elif phase == 'L-FW':
-            return Ci_LFW
+            compounds_FW = compounds.values[notNaN_HsFW]
+            return Ci_LFW, compounds_FW
         elif phase == 'L-SW':
-            return Ci_LSW
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Ci_LSW, compounds_SW
         elif phase == 'L':
-            return Ci_LFW, Ci_LSW
+            compounds_FW = compounds.values[notNaN_HsFW]
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
         elif phase == 'All':
-            return Pi, Ci_G, Ci_LFW, Ci_LSW
+            compounds_FW = compounds.values[notNaN_HsFW]
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Pi, Ci_G, Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
         else:
             sys.exit('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
                      '                             \'G\'       - Gas.\n'+
