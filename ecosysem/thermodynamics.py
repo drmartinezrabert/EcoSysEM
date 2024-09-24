@@ -20,7 +20,7 @@ class ThP:
     # Directory of databases
     path = 'db\\'
     
-    def checkThP(typeParam, db, compounds, phase):
+    def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
         Function to check not available parameters.
 
@@ -49,8 +49,9 @@ class ThP:
         notNaN = np.logical_not(findNaN)
         compnotNaN = compounds[notNaN]
         if compNaN.size != 0:
-            print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
-            print(f'>> Returned compounds: {compnotNaN}.\n')
+            if warnings:
+                print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
+                print(f'>> Returned compounds: {compnotNaN}.\n')
         return notNaN
     
     def getThP(typeParam, compounds, phase):
