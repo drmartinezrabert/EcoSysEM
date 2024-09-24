@@ -262,14 +262,6 @@ class ISA(Environment):
                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
             
     def getDictConc(self, phase, compound = None):
-        compounds = self.compounds
-        compositions = np.array(list(self.compositions.values()))
-        if compound:
-            if type(compound) is str: compound = [compound]
-            findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
-            compositions = compositions[findC]
-            compounds = compounds[findC]
-        nameCompounds = compounds.values
         r = ISA.getVerticalProfiles(self, phase, compound)
         if phase == 'G':
             nameCompounds_G = r[2]
