@@ -523,8 +523,22 @@ class ThSA:
         # 'isinstance()' code here
         # ...
         # ...
+    def contourf_(pH, T, DGr_plot, iRxn, text_):
+        """
+        Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
         
-        DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
+        """
+        fig, ax = plt.subplots()
+        F = ax.contourf(pH, T, DGr_plot, cmap = 'hot')
+        clb = fig.colorbar(F)
+        clb.set_label('∆Gr (kJ/mol)')
+        ax.set_xlabel('pH')
+        ax.set_ylabel('Temperature (K)')
+        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+        fig.tight_layout(rect=(0,.05,1,1)) 
+        plt.title(iRxn)
+        plt.gca().invert_yaxis()
+        plt.show() 
     
 #- DEBUGGING -#
 ## Henry's solubility
