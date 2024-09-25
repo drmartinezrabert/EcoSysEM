@@ -539,9 +539,6 @@ class ThSA:
             nCt = nCt[0]
             # Concentration values
             npCt = np.array(list(Ct.items()), dtype = object)
-        if nT != npH:
-            print('!EcoSysEM.Error: Temperature and pH must have the same size.')
-            sys.exit()
         # Plotting DGr
         if Ct_associated:
             if Ct_associated == 'x' and nCt != npH:
