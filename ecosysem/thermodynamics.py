@@ -617,7 +617,7 @@ class ThSA:
 # t_2 = t[:, 2, :, -1, :]
 # print(t_2.shape)
 # print(t_2)
-# a = ThEq.pHSpeciation('HCO3-',  # Compounds: 2
+# a = ThEq.pHSpeciation('HCO3-',  # Compounds: 1
 #                       7.0,                # pH: 1
 #                       298.15,             # T: 1
 #                       1.0,                # Ct: 1
@@ -630,6 +630,7 @@ class ThSA:
 #                         'H2S', 'H2SO3', 'H2CO3'], 
 #                         pH, 298.15)
 ## Get DeltaGr (Thermodynamic state analysis)
+# Concentrations in mol/L
 # conc = {'CO': [1.08e-10],
 #         'O2': [3.40e-4],
 #         'CO2': [2.78e-5],
@@ -652,6 +653,7 @@ class ThSA:
 # print(rInfoRxn)
 
 ## Plot DeltaGr (Thermodynamic state analysis)
+# Concentrations in mol/L
 # temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
 # pH = []
 #-------------#
