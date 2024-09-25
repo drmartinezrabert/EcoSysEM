@@ -4,7 +4,60 @@ Created on Mon Sep 23 09:13:26 2024
 
 @author: 2424069M
 """
+from envdef import ISA
+from thermodynamics import ThSA
 
+import numpy as np
+
+#- DEBUGGING -#
+print('> Running test.py')
+print('')
+#-------------#
+
+## Define Earth's atmosphere
+envISA = ISA(0, 0.00, 7.0, 500) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
+altitude = envISA.altitude
+temperature = envISA.temperature + 273.15
+minpH = 3.0
+maxpH = 8.0
+pH = np.linspace(minpH, maxpH, len(altitude))
+conc = envISA.getDictConc('L-FW', ['CO', 'O2', 'CO2', 'NH3'])
+#- DEBUGGING -#
+# print(altitude)
+# print('')
+# print(temperature)
+# print('')
+# print(pH)
+# print('')
+# print(conc)
+# print('')
+#-------------#
+
+## Get DeltaGr (Thermodynamic state analysis)
+# conc = {'CO': [1.08e-10],
+#         'O2': [3.40e-4],
+#         'CO2': [2.78e-5],
+#         'NH3': [1.33e-6]}
+# T = 298.15
+# pH = [3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], True, temperature, conc, pH)
+# print(DGr)
+# print(rInfoRxn)
+# print('')
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
+# print(DGr)
+# print(rInfoRxn)
+
+## Plot DeltaGr (Thermodynamic state analysis)
+concx1 = {'CO': [1.08e-10],
+          'O2': [3.40e-4],
+          'CO2': [2.78e-5],
+          'NH3': [1.33e-6]}
+# temperature = [216.65, 242.65, 255.65, 275.15, 288.15]
+# pH = [3.0, 5.0, 7.0, 7.5, 8.0]
+ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], concx1)
+ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'x')
+ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'y')
 
 
 #- Info of functions and examples -#
@@ -15,19 +68,20 @@ Created on Mon Sep 23 09:13:26 2024
 # envISA.setComposition(['Test', 'N2'], [[0.5, 0.3], 0.49]) 
 # print(envISA.compositions)
 ### Get Vertical Profiles of compounds in ISA
-#> setComposition(phase, compounds = None), where `phase`: 'G', 'L-FW', 'L-SW', 'L', 'All'.
-# envISA.getVerticalProfiles('L', ['N2', 'O2', 'Ar'], plot = None)  
+#> getVerticalProfiles(phase, compounds = None), where `phase`: 'G', 'L-FW', 'L-SW', 'L', 'All'.
+# envISA.getVerticalProfiles('L', ['N2', 'O2', 'Ar'])
+#> getDictConc(phase, compounds = None), where `phase`: 'G', 'L-FW', 'L-SW', 'L', 'All'.
+# envISA.getDictConc('L', ['N2', 'O2', 'Ar'])
 ### Plotting Temperature and Pressure
 #> envISA.plotTandP()
 ### Plotting profile of components
 #> plotCompsProfiles(verticalProfiles, yLabel {string}, logScale = True/False, compounds = None), logScale = True -> logarithmic scale in concentrations; compouds = list of strings
 #! If all profiles are obtained, it is not necessary to define the name of compounds
-# pG, cG,  L_FWp, L_SWp = envISA.getVerticalProfiles('All')
+# pG, cG,  L_FWp, L_SWp,nameCompounds_G, nameCompounds_FW, nameCompounds_SW = envISA.getVerticalProfiles('All')
 # envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
 # envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
 # envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-#                          ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
+# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, nameCompounds_SW)
 
 # thermodynamics.py
 ### Get Henry's law solubility constants (Hs)
