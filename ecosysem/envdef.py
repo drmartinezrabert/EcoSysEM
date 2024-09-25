@@ -87,7 +87,7 @@ class ISA(Environment):
                 - Goody & Yung (1989), doi: 10.1093/oso/9780195051346.001.0001
     
     """
-    def __init__(self, layers, H2O, pH):
+    def __init__(self, layers, H2O, pH, resolution = 1000):
         # Layers of the Earth's atmosphere (ISA)
         ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
@@ -108,12 +108,13 @@ class ISA(Environment):
                          'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.2e-4, 1.8182e-5, 
                                           5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
                                           1e-7, 9e-8, 7e-8, 2e-8, 1e-8, 
-                                          4e-9, 1e-9, 1e-9, 5e-11] # [vol%]
+                                          4e-9, 1e-9, 1e-9, 5e-11] # [%vol]
                           }
         dDC = pd.DataFrame(data = DryComposition)
         # super().__init__(temperature=None, pressure=None, pH=self, compounds=None, composition=None) # !!!
         self.layers = layers
         self.pH = pH
+        self.resolution = resolution
         self.computeTandP(layers, dISA)
         self.compounds = dDC['Compounds']
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
@@ -126,9 +127,10 @@ class ISA(Environment):
         
         """
         # Constants
-        R = 8.3144598   # Universal gas constant [J/mol/K]
-        g0 = 9.80665    # Gravitational acceleration [m/s^2]
-        M0 = 0.0289644  # Molar mass of Earth's air
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        resolution = self.resolution    # Resolution (size of altitude nodes per layer) [m]
         # Data from ISA to compute temperature
         if layers == 'All':
             layers = range(8)
@@ -142,7 +144,7 @@ class ISA(Environment):
         # Temperature calculation (ISA)
         alt = t = p = []
         for i in range(lapse_rate.size):
-            alt_aux = np.array(range(start_alt[i], end_alt[i], 1000))
+            alt_aux = np.array(range(start_alt[i], end_alt[i], resolution))
             # Temperature
             t_aux = base_T[i] + lapse_rate[i] * ((alt_aux - start_alt[i]) / 1000)
             # Pressure
@@ -155,7 +157,7 @@ class ISA(Environment):
             t = np.append(t, t_aux)
             p = np.append(p, p_aux)
         # Last value of arrays (Altitude, Temperature and Pressure)
-        alt_end = alt_aux[-1] + 1000
+        alt_end = min(alt_aux[-1] + resolution, end_alt[i])
         alt = np.append(alt, alt_end)
         t = np.append(t, base_T[-1] + lapse_rate[-1] * ((alt_end - start_alt[-1]) / 1000)) # Last T value
         if lapse_rate[-1] != 0:
@@ -232,19 +234,27 @@ class ISA(Environment):
         Pi_FW = Pi[:, notNaN_HsFW]
         Pi_SW = Pi[:, notNaN_HsSW]
         # Liquid concentrations fresh water (Ci_LFW)
-        Ci_LFW = Pi_FW * Hs_FW * (1/1000)
+        Ci_LFW = Pi_FW * Hs_FW * (1/1000) # [mol/L]
         # Liquid concentrations sea water (Ci_LSW)
-        Ci_LSW = Pi_SW * Hs_SW * (1/1000)
+        Ci_LSW = Pi_SW * Hs_SW * (1/1000) # [mol/L]
         if phase == 'G':
-            return Pi, Ci_G
+            compounds_G = compounds.values
+            return Pi, Ci_G, compounds_G
         elif phase == 'L-FW':
-            return Ci_LFW
+            compounds_FW = compounds.values[notNaN_HsFW]
+            return Ci_LFW, compounds_FW
         elif phase == 'L-SW':
-            return Ci_LSW
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Ci_LSW, compounds_SW
         elif phase == 'L':
-            return Ci_LFW, Ci_LSW
+            compounds_FW = compounds.values[notNaN_HsFW]
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
         elif phase == 'All':
-            return Pi, Ci_G, Ci_LFW, Ci_LSW
+            compounds_G = compounds.values
+            compounds_FW = compounds.values[notNaN_HsFW]
+            compounds_SW = compounds.values[notNaN_HsSW]
+            return Pi, Ci_G, Ci_LFW, Ci_LSW, compounds_G, compounds_FW, compounds_SW
         else:
             sys.exit('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
                      '                             \'G\'       - Gas.\n'+
@@ -252,6 +262,47 @@ class ISA(Environment):
                      '                             \'L-SW\'    - Liquid sea water.\n'+
                      '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
+            
+    def getDictConc(self, phase, compound = None):
+        r = ISA.getVerticalProfiles(self, phase, compound)
+        if phase == 'G':
+            nameCompounds_G = r[2]
+            Pi = r[0]
+            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
+            Ci_G = r[1]
+            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
+            return dictPi, dictCi_G
+        elif phase == 'L-FW':
+            nameCompounds_FW = r[1]
+            Ci_LFW = r[0]
+            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
+            return dictCi_LFW
+        elif phase == 'L-SW':
+            nameCompounds_SW = r[1]
+            Ci_LSW = r[0]
+            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
+            return dictCi_LSW
+        elif phase == 'L':
+            nameCompounds_FW = r[2]
+            nameCompounds_SW = r[3]
+            Ci_LFW = r[0]
+            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
+            Ci_LSW = r[1]
+            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
+            return dictCi_LFW, dictCi_LSW
+        elif phase == 'All':
+            nameCompounds_G = r[4]
+            nameCompounds_FW = r[5]
+            nameCompounds_SW = r[6]
+            Pi = r[0]
+            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
+            Ci_G = r[1]
+            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
+            Ci_LFW = r[2]
+            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
+            Ci_LSW = r[3]
+            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
+            return dictPi, dictCi_G, dictCi_LFW, dictCi_LSW
     
     ## Plotting functions 
     def plotTandP(self):
@@ -300,13 +351,13 @@ class ISA(Environment):
             compoundsName = compounds
         plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
         plt.show()
-        
-# Define Earth's atmosphere
-envISA = ISA(0, 0.00 , 5.0) # ISA(Layer/s, H2O (%), pH)
 
 #- DEBUGGING -#
+# Define Earth's atmosphere
+# envISA = ISA(0, 0.00, 5.0) # ISA(Layer/s, H2O (%), pH)
+
 # pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All', ['O2','N2'])
-pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
+# pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
 # print('Parcial pressure (Pa)')
 # print(pG)
 # print('')
@@ -318,11 +369,11 @@ pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
 # print('')
 # print('Sea water concentration (M)')
 # print(L_SWp)
-envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
-envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
-envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-                          ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
+# envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
+# envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
+# envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
+# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
+#                           ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
 
 # print(envISA.altitude)
 # print(envISA.temperature)
@@ -335,27 +386,3 @@ envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True,
 # print(envISA.compositions)
 # print('')
 #-------------#
-
-#- Info of functions and examples -#
-### Modify composition of existing compounds or add new components (with respective compositions)
-#> setComposition(compounds, compositions) /lists or floats/
-# envISA.setComposition(['Test', 'N2'], [[0.5, 0.3], 0.49]) 
-# print(envISA.compositions)
-### Get Vertical Profiles of compounds in ISA
-#> setComposition(phase, compounds = None), where `phase`: 'G', 'L-FW', 'L-SW', 'L', 'All'.
-# envISA.getVerticalProfiles('L', ['N2', 'O2', 'Ar'], plot = None)  
-### Plotting Temperature and Pressure
-#> envISA.plotTandP()
-### Plotting profile of components
-#> plotCompsProfiles(verticalProfiles, yLabel {string}, logScale = True/False, compounds = None), logScale = True -> logarithmic scale in concentrations; compouds = list of strings
-#! If all profiles are obtained, it is not necessary to define the name of compounds
-# pG, cG,  L_FWp, L_SWp = envISA.getVerticalProfiles('All')
-# envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
-# envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
-# envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-#                          ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
-#----------------------------------#
-
-#- Old function versions -#
-#-------------------#
