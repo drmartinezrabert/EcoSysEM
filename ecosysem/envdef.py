@@ -351,11 +351,11 @@ class ISA(Environment):
             compoundsName = compounds
         plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
         plt.show()
-        
+
+#- DEBUGGING -#
 # Define Earth's atmosphere
 # envISA = ISA(0, 0.00, 5.0) # ISA(Layer/s, H2O (%), pH)
 
-#- DEBUGGING -#
 # pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All', ['O2','N2'])
 # pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
 # print('Parcial pressure (Pa)')
