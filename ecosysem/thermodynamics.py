@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import re
 # import matplotlib.pyplot as plt
 
 class ThP:
@@ -517,12 +518,68 @@ class ThSA:
         Plot(s).
 
         """
-        # Title of coordinates
-        x_title = 'pH'
-        y_title = 'Temperature (K)'
-        # 'isinstance()' code here
-        # ...
-        # ...
+        # Checking arguments and variable definition
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        if isinstance(T, float or int): T = [T]
+        if isinstance(pH, float or int): pH = [pH]
+        # Variable lenghts
+        nT = len(T)
+        npH = len(pH)
+        if isinstance(Ct, float):
+            nCt = 1
+        else:
+            npCt = np.array(list(Ct.items()), dtype = object).T
+            lenCt = [len(i) for i in npCt[1, :]]
+            nCt = list(set(lenCt))
+            cLen = len(nCt) == 1
+            if not cLen:
+                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
+                sys.exit()
+            nCt = nCt[0]
+            # Concentration values
+            npCt = np.array(list(Ct.items()), dtype = object)
+        if nT != npH:
+            print('!EcoSysEM.Error: Temperature and pH must have the same size.')
+            sys.exit()
+        # Plotting DGr
+        if Ct_associated:
+            if Ct_associated == 'x' and nCt != npH:
+                print('!EcoSysEM.Error: Total concentrations and pH must have the same size.')
+                sys.exit()
+            elif Ct_associated == 'y' and nCt != nT:
+                print('!EcoSysEM.Error: Total concentrations and temperature must have the same size.')
+                sys.exit()
+            elif Ct_associated != 'x' and Ct_associated != 'y':
+                print('!EcoSysEM.Error: Ct_associated must be "x" or "y".')
+                sys.exit()
+            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
+            for idRxn, iRxn in enumerate(infoRxn):
+                if Ct_associated == 'x':
+                    index_pH = list(range(npH))
+                    DGr_plot = DGr[idRxn, :, index_pH, index_pH]
+                    text_ = 'Concentrations (in mol/L) associated to pH.'
+                elif Ct_associated == 'y':
+                    index_T = list(range(nT))
+                    DGr_plot = DGr[idRxn, index_T, :, index_T]
+                    text_ = 'Concentrations (in mol/L) associated to T.'
+                else:
+                    print("`Ct_associated` argument must be 'x' or 'y'.")
+                    sys.exit()
+                ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)
+        else:
+            nameComp = list(Ct)
+            conc = np.array(list(Ct.values()))
+            toRemove = ["\{", "\}", "\[", "\]"]
+            pattern = '[' + ''.join(toRemove) + ']'
+            for idCt in range(nCt):
+                iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
+                text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, iCt, pH, asm, warnings)
+                for idRxn, iRxn in enumerate(infoRxn):
+                    DGr_plot = DGr[idRxn, :, :]
+                    ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)            
+    
     def contourf_(pH, T, DGr_plot, iRxn, text_):
         """
         Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
