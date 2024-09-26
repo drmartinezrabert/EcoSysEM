@@ -539,9 +539,6 @@ class ThSA:
             nCt = nCt[0]
             # Concentration values
             npCt = np.array(list(Ct.items()), dtype = object)
-        if nT != npH:
-            print('!EcoSysEM.Error: Temperature and pH must have the same size.')
-            sys.exit()
         # Plotting DGr
         if Ct_associated:
             if Ct_associated == 'x' and nCt != npH:
@@ -597,63 +594,3 @@ class ThSA:
         plt.gca().invert_yaxis()
         plt.show() 
     
-#- DEBUGGING -#
-## Henry's solubility
-# Hs, notNaN = ThEq.solubilityHenry(['O2', 'Ne', 'N2', 'Kr'], 'SW', [293.15, 298.15, 303.15]) # T (K)
-# print(Hs)
-# print(notNaN)
-# print(Hs)
-## Get thermodynamic paramether
-# ThP.getThP('Hs', ['O2', 'Ne', 'N2', 'Kr'], 'SW')
-## pH (ion) speciation
-# t = ThEq.pHSpeciation(['HCO3-', 'NH3', 'HNO2', 'HNO3'],     # Compounds: 4
-#                       [6.0, 6.5, 7.0, 7.5, 8.0, 8.5],       # pH: 6
-#                       [293.15, 298.15],                     # T: 2
-#                       [0.0, 0.25, 0.5, 0.75, 1.0],          # Ct: 5
-#                       True)                                 # Species: 4 (if True)
-# print(t.shape)
-# print(t)
-# print('')
-# t_2 = t[:, 2, :, -1, :]
-# print(t_2.shape)
-# print(t_2)
-# a = ThEq.pHSpeciation('HCO3-',  # Compounds: 1
-#                       7.0,                # pH: 1
-#                       298.15,             # T: 1
-#                       1.0,                # Ct: 1
-#                       False)              # Species: 4 (if True)
-# print(a.shape)
-# print(a)
-## Plot pH Speciation
-# pH = np.arange(0, 14, 0.25)
-# ThEq.plotpHSpeciation(['NH4+', 'NO2-', 'HNO3', 'H2SO4', 
-#                         'H2S', 'H2SO3', 'H2CO3'], 
-#                         pH, 298.15)
-## Get DeltaGr (Thermodynamic state analysis)
-# Concentrations in mol/L
-# conc = {'CO': [1.08e-10],
-#         'O2': [3.40e-4],
-#         'CO2': [2.78e-5],
-#         'NH3': [1.33e-6]}
-# temperature = 255.65
-# pH = 7.0
-# ---------------------------------------
-# conc = {'CO': [1.08e-10, 1],
-#         'O2': [3.40e-4, 1],
-#         'CO2': [2.78e-5, 1],
-#         'NH3': [1.33e-6, 1]}
-# temperature = [216.65, 255.65, 288.15]
-# pH = [2.0, 5.0, 8.0]
-# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['CO', 'NH3'], True, temperature, conc, pH)
-# print(DGr)
-# print(rInfoRxn)
-# print('')
-# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], temperature, conc, pH)
-# print(DGr)
-# print(rInfoRxn)
-
-## Plot DeltaGr (Thermodynamic state analysis)
-# Concentrations in mol/L
-# temperature = [288.15, 281.65, 275.15, 268.65, 262.15, 255.65, 249.15, 242.65, 236.15, 229.65, 223.15, 216.65]
-# pH = []
-#-------------#

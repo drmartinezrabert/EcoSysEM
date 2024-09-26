@@ -111,7 +111,6 @@ class ISA(Environment):
                                           4e-9, 1e-9, 1e-9, 5e-11] # [%vol]
                           }
         dDC = pd.DataFrame(data = DryComposition)
-        # super().__init__(temperature=None, pressure=None, pH=self, compounds=None, composition=None) # !!!
         self.layers = layers
         self.pH = pH
         self.resolution = resolution
@@ -351,38 +350,4 @@ class ISA(Environment):
             compoundsName = compounds
         plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
         plt.show()
-
-#- DEBUGGING -#
-# Define Earth's atmosphere
-# envISA = ISA(0, 0.00, 5.0) # ISA(Layer/s, H2O (%), pH)
-
-# pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All', ['O2','N2'])
-# pG, cG, L_FWp, L_SWp = envISA.getVerticalProfiles('All')
-# print('Parcial pressure (Pa)')
-# print(pG)
-# print('')
-# print('Gas concentration (M)')
-# print(cG)
-# print('')
-# print('Fresh water concentration (M)')
-# print(L_FWp)
-# print('')
-# print('Sea water concentration (M)')
-# print(L_SWp)
-# envISA.plotCompsProfiles(pG / 101325, 'Pressure (atm)', False)
-# envISA.plotCompsProfiles(cG, 'Concentration in gas (M)', True)
-# envISA.plotCompsProfiles(L_FWp * 10**(6), 'Concentration in FW (µM)', True)
-# envISA.plotCompsProfiles(L_SWp * 10**(6), 'Concentration in SW (µM)', True, 
-#                           ['N2','O2','Ar','CO2','CH4','H2','N2O','CO','NH3','NO','SO2','H2S'])
-
-# print(envISA.altitude)
-# print(envISA.temperature)
-# print(envISA.pressure)
-# print(envISA.compounds)
-# print('----')
-# print(envISA.compositions)
-# print('')
-# print(envISA.H2O)
-# print(envISA.compositions)
-# print('')
-#-------------#
+    
