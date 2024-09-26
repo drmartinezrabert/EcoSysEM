@@ -554,7 +554,7 @@ class ThSA:
             for idRxn, iRxn in enumerate(infoRxn):
                 if Ct_associated == 'x':
                     index_pH = list(range(npH))
-                    DGr_plot = DGr[idRxn, :, index_pH, index_pH]
+                    DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
                     text_ = 'Concentrations (in mol/L) associated to pH.'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
