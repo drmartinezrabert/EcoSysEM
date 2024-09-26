@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import re
+from scipy.stats import kendalltau as kTau
 # import matplotlib.pyplot as plt
 
 class ThP:
@@ -504,8 +505,8 @@ class ThSA:
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
             The default is 1.0.
-        Ct_associated : STR ('x' or 'y')
-            Set if concentration is associated to coordinate x or y. The default is None.
+        Ct_associated : STR ('x', 'y' or 'xy')
+            Set if concentration is associated to coordinate x, y or both ('xy'). The default is None.
             If None and Ct != 1.0, Ct is z automatically.
         asm : STRING
             Assumption when products are not present in the environment.
@@ -547,23 +548,33 @@ class ThSA:
             elif Ct_associated == 'y' and nCt != nT:
                 print('!EcoSysEM.Error: Total concentrations and temperature must have the same size.')
                 sys.exit()
-            elif Ct_associated != 'x' and Ct_associated != 'y':
-                print('!EcoSysEM.Error: Ct_associated must be "x" or "y".')
+            elif Ct_associated == 'xy' and len(list({nT, npH, nCt})) != 1:
+                print('!EcoSysEM.Error: Total concentrations, temperature and pH must have the same size.')
+                sys.exit()
+            elif Ct_associated != 'x' and Ct_associated != 'y' and Ct_associated != 'xy':
+                print('!EcoSysEM.Error: Ct_associated must be "x", "y" or "xy".')
                 sys.exit()
             DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
             for idRxn, iRxn in enumerate(infoRxn):
-                if Ct_associated == 'x':
+                if Ct_associated == 'xy':
+                    index_Ct = list(range(nCt))
+                    DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
+                    text_ = 'Concentrations (in mol/L) associated to pH and T.'
+                elif Ct_associated == 'x':
                     index_pH = list(range(npH))
-                    DGr_plot = DGr[idRxn, :, index_pH, index_pH]
+                    DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
                     text_ = 'Concentrations (in mol/L) associated to pH.'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
                     DGr_plot = DGr[idRxn, index_T, :, index_T]
                     text_ = 'Concentrations (in mol/L) associated to T.'
                 else:
-                    print("`Ct_associated` argument must be 'x' or 'y'.")
+                    print("`Ct_associated` argument must be 'x', 'y' or 'xy'.")
                     sys.exit()
-                ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)
+                if Ct_associated == 'xy':
+                    ThSA.plot_(pH, T, DGr_plot, iRxn, text_)
+                else:
+                    ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)
         else:
             nameComp = list(Ct)
             conc = np.array(list(Ct.values()))
@@ -594,3 +605,36 @@ class ThSA:
         plt.gca().invert_yaxis()
         plt.show() 
     
+    def plot_(pH, T, DGr_plot, iRxn, text_):
+        """
+        Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
+        
+        """
+        # Check if temperature axis must be inverted using Kendall's Tau.
+        tau_pH, p_pH = kTau(pH, DGr_plot)
+        tauSign_pH = tau_pH > 0
+        tau_T, p_T = kTau(T, DGr_plot)
+        tauSign_T = tau_T > 0
+        if p_pH < 0.05 and p_T < 0.05:
+            cTaus = tauSign_pH == tauSign_T
+        else:
+            cTaus = True
+        fig = plt.figure()
+        ax1 = fig.add_subplot()
+        ax2 = fig.add_subplot()
+        ax1.plot(pH, DGr_plot, 'k')
+        ax1.set_xlabel('pH')
+        ax1.set_ylabel('∆Gr (kJ/mol)')
+        ax2.plot(T, DGr_plot, 'k')
+        ax2.set_xlabel('Temperature (K)')
+        ax2.xaxis.set_ticks_position('bottom')
+        ax2.xaxis.set_label_position('bottom')
+        ax2.axes.get_yaxis().set_visible(False)
+        ax2.spines['bottom'].set_position(('axes', -0.20))
+        if not cTaus:
+            ax2.invert_xaxis()
+        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+        fig.tight_layout(rect=(0,0.025,1,1)) 
+        plt.title(iRxn)
+        plt.show()
+        
