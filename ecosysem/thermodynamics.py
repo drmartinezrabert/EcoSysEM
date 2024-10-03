@@ -555,22 +555,46 @@ class ThSA:
                 print('!EcoSysEM.Error: Ct_associated must be "x", "y" or "xy".')
                 sys.exit()
             DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
+            nDimDGr = DGr.ndim
             for idRxn, iRxn in enumerate(infoRxn):
+                # Selection of DGr for plotting
                 if Ct_associated == 'xy':
                     index_Ct = list(range(nCt))
-                    DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
+                    if nDimDGr == 4:
+                        DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
+                    else:
+                        DGr_plot = DGr[index_Ct, index_Ct, index_Ct]
                     text_ = 'Concentrations (in mol/L) associated to pH and T.'
                 elif Ct_associated == 'x':
                     index_pH = list(range(npH))
-                    DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
+                    if nDimDGr == 4:
+                        DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
+                        #- DEBUGGING -#
+                        # DGr_plot = DGr[idRxn, :, index_pH, index_pH]
+                        #-------------#
+                    else:
+                        DGr_plot = DGr[:, index_pH, index_pH]
+                        #- DEBUGGING -#
+                        # DGr_plot = DGr[:, index_pH, index_pH].T
+                        #-------------#
                     text_ = 'Concentrations (in mol/L) associated to pH.'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
-                    DGr_plot = DGr[idRxn, index_T, :, index_T]
+                    if nDimDGr == 4:
+                        DGr_plot = DGr[idRxn, index_T, :, index_T]
+                        #- DEBUGGING -#
+                        # DGr_plot = DGr[idRxn, index_T, :, index_T].T
+                        #-------------#
+                    else:
+                        DGr_plot = DGr[index_T, :, index_T]
+                        #- DEBUGGING -#
+                        # DGr_plot = DGr[index_T, :, index_T].T
+                        #-------------#
                     text_ = 'Concentrations (in mol/L) associated to T.'
                 else:
                     print("`Ct_associated` argument must be 'x', 'y' or 'xy'.")
                     sys.exit()
+                # Plotting
                 if Ct_associated == 'xy':
                     ThSA.plot_(pH, T, DGr_plot, iRxn, text_)
                 else:
@@ -584,8 +608,12 @@ class ThSA:
                 iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
                 text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
                 DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, iCt, pH, asm, warnings)
+                nDimDGr = DGr.ndim
                 for idRxn, iRxn in enumerate(infoRxn):
-                    DGr_plot = DGr[idRxn, :, :]
+                    if nDimDGr == 3:
+                        DGr_plot = DGr[idRxn, :, :]
+                    else:
+                        DGr_plot = DGr
                     ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)            
     
     def contourf_(pH, T, DGr_plot, iRxn, text_):
