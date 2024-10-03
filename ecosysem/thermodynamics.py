@@ -506,7 +506,7 @@ class ThSA:
             All compounds of a reaction with the same number of concentrations.
             The default is 1.0.
         Ct_associated : STR ('x', 'y' or 'xy')
-            Set if concentration is associated to coordinate x, y or both ('xy'). The default is None.
+            Set if concentration is associated with coordinate x, y or both ('xy'). The default is None.
             If None and Ct != 1.0, Ct is z automatically.
         asm : STRING
             Assumption when products are not present in the environment.
@@ -564,33 +564,21 @@ class ThSA:
                         DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
                     else:
                         DGr_plot = DGr[index_Ct, index_Ct, index_Ct]
-                    text_ = 'Concentrations (in mol/L) associated to pH and T.'
+                    text_ = 'Concentrations (in mol/L) associated with pH and T.'
                 elif Ct_associated == 'x':
                     index_pH = list(range(npH))
                     if nDimDGr == 4:
                         DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
-                        #- DEBUGGING -#
-                        # DGr_plot = DGr[idRxn, :, index_pH, index_pH]
-                        #-------------#
                     else:
                         DGr_plot = DGr[:, index_pH, index_pH]
-                        #- DEBUGGING -#
-                        # DGr_plot = DGr[:, index_pH, index_pH].T
-                        #-------------#
-                    text_ = 'Concentrations (in mol/L) associated to pH.'
+                    text_ = 'Concentrations (in mol/L) associated with pH.'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
                     if nDimDGr == 4:
                         DGr_plot = DGr[idRxn, index_T, :, index_T]
-                        #- DEBUGGING -#
-                        # DGr_plot = DGr[idRxn, index_T, :, index_T].T
-                        #-------------#
                     else:
                         DGr_plot = DGr[index_T, :, index_T]
-                        #- DEBUGGING -#
-                        # DGr_plot = DGr[index_T, :, index_T].T
-                        #-------------#
-                    text_ = 'Concentrations (in mol/L) associated to T.'
+                    text_ = 'Concentrations (in mol/L) associated with T.'
                 else:
                     print("`Ct_associated` argument must be 'x', 'y' or 'xy'.")
                     sys.exit()
