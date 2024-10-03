@@ -6,29 +6,71 @@ Created on Mon Sep 23 09:13:26 2024
 """
 from envdef import ISA
 from thermodynamics import ThSA
+# from thermodynamics import ThEq
 
 import numpy as np
 
 print('> Running test.py')
 print('')
 
-#- DEBUGGING -#
-## Plot DeltaGr (Thermodynamic state analysis)
 envISA = ISA(0, 0.00, 7.0, 500) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
 altitude = envISA.altitude
 temperature = envISA.temperature + 273.15
 minpH = 3.0
 maxpH = 8.0
 pH = np.linspace(minpH, maxpH, len(altitude))
-conc = envISA.getDictConc('L-FW', ['CO', 'O2', 'CO2', 'NH3'])
-concx1 = {'CO': [1.08e-10],
-          'O2': [3.40e-4],
-          'CO2': [2.78e-5],
-          'NH3': [1.33e-6]}
+concLFW, concLSW = envISA.getDictConc('L')
+ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', concLFW, 'y')
+ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', concLSW, 'y')
+
+
+#- DEBUGGING -#
+#### Plot DeltaGr (Thermodynamic state analysis)
+## nT = npH
+# envISA = ISA(0, 0.00, 7.0, 500) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
+# altitude = envISA.altitude
+# temperature = envISA.temperature + 273.15
+# minpH = 3.0
+# maxpH = 8.0
+# pH = np.linspace(minpH, maxpH, len(altitude))
+# concLFW, concLSW = envISA.getDictConc('L-FW')
+# concx1 = {'CO': [1.08e-10],
+#           'O2': [3.40e-4],
+#           'CO2': [2.78e-5],
+#           'NH3': [1.33e-6]}
 # ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], concx1)
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['CO', 'NH3'], True, concx1)
 # ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'x')
 # ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'y')
-ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'xy')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'xy')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', conc, 'x')
+
+
+## nT != npH
+# 'x-associated'
+# envISA = ISA(0, 0.00, 7.0, 5000) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
+# altitude = envISA.altitude
+# temperature = envISA.temperature + 273.15
+# minT = min(temperature)
+# maxT = max(temperature)
+# temperature = np.linspace(minT, maxT, 3)
+# minpH = 3.0
+# maxpH = 8.0
+# pH = np.linspace(minpH, maxpH, len(altitude))
+# conc = envISA.getDictConc('L-FW')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'x')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', conc, 'x')
+
+# 'y-associated'
+# envISA = ISA(0, 0.00, 7.0, 5000) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
+# altitude = envISA.altitude
+# temperature = envISA.temperature + 273.15
+# minpH = 3.0
+# maxpH = 8.0
+# pH = np.linspace(minpH, maxpH, 3)
+# conc = envISA.getDictConc('L-FW')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['COOB', 'AOM', 'CMX'], ['CO', 'NH3', 'NH3'], conc, 'y')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', conc, 'y')
 
 ## Get DeltaGr (Thermodynamic state analysis)
 # envISA = ISA(0, 0.00, 7.0, 5000) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
