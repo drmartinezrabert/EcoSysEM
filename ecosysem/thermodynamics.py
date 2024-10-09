@@ -653,7 +653,24 @@ class ThSA:
         fig.tight_layout(rect=(0,0.025,1,1)) 
         plt.title(iRxn)
         plt.show()
-            
+        
+    def plotOnlyT(T, DGr_plot, iRxn, text_):
+        """
+        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
+        
+        """
+        fig = plt.figure()
+        ax1 = fig.add_subplot()
+        ax1.plot(T, DGr_plot, 'k')
+        ax1.set_xlabel('Temperature (K)')
+        ax1.set_ylabel('∆Gr (kJ/mol)')
+        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+        fig.tight_layout(rect=(0,0.025,1,1)) 
+        plt.title(iRxn)
+        plt.gca().invert_xaxis()
+        ax1.margins(x=0)
+        plt.show()
+    
     def plotOnlypH(pH, DGr_plot, iRxn, text_):
         """
         Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
