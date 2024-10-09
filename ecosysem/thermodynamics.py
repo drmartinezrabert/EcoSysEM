@@ -324,7 +324,7 @@ class ThSA:
     
     """
     
-    def getDeltaGr(typeRxn, input_, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
+    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -336,6 +336,8 @@ class ThSA:
                 - 'metabolisms': metabolic activities.
         input_ : STR or LIST
             Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
         T : FLOAT or LIST
@@ -362,6 +364,9 @@ class ThSA:
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L':
+            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
+            sys.exit()
         if isinstance(T, float or int): T = [T]
         nT = len(T)
         if isinstance(pH, float or int): pH = [pH]
@@ -438,11 +443,11 @@ class ThSA:
             else:
                 vSelected = 1.0
             # Calculate DeltaG0r
-            deltaG0f = ThP.getThP('deltaG0f', i_rComp, 'L')[0]
+            deltaG0f = ThP.getThP('deltaG0f', i_rComp, phase)[0]
             deltaG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)                        # kJ
             deltaG0r = deltaG0r / vSelected                                     # kJ/mol-i (if specDGr)
             # Calculate DeltaH0r
-            deltaH0f = ThP.getThP('deltaH0f', i_rComp, 'L')[0]
+            deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
             deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
             deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
             for idT, iT in enumerate(T):
@@ -557,7 +562,7 @@ class ThSA:
             elif Ct_associated != 'x' and Ct_associated != 'y' and Ct_associated != 'xy':
                 print('!EcoSysEM.Error: Ct_associated must be "x", "y" or "xy".')
                 sys.exit()
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
+            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, Ct, pH, asm, warnings)
             nDimDGr = DGr.ndim
             for idRxn, iRxn in enumerate(infoRxn):
                 # Selection of DGr for plotting
