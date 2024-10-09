@@ -478,8 +478,10 @@ class ThSA:
                                 iConc = Ct[iComp]
                             # pH speciation
                             if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
+                                # Only pH speciation when in liquid
+                                if phase == 'L':
+                                    if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                                    iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
                             # Calculation of reaction quotient (Qr)
                             Qr += vi * np.log(iConc)
                         # Concentration influence (Nernst relationship)
