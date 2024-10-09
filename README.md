@@ -53,11 +53,11 @@ ____________________________
 4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` or built-in functions (see [How to modify reaction databases](https://github.com/soundslikealloy/EcoSysEM) section).
 5. Execute **EcoSysEM platform** using Spyder (see [Instructions to run EcoSysEM using Spyder](https://github.com/soundslikealloy/EcoSysEM) section) or Command Line Interface (see [Instructions to run EcoSysEM using Command Line Interface (CLI)](https://github.com/soundslikealloy/EcoSysEM) section).
 
-<!--
  ## :clipboard: Instructions to run EcoSysEM using Spyder
 :construction: Coming soon...
+
 ## :clipboard: Instructions to run EcoSysEM using Command Line Interface (CLI)
-:construction: Coming soon... -->
+:construction: Coming soon...
 
 ____________________________
 
