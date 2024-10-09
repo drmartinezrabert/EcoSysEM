@@ -623,7 +623,7 @@ class ThSA:
     
     def plot_(pH, T, DGr_plot, iRxn, text_):
         """
-        Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
+        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
         
         """
         # Check if temperature axis must be inverted using Kendall's Tau.
