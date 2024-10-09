@@ -56,6 +56,9 @@ ____________________________
  ## :clipboard: Instructions to run EcoSysEM using Spyder
 :construction: Coming soon...
 
+### EcoSysEM package layout
+_Lorem ipsum..._
+
 ## :clipboard: Instructions to run EcoSysEM using Command Line Interface (CLI)
 :construction: Coming soon...
 
