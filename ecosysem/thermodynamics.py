@@ -456,8 +456,8 @@ class ThSA:
                             vi = i_mRxn[idComp] / vSelected
                             if findComp.size == 0:
                                 if vi < 0:
-                                    # iComp is a substrate
-                                    print(f'!EcoSysEM.Error: Substrate concentration(s) for {iComp} not found.')
+                                    # iComp is a substrate and its concentration was not given.
+                                    print(f'!EcoSysEM.Error: Concentration for {iComp} not found.')
                                 else:
                                     if iComp == 'H+':
                                         iConc = 10**(-ipH) * np.ones((1, nCt))
