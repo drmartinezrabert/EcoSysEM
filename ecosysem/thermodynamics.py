@@ -54,6 +54,9 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
+                print(f'!EcoSysEM.Error: {typeParam} for {phase} phase not found for: {compNaN}.')
+                sys.exit()
         return notNaN
     
     def getThP(typeParam, compounds, phase):
