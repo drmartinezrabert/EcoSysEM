@@ -13,16 +13,42 @@ import numpy as np
 print('> Running test.py')
 print('')
 
-envISA = ISA(0, 0.00, 7.0, 500) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
+
+envISA = ISA('All', 0.00, 7.0, 500) # ISA(Layer/s, H2O (%), pH, resolution = 1000 {size of altitude nodes per layer, [m]})
 altitude = envISA.altitude
 temperature = envISA.temperature + 273.15
 minpH = 3.0
 maxpH = 8.0
 pH = np.linspace(minpH, maxpH, len(altitude))
-concLFW, concLSW = envISA.getDictConc('L')
-ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', concLFW, 'y')
-ThSA.plotDeltaGr(temperature, pH, 'metabolisms', 'Methanotrophs', 'CH4', concLSW, 'y')
+# concLFW, concLSW = envISA.getDictConc('L')
+# _, concG = envISA.getDictConc('G')
+# concx1 = {'CH4': [1.08e-10],
+#           'O2': [3.40e-4],
+#           'CO2': [2.78e-5],
+#           'NH3': [1.33e-6]}
+# ISA (L-FW)
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['Methanotrophs', 'AOM', 'CMX'], ['CH4', 'NH3', 'NH3'], concLFW, 'y')
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['Methanotrophs', 'AOM', 'CMX'], ['CH4', 'NH3', 'NH3'], concLFW, 'xy')
+# ISA (L-SW)
+# ThSA.plotDeltaGr(temperature, pH, 'metabolisms', ['Methanotrophs', 'AOM', 'CMX'], ['CH4', 'NH3', 'NH3'], concLSW, 'y')
+# ISA (G) # Only Temperature
+# ThSA.plotDeltaGr(temperature, None, 'metabolisms', ['Methanotrophs', 'AOM', 'CMX'], ['CH4', 'NH3', 'NH3'], concG, 'y')
+# DGr, rInfoRxn = ThSA.getDeltaGr('metabolisms', ['Methanotrophs', 'AOM', 'CMX'], ['CH4', 'NH3', 'NH3'], temperature, concG, 7.0)
+# ISA (L-FW) # Only pH
+# ThSA.plotDeltaGr(None, pH, 'metabolisms', ['Methanotrophs', 'AOM'], ['CH4', 'NH3'], concLFW, 'x')
+# ISA (L-FW) # Only 1 conc (Ct_associated = None)
+# ThSA.plotDeltaGr(temperature, 7.0, 'metabolisms', ['Methanotrophs', 'AOM'], ['CH4', 'NH3'], concx1)
+# ThSA.plotDeltaGr(298.15, pH, 'metabolisms', ['Methanotrophs', 'AOM'], ['CH4', 'NH3'], concx1)
+# Only DGr = f(T)
+ThSA.plotDeltaGr(temperature, None, 'metabolisms', ['Methanotrophs', 'AOM'], ['CH4', 'NH3'])
+ThSA.plotDeltaGr(temperature, 14.0, 'metabolisms', ['CH4', 'NH3'], True)
+# ThSA.plotDeltaGr(298.15, pH, 'metabolisms', ['Methanotrophs', 'AOM'], ['CH4', 'NH3'])
+# pH = np.arange(0, 14, 0.5)
+# ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3'], pH, 288.15)
+# ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3'], pH, 255.65)
+# ThEq.plotpHSpeciation(['NH3', 'HNO2', 'HNO3'], pH, 216.65)
 
+# envISA.plotTandP()
 
 #- DEBUGGING -#
 #### Plot DeltaGr (Thermodynamic state analysis)
