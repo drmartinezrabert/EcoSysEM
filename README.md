@@ -51,15 +51,15 @@ ____________________________
 2. Extract files to a destination (:bulb: Recommendation - Desktop).
 3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` or built-in functions (see [How to modify parameter databases](https://github.com/soundslikealloy/EcoSysEM) section).
 4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` or built-in functions (see [How to modify reaction databases](https://github.com/soundslikealloy/EcoSysEM) section).
-5. Execute **EcoSysEM platform** using Spyder (see [Instructions to run EcoSysEM using Spyder](https://github.com/soundslikealloy/EcoSysEM) section) or Command Line Interface (see [Instructions to run EcoSysEM using Command Line Interface (CLI)](https://github.com/soundslikealloy/EcoSysEM) section).
+5. Execute **EcoSysEM platform** via Spyder (see [Instructions to use EcoSysEM platform via Spyder](https://github.com/soundslikealloy/EcoSysEM) section) or Command Line Interface (see [Instructions to use EcoSysEM platform via Command Line Interface (CLI)](https://github.com/soundslikealloy/EcoSysEM) section).
 
- ## :clipboard: Instructions to run EcoSysEM using Spyder
+ ## :clipboard: Instructions to use EcoSysEM platform via Spyder
 :construction: Coming soon...
 
 ### EcoSysEM package layout
 _Lorem ipsum..._
 
-## :clipboard: Instructions to run EcoSysEM using Command Line Interface (CLI)
+## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 :construction: Coming soon...
 
 ____________________________
