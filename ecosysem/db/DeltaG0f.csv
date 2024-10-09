@@ -1,15 +1,16 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
 Carbon monoxide,CO,G,-137.15,Thauer1997
 Carbon monoxide,CO,L,-119,Beber2022
 Carbon dioxide,CO2,G,-394.359,Thauer1997
 Carbon dioxide,CO2,L,-386.02,Thauer1997
 Oxygen,O2,G,0,Beber2022
 Oxygen,O2,L,16.4,Thauer1997
+Water,H2O,G,-228.61,Speight2005
 Water,H2O,L,-237.18,Thauer1997
 Methane,CH4,G,-50.75,Thauer1997
 Methane,CH4,L,-50.79,Thauer1997
 Hydrogen,H2,G,0,Thauer1997
-Hydrogen,H2,L,104.8,Beber2022
+Hydrogen,H2,L,0,Asm.
 Nitrous oxide,N2O,G,104.18,Thauer1997
 Nitrous oxide,N2O,L,104.2,Beber2022
 Ammonia,NH3,G,-16.4,Kleerebezem2010
@@ -40,4 +41,6 @@ Hydroxide,OH-,L,-157.293,Thauer1997
 Proton,H+,L,0,Kleerebezem2010
 Sulfur dioxide,SO2,G,-300.194,Thauer1997
 Sulfur dioxide,SO2,L,-300.708,Thauer1997
+Sulfur (rhombic),S0,G,0,Kleerebezem2010
+Sulfur (rhombic),S0,L,0,Kleerebezem2010
 Sulfur (rhombic),S0,S,0,Kleerebezem2010
