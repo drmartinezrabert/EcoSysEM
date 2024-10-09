@@ -42,5 +42,8 @@ pip install pandas
 ```
 pip install matplotlib
 ```
+## :clipboard: Instructions to run EcoSysEM using Spyder
+:construction: Coming soon...
+
 ## :clipboard: Instructions to run EcoSysEM using Command Line Interface (CLI)
 :construction: Coming soon...
