@@ -478,7 +478,7 @@ class ThSA:
                                 iConc = Ct[iComp]
                             # pH speciation
                             if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                                # Only pH speciation when in liquid
+                                # Only pH speciation in liquid
                                 if phase == 'L':
                                     if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
                                     iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
@@ -595,7 +595,7 @@ class ThSA:
                         DGr_plot = DGr[index_T, :, index_T]
                     text_ = 'Concentrations (in mol/L) associated with T.'
                 else:
-                    print("`Ct_associated` argument must be 'x', 'y' or 'xy'.")
+                    print("`Ct_associated` argument must be 'x' (pH, only one pH or pH = None), 'y' (temperature, only one temperature or temperature = None) or 'xy' (pH and temperature).")
                     sys.exit()
                 # Plotting
                 if Ct_associated == 'xy':
