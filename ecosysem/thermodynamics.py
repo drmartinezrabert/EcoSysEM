@@ -491,7 +491,7 @@ class ThSA:
         DGr = np.squeeze(DGr)
         return DGr, infoRxn
     
-    def plotDeltaGr(T, pH, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
+    def plotDeltaGr(T, pH, phase, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
         """
         Plot DeltaGr in function of pH, temperature and/or compound
         concentrations.
@@ -501,7 +501,9 @@ class ThSA:
         T : LIST or np.array
             Set of temperatures [K].
         pH : LIST or np.array
-            Set of pHs.
+            Set of pH values.
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         typeRxn : STR
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'metabolisms': metabolic activities.
@@ -535,6 +537,9 @@ class ThSA:
         # Variable lenghts
         nT = len(T)
         npH = len(pH)
+        if phase != 'G' and phase != 'L':
+            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
+            sys.exit()
         if isinstance(Ct, float):
             nCt = 1
         else:
@@ -604,6 +609,7 @@ class ThSA:
                 iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
                 text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
                 DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, iCt, pH, asm, warnings)
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, iCt, pH, asm, warnings)
                 nDimDGr = DGr.ndim
                 for idRxn, iRxn in enumerate(infoRxn):
                     if nDimDGr == 3:
