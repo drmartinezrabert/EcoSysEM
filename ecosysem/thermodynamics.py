@@ -531,11 +531,16 @@ class ThSA:
         Plot(s).
 
         """
+        # Default values
+        oneT = False
+        onepH = False
         # Checking arguments and variable definition
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
-        if isinstance(T, float or int): T = [T]
-        if isinstance(pH, float or int): pH = [pH]
+        if T is None: oneT = True; T = [298.15] # Standard conditions (K)
+        if isinstance(T, float or int): oneT = True; T = [T]
+        if pH is None: onepH = True; pH = [7.0]  # Standard conditions
+        if isinstance(pH, float or int): onepH = True; pH = [pH]
         # Variable lenghts
         nT = len(T)
         npH = len(pH)
@@ -582,43 +587,85 @@ class ThSA:
                     text_ = 'Concentrations (in mol/L) associated with pH and T.'
                 elif Ct_associated == 'x':
                     index_pH = list(range(npH))
-                    if nDimDGr == 4:
-                        DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
+                    if not oneT:
+                        if nDimDGr == 4:
+                            DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
+                        elif nDimDGr == 3:
+                            DGr_plot = DGr[:, index_pH, index_pH]
+                        text_ = 'Concentrations (in mol/L) associated with pH.'
                     else:
-                        DGr_plot = DGr[:, index_pH, index_pH]
-                    text_ = 'Concentrations (in mol/L) associated with pH.'
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, index_pH, index_pH]
+                        elif nDimDGr == 2:
+                            DGr_plot = DGr[index_pH, index_pH]
+                        Ct_associated = 'OnlypH'
+                        text_ = 'Concentrations (in mol/L) associated with pH (T = ' + str(T[0]) + 'K).'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
-                    if nDimDGr == 4:
-                        DGr_plot = DGr[idRxn, index_T, :, index_T]
+                    if not onepH:
+                        if nDimDGr == 4:
+                            DGr_plot = DGr[idRxn, index_T, :, index_T]
+                        elif nDimDGr == 3:
+                            DGr_plot = DGr[index_T, :, index_T]
+                        text_ = 'Concentrations (in mol/L) associated with T.'
                     else:
-                        DGr_plot = DGr[index_T, :, index_T]
-                    text_ = 'Concentrations (in mol/L) associated with T.'
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, index_T, index_T]
+                        elif nDimDGr == 2:
+                            DGr_plot = DGr[index_T, index_T]
+                        Ct_associated = 'OnlyT'
+                        text_ = 'Concentrations (in mol/L) associated with T (pH = ' + str(pH[0]) + ').'
                 else:
                     print("`Ct_associated` argument must be 'x' (pH, only one pH or pH = None), 'y' (temperature, only one temperature or temperature = None) or 'xy' (pH and temperature).")
                     sys.exit()
                 # Plotting
                 if Ct_associated == 'xy':
                     ThSA.plot_(pH, T, DGr_plot, iRxn, text_)
+                elif Ct_associated == 'OnlyT':
+                    ThSA.plotOnlyT(T, DGr_plot, iRxn, text_)
+                    Ct_associated = 'y'
+                elif Ct_associated == 'OnlypH':
+                    ThSA.plotOnlypH(pH, DGr_plot, iRxn, text_)
+                    Ct_associated = 'x'
                 else:
                     ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)
         else:
-            nameComp = list(Ct)
-            conc = np.array(list(Ct.values()))
-            toRemove = ["\{", "\}", "\[", "\]"]
-            pattern = '[' + ''.join(toRemove) + ']'
+            if isinstance(Ct, dict):
+                nameComp = list(Ct)
+                conc = np.array(list(Ct.values()))
+                toRemove = ["\{", "\}", "\[", "\]"]
+                pattern = '[' + ''.join(toRemove) + ']'
             for idCt in range(nCt):
-                iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
-                text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, iCt, pH, asm, warnings)
+                if isinstance(Ct, dict):
+                    iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
+                    text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
+                else:
+                    iCt = 1.0
+                    text_ = 'Compound concentrations were not given.'
                 DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, iCt, pH, asm, warnings)
                 nDimDGr = DGr.ndim
                 for idRxn, iRxn in enumerate(infoRxn):
-                    if nDimDGr == 3:
-                        DGr_plot = DGr[idRxn, :, :]
+                    # Selection of DGr for plotting
+                    if not onepH and not oneT:
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, :, :]
+                        else:
+                            DGr_plot = DGr
+                        ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)    
                     else:
-                        DGr_plot = DGr
-                    ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)            
+                        if onepH:
+                            if nDimDGr == 2:
+                                DGr_plot = DGr[idRxn, :]
+                            else:
+                                DGr_plot = DGr
+                            ThSA.plotOnlyT(T, DGr_plot, iRxn, text_)
+                        elif oneT:
+                            if nDimDGr == 2:
+                                DGr_plot = DGr[idRxn, :]
+                            else:
+                                DGr_plot = DGr
+                            ThSA.plotOnlypH(pH, DGr_plot, iRxn, text_)
+        
     
     def contourf_(pH, T, DGr_plot, iRxn, text_):
         """
