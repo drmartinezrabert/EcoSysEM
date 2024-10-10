@@ -120,7 +120,55 @@ This guide is an overview and explains the important features of **EcoSysEM plat
 [🔼 Back to **Contents**](#readme-contents)
 
 ### EcoSysEM package layout
-_Lorem ipsum..._
+Important modules and how to import functions or classes from them are listed below. Classes names start with a capital letter, functions with a lower letter, and attributes with a dot (.) and lower letter:
+```
+from ecosysem.module import function
+from ecosysem.module import Class
+
+EcoSysEM
+  ├── envdef
+  │      ├── Environment
+  │      │      ├── .temperature
+  │      │      ├── .pressure
+  │      │      ├── .pH
+  │      │      ├── .compounds
+  │      │      ├── .compositions
+  │      │      ├── setT
+  │      │      ├── setP
+  │      │      ├── setpH
+  │      │      └── setComposition
+  │      └── ISA {subclass of Environment}
+  │           ├── .altitude
+  │           ├── .temperature
+  │           ├── .pressure
+  │           ├── .compounds
+  │           ├── .compositions
+  │           ├── .H2O
+  │           ├── getVerticalProfiles
+  │           ├── getDictConc
+  │           ├── plotTandP
+  │           └── plotCompsProfiles
+  ├── thermodynamics
+  │      ├── ThP
+  │      │    ├── getThP
+  │      │    ├── getDeltaG0r
+  │      │    ├── getDeltaH0r
+  │      │    └── getKeq
+  │      ├── ThEq
+  │      │     ├── solubilityHenry
+  │      │     ├── pHSpeciation
+  │      │     └── plotpHSpeciation
+  │      └── ThSA
+  │           ├── getDeltaGr
+  │           └── plotDeltaGr
+  ├── reactions
+  │      └── Reactions
+  │            ├── getRxn
+  │            ├── getRxnByComp
+  │            └── getRxnByName
+  ├── ecosysem_spyder.py (Run EcoSysEM using Spyder, i.e., coding)
+  └── ecosysem_cmd.py (Run EcoSysEM using Command Line Interface, CLI)
+```
 
 [🔼 Back to **Contents**](#readme-contents)
 
