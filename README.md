@@ -56,8 +56,26 @@ ____________________________
  ## :clipboard: Instructions to use EcoSysEM platform via Spyder
 :construction: Coming soon...
 
+### Fundamentals and usage
+- EcoSysEM package layout
+- EcoSysEM fundamentals
+  - Environment creation
+  - Thermodynamic State Analysis (ThSA)
+  - Bio-Thermodynamic State Analysis (BioThSA)
+  - Ecosystem modelling
+
 ### EcoSysEM package layout
 _Lorem ipsum..._
+### Fundamentals and usage
+_Lorem ipsum..._
+#### <ins>Environment creation</ins>
+_Lorem ipsum..._
+#### <ins>Thermodynamic State Analysis (ThSA)</ins>
+_Lorem ipsum..._
+#### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
+:construction: Coming soon...
+#### <ins>Ecosystem modelling</ins>
+:construction: Coming soon...
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 :construction: Coming soon...
