@@ -312,7 +312,7 @@ class ThEq:
             ax.plot(pH, nFrac)
             ax.set_ylabel('Molar fraction (%)')
             ax.set_xlabel('pH')
-            ax.set_xticks(np.arange(pH[0], pH[-1], 1))
+            ax.set_xticks(np.arange(pH[0], pH[-1]+1, 1))
             ax.set_yticks(np.arange(0, 110, 10))
             ax.margins(x = 0)
             plt.legend(nCompounds, loc = 'center left', bbox_to_anchor = (1, 0.5))
