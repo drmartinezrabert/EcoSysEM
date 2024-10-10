@@ -7,7 +7,6 @@ Created on Thu Aug 15 07:44:51 2024
 
 import pandas as pd
 import numpy as np
-import sys
 
 class Reactions:
     # Directory of reactions

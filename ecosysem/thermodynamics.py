@@ -54,6 +54,9 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
+                print(f'!EcoSysEM.Error: {typeParam} for {phase} phase not found for: {compNaN}.')
+                sys.exit()
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -321,7 +324,7 @@ class ThSA:
     
     """
     
-    def getDeltaGr(typeRxn, input_, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
+    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -333,6 +336,8 @@ class ThSA:
                 - 'metabolisms': metabolic activities.
         input_ : STR or LIST
             Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
         T : FLOAT or LIST
@@ -359,6 +364,9 @@ class ThSA:
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L':
+            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
+            sys.exit()
         if isinstance(T, float or int): T = [T]
         nT = len(T)
         if isinstance(pH, float or int): pH = [pH]
@@ -435,11 +443,11 @@ class ThSA:
             else:
                 vSelected = 1.0
             # Calculate DeltaG0r
-            deltaG0f = ThP.getThP('deltaG0f', i_rComp, 'L')[0]
+            deltaG0f = ThP.getThP('deltaG0f', i_rComp, phase)[0]
             deltaG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)                        # kJ
             deltaG0r = deltaG0r / vSelected                                     # kJ/mol-i (if specDGr)
             # Calculate DeltaH0r
-            deltaH0f = ThP.getThP('deltaH0f', i_rComp, 'L')[0]
+            deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
             deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
             deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
             for idT, iT in enumerate(T):
@@ -456,8 +464,8 @@ class ThSA:
                             vi = i_mRxn[idComp] / vSelected
                             if findComp.size == 0:
                                 if vi < 0:
-                                    # iComp is a substrate
-                                    print(f'!EcoSysEM.Error: Substrate concentration(s) for {iComp} not found.')
+                                    # iComp is a substrate and its concentration was not given.
+                                    print(f'!EcoSysEM.Error: Concentration for {iComp} not found.')
                                 else:
                                     if iComp == 'H+':
                                         iConc = 10**(-ipH) * np.ones((1, nCt))
@@ -470,8 +478,10 @@ class ThSA:
                                 iConc = Ct[iComp]
                             # pH speciation
                             if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
+                                # Only pH speciation in liquid
+                                if phase == 'L':
+                                    if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                                    iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
                             # Calculation of reaction quotient (Qr)
                             Qr += vi * np.log(iConc)
                         # Concentration influence (Nernst relationship)
@@ -483,7 +493,7 @@ class ThSA:
         DGr = np.squeeze(DGr)
         return DGr, infoRxn
     
-    def plotDeltaGr(T, pH, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
+    def plotDeltaGr(T, pH, phase, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
         """
         Plot DeltaGr in function of pH, temperature and/or compound
         concentrations.
@@ -493,7 +503,9 @@ class ThSA:
         T : LIST or np.array
             Set of temperatures [K].
         pH : LIST or np.array
-            Set of pHs.
+            Set of pH values.
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         typeRxn : STR
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'metabolisms': metabolic activities.
@@ -506,7 +518,7 @@ class ThSA:
             All compounds of a reaction with the same number of concentrations.
             The default is 1.0.
         Ct_associated : STR ('x', 'y' or 'xy')
-            Set if concentration is associated to coordinate x, y or both ('xy'). The default is None.
+            Set if concentration is associated with coordinate x, y or both ('xy'). The default is None.
             If None and Ct != 1.0, Ct is z automatically.
         asm : STRING
             Assumption when products are not present in the environment.
@@ -519,14 +531,22 @@ class ThSA:
         Plot(s).
 
         """
+        # Default values
+        oneT = False
+        onepH = False
         # Checking arguments and variable definition
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
-        if isinstance(T, float or int): T = [T]
-        if isinstance(pH, float or int): pH = [pH]
+        if T is None: oneT = True; T = [298.15] # Standard conditions (K)
+        if isinstance(T, float or int): oneT = True; T = [T]
+        if pH is None: onepH = True; pH = [7.0]  # Standard conditions
+        if isinstance(pH, float or int): onepH = True; pH = [pH]
         # Variable lenghts
         nT = len(T)
         npH = len(pH)
+        if phase != 'G' and phase != 'L':
+            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
+            sys.exit()
         if isinstance(Ct, float):
             nCt = 1
         else:
@@ -554,39 +574,98 @@ class ThSA:
             elif Ct_associated != 'x' and Ct_associated != 'y' and Ct_associated != 'xy':
                 print('!EcoSysEM.Error: Ct_associated must be "x", "y" or "xy".')
                 sys.exit()
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, Ct, pH, asm, warnings)
+            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, Ct, pH, asm, warnings)
+            nDimDGr = DGr.ndim
             for idRxn, iRxn in enumerate(infoRxn):
+                # Selection of DGr for plotting
                 if Ct_associated == 'xy':
                     index_Ct = list(range(nCt))
-                    DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
-                    text_ = 'Concentrations (in mol/L) associated to pH and T.'
+                    if nDimDGr == 4:
+                        DGr_plot = DGr[idRxn, index_Ct, index_Ct, index_Ct]
+                    else:
+                        DGr_plot = DGr[index_Ct, index_Ct, index_Ct]
+                    text_ = 'Concentrations (in mol/L) associated with pH and T.'
                 elif Ct_associated == 'x':
                     index_pH = list(range(npH))
-                    DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
-                    text_ = 'Concentrations (in mol/L) associated to pH.'
+                    if not oneT:
+                        if nDimDGr == 4:
+                            DGr_plot = DGr[idRxn, :, index_pH, index_pH].T
+                        elif nDimDGr == 3:
+                            DGr_plot = DGr[:, index_pH, index_pH]
+                        text_ = 'Concentrations (in mol/L) associated with pH.'
+                    else:
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, index_pH, index_pH]
+                        elif nDimDGr == 2:
+                            DGr_plot = DGr[index_pH, index_pH]
+                        Ct_associated = 'OnlypH'
+                        text_ = 'Concentrations (in mol/L) associated with pH (T = ' + str(T[0]) + 'K).'
                 elif Ct_associated == 'y':
                     index_T = list(range(nT))
-                    DGr_plot = DGr[idRxn, index_T, :, index_T]
-                    text_ = 'Concentrations (in mol/L) associated to T.'
+                    if not onepH:
+                        if nDimDGr == 4:
+                            DGr_plot = DGr[idRxn, index_T, :, index_T]
+                        elif nDimDGr == 3:
+                            DGr_plot = DGr[index_T, :, index_T]
+                        text_ = 'Concentrations (in mol/L) associated with T.'
+                    else:
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, index_T, index_T]
+                        elif nDimDGr == 2:
+                            DGr_plot = DGr[index_T, index_T]
+                        Ct_associated = 'OnlyT'
+                        text_ = 'Concentrations (in mol/L) associated with T (pH = ' + str(pH[0]) + ').'
                 else:
-                    print("`Ct_associated` argument must be 'x', 'y' or 'xy'.")
+                    print("`Ct_associated` argument must be 'x' (pH, only one pH or pH = None), 'y' (temperature, only one temperature or temperature = None) or 'xy' (pH and temperature).")
                     sys.exit()
+                # Plotting
                 if Ct_associated == 'xy':
                     ThSA.plot_(pH, T, DGr_plot, iRxn, text_)
+                elif Ct_associated == 'OnlyT':
+                    ThSA.plotOnlyT(T, DGr_plot, iRxn, text_)
+                    Ct_associated = 'y'
+                elif Ct_associated == 'OnlypH':
+                    ThSA.plotOnlypH(pH, DGr_plot, iRxn, text_)
+                    Ct_associated = 'x'
                 else:
                     ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)
         else:
-            nameComp = list(Ct)
-            conc = np.array(list(Ct.values()))
-            toRemove = ["\{", "\}", "\[", "\]"]
-            pattern = '[' + ''.join(toRemove) + ']'
+            if isinstance(Ct, dict):
+                nameComp = list(Ct)
+                conc = np.array(list(Ct.values()))
+                toRemove = ["\{", "\}", "\[", "\]"]
+                pattern = '[' + ''.join(toRemove) + ']'
             for idCt in range(nCt):
-                iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
-                text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, specComp, T, iCt, pH, asm, warnings)
+                if isinstance(Ct, dict):
+                    iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
+                    text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
+                else:
+                    iCt = 1.0
+                    text_ = 'Compound concentrations were not given.'
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, iCt, pH, asm, warnings)
+                nDimDGr = DGr.ndim
                 for idRxn, iRxn in enumerate(infoRxn):
-                    DGr_plot = DGr[idRxn, :, :]
-                    ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)            
+                    # Selection of DGr for plotting
+                    if not onepH and not oneT:
+                        if nDimDGr == 3:
+                            DGr_plot = DGr[idRxn, :, :]
+                        else:
+                            DGr_plot = DGr
+                        ThSA.contourf_(pH, T, DGr_plot, iRxn, text_)    
+                    else:
+                        if onepH:
+                            if nDimDGr == 2:
+                                DGr_plot = DGr[idRxn, :]
+                            else:
+                                DGr_plot = DGr
+                            ThSA.plotOnlyT(T, DGr_plot, iRxn, text_)
+                        elif oneT:
+                            if nDimDGr == 2:
+                                DGr_plot = DGr[idRxn, :]
+                            else:
+                                DGr_plot = DGr
+                            ThSA.plotOnlypH(pH, DGr_plot, iRxn, text_)
+        
     
     def contourf_(pH, T, DGr_plot, iRxn, text_):
         """
@@ -607,7 +686,7 @@ class ThSA:
     
     def plot_(pH, T, DGr_plot, iRxn, text_):
         """
-        Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
+        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
         
         """
         # Check if temperature axis must be inverted using Kendall's Tau.
@@ -638,3 +717,35 @@ class ThSA:
         plt.title(iRxn)
         plt.show()
         
+    def plotOnlyT(T, DGr_plot, iRxn, text_):
+        """
+        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
+        
+        """
+        fig = plt.figure()
+        ax1 = fig.add_subplot()
+        ax1.plot(T, DGr_plot, 'k')
+        ax1.set_xlabel('Temperature (K)')
+        ax1.set_ylabel('∆Gr (kJ/mol)')
+        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+        fig.tight_layout(rect=(0,0.025,1,1)) 
+        plt.title(iRxn)
+        plt.gca().invert_xaxis()
+        ax1.margins(x=0)
+        plt.show()
+    
+    def plotOnlypH(pH, DGr_plot, iRxn, text_):
+        """
+        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
+        
+        """
+        fig = plt.figure()
+        ax1 = fig.add_subplot()
+        ax1.plot(pH, DGr_plot, 'k')
+        ax1.set_xlabel('pH')
+        ax1.set_ylabel('∆Gr (kJ/mol)')
+        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+        fig.tight_layout(rect=(0,0.025,1,1)) 
+        plt.title(iRxn)
+        ax1.margins(x=0)
+        plt.show()

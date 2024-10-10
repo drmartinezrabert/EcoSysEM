@@ -1,10 +1,11 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
 Carbon monoxide,CO,G,-110.5,Speight2005
 Carbon monoxide,CO,L,-110.5,Est.
 Carbon dioxide,CO2,G,-393.5,Speight2005
 Carbon dioxide,CO2,L,-413.26,Speight2005
 Oxygen,O2,G,0,Speight2005
 Oxygen,O2,L,-12.06,Est.
+Water,H2O,G,-241.826,Speight2005
 Water,H2O,L,-285.9,Speight2005
 Methane,CH4,G,-74.8,Speight2005
 Methane,CH4,L,-87.92,Est.
@@ -40,4 +41,6 @@ Hydroxide,OH-,L,-230.014,Speight2005
 Proton,H+,L,0,Kleerebezem2010
 Sulfur dioxide,SO2,G,-296.81,Speight2005
 Sulfur dioxide,SO2,L,-322.82, ATcT (v1.122)
+Sulfur (rhombic),S0,G,0,Kleerebezem2010
+Sulfur (rhombic),S0,L,0,Kleerebezem2010
 Sulfur (rhombic),S0,S,0,Kleerebezem2010
