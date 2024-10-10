@@ -5,7 +5,7 @@ Eco-System Evolution &amp; Modelling
 ____________________________
 
 ## README Contents
-- Before having fun... | [Go](#before-having-fun...)
+- Before having fun... | [Go](#before-having-fun)
     - Anaconda Python installation | [Go](#anaconda-python-installation)
     - Anaconda Navigator | [Go](#anaconda-navigator)
     - Anaconda Prompt or Terminal | [Go](#anaconda-prompt-or-terminal)
