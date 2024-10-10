@@ -6,7 +6,7 @@ ____________________________
 
 ## README Contents
 - Before having fun... | [Go](#before-having-fun)
-    - Anaconda Python installation | [Go](#anaconda-python-installation)
+    - Anaconda Python installation | [Go](#gear-anaconda-python-installation)
     - Anaconda Navigator | [Go](#anaconda-navigator)
     - Anaconda Prompt or Terminal | [Go](#anaconda-prompt-or-terminal)
 
