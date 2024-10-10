@@ -9,6 +9,15 @@ ____________________________
     - Anaconda Python installation | [Go](#gear-anaconda-python-installation)
     - Anaconda Navigator | [Go](#anaconda-navigator)
     - Anaconda Prompt or Terminal | [Go](#anaconda-prompt-or-terminal)
+    - Spyder | [Go](#spyder)
+    - Python packages | [Go](#python-packages)
+    - Installation of packages using Anaconda Navigator | [Go](#installation-of-packages-using-anaconda-navigator)
+    - Installation of packages using pip | [Go](#installation-of-packages-using-pip)
+- Instructions for downloading and setting up EcoSysEM platform | [Go](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform)
+    - How to modify parameter databases | [Go](#how-to-modify-parameter-databases)
+    - How to modify reaction databases | [Go](#how-to-modify-reaction-databases)
+- Instructions to use EcoSysEM platform via Spyder | [Go](#how-to-modify-reaction-databases)
+    - 
 
 ## Before having fun...
 **:warning: To open the links in a new tab: right click on the link + "Open link in new tab".**
@@ -75,13 +84,8 @@ _Lorem ipsum..._
 5. Program your script. For user guide, click [here](#fundamentals-and-usage).
 6. Run `ecosysem_spyder.py` script with Ctrl + Intro, F5 or Play symbol of _Run toolbar_.  
 
-### EcoSysEM user guide
-- EcoSysEM package layout
-- Fundamentals and usage
-  - Environment creation
-  - Thermodynamic State Analysis (ThSA)
-  - Bio-Thermodynamic State Analysis (BioThSA)
-  - Ecosystem modelling
+## EcoSysEM user guide
+This guide is an overview and explains the important features of **EcoSysEM platform**.
 
 ### EcoSysEM package layout
 _Lorem ipsum..._
