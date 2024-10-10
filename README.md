@@ -49,9 +49,15 @@ ____________________________
 ## :clipboard: Instructions for downloading and setting up EcoSysEM platform
 1. Download .zip code. Last version: `v#.#`. [Download package](https://github.com/soundslikealloy/EcoSysEM).
 2. Extract files to a destination (:bulb: Recommendation - Desktop).
-3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` or built-in functions (see [How to modify parameter databases](https://github.com/soundslikealloy/EcoSysEM) section).
-4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` or built-in functions (see [How to modify reaction databases](https://github.com/soundslikealloy/EcoSysEM) section).
+3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` or built-in functions (see [How to modify parameter databases](#how-to-modify-parameter-databases) section).
+4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` or built-in functions (see [How to modify reaction databases](#how-to-modify-reaction-databases) section).
 5. Execute **EcoSysEM platform** via Spyder (see [Instructions to use EcoSysEM platform via Spyder](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) section) or Command Line Interface (see [Instructions to use EcoSysEM platform via Command Line Interface (CLI)](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) section).
+
+### How to modify parameter databases
+_Lorem ipsum..._
+
+### How to modify reaction databases
+_Lorem ipsum..._
 
  ## :clipboard: Instructions to use EcoSysEM platform via Spyder
 1. Launch **Spyder**. For Spyder Tutorials, click [here](https://www.youtube.com/watch?v=E2Dap5SfXkI&list=PLPonohdiDqg9epClEcXoAPUiK0pN5eRoc&ab_channel=SpyderIDE).
