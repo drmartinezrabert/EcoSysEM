@@ -297,6 +297,7 @@ class ThEq:
             print('!EcoSysEM.Warning: Temperature must be a FLOAT.')
             sys.exit()
         if isinstance(compounds, str): compounds = [compounds]
+        textT = float(f'{temperature:.2f}')
         for iCompound in compounds:
             Spec = ThEq.pHSpeciation(iCompound, pH, temperature, Ct, True)
             nFrac = (Spec.T / Ct) * 100 # Molar fraction [%]
@@ -307,13 +308,16 @@ class ThEq:
             nCompounds = Rxn.getRxnByComp('pHSpeciation', iCompound)[0][1:]
             # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
             nCompounds = [nC.replace('H2CO3', 'H2CO3 (CO2)') for nC in nCompounds]
+            text_ = f'Chemical (or ion) speciation at {textT}K.'
             # Plotting
             fig, ax = plt.subplots()
             ax.plot(pH, nFrac)
             ax.set_ylabel('Molar fraction (%)')
             ax.set_xlabel('pH')
             ax.set_xticks(np.arange(pH[0], pH[-1]+1, 1))
-            ax.set_yticks(np.arange(0, 110, 10))
+            ax.set_yticks(np.arange(0, 110, 10))        
+            fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
+            fig.tight_layout(rect=(0,.05,1,1)) 
             ax.margins(x = 0)
             plt.legend(nCompounds, loc = 'center left', bbox_to_anchor = (1, 0.5))
             plt.show()
