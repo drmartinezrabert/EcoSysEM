@@ -66,7 +66,7 @@ ____________________________
 
 ### EcoSysEM package layout
 _Lorem ipsum..._
-### Fundamentals and usage
+### EcoSysEM fundamentals
 _Lorem ipsum..._
 #### <ins>Environment creation</ins>
 _Lorem ipsum..._
