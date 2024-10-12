@@ -1,4 +1,4 @@
 *.pyc
 ~*
 test*
-ecosysem/results/
+ecosysem/results/*.xlsx
