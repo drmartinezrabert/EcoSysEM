@@ -679,6 +679,77 @@ class ThSA:
                             ThSA.plotOnlypH(pH, DGr_plot, iRxn, text_)
         
     
+    def writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, typeData, fullPathSave):
+        """
+        Write calculated DeltaGr in Excel document.
+
+        """
+        # Excel properties
+        nameSheet = '∆Gr'
+        startCol = 1
+        # Compounds and concentrations
+        if isinstance(Ct, dict):
+            nComp = np.array(list(Ct.keys()))
+            Concs = np.array(list(Ct.values()))
+        # Info reaction
+        infoR = pd.DataFrame(np.array([f'·Reaction: {iRxn}.']))
+        if typeData == 'OnlyT' and not isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Only temperature dependency. ' + text_]))
+            colNames = ['Temperature (K)', '∆Gr (kJ/mol)']
+            dFram = np.array([T, DGr_export]).T
+        elif typeData == 'OnlypH' and not isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Only pH dependency. ' + text_]))
+            colNames = ['pH', '∆Gr (kJ/mol)']
+            dFram = np.array([pH, DGr_export]).T
+        elif typeData == 'OnlyT' and isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Only temperature dependency. ' + text_]))
+            colNames = np.append(nComp, ['Temperature (K)', '∆Gr (kJ/mol)'])
+            dFram = np.append(Concs, [T, DGr_export], axis = 0).T
+        elif typeData == 'OnlypH' and isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Only pH dependency. ' + text_]))
+            colNames = np.append(nComp, ['pH', '∆Gr (kJ/mol)'])
+            dFram = np.append(Concs, [pH, DGr_export], axis = 0).T
+        elif typeData == 'y' and isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Temperature & pH dependency. ' + text_]))
+            colNames = np.append(nComp, ['Temperature (K)/pH'])
+            colNames = np.append(colNames, np.float16(pH))
+            dFram = np.append(Concs, [T], axis = 0).T
+            dFram = np.append(dFram, DGr_export, axis = 1)
+        elif typeData == 'x' and isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Temperature & pH dependency. ' + text_]))
+            colNames = np.append(nComp, ['pH/Temperature (K)'])
+            colNames = np.append(colNames, np.float16(T))
+            dFram = np.append(Concs, [np.float16(pH)], axis = 0).T
+            dFram = np.append(dFram, DGr_export, axis = 1)
+        elif typeData == 'xy' and isinstance(Ct, dict):
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel | Temperature & pH dependency. ' + text_]))
+            colNames = np.append(nComp, ['Temperature (K)', 'pH', '∆Gr (kJ/mol)'])
+            dFram = np.append(Concs, [T, pH, DGr_export], axis = 0).T
+        elif typeData == 'T-pH-Ct_noAssociated':
+            introRow = pd.DataFrame(np.array(['∆Gr in Excel']))
+            infoR = pd.DataFrame(np.array([f'·Reaction: {iRxn}. | {text_}']))
+            colNames = np.append('Temperature (K)/pH', np.float16(pH))
+            dFram = np.append(np.array([T]), DGr_export, axis = 0).T
+        elif typeData == 'OnlyT-Ct_noAssociated':
+            introRow = pd.DataFrame(np.array([f'∆Gr in Excel | Only temperature dependency (pH = {str(pH[0])}).']))
+            infoR = pd.DataFrame(np.array([f'·Reaction: {iRxn}. | {text_}']))
+            colNames = ['Temperature (K)', '∆Gr (kJ/mol)']
+            dFram = np.array([T, DGr_export]).T
+        elif typeData == 'OnlypH-Ct_noAssociated':
+            introRow = pd.DataFrame(np.array([f'∆Gr in Excel | Only pH dependency (T = {str(T[0])}K).']))
+            infoR = pd.DataFrame(np.array([f'·Reaction: {iRxn}. | {text_}']))
+            colNames = ['pH', '∆Gr (kJ/mol)']
+            dFram = np.array([pH, DGr_export]).T
+        df = pd.DataFrame(dFram, columns = colNames)
+        # Time to write
+        if not os.path.isfile(fullPathSave):
+            with pd.ExcelWriter(fullPathSave) as writer:
+                introRow.to_excel(writer, sheet_name = nameSheet, index = False, header = False)
+        with pd.ExcelWriter(fullPathSave, mode = 'a', if_sheet_exists='overlay') as writer:
+            sRow = writer.sheets[nameSheet].max_row
+            infoR.to_excel(writer, sheet_name = nameSheet, startrow = sRow+1, startcol = 0, index = False, header = False)
+            df.to_excel(writer, sheet_name = nameSheet, startrow = sRow+2, startcol = startCol, index = False)
+
     def contourf_(pH, T, DGr_plot, iRxn, text_):
         """
         Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
