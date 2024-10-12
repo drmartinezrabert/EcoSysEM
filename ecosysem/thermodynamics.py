@@ -232,9 +232,12 @@ class ThEq:
     
         """
         if isinstance(compounds, str): compounds = [compounds]
-        if isinstance(temperature, float or list): temperature = [temperature]
-        if isinstance(pH, float or int): pH = [pH]
-        if isinstance(Ct, float or int): Ct = [Ct]
+        if isinstance(temperature, int): temperature = float(temperature)
+        if isinstance(temperature, float): temperature = [temperature]
+        if isinstance(pH, int): pH = float(pH)
+        if isinstance(pH, float): pH = [pH]
+        if isinstance(Ct, int): Ct = float(Ct)
+        if isinstance(Ct, float): Ct = [Ct]
         nCompounds = len(compounds)
         nTemperature = len(temperature)
         npH = len(pH)
@@ -371,9 +374,12 @@ class ThSA:
         if phase != 'G' and phase != 'L':
             print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
             sys.exit()
-        if isinstance(T, float or int): T = [T]
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): T = [T]
+        if isinstance(pH, int): pH = float(pH)
+        if isinstance(pH, float): pH = [pH]
+        # Variable lenghts
         nT = len(T)
-        if isinstance(pH, float or int): pH = [pH]
         npH = len(pH)
         # Check compound concentrations
         if isinstance(Ct, float):
@@ -542,9 +548,11 @@ class ThSA:
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
         if T is None: oneT = True; T = [298.15] # Standard conditions (K)
-        if isinstance(T, float or int): oneT = True; T = [T]
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): oneT = True; T = [T]
         if pH is None: onepH = True; pH = [7.0]  # Standard conditions
-        if isinstance(pH, float or int): onepH = True; pH = [pH]
+        if isinstance(pH, int): pH = float(pH)
+        if isinstance(pH, float): onepH = True; pH = [pH]
         # Variable lenghts
         nT = len(T)
         npH = len(pH)
