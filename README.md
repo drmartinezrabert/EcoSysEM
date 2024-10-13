@@ -160,7 +160,7 @@ EcoSysEM
   │      │     └── plotpHSpeciation
   │      └── ThSA
   │           ├── getDeltaGr
-  │           └── plotDeltaGr
+  │           └── exportDeltaGr
   ├── reactions
   │      └── Reactions
   │            ├── getRxn
