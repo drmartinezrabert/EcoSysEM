@@ -205,12 +205,12 @@ This guide is an overview and explains the important features of **EcoSysEM plat
 
 ### EcoSysEM package layout
 Important modules and how to import functions or classes from them are listed below. Classes names start with a capital letter, functions with a lower letter, and attributes with a dot (.) and lower letter:
-```
+```python
 from ecosysem.module import function
 from ecosysem.module import Class
 
-EcoSysEM
-  ├── envdef.py
+ecocysem
+  ├── envdef.py 
   │      ├── Environment
   │      │      ├── .temperature
   │      │      ├── .pressure
@@ -227,12 +227,11 @@ EcoSysEM
   │           ├── .pressure
   │           ├── .compounds
   │           ├── .compositions
-  │           ├── .H2O
   │           ├── getVerticalProfiles
   │           ├── getDictConc
   │           ├── plotTandP
   │           └── plotCompsProfiles
-  ├── thermodynamics.py
+  ├── thermodynamics.py 
   │      ├── ThP
   │      │    ├── getThP
   │      │    ├── getDeltaG0r
@@ -245,13 +244,13 @@ EcoSysEM
   │      └── ThSA
   │           ├── getDeltaGr
   │           └── exportDeltaGr
-  ├── reactions.py
+  ├── reactions.py 
   │      └── Reactions
   │            ├── getRxn
   │            ├── getRxnByComp
   │            └── getRxnByName
-  ├── ecosysem_spyder.py (Run EcoSysEM using Spyder, i.e., coding)
-  └── ecosysem_cmd.py (Run EcoSysEM using Command Line Interface, CLI)
+  ├── ecosysem_spyder.py
+  └── ecosysem_cmd.py
 ```
 
 [🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
