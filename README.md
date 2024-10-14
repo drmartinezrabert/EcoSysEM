@@ -267,22 +267,22 @@ This section clarifies concepts, design decisions and technical constraints in *
 #### <ins>Environment definition and instance calling</ins>
 _Lorem ipsum..._
 
-[🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Fundamentals and usage](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 _Lorem ipsum..._
 
-[🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Fundamentals and usage](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
-[🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Fundamentals and usage](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Ecosystem modelling</ins>
 :construction: Coming soon...
 
-[🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Fundamentals and usage](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 :construction: Coming soon...
