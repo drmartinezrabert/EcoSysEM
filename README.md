@@ -57,6 +57,7 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **NumPy**. NumPy is the fundamental package for scientific computing in Python. It is a Python library that provides a multidimensional array object, various derived objects (such as masked arrays and matrices), and an assortment of routines for fast operations on arrays, including mathematical, logical, shape manipulation, sorting, selecting, I/O, discrete Fourier transforms, basic linear algebra, basic statistical operations, random simulation and much more. For more info and tutorials, click [here](https://numpy.org/).
 - **Pandas**. Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of the Python programming language. For more info and tutorials, click [here](https://pandas.pydata.org/).
 - **Matplotlib**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
+- **SciPy**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -79,6 +80,10 @@ pip install pandas
 **Matplotlib**:
 ```
 pip install matplotlib
+```
+**SciPy**:
+```
+pip install scipy
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
