@@ -138,7 +138,7 @@ The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have 
     - Asm: Assumed equal to the value in freshwater.
     - Sander2023: R. Sander (2023), doi: 10.5194/acp-23-10901-2023.
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify reaction databases
 Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
@@ -171,12 +171,12 @@ Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Rea
 - Second deP: second deprotonation.
 - Third deP: third deprotonation.
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Formulization of compounds
 _Lorem ipsum..._
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
  ## :clipboard: Instructions to use EcoSysEM platform via Spyder
 1. Launch **Spyder**. For Spyder Tutorials, click [here](https://www.youtube.com/watch?v=E2Dap5SfXkI&list=PLPonohdiDqg9epClEcXoAPUiK0pN5eRoc&ab_channel=SpyderIDE).
@@ -192,7 +192,7 @@ _Lorem ipsum..._
 ## EcoSysEM user guide
 This guide is an overview and explains the important features of **EcoSysEM platform**.
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### EcoSysEM package layout
 Important modules and how to import functions or classes from them are listed below. Classes names start with a capital letter, functions with a lower letter, and attributes with a dot (.) and lower letter:
@@ -245,32 +245,32 @@ EcoSysEM
   └── ecosysem_cmd.py (Run EcoSysEM using Command Line Interface, CLI)
 ```
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
 This section clarifies concepts, design decisions and technical constraints in **EcoSysEM platform**.
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Environment creation and instance calling</ins>
 _Lorem ipsum..._
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 _Lorem ipsum..._
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Ecosystem modelling</ins>
 :construction: Coming soon...
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to Instructions](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 :construction: Coming soon...
