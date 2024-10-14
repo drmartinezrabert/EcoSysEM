@@ -99,11 +99,81 @@ ____________________________
 [🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify parameter databases
-_Lorem ipsum..._
+All important parameters are saved using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). For now, the following parameter databases are included:
+- Standard Gibbs free energy of formation (ΔG<sub>f</sub><sup>0</sup>).
+- Standard enthalpy of formation (ΔH<sub>f</sub><sup>0</sup>).
+- Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
+- Temperature dependence of Henry's law constant of solubility (B).
+
+To modify existing databases (_i.e.,_ include new parameter values), open de .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
+
+|  IUPAC  |  Formula  |  Phase  |  Value  |  REF  |
+| ------- | --------- | ------- | ------- | ----- |
+| IUPAC 1 | Formula 1 | Phase 1 | Value 1 | REF 1 |
+| IUPAC 2 | Formula 2 | Phase 2 | Value 2 | REF 2 |
+
+Where **IUPAC** is the name of compound using IUPAC nomenclautre, **Formula** is the chemical formula of compound (see [Formulization of compounds](#formulization-of-compounds)), **Phase** is the fluid phase in which parameter has been measured or estimated, **Value** is the value of parameter, and **REF** is the literature reference (see [database references](#database-references)).
+The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have three possible phases: G - gas, L - liquid, and S - solid. The H<sub>S</sub><sup>0</sup> and B parameters have two possible phases: FW - freshwater (liquid), and SW - sewater (liquid).
+
+#### <ins>Database references</ins>
+- Standard Gibbs free energy of formation (ΔG<sub>f</sub><sup>0</sup>).
+    - Thaurer1997: R. Thauer, K. Jungermann & K. Decker (1977), doi: 10.1128/br.41.1.100-180.1977.
+    - Kleerebezem2010: R. Kleerebezem & M. van Loosdrecht (2010), doi: 10.1080/10643380802000974.
+    - Zumdahl2012: S. Zumdahl & D. DeCoste (2017), CHemical Principles (7th edition), ISBM: 9781305856745.
+    - Beber2020: M. Beber _et al._ (2021), eQuilibrator 3.0, doi: 10.1093/nar/gkab1106.
+- Standard enthalpy of formation (ΔH<sub>f</sub><sup>0</sup>).
+    - Alberty2004: R. Alberty (2004), doi: 10.1016/j.bpc.2004.05.003.
+    - Speight2005: J. Speight (2005), Lange's Handbook of Chemistry (16th edition), ISBM: 0-07-143220-5.
+    - Kleerebezem2010: R. Kleerebezem & M. van Loosdrecht (2010), doi: 10.1080/10643380802000974.
+- Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
+    - Murray1969: C. Murray, J. Riley & T. Wilson (1969), doi: 10.1016/0011-7471(69)90020-5.
+    - Murray1970: C. Murray & J. Riley (1970), doi: 10.1016/0011-7471(70)90100-2.
+    - Crozier1974: T. Crozier & S. Yamamoto (1974), doi: 10.1021/je60062a007.
+    - Douabul1979: A. Douabul & J. Riley (1979), doi: 10.1021/je60083a014.
+    - Douabul1979b: A. Douabul & J. Riley (1979), doi: 10.1016/0198-0149(79)90023-2.
+    - Hedengren2000: D. Hedengren (2000), No. HNF-5174-FP.
+    - Zacharia2005: I. Zacharia & W. Deen (2005), doi: 10.1007/s10439-005-8980-9.
+    - Sander2023: R. Sander (2023), doi: 10.5194/acp-23-10901-2023.
+- Temperature dependence of Henry's law constant of solubility (B).
+    - Asm: Assumed equal to the value in freshwater.
+    - Sander2023: R. Sander (2023), doi: 10.5194/acp-23-10901-2023.
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify reaction databases
+Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
+- pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
+- metabolisms. Stoichiometrix matrix of metabolic reactions.
+
+To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
+
+|  Compound  |  Reaction no 1.0  |  Reaction no 2.0  |  ...  |  Reaction no N.0  |
+| ---------- | ----------------- | ----------------- | ----- | ----------------- |
+| Compound 1 | Stoich. value 1.1 | Stoich. value 2.1 |  ...  | Stoich. value N.1 |
+| Compound 2 | Stoich. value 1.2 | Stoich. value 2.2 |  ...  | Stoich. value N.1 |
+
+Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (< 0) and positive for products (> 0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers In column headers, it is written the participating compounds between '/' and the name of reaction between parenthesis.  
+
+· For example, biotic ammonia oxidation to nitrate by comammox bacteria (CMX): NH<sub>3</sub> + 2.0·O<sub>2</sub> → NO<sub>3</sub><sup>-</sup> + H<sub>2</sub>O + H<sup>+</sup>.
+
+
+|  Compound  |  NH3/O2/NO3-/H2O/H+ (CMX)  |
+| ---------- | -------------------------- |
+| H+ | 1 |
+| H2O | 1 |
+| O2 | -2 |
+| NH3 | -1 |
+| NO2- |  |
+| NO3- | 1 |
+
+⚠️In pHSpeciation database, a specific reaction names (in parenthesis) are used:
+- First deP: first deprotonation.
+- Second deP: second deprotonation.
+- Third deP: third deprotonation.
+
+[🔼 Back to **Contents**](#readme-contents)
+
+### Formulization of compounds
 _Lorem ipsum..._
 
 [🔼 Back to **Contents**](#readme-contents)
@@ -131,7 +201,7 @@ from ecosysem.module import function
 from ecosysem.module import Class
 
 EcoSysEM
-  ├── envdef
+  ├── envdef.py
   │      ├── Environment
   │      │      ├── .temperature
   │      │      ├── .pressure
@@ -153,7 +223,7 @@ EcoSysEM
   │           ├── getDictConc
   │           ├── plotTandP
   │           └── plotCompsProfiles
-  ├── thermodynamics
+  ├── thermodynamics.py
   │      ├── ThP
   │      │    ├── getThP
   │      │    ├── getDeltaG0r
@@ -166,7 +236,7 @@ EcoSysEM
   │      └── ThSA
   │           ├── getDeltaGr
   │           └── exportDeltaGr
-  ├── reactions
+  ├── reactions.py
   │      └── Reactions
   │            ├── getRxn
   │            ├── getRxnByComp
@@ -178,7 +248,7 @@ EcoSysEM
 [🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
-_Lorem ipsum..._
+This section clarifies concepts, design decisions and technical constraints in **EcoSysEM platform**.
 
 [🔼 Back to **Contents**](#readme-contents)
 
