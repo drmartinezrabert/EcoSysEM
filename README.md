@@ -19,7 +19,7 @@ ____________________________
         - Database references | [GO](#database-references) 
     - How to modify reaction databases | [GO](#how-to-modify-reaction-databases)
     - Formulization of compounds | [GO](#formulization-of-compounds)
-- Instructions to use EcoSysEM platform via Spyder | [GO](#how-to-modify-reaction-databases)
+- Instructions to use EcoSysEM platform via Spyder | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-spyder)
 - EcoSysEM user guide | [GO](#ecosysem-user-guide)
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
