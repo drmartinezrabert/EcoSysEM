@@ -23,7 +23,7 @@ ____________________________
 - EcoSysEM user guide | [GO](#ecosysem-user-guide)
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
-        - Environment creation and instance calling | [GO](#environment-creation-and-instance-calling)
+        - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
         - Ecosystem modelling | [GO](#ecosystem-modelling)
@@ -256,11 +256,15 @@ ecocysem
 [🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
-This section clarifies concepts, design decisions and technical constraints in **EcoSysEM platform**.
+This section clarifies concepts, design decisions and technical constraints in **EcoSysEM platform**. **EcoSystem platform** constitutes on four main blocks:
+- Environment definition | [GO](#environment-definition-and-instance-calling)
+- Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
+- Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
+- Ecosystem modelling | [GO](#ecosystem-modelling)
 
 [🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
-#### <ins>Environment creation and instance calling</ins>
+#### <ins>Environment definition and instance calling</ins>
 _Lorem ipsum..._
 
 [🔼 Back to Instructions (EcoSysEM via Spyder)](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
