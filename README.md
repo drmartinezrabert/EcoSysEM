@@ -148,7 +148,7 @@ Like parameter databases, all chemical and biotic reactions are defined using lo
 - pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
 - metabolisms. Stoichiometrix matrix of metabolic reactions.
 
-To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
+To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
 
 |  Compound  |  Reaction no 1.0  |  Reaction no 2.0  |  ...  |  Reaction no N.0  |
 | ---------- | ----------------- | ----------------- | ----- | ----------------- |
