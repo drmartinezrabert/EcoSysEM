@@ -32,7 +32,8 @@ ____________________________
 ____________________________
 
 ## Before having fun...
-**:warning: To open the links in a new tab: right click on the link + "Open link in new tab".**
+> [!NOTE]
+> To open the links in a new tab: right click on the link + "Open link in new tab".
 
 ### :gear: Anaconda Python installation
 EcoSysEM platform is built up in Python. To execute this Python scripts is recommended the installation of **Anaconda**. **Anaconda Python** is a free, open-source platform that allows to write and execute code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, managment and development, and alos comes with a large number of libraries/packages that can be you for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download teh installer for your operating system.
@@ -158,7 +159,6 @@ Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Rea
 
 · For example, biotic ammonia oxidation to nitrate by comammox bacteria (CMX): NH<sub>3</sub> + 2.0·O<sub>2</sub> → NO<sub>3</sub><sup>-</sup> + H<sub>2</sub>O + H<sup>+</sup>.
 
-
 |  Compound  |  NH3/O2/NO3-/H2O/H+ (CMX)  |
 | ---------- | -------------------------- |
 | H+ | 1 |
@@ -168,10 +168,11 @@ Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Rea
 | NO2- |  |
 | NO3- | 1 |
 
-⚠️In pHSpeciation database, a specific reaction names (in parenthesis) are used:
-- First deP: first deprotonation.
-- Second deP: second deprotonation.
-- Third deP: third deprotonation.
+> [!NOTE]
+> In pHSpeciation database, a specific reaction names (in parenthesis) are used:
+> - First deP: first deprotonation.
+> - Second deP: second deprotonation.
+> - Third deP: third deprotonation.
 
 [🔼 Back to Instructions (Downloading & Setting up)](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
