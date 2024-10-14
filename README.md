@@ -177,7 +177,12 @@ Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Rea
 [🔼 Back to Instructions (Downloading & Setting up)](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Formulization of compounds
-_Lorem ipsum..._
+To identify the differents compounds across the **EcoSysEM platform** and associated databases, the molecular formula of compounds has been chosen. It is crucial that each compound used in the platform has its unique formulation. Make sure that the compound formula match in all databases and scripts.
+- Guidelines for formulating compounds:
+    - _Lorem ipsum_.
+
+· Examples:
+- _Lorem ipsum_
 
 [🔼 Back to Instructions (Downloading & Setting up)](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
