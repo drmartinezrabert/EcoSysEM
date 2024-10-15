@@ -327,12 +327,16 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 {'A': 0.005, 'B': 0.001, 'C': 0.001, 'D': 0.002}
 ```
 
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
 #
 
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
 _Lorem ipsum_
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
 _Lorem ipsum_
