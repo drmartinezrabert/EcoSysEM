@@ -42,7 +42,7 @@ class Environment:
         self.pressure = pressure
         self.pH = pH
         self.compounds = compounds
-        self.compositions = composition
+        self.compositions = dict(zip(compounds, composition))
         
     def setT(self, new_T):
         self.temperature = new_T
