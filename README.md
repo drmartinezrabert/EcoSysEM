@@ -480,11 +480,12 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 
 #
 
+<!--
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
 _Lorem ipsum_
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
+-->
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 _Lorem ipsum..._
 
