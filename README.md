@@ -222,6 +222,8 @@ ecocysem
   │      │      ├── setpH
   │      │      └── setComposition
   │      └── ISA {subclass of Environment}
+  │           ├── ._ISAproperties
+  │           ├── .dryComposition
   │           ├── .altitude
   │           ├── .temperature
   │           ├── .pressure
@@ -349,7 +351,18 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 | __Kr__             | 1.1400·10<sup>-6</sup> | __NH<sub>3</sub>__ | 4.000·10<sup>-9</sup> | | |
 
-_Lorem ipsum..._
+To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
+- `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
+- `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04.
+- `pH`. pH of atmosphere. This attribute must be a _float_.
+- `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
+
+Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
+`ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has four instance methods:
+- **getVerticalProfiles()**
+- **getDictConc()**
+- **plotTandP()**
+- **plotCompsProfiles()**
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
