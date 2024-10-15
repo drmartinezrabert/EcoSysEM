@@ -1,4 +1,4 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
 Nitrogen,N2,FW,6.40E-06,Sander2023
 Nitrogen,N2,SW,5.10E-06,Murray1969
 Oxygen,O2,FW,1.30E-05,Sander2023
@@ -29,4 +29,4 @@ Nitric oxide,NO,SW,1.75E-05,Zacharia2005
 Sulfur dioxide,SO2,FW,1.30E-02,Sander2023
 Sulfur dioxide,SO2,SW,1.30E-02,Douabul1979
 Hydrogen sulfide,H2S,FW,1.00E-03,Sander2023
-Hydrogen sulfide,H2S,SW,4.36E-04,Douabul2005
+Hydrogen sulfide,H2S,SW,4.36E-04,Douabul1979b

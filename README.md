@@ -16,12 +16,14 @@ ____________________________
     - Installation of packages using pip | [GO](#installation-of-packages-using-pip)
 - Instructions for downloading and setting up EcoSysEM platform | [GO](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform)
     - How to modify parameter databases | [GO](#how-to-modify-parameter-databases)
+        - Database references | [GO](#database-references) 
     - How to modify reaction databases | [GO](#how-to-modify-reaction-databases)
-- Instructions to use EcoSysEM platform via Spyder | [GO](#how-to-modify-reaction-databases)
+    - Formulization of compounds | [GO](#formulization-of-compounds)
+- Instructions to use EcoSysEM platform via Spyder | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-spyder)
 - EcoSysEM user guide | [GO](#ecosysem-user-guide)
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
-        - Environment creation and instance calling | [GO](#environment-creation-and-instance-calling)
+        - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
         - Ecosystem modelling | [GO](#ecosystem-modelling)
@@ -30,7 +32,8 @@ ____________________________
 ____________________________
 
 ## Before having fun...
-**:warning: To open the links in a new tab: right click on the link + "Open link in new tab".**
+> [!NOTE]
+> To open the links in a new tab: right click on the link + "Open link in new tab".
 
 ### :gear: Anaconda Python installation
 EcoSysEM platform is built up in Python. To execute this Python scripts is recommended the installation of **Anaconda**. **Anaconda Python** is a free, open-source platform that allows to write and execute code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, managment and development, and alos comes with a large number of libraries/packages that can be you for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download teh installer for your operating system.
@@ -57,6 +60,7 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **NumPy**. NumPy is the fundamental package for scientific computing in Python. It is a Python library that provides a multidimensional array object, various derived objects (such as masked arrays and matrices), and an assortment of routines for fast operations on arrays, including mathematical, logical, shape manipulation, sorting, selecting, I/O, discrete Fourier transforms, basic linear algebra, basic statistical operations, random simulation and much more. For more info and tutorials, click [here](https://numpy.org/).
 - **Pandas**. Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of the Python programming language. For more info and tutorials, click [here](https://pandas.pydata.org/).
 - **Matplotlib**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
+- **SciPy**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -80,6 +84,10 @@ pip install pandas
 ```
 pip install matplotlib
 ```
+**SciPy**:
+```
+pip install scipy
+```
 [🔼 Back to **Contents**](#readme-contents)
 
 ____________________________
@@ -87,21 +95,97 @@ ____________________________
 ## :clipboard: Instructions for downloading and setting up EcoSysEM platform
 1. Download .zip code. Last version: `v#.#`.<!-- [Download package](https://github.com/soundslikealloy/EcoSysEM). -->
 2. Extract files to a destination (:bulb: Recommendation - Desktop).
-3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` or built-in functions (see [How to modify parameter databases](#how-to-modify-parameter-databases) section).
-4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` or built-in functions (see [How to modify reaction databases](#how-to-modify-reaction-databases) section).
+3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` (see [How to modify parameter databases](#how-to-modify-parameter-databases) section).
+4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` (see [How to modify reaction databases](#how-to-modify-reaction-databases) section).
 5. Execute **EcoSysEM platform** via Spyder (see [Instructions to use EcoSysEM platform via Spyder](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) section) or Command Line Interface (see [Instructions to use EcoSysEM platform via Command Line Interface (CLI)](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) section).
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify parameter databases
-_Lorem ipsum..._
+All important parameters are saved using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). For now, the following parameter databases are included:
+- Standard Gibbs free energy of formation (ΔG<sub>f</sub><sup>0</sup>).
+- Standard enthalpy of formation (ΔH<sub>f</sub><sup>0</sup>).
+- Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
+- Temperature dependence of Henry's law constant of solubility (B).
 
-[🔼 Back to **Contents**](#readme-contents)
+To modify existing databases (_i.e.,_ include new parameter values), open de .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
+
+|  IUPAC  |  Formula  |  Phase  |  Value  |  REF  |
+| ------- | --------- | ------- | ------- | ----- |
+| IUPAC 1 | Formula 1 | Phase 1 | Value 1 | REF 1 |
+| IUPAC 2 | Formula 2 | Phase 2 | Value 2 | REF 2 |
+
+Where **IUPAC** is the name of compound using IUPAC nomenclautre, **Formula** is the chemical formula of compound (see [Formulization of compounds](#formulization-of-compounds)), **Phase** is the fluid phase in which parameter has been measured or estimated, **Value** is the value of parameter, and **REF** is the literature reference (see [database references](#database-references)).
+The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have three possible phases: G - gas, L - liquid, and S - solid. The H<sub>S</sub><sup>0</sup> and B parameters have two possible phases: FW - freshwater (liquid), and SW - sewater (liquid).
+
+#### <ins>Database references</ins>
+- Standard Gibbs free energy of formation (ΔG<sub>f</sub><sup>0</sup>).
+    - Thaurer1997: R. Thauer, K. Jungermann & K. Decker (1977), doi: 10.1128/br.41.1.100-180.1977.
+    - Kleerebezem2010: R. Kleerebezem & M. van Loosdrecht (2010), doi: 10.1080/10643380802000974.
+    - Zumdahl2012: S. Zumdahl & D. DeCoste (2017), CHemical Principles (7th edition), ISBM: 9781305856745.
+    - Beber2020: M. Beber _et al._ (2021), eQuilibrator 3.0, doi: 10.1093/nar/gkab1106.
+- Standard enthalpy of formation (ΔH<sub>f</sub><sup>0</sup>).
+    - Alberty2004: R. Alberty (2004), doi: 10.1016/j.bpc.2004.05.003.
+    - Speight2005: J. Speight (2005), Lange's Handbook of Chemistry (16th edition), ISBM: 0-07-143220-5.
+    - Kleerebezem2010: R. Kleerebezem & M. van Loosdrecht (2010), doi: 10.1080/10643380802000974.
+- Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
+    - Murray1969: C. Murray, J. Riley & T. Wilson (1969), doi: 10.1016/0011-7471(69)90020-5.
+    - Murray1970: C. Murray & J. Riley (1970), doi: 10.1016/0011-7471(70)90100-2.
+    - Crozier1974: T. Crozier & S. Yamamoto (1974), doi: 10.1021/je60062a007.
+    - Douabul1979: A. Douabul & J. Riley (1979), doi: 10.1021/je60083a014.
+    - Douabul1979b: A. Douabul & J. Riley (1979), doi: 10.1016/0198-0149(79)90023-2.
+    - Hedengren2000: D. Hedengren (2000), No. HNF-5174-FP.
+    - Zacharia2005: I. Zacharia & W. Deen (2005), doi: 10.1007/s10439-005-8980-9.
+    - Sander2023: R. Sander (2023), doi: 10.5194/acp-23-10901-2023.
+- Temperature dependence of Henry's law constant of solubility (B).
+    - Asm: Assumed equal to the value in freshwater.
+    - Sander2023: R. Sander (2023), doi: 10.5194/acp-23-10901-2023.
+
+[🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify reaction databases
-_Lorem ipsum..._
+Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
+- pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
+- metabolisms. Stoichiometrix matrix of metabolic reactions.
 
-[🔼 Back to **Contents**](#readme-contents)
+To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
+
+|  Compound  |  Reaction no 1.0  |  Reaction no 2.0  |  ...  |  Reaction no N.0  |
+| ---------- | ----------------- | ----------------- | ----- | ----------------- |
+| Compound 1 | Stoich. value 1.1 | Stoich. value 2.1 |  ...  | Stoich. value N.1 |
+| Compound 2 | Stoich. value 1.2 | Stoich. value 2.2 |  ...  | Stoich. value N.1 |
+
+Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (<0) and positive for products (>0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers In column headers, it is written the participating compounds between '/' and the name of reaction between parenthesis.  
+
+· For example, biotic ammonia oxidation to nitrate by comammox bacteria (CMX): NH<sub>3</sub> + 2.0·O<sub>2</sub> → NO<sub>3</sub><sup>-</sup> + H<sub>2</sub>O + H<sup>+</sup>.
+
+|  Compound  |  NH3/O2/NO3-/H2O/H+ (CMX)  |
+| ---------- | -------------------------- |
+| H+ | 1 |
+| H2O | 1 |
+| O2 | -2 |
+| NH3 | -1 |
+| NO2- |  |
+| NO3- | 1 |
+
+> [!NOTE]
+> In pHSpeciation database, a specific reaction names (in parenthesis) are used:
+> - First deP: first deprotonation.
+> - Second deP: second deprotonation.
+> - Third deP: third deprotonation.
+
+[🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+### Formulization of compounds
+To identify the differents compounds across the **EcoSysEM platform** and associated databases, the molecular formula of compounds has been chosen. It is crucial that each compound used in the platform has its unique formulation. Make sure that the compound formula match in all databases and scripts.
+
+· Guidelines for formulating compounds:
+- Use the same chemical symbol of elements. For example: _H_ for hydrogen, _O_ for oxygen, _Ar_ for argon, _Na_ for sodium...
+- If the compound is charged (like ion ammonium, NH<sub>4</sub><sup>+</sup>; or sulphate, SO<sub>4</sub><sup>2-</sup>), the charge sign (+ or -) is always precedes the number of charges of the ion, that is, in reverse of the normal formulizaton of ions. **Use only '+' and '-' to represent the charge of the ion.** For example: _SO4-2_ for sulphate (SO<sub>4</sub><sup>2-</sup>), _SO3-2_ for sulfite (SO<sub>3</sub><sup>2-</sup>) or _CO3-2_ for carbonate (CO<sub>3</sub><sup>2-</sup>.
+- For free radicals, the compound formulization starts with 'rad' and followed by the symbol of element/compound. For example: _radOH_ for hydroxyl radical (OH·), _radBr_ for bromine radical (Br·), or _radCH3_ for methyl radical (CH<sub>3</sub>·).
+- For organic compounds, you can use the chemical formula or an abbreviation. For example: _CH3COOH_ or _AcOH_ for acetic acid, _C3H7COOH_ or _ButyOH_ for butyric acid or _C6H1206_ or _Glc_ for glucose.
+
+[🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
  ## :clipboard: Instructions to use EcoSysEM platform via Spyder
 1. Launch **Spyder**. For Spyder Tutorials, click [here](https://www.youtube.com/watch?v=E2Dap5SfXkI&list=PLPonohdiDqg9epClEcXoAPUiK0pN5eRoc&ab_channel=SpyderIDE).
@@ -117,16 +201,16 @@ _Lorem ipsum..._
 ## EcoSysEM user guide
 This guide is an overview and explains the important features of **EcoSysEM platform**.
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### EcoSysEM package layout
 Important modules and how to import functions or classes from them are listed below. Classes names start with a capital letter, functions with a lower letter, and attributes with a dot (.) and lower letter:
-```
+```python
 from ecosysem.module import function
 from ecosysem.module import Class
 
-EcoSysEM
-  ├── envdef
+ecocysem
+  ├── envdef.py 
   │      ├── Environment
   │      │      ├── .temperature
   │      │      ├── .pressure
@@ -143,12 +227,11 @@ EcoSysEM
   │           ├── .pressure
   │           ├── .compounds
   │           ├── .compositions
-  │           ├── .H2O
   │           ├── getVerticalProfiles
   │           ├── getDictConc
   │           ├── plotTandP
   │           └── plotCompsProfiles
-  ├── thermodynamics
+  ├── thermodynamics.py 
   │      ├── ThP
   │      │    ├── getThP
   │      │    ├── getDeltaG0r
@@ -160,42 +243,120 @@ EcoSysEM
   │      │     └── plotpHSpeciation
   │      └── ThSA
   │           ├── getDeltaGr
-  │           └── plotDeltaGr
-  ├── reactions
+  │           └── exportDeltaGr
+  ├── reactions.py 
   │      └── Reactions
   │            ├── getRxn
   │            ├── getRxnByComp
   │            └── getRxnByName
-  ├── ecosysem_spyder.py (Run EcoSysEM using Spyder, i.e., coding)
-  └── ecosysem_cmd.py (Run EcoSysEM using Command Line Interface, CLI)
+  ├── ecosysem_spyder.py
+  └── ecosysem_cmd.py
 ```
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
-_Lorem ipsum..._
+This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
+- Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
+  - General Environment | [GO](#general-environment)
+  - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
+  - How to create a new Environment subclass | [GO](#create-new-environment-subclass)
+- Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
+- Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
+- Ecosystem modelling | [GO](#ecosystem-modelling)
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
-#### <ins>Environment creation and instance calling</ins>
-_Lorem ipsum..._
+#### <ins>Environment definition and instance calling</ins>
+One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
+- _Encapsulation_ principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
+- _Inheritance_ principle allows a new class to be defined based on an existing class, inheriting its attributes and methods.
+- _Abstraction_ principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
+- _Polymorphism_ principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class.
 
-[🔼 Back to **Contents**](#readme-contents)
+The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
+
+#
+
+Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new <a name="general-environment">general environment</a> instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
+```python
+from envdef import Environment
+
+newEnv1 = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
+newEnv2 = Environment(15, 1.0, 7.0, ['O2', 'CO2', 'CH4', 'NH3'], [[9.375e-5, 1.0e-7], [1.000e-3, 1.000e-3], [3.500e-3, 2.231e-5], [1.000e-3, 1.000e-5]])
+```
+Once created the Environment instances (`newEnv1` and `newEnv2`), their attributes can be accessed using **dot notation**. All attributes of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). Here are some examples:
+```python
+>>> print(newEnv1.temperature)
+-5
+>>> print(newEnv2.temperature)
+15
+>>> print(newEnv1.compositions)
+{'A': 0.001, 'B': 0.001, 'C': 0.001}
+>>> print(newEnv2.compositions)
+{'O2': [9.375e-05, 1e-07], 'CO2': [0.001, 0.001], 'CH4': [0.0035, 2.231e-05], 'NH3': [0.001, 1e-05]}
+```
+In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
+- **setT(newTemperature)** modify temperature of the `Environment` instance.
+- **setP(newPressure)** modfiy pressure of the `Environment` instance.
+- **setpH(newpH)** modfiy pH value of the `Environment` instane.
+- **setComposition(compound, composition)** add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.
+
+To call the instance methods of `Environment`, the name of the `Environment` object must be preceded by the function name and its arguments in parenthesis. Here is an example:
+```python
+from envdef import Environment
+
+newEnv = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
+
+>>> print(newEnv.pressure)
+5.0
+>>> print(newEnv.pH)
+7.0
+>>> print(newEnv.compositions)
+{'A': 0.001, 'B': 0.001, 'C': 0.001}
+
+newEnv.setP(1.0)
+newEnv.setpH(8.5)
+newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
+
+>>> print(newEnv.pressure)
+1.0
+>>> print(newEnv.pH)
+8.5
+>>> print(newEnv.compositions)
+{'A': 0.005, 'B': 0.001, 'C': 0.001, 'D': 0.002}
+```
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
+From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
+
+<a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
+_Lorem ipsum_
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+<a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
+_Lorem ipsum_
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 _Lorem ipsum..._
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Ecosystem modelling</ins>
 :construction: Coming soon...
 
-[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 :construction: Coming soon...
@@ -216,4 +377,4 @@ ____________________________
 
 **Eloi Martinez-Rabert**. :envelope: eloi.mrp@gmail.com
 
-[🔼 Back to top](#ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Top**](#ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
