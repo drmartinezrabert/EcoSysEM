@@ -393,12 +393,92 @@ To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the insta
 
 Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
 `ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has four instance methods:
-- **getVerticalProfiles()**
-- **getDictConc()**
-- **plotTandP()**
-- **plotCompsProfiles()**
+
+### ISA.getVerticalProfiles
+```python
+ISA.getVerticalProfiles(phase, compound=None)
+```
+Return vertical profiles in _format=ndarray_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, compoundsG : _ndarray_** (if _phase='G'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, compoundsLFW : _ndarray_** (if _phase='L-FW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLSW, compoundsLSW : _ndarray_** (if _phase='L-SW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, concLSW, compoundsLFW, compoundsLSW : _ndarray_** (if _phase='L'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, concLFW, concLSW, compoundsG, compoundsLFW, compoundsLSW  : _ndarray_** (if _phase='All'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pi : Parcial pressure of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concG : Concentration in gas of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concLFW : Concentration in liquid (freshwater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concSFW : Concentration in liquid (seawater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsG : Compounds names (gas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (freshwater).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (seawater).<br>
+
+### ISA.getDictConc
+```python
+ISA.getDictConc(phase, compound=None)
+```
+Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G : _dict_** (if _phase='G'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW : _dict_** (if _phase='L-FW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LSW : _dict_** (if _phase='L-SW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW, dictCi_LSW : _dict_** (if _phase='L'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G, dictCi_LFW, dictCi_LSW : _dict_** (if _phase='All'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictPi : Parcial pressure of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_G : Concentration in gas of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
+
+### ISA.plotTandP
+```python
+ISA.plotTandP()
+```
+Plot temperature and pressure profiles of `ISA` instance.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None** <p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
+
+### ISA.plotCompsProfiles
+```python
+ISA.plotCompsProfiles(Conc, xLabel, logCLabel=False, compounds=None)
+```
+Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Compound concenrations to be plotted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xLabel : _ndarray_ or _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Altitude vector.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **logCLabel : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set logarithmic scale in x-coordinate. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) to plot.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot**<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
 
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
 _Lorem ipsum_
