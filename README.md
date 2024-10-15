@@ -265,6 +265,10 @@ This section clarifies concepts, design decisions and technical details of this 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Environment definition and instance calling</ins>
+One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: `Encapsulation`, `Inheritance`, `Abstraction` and `Polymorphism`. `Encapsulation` principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object. `Inheritance` principle allows a new clas to be defined based on an existing class, inheriting its attributes and methods. `Abstraction` principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone. `Polymorphism` principle enables the use of a common interface for different classes, making it possible o write code that can work with object of different types without knowing their specific class. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
+
+The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
+
 _Lorem ipsum..._
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
