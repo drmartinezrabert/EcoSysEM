@@ -262,7 +262,7 @@ This section clarifies concepts, design decisions and technical details of this 
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - General Environment | [GO](#general-environment)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
-  - How to create a new Environment subclass | [GO](#create-new-environment-subclass)
+  <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem modelling | [GO](#ecosystem-modelling)
