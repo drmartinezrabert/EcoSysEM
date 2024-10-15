@@ -259,7 +259,7 @@ ecocysem
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - General Environment | [GO](#general-environment)
-  - Ideal atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
+  - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem modelling | [GO](#ecosystem-modelling)
@@ -330,7 +330,7 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
-<a name="ISA">**Ideal atmosphere (International Standard Atmosphere, ISA)**</a><br>
+<a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
 _Lorem ipsum_
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
