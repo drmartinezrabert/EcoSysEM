@@ -258,6 +258,7 @@ ecocysem
 ### Fundamentals and usage
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition | [GO](#environment-definition-and-instance-calling)
+  - General environment | [GO](#general-environment) 
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem modelling | [GO](#ecosystem-modelling)
@@ -275,7 +276,7 @@ The benefits of OOP are _i_) organization, _ii_) state definition and tracking, 
 
 #
 
-Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new general environment instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
+Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new <a name="general-environment">general environment instance (_i.e.,_ instantiate the class `Environment`)</a>, several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
 ```python
 from envdef import Environment
 
