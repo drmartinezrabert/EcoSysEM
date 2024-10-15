@@ -334,7 +334,7 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
-_Lorem ipsum_
+The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. 
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -371,6 +371,11 @@ _Lorem ipsum..._
 5. _Lorem ipsum..._
 6. Execute one of the **EcoSysEM** blocks/functions using the following command lines.
 -->
+
+## References
+
+[^1]: International Organization for Standardization, Standard Atmosphere, ISO 2533:1975, 1975. [Link](https://www.iso.org/standard/7472.html)
+
 ____________________________
 
 ## Contact
