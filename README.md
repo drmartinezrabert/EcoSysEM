@@ -155,7 +155,7 @@ To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.
 | Compound 1 | Stoich. value 1.1 | Stoich. value 2.1 |  ...  | Stoich. value N.1 |
 | Compound 2 | Stoich. value 1.2 | Stoich. value 2.2 |  ...  | Stoich. value N.1 |
 
-Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (< 0) and positive for products (> 0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers In column headers, it is written the participating compounds between '/' and the name of reaction between parenthesis.  
+Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (<0) and positive for products (>0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers In column headers, it is written the participating compounds between '/' and the name of reaction between parenthesis.  
 
 · For example, biotic ammonia oxidation to nitrate by comammox bacteria (CMX): NH<sub>3</sub> + 2.0·O<sub>2</sub> → NO<sub>3</sub><sup>-</sup> + H<sub>2</sub>O + H<sup>+</sup>.
 
