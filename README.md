@@ -257,8 +257,9 @@ ecocysem
 
 ### Fundamentals and usage
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
-- Environment definition | [GO](#environment-definition-and-instance-calling)
-  - General environment | [GO](#general-environment) 
+- Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
+  - General Environment | [GO](#general-environment)
+  - Ideal atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem modelling | [GO](#ecosystem-modelling)
@@ -268,7 +269,7 @@ This section clarifies concepts, design decisions and technical details of this 
 #### <ins>Environment definition and instance calling</ins>
 One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
 - _Encapsulation_ principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
-- _Inheritance_ principle allows a new clas to be defined based on an existing class, inheriting its attributes and methods.
+- _Inheritance_ principle allows a new class to be defined based on an existing class, inheriting its attributes and methods.
 - _Abstraction_ principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
 - _Polymorphism_ principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class.
 
@@ -276,7 +277,7 @@ The benefits of OOP are _i_) organization, _ii_) state definition and tracking, 
 
 #
 
-Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new <a name="general-environment">general environment instance (_i.e.,_ instantiate the class `Environment`)</a>, several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
+Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new <a name="general-environment">general environment</a> instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
 ```python
 from envdef import Environment
 
@@ -325,6 +326,12 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 {'A': 0.005, 'B': 0.001, 'C': 0.001, 'D': 0.002}
 ```
 
+#
+
+From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
+
+<a name="general-environment">**Ideal atmosphere (International Standard Atmosphere, ISA)**</a>
+_Lorem ipsum_
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
