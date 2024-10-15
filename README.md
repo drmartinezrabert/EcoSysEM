@@ -299,10 +299,44 @@ Once created the Environment instances (`newEnv1` and `newEnv2`), their attribut
 {'O2': [9.375e-05, 1e-07], 'CO2': [0.001, 0.001], 'CH4': [0.0035, 2.231e-05], 'NH3': [0.001, 1e-05]}
 ```
 In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
-- **setT(newTemperature)** modify temperature of the `Environment` instance.
-- **setP(newPressure)** modfiy pressure of the `Environment` instance.
-- **setpH(newpH)** modfiy pH value of the `Environment` instane.
-- **setComposition(compound, composition)** add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.
+
+### Environment.setT
+```python
+Environment.setT(newT)
+```
+Modify temerature of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newT : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New tempearture value of `Environment` instance.
+
+### Environment.setP
+```python
+Environment.setP(newP)
+```
+Modify pressure of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newP : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pressure value of `Environment` instance.
+
+### Environment.setpH
+```python
+Environment.setpH(newpH)
+```
+Modify pH of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newpH : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pH value of `Environment` instance.
+
+### Environment.setComposition
+```python
+Environment.setComposition(compound, composition)
+```
+Add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New compound or compound to modify.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
 
 To call the instance methods of `Environment`, the name of the `Environment` object must be preceded by the function name and its arguments in parenthesis. Here is an example:
 ```python
