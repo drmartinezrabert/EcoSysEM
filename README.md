@@ -265,15 +265,63 @@ This section clarifies concepts, design decisions and technical details of this 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Environment definition and instance calling</ins>
-One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: `Encapsulation`, `Inheritance`, `Abstraction` and `Polymorphism`. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
-- `Encapsulation` principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
-- `Inheritance` principle allows a new clas to be defined based on an existing class, inheriting its attributes and methods.
-- `Abstraction` principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
-- `Polymorphism` principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class. 
+One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
+- _Encapsulation_ principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
+- _Inheritance_ principle allows a new clas to be defined based on an existing class, inheriting its attributes and methods.
+- _Abstraction_ principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
+- _Polymorphism_ principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class.
 
 The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
-_Lorem ipsum..._
+Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new general environment instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
+```python
+from envdef import Environment
+
+newEnv1 = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
+newEnv2 = Environment(15, 1.0, 7.0, ['O2', 'CO2', 'CH4', 'NH3'], [[9.375e-5, 1.0e-7], [1.000e-3, 1.000e-3], [3.500e-3, 2.231e-5], [1.000e-3, 1.000e-5]])
+```
+Once created the Environment instances (`newEnv1` and `newEnv2`), their attributes can be accessed using **dot notation**. All attributes of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). Here are some examples:
+```python
+>>> print(newEnv1.temperature)
+-5
+>>> print(newEnv2.temperature)
+15
+>>> print(newEnv1.compositions)
+{'A': 0.001, 'B': 0.001, 'C': 0.001}
+>>> print(newEnv2.compositions)
+{'O2': [9.375e-05, 1e-07], 'CO2': [0.001, 0.001], 'CH4': [0.0035, 2.231e-05], 'NH3': [0.001, 1e-05]}
+```
+In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
+- **setT(newTemperature)** modify temperature of the `Environment` instance.
+- **setP(newPressure)** modfiy pressure of the `Environment` instance.
+- **setpH(newpH)** modfiy pH value of the `Environment` instane.
+- **setComposition(compound, composition)** add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.
+
+To call the instance methods of `Environment`, the name of the `Environment` object must be preceded by the function name and its arguments in parenthesis. Here is an example:
+```python
+from envdef import Environment
+
+newEnv = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
+
+>>> print(newEnv.pressure)
+5.0
+>>> print(newEnv.pH)
+7.0
+>>> print(newEnv.compositions)
+{'A': 0.001, 'B': 0.001, 'C': 0.001}
+
+newEnv.setP(1.0)
+newEnv.setpH(8.5)
+newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
+
+>>> print(newEnv.pressure)
+1.0
+>>> print(newEnv.pH)
+8.5
+>>> print(newEnv.compositions)
+{'A': 0.005, 'B': 0.001, 'C': 0.001, 'D': 0.002}
+```
+
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
