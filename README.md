@@ -334,7 +334,22 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
-The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. 
+The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. The ISA model divides the atmosphere into different layers with specific physical properties (such as temperature rate change, base temperature, base atmospheric pressure or base atmospheric density). With these properties, the temperature and pressure profiles are calculated. On the other hand, the ISA model assumes that Earth's atmosphere is a mixture of gas, water vapor and a certain quantity of aerosols, in which the composition remains pratically constant up to altitudes of 90 - 95 km. The dry (0%<sub>vol</sub> of water) and wet composition (up to 4%<sub>vol</sub> of water) of Earth's atmosphere are from National Oceanic and Atmospheric Administration (NOAA)[^2] and _Atmospheric Radiation: Theoretical Basis (2<sup>nd</sup> edition)_[^3] (**Table 1**).
+
+**Table 1. Dry Earth's atmosphere composition (in %<sub>vol</sub>)**
+
+| Compound | Value | Compound | Value | Compound | Value |
+|---|---|---|---|---|---|
+| __N<sub>2</sub>__  | 7.8084·10<sup>-1</sup> | __H<sub>2</sub>__  | 5.500·10<sup>-7</sup> | __NO__             | 1.000·10<sup>-9</sup>  |
+| __O<sub>2</sub>__  | 2.0946·10<sup>-1</sup> | __N<sub>2</sub>O__ | 3.300·10<sup>-7</sup> | __SO<sub>2</sub>__ | 1.000·10<sup>-9</sup>  |
+| __Ar__             | 9.3400·10<sup>-3</sup> | __CO__             | 1.000·10<sup>-7</sup> | __H<sub>2</sub>S__ | 5.000·10<sup>-11</sup> |
+| __CO<sub>2</sub>__ | 4.2000·10<sup>-4</sup> | __Xe__             | 9.000·10<sup>-8</sup> | | |
+| __Ne__             | 1.8182·10<sup>-5</sup> | __O<sub>3</sub>__  | 7.000·10<sup>-8</sup> | | |
+| __He__             | 5.2400·10<sup>-6</sup> | __NO<sub>2</sub>__ | 2.000·10<sup>-8</sup> | | |
+| __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
+| __Kr__             | 1.1400·10<sup>-6</sup> | __NH<sub>3</sub>__ | 4.000·10<sup>-9</sup> | | |
+
+_Lorem ipsum..._
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -372,14 +387,16 @@ _Lorem ipsum..._
 6. Execute one of the **EcoSysEM** blocks/functions using the following command lines.
 -->
 
-## References
-
-[^1]: International Organization for Standardization, Standard Atmosphere, ISO 2533:1975, 1975. [Link](https://www.iso.org/standard/7472.html)
-
-____________________________
+__________________________________________________
 
 ## Contact
 
 **Eloi Martinez-Rabert**. :envelope: eloi.mrp@gmail.com
 
 [🔼 Back to **Top**](#ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+### References
+
+[^1]: International Organization for Standardization, Standard Atmosphere, ISO 2533:1975, 1975. [Link to ISO](https://www.iso.org/standard/7472.html).
+[^2]: The Atmosphere. Introduction to the Atmosphere. From National Oceanic and Atmospheric Administration (NOAA). Last updated: 2 July, 2024 [Link to NOAA](https://www.noaa.gov/jetstream/atmosphere).
+[^3]: Goody, R. M., & Yung, Y. L. (1989). Atmospheric Radiation: Theoretical Basis. Oxford University Press. [https://doi.org/10.1093/oso/9780195051346.001.0001](https://doi.org/10.1093/oso/9780195051346.001.0001).
