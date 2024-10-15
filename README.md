@@ -256,7 +256,7 @@ ecocysem
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
-This section clarifies concepts, design decisions and technical constraints in **EcoSysEM platform**. **EcoSystem platform** constitutes on four main blocks:
+This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition | [GO](#environment-definition-and-instance-calling)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
