@@ -89,7 +89,7 @@ class ISA(Environment):
     """
     def __init__(self, layers, H2O, pH, resolution = 1000):
         # Layers of the Earth's atmosphere (ISA)
-        ISAproperties = {
+        _ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
                         'Layer name': ['Troposphere', 'Tropopuse', 'Stratosphere', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesosphere', 'Mesopause'],
                         'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
@@ -98,9 +98,9 @@ class ISA(Environment):
                         'Base temperature': [15, -56.5, -56.5, -44.5, -2.5, -2.5, -58.5, -86.204],      # [C]
                         'Base pressure': [101325, 22632, 5474.9, 868.02, 110.91, 66.939, 3.9564, 0],    # [Pa]
                         }
-        dISA = pd.DataFrame(data = ISAproperties)
+        dISA = pd.DataFrame(data = _ISAproperties)
         # Dry composition
-        DryComposition = {
+        dryComposition = {
                          'Compounds': ['N2', 'O2', 'Ar', 'CO2', 'Ne', 
                                        'He', 'CH4', 'Kr', 'H2', 'N2O', 
                                        'CO', 'Xe','O3', 'NO2', 'I2', 
@@ -110,7 +110,7 @@ class ISA(Environment):
                                           1e-7, 9e-8, 7e-8, 2e-8, 1e-8, 
                                           4e-9, 1e-9, 1e-9, 5e-11] # [%vol]
                           }
-        dDC = pd.DataFrame(data = DryComposition)
+        dDC = pd.DataFrame(data = dryComposition)
         self.layers = layers
         self.pH = pH
         self.resolution = resolution

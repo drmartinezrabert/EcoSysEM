@@ -222,6 +222,8 @@ ecocysem
   │      │      ├── setpH
   │      │      └── setComposition
   │      └── ISA {subclass of Environment}
+  │           ├── ._ISAproperties
+  │           ├── .dryComposition
   │           ├── .altitude
   │           ├── .temperature
   │           ├── .pressure
@@ -297,10 +299,44 @@ Once created the Environment instances (`newEnv1` and `newEnv2`), their attribut
 {'O2': [9.375e-05, 1e-07], 'CO2': [0.001, 0.001], 'CH4': [0.0035, 2.231e-05], 'NH3': [0.001, 1e-05]}
 ```
 In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
-- **setT(newTemperature)** modify temperature of the `Environment` instance.
-- **setP(newPressure)** modfiy pressure of the `Environment` instance.
-- **setpH(newpH)** modfiy pH value of the `Environment` instane.
-- **setComposition(compound, composition)** add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.
+
+### Environment.setT
+```python
+Environment.setT(newT)
+```
+Modify temerature of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newT : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New tempearture value of `Environment` instance.
+
+### Environment.setP
+```python
+Environment.setP(newP)
+```
+Modify pressure of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newP : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pressure value of `Environment` instance.
+
+### Environment.setpH
+```python
+Environment.setpH(newpH)
+```
+Modify pH of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newpH : _int_ or _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pH value of `Environment` instance.
+
+### Environment.setComposition
+```python
+Environment.setComposition(compound, composition)
+```
+Add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New compound or compound to modify.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
 
 To call the instance methods of `Environment`, the name of the `Environment` object must be preceded by the function name and its arguments in parenthesis. Here is an example:
 ```python
@@ -334,9 +370,115 @@ newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
-_Lorem ipsum_
+The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. The ISA model divides the atmosphere into different layers with specific physical properties (such as temperature rate change, base temperature, base atmospheric pressure or base atmospheric density). With these properties, the temperature and pressure profiles are calculated. On the other hand, the ISA model assumes that Earth's atmosphere is a mixture of gas, water vapor and a certain quantity of aerosols, in which the composition remains pratically constant up to altitudes of 90 - 95 km. The dry (0%<sub>vol</sub> of water) and wet composition (up to 4%<sub>vol</sub> of water) of Earth's atmosphere are from National Oceanic and Atmospheric Administration (NOAA)[^2] and _Atmospheric Radiation: Theoretical Basis (2<sup>nd</sup> edition)_[^3] (**Table 1**).
+
+**Table 1. Dry Earth's atmosphere composition (in %<sub>vol</sub>)**
+
+| Compound | Value | Compound | Value | Compound | Value |
+|---|---|---|---|---|---|
+| __N<sub>2</sub>__  | 7.8084·10<sup>-1</sup> | __H<sub>2</sub>__  | 5.500·10<sup>-7</sup> | __NO__             | 1.000·10<sup>-9</sup>  |
+| __O<sub>2</sub>__  | 2.0946·10<sup>-1</sup> | __N<sub>2</sub>O__ | 3.300·10<sup>-7</sup> | __SO<sub>2</sub>__ | 1.000·10<sup>-9</sup>  |
+| __Ar__             | 9.3400·10<sup>-3</sup> | __CO__             | 1.000·10<sup>-7</sup> | __H<sub>2</sub>S__ | 5.000·10<sup>-11</sup> |
+| __CO<sub>2</sub>__ | 4.2000·10<sup>-4</sup> | __Xe__             | 9.000·10<sup>-8</sup> | | |
+| __Ne__             | 1.8182·10<sup>-5</sup> | __O<sub>3</sub>__  | 7.000·10<sup>-8</sup> | | |
+| __He__             | 5.2400·10<sup>-6</sup> | __NO<sub>2</sub>__ | 2.000·10<sup>-8</sup> | | |
+| __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
+| __Kr__             | 1.1400·10<sup>-6</sup> | __NH<sub>3</sub>__ | 4.000·10<sup>-9</sup> | | |
+
+To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
+- `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
+- `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04.
+- `pH`. pH of atmosphere. This attribute must be a _float_.
+- `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
+
+Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
+`ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has four instance methods:
+
+### ISA.getVerticalProfiles
+```python
+ISA.getVerticalProfiles(phase, compound=None)
+```
+Return vertical profiles in _format=ndarray_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, compoundsG : _ndarray_** (if _phase='G'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, compoundsLFW : _ndarray_** (if _phase='L-FW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLSW, compoundsLSW : _ndarray_** (if _phase='L-SW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, concLSW, compoundsLFW, compoundsLSW : _ndarray_** (if _phase='L'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, concLFW, concLSW, compoundsG, compoundsLFW, compoundsLSW  : _ndarray_** (if _phase='All'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pi : Parcial pressure of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concG : Concentration in gas of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concLFW : Concentration in liquid (freshwater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concSFW : Concentration in liquid (seawater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsG : Compounds names (gas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (freshwater).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (seawater).<br>
+
+### ISA.getDictConc
+```python
+ISA.getDictConc(phase, compound=None)
+```
+Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G : _dict_** (if _phase='G'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW : _dict_** (if _phase='L-FW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LSW : _dict_** (if _phase='L-SW'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW, dictCi_LSW : _dict_** (if _phase='L'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G, dictCi_LFW, dictCi_LSW : _dict_** (if _phase='All'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictPi : Parcial pressure of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_G : Concentration in gas of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
+
+### ISA.plotTandP
+```python
+ISA.plotTandP()
+```
+Plot temperature and pressure profiles of `ISA` instance.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None** <p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
+
+### ISA.plotCompsProfiles
+```python
+ISA.plotCompsProfiles(Conc, xLabel, logCLabel=False, compounds=None)
+```
+Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Compound concenrations to be plotted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xLabel : _ndarray_ or _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Altitude vector.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **logCLabel : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set logarithmic scale in x-coordinate. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) to plot.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot**<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
 
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
 _Lorem ipsum_
@@ -371,10 +513,17 @@ _Lorem ipsum..._
 5. _Lorem ipsum..._
 6. Execute one of the **EcoSysEM** blocks/functions using the following command lines.
 -->
-____________________________
+
+__________________________________________________
 
 ## Contact
 
 **Eloi Martinez-Rabert**. :envelope: eloi.mrp@gmail.com
 
 [🔼 Back to **Top**](#ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+### References
+
+[^1]: International Organization for Standardization, Standard Atmosphere, ISO 2533:1975, 1975. [Link to ISO](https://www.iso.org/standard/7472.html).
+[^2]: The Atmosphere. Introduction to the Atmosphere. From National Oceanic and Atmospheric Administration (NOAA). Last updated: 2 July, 2024 [Link to NOAA](https://www.noaa.gov/jetstream/atmosphere).
+[^3]: Goody, R. M., & Yung, Y. L. (1989). Atmospheric Radiation: Theoretical Basis. Oxford University Press. [https://doi.org/10.1093/oso/9780195051346.001.0001](https://doi.org/10.1093/oso/9780195051346.001.0001).
