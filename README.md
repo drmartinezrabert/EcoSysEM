@@ -273,6 +273,8 @@ One of the advantages of Python is that supports both **Object-Oriented Programm
 
 The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
+-----
+
 Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new general environment instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
 ```python
 from envdef import Environment
