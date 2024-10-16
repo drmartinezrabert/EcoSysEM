@@ -94,8 +94,8 @@ pip install scipy
 ____________________________
 
 ## :clipboard: Instructions for downloading and setting up EcoSysEM platform
-1. Download .zip code. Last version: `v#.#`.<!-- [Download package](https://github.com/soundslikealloy/EcoSysEM). -->
-2. Extract files to a destination (:bulb: Recommendation - Desktop).
+1. Download .zip code. Last version: `v0.1` **$${\color{orange}\textbf{(Pre-release)}}$$**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.1.zip).
+2. Extract files to a destination (Recommendation - Desktop).
 3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` (see [How to modify parameter databases](#how-to-modify-parameter-databases) section).
 4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` (see [How to modify reaction databases](#how-to-modify-reaction-databases) section).
 5. Execute **EcoSysEM platform** via Spyder (see [Instructions to use EcoSysEM platform via Spyder](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) section) or Command Line Interface (see [Instructions to use EcoSysEM platform via Command Line Interface (CLI)](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) section).
@@ -745,7 +745,7 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 [🔼 Back to **Contents**](#readme-contents)
 <!--
 1. Download .zip code. Last version: `v#.#`. [Download package](https://github.com/soundslikealloy/EcoSysEM).
-2. Extract files to a destination (:bulb: Recommendation - Desktop).
+2. Extract files to a destination (Recommendation - Desktop).
 3. Open **Anaconda Prompt or Terminal**.
 4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
