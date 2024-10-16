@@ -499,7 +499,7 @@ The main and auxiliary functions to perform the ThSA are located in `thermodynam
 
 ### ThSA.exportDeltaGr
 ```python
-ThSA.exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False)
+ThSA.exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, specComp=False, Ct=1.0, Ct_associated=None, asm='stoich', warnings=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
@@ -538,7 +538,7 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 
 ### ThSA.getDeltaGr
 ```python
-ThSA.exportDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False)
+ThSA.exportDeltaGr(typeRxn, input_, phase, specComp=False, T=298.15, Ct=1.0, pH=7.0, asm='stoich', warnings=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Return a n-dimension array with ΔG<sub>r</sub> values.<p>
@@ -587,7 +587,7 @@ Plot pH (or ion) speciation of requested compounds.<p>
 
 ### ThEq.pHSpeciation
 ```python
-ThEq.pHSpeciation(compounds, pH, temperature, Ct, rAllConc = False)
+ThEq.pHSpeciation(compounds, pH, temperature, Ct, rAllConc=False)
 ```
 Compute pH (or ion) speciation of selected compounds.<br> 
 Return a n-dimension array with concentrations of all chemical species.<p>
