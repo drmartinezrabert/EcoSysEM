@@ -280,7 +280,8 @@ The benefits of OOP are _i_) organization, _ii_) state definition and tracking, 
 
 #
 
-Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new <a name="general-environment">general environment</a> instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
+<a name="general-environment">**General environment**</a><br>
+Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new general environment instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
 ```python
 from envdef import Environment
 
