@@ -131,7 +131,7 @@ class ThP:
         deltaH0r = deltaH0f @ mRxn
         return deltaH0r
     
-    def getKeq(compounds, mRxn, temperature):
+    def getKeq(compounds, mRxn, temperature, phase):
         """
         Function to get equilibrium constants from DeltaG0f.
 
@@ -143,6 +143,8 @@ class ThP:
             Reaction matrix. (compounds)x(reactions)
         temperature: FLOAT
             Absolute temperature [K]
+        phase : STR
+            Fluid phase. Depending on typeParam.
 
         Returns
         -------
@@ -152,7 +154,7 @@ class ThP:
         """
         # Constants
         R = 0.0083144598   # Universal gas constant [kJ/mol/K]
-        deltaG0f, notNaN = ThP.getThP('deltaG0f', compounds, 'L')
+        deltaG0f, notNaN = ThP.getThP('deltaG0f', compounds, phase)
         deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn)
         Keq = np.exp(deltaG0r / (-R * temperature))
         return Keq
@@ -259,7 +261,7 @@ class ThEq:
                 # Acid dissociation constants (Ka)
                 transDict = {'First deP': 0, 'Second deP': 1, 'Third deP': 2}
                 intRxn = [transDict[letter] for letter in infoRxn]
-                Kai = ThP.getKeq(rComp, mRxn, iTemperature)
+                Kai = ThP.getKeq(rComp, mRxn, iTemperature, 'L')
                 Ka = np.zeros(3)
                 Ka[intRxn] = Kai
                 # Speciation
