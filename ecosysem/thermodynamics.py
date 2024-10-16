@@ -80,7 +80,7 @@ class ThP:
         Returns
         -------
         Param : FLOAT or np.array
-            Requested parameters. Shape: (temperature)x(compounds).
+            Requested parameters.
         notNaN : np.array
             Indices of parameters that are available.
 
@@ -93,7 +93,7 @@ class ThP:
     
     def getDeltaG0r(deltaG0f, mRxn):
         """
-        Function to get gibbs free energy of reaction from DeltaG0f.
+        Function to get Gibbs free energy of reaction from DeltaG0f.
 
         Parameters
         ----------
