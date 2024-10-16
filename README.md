@@ -28,6 +28,7 @@ ____________________________
         - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
         - Ecosystem modelling | [GO](#ecosystem-modelling)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
+-  Function Navigation | [GO](#function-navigation)
 -  Contact | [GO](#contact)
 ____________________________
 
@@ -726,6 +727,8 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
+#
+
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
@@ -750,6 +753,10 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 6. Execute one of the **EcoSysEM** blocks/functions using the following command lines.
 -->
 
+## Function Navigation
+_Lorem ipsum..._
+
+[🔼 Back to **Contents**](#readme-contents)
 __________________________________________________
 
 ## Contact
