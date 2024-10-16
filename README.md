@@ -25,9 +25,9 @@ ____________________________
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
-        - Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
-        - Ecosystem modelling | [GO](#ecosystem-modelling)
--  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
+        - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
+        - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
+-  Instructions to use EcoSysEM platform via Command Line Interface (CLI) 🚧 | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Contact | [GO](#contact)
 ____________________________
@@ -265,8 +265,8 @@ This section clarifies concepts, design decisions and technical details of this 
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
-- Bio-Thermodynamic State Analysis (BioThSA) | [GO](#bio-thermodynamic-state-analysis-biothsa)
-- Ecosystem modelling | [GO](#ecosystem-modelling)
+- Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
+- Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -702,7 +702,7 @@ Return a n-dimension array with the values of equilibrium constants.<p>
 
 #
 
-The functions to obtain the required information from reaction databases are found in `reaction.py` module. The main function is `Reaction.getRxn`.
+The functions to obtain the required information from reaction databases are found in `reaction.py` module. The main function is `Reaction.getRxn`:
 
 ### Reactions.getRxn &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
