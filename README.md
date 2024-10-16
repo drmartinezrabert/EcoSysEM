@@ -302,7 +302,7 @@ Once created the Environment instances (`newEnv1` and `newEnv2`), their attribut
 ```
 In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
 
-### Environment.setT
+### Environment.setT <br> &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Environment.setT(newT)
 ```
@@ -311,7 +311,7 @@ Modify temerature of the `Environment` instance.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newT : _int_ or _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New tempearture value of `Environment` instance.
 
-### Environment.setP
+### Environment.setP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Environment.setP(newP)
 ```
@@ -320,7 +320,7 @@ Modify pressure of the `Environment` instance.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newP : _int_ or _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pressure value of `Environment` instance.
 
-### Environment.setpH
+### Environment.setpH &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Environment.setpH(newpH)
 ```
@@ -329,7 +329,7 @@ Modify pH of the `Environment` instance.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newpH : _int_ or _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pH value of `Environment` instance.
 
-### Environment.setComposition
+### Environment.setComposition &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Environment.setComposition(compound, composition)
 ```
@@ -396,7 +396,7 @@ To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the insta
 Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
 `ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has four instance methods:
 
-### ISA.getVerticalProfiles
+### ISA.getVerticalProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ISA.getVerticalProfiles(phase, compound=None)
 ```
@@ -425,7 +425,7 @@ Return vertical profiles in _format=ndarray_ of selected compounds or all compou
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (freshwater).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (seawater).<br>
 
-### ISA.getDictConc
+### ISA.getDictConc &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ISA.getDictConc(phase, compound=None)
 ```
@@ -451,7 +451,7 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
 
-### ISA.plotTandP
+### ISA.plotTandP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ISA.plotTandP()
 ```
@@ -461,7 +461,7 @@ Plot temperature and pressure profiles of `ISA` instance.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
 
-### ISA.plotCompsProfiles
+### ISA.plotCompsProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ISA.plotCompsProfiles(Conc, xLabel, logCLabel=False, compounds=None)
 ```
@@ -499,7 +499,7 @@ The main and auxiliary functions to perform the ThSA are located in `thermodynam
 - `ThP`. Class with the functions to get thermodynamic parameters and calculate Gibbs energies and enthalpies of reactions.
 - `ThEq`. Class with the functions to compute thermodynamic equilibriums (such as Henry solubility and pH speciation).
 
-### ThSA.exportDeltaGr
+### ThSA.exportDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThSA.exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, specComp=False, Ct=1.0, Ct_associated=None, asm='stoich', warnings=False)
 ```
@@ -538,7 +538,7 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Excel file in `results\` folder** (if _modeExport='Excel'_)<br>
 
-### ThSA.getDeltaGr
+### ThSA.getDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThSA.getDeltaGr(typeRxn, input_, phase, specComp=False, T=298.15, Ct=1.0, pH=7.0, asm='stoich', warnings=False)
 ```
@@ -572,7 +572,7 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
 
-### ThEq.plotpHSpeciation
+### ThEq.plotpHSpeciation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThEq.plotpHSpeciation(compounds, pH, temperature)
 ```
@@ -587,7 +587,7 @@ Plot pH (or ion) speciation of requested compounds.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
 
-### ThEq.pHSpeciation
+### ThEq.pHSpeciation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThEq.pHSpeciation(compounds, pH, temperature, Ct, rAllConc=False)
 ```
@@ -609,7 +609,7 @@ Return a n-dimension array with concentrations of all chemical species.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(species)x(pH)x(total concentration)x(temperature)x(compounds)_, (if _rAllConc = True_).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Where species: [B], [B<sup>-</sup>], [B<sup>-2</sup>], [B<sup>-3</sup>]. 
 
-### ThEq.solubilityHenry
+### ThEq.solubilityHenry &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThEq.solubilityHenry(compounds, wType='FW', temperature=[])
 ```
@@ -632,7 +632,7 @@ Return a n-dimension array with Henry's law solubility constant(s) and an array 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **notNaN : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The `compounds` indices of parameters that are available.<br>
 
-### ThP.getThP
+### ThP.getThP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.getThP(typeParam, compounds, phase)
 ```
@@ -651,7 +651,7 @@ Return a n-dimension array with thermodynamic parameters and an array with the `
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **notNaN : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The `compounds` indices of parameters that are available.<br>
 
-### ThP.getDeltaG0r
+### ThP.getDeltaG0r &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.getDeltaG0r(deltaG0f, mRxn)
 ```
@@ -666,7 +666,7 @@ Return a n-dimension array with the values of standard Gibbs free energy of reac
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaG0r : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard Gibbs free energy of reactions.<br>
 
-### ThP.getDeltaH0r
+### ThP.getDeltaH0r &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.getDeltaH0r(deltaH0f, mRxn)
 ```
@@ -681,7 +681,7 @@ Return a n-dimension array with the values of standard enthalpy of reactions.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaH0r : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard enthalpy of reactions.<br>
 
-### ThP.getKeq
+### ThP.getKeq &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.getKeq(compounds, mRxn, temperature, phase)
 ```
@@ -704,7 +704,7 @@ Return a n-dimension array with the values of equilibrium constants.<p>
 
 The functions to obtain the required information from reaction databases are found in `reaction.py` module. The main function is `Reaction.getRxn`.
 
-### Reactions.getRxn
+### Reactions.getRxn &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Reactions.getRxn(typeRxn, input_, warnings=False)
 ```
