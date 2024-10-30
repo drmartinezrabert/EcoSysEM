@@ -1,7 +1,14 @@
 # EcoSysEM platform
 Eco-System Evolution &amp; Modelling
 
-*Contributors: Eloi Martinez-Rabert*
+*· Contributors: Eloi Martinez-Rabert*
+
+*· Funded by:*
+
+<table border="0">
+<tr><td><b>2024 - 2026:</b></td><td><img src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td></tr>
+</table>
+
 ____________________________
 
 ## README Contents
