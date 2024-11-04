@@ -31,7 +31,7 @@ ____________________________
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
-        - Ecological Analysis (EcoA) 🚧 | [GO](#ecological-analysis-analysis-ecoa)
+        - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
@@ -272,7 +272,7 @@ This section clarifies concepts, design decisions and technical details of this 
   - General Environment | [GO](#general-environment)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
-- Ecological Analysis (EcoA) 🚧 | [GO](#ecological-analysis-analysis-ecoa)
+- Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
@@ -503,7 +503,7 @@ _Lorem ipsum_
 
 #
 
-#### <ins>Ecological Analysis Analysis (EcoA)</ins>
+#### <ins>Ecosystem Analysis (EcoA)</ins>
 :construction: Coming soon...
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
