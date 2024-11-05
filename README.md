@@ -223,7 +223,7 @@ Important modules and how to import functions or classes from them are listed be
 from ecosysem.module import function
 from ecosysem.module import Class
 
-ecocysem
+ecosysem
   ├── ecosysem_cmd.py
   ├── ecosysem_spyder.py
   ├── ecosystem.py
