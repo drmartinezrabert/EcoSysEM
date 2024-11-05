@@ -224,17 +224,23 @@ from ecosysem.module import function
 from ecosysem.module import Class
 
 ecocysem
+  ├── ecosysem_cmd.py
+  ├── ecosysem_spyder.py
+  ├── ecosystem.py
+  │      └── EcoA
+  │           ├── ecoysDirEdges
+  │           └── ecoysDiHypergraph
   ├── envdef.py 
   │      ├── Environment
-  │      │      ├── .temperature
-  │      │      ├── .pressure
-  │      │      ├── .pH
-  │      │      ├── .compounds
-  │      │      ├── .compositions
-  │      │      ├── setT
-  │      │      ├── setP
-  │      │      ├── setpH
-  │      │      └── setComposition
+  │      │    ├── .temperature
+  │      │    ├── .pressure
+  │      │    ├── .pH
+  │      │    ├── .compounds
+  │      │    ├── .compositions
+  │      │    ├── setT
+  │      │    ├── setP
+  │      │    ├── setpH
+  │      │    └── setComposition
   │      └── ISA {subclass of Environment}
   │           ├── ._ISAproperties
   │           ├── .dryComposition
@@ -247,26 +253,24 @@ ecocysem
   │           ├── getDictConc
   │           ├── plotTandP
   │           └── plotCompsProfiles
-  ├── thermodynamics.py 
-  │      ├── ThP
-  │      │    ├── getThP
-  │      │    ├── getDeltaG0r
-  │      │    ├── getDeltaH0r
-  │      │    └── getKeq
-  │      ├── ThEq
-  │      │     ├── solubilityHenry
-  │      │     ├── pHSpeciation
-  │      │     └── plotpHSpeciation
-  │      └── ThSA
-  │           ├── getDeltaGr
-  │           └── exportDeltaGr
   ├── reactions.py 
   │      └── Reactions
-  │            ├── getRxn
-  │            ├── getRxnByComp
-  │            └── getRxnByName
-  ├── ecosysem_spyder.py
-  └── ecosysem_cmd.py
+  │           ├── getRxn
+  │           ├── getRxnByComp
+  │           └── getRxnByName
+  └── thermodynamics.py 
+         ├── ThP
+         │    ├── getThP
+         │    ├── getDeltaG0r
+         │    ├── getDeltaH0r
+         │    └── getKeq
+         ├── ThEq
+         │    ├── solubilityHenry
+         │    ├── pHSpeciation
+         │    └── plotpHSpeciation
+         └── ThSA
+              ├── getDeltaGr
+              └── exportDeltaGr
 ```
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
