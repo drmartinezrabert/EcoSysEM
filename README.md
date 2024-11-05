@@ -213,7 +213,7 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 [🔼 Back to **Contents**](#readme-contents)
 
 ## EcoSysEM user guide
-This guide is an overview and explains the important features of **EcoSysEM platform**.
+This section is an overview and explanation of important features of **EcoSysEM platform**.
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
