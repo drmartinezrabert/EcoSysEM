@@ -12,7 +12,7 @@ class Reactions:
     # Directory of reactions
     path = 'reactions\\'
     
-    def getRxn(typeRxn, input_, warnings = False):
+    def getRxn(typeRxn, input_ = 'All', warnings = False):
         """
         Function to get reaction(s) involving the requested compound or with the reaction name.
     
@@ -38,26 +38,29 @@ class Reactions:
         
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
-        if not isinstance(input_, list): input_ = [input_]
-        gRbC_rComp, gRbC_mRxn, gRbC_infoRxn = Reactions.getRxnByComp(typeRxn, input_, warnings)
-        gRbN_rComp, gRbN_mRxn, gRbN_infoRxn = Reactions.getRxnByName(typeRxn, input_, warnings)
-        if (gRbC_rComp is None) and (gRbN_rComp is None):
-            print(f'!EcoSysEM.Error: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
-            return None, None, None
-        elif gRbC_rComp is None:
-            rComp = gRbN_rComp
-            mRxn = gRbN_mRxn
-            infoRxn = gRbN_infoRxn
-        elif gRbN_rComp is None:
-            rComp = gRbC_rComp
-            mRxn = gRbC_mRxn
-            infoRxn = gRbC_infoRxn
-        elif (gRbC_rComp is not None) and (gRbN_rComp is not None):
-            print(f'!EcoSysEM.Error: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
-                  'All inputs must be the same type: compound or reaction. If a same name is used for a compound and a reaction, '
-                  'use `getRxnByComp()` or `getRxnByName()` instead.')
-            return None, None, None
-        return rComp, mRxn, infoRxn
+        if input_ == 'All':
+            return Reactions.getAllRxn(typeRxn, warnings)
+        else:
+            if not isinstance(input_, list): input_ = [input_]
+            gRbC_rComp, gRbC_mRxn, gRbC_infoRxn = Reactions.getRxnByComp(typeRxn, input_, warnings)
+            gRbN_rComp, gRbN_mRxn, gRbN_infoRxn = Reactions.getRxnByName(typeRxn, input_, warnings)
+            if (gRbC_rComp is None) and (gRbN_rComp is None):
+                print(f'!EcoSysEM.Error: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
+                return None, None, None
+            elif gRbC_rComp is None:
+                rComp = gRbN_rComp
+                mRxn = gRbN_mRxn
+                infoRxn = gRbN_infoRxn
+            elif gRbN_rComp is None:
+                rComp = gRbC_rComp
+                mRxn = gRbC_mRxn
+                infoRxn = gRbC_infoRxn
+            elif (gRbC_rComp is not None) and (gRbN_rComp is not None):
+                print(f'!EcoSysEM.Error: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
+                      'All inputs must be the same type: compound or reaction. If a same name is used for a compound and a reaction, '
+                      'use `getRxnByComp()` or `getRxnByName()` instead.')
+                return None, None, None
+            return rComp, mRxn, infoRxn
     
     def getRxnByComp(typeRxn, compounds, warnings = False):
         """
@@ -146,7 +149,8 @@ class Reactions:
             Involving compounds of reaction(s).
         mRxn : np.array
             Reaction matrix (compounds)x(reactions).        
-        
+        infoRxn : LIST
+            Information of reaction if any (in parenthesis in csv/Excel file)
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(nameRxn, list): nameRxn = [nameRxn]
@@ -169,4 +173,46 @@ class Reactions:
             dRxnF = pd.concat([dRxn.iloc[dRxnF.index, [0]], dRxnF], axis=1).fillna(0)
             rComp = list(dRxnF['Compounds'])
             mRxn = np.array(dRxnF.loc[:, dRxnF.columns != 'Compounds'])
+            return rComp, mRxn, infoRxn
+
+    def getAllRxn(typeRxn, warnings = False):
+        """
+        Function to get all reaction from reaction database (`typeRxn.csv`).
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'pHSpeciation': pH equilibrium
+                - 'metabolisms': metabolic activities
+        warnings : BOOL
+            Display function warnings. Default: False.
+
+        Returns
+        -------
+        rComp : LIST
+            Involving compounds of reaction(s).
+        mRxn : np.array
+            Reaction matrix (compounds)x(reactions).        
+        infoRxn : LIST
+            Information of reaction if any (in parenthesis in csv/Excel file)
+
+        """
+        # Read csv
+        dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
+        # Get compounds list
+        rComp = list(dRxn['Compounds'])
+        # Get info reactions (or names)
+        infoRxn = np.empty(0)
+        headers = dRxn.columns.values[1:]
+        for iHead in headers:
+            iRxn = iHead[iHead.find('(')+1:iHead.find(')')]
+            infoRxn = np.append(infoRxn, iRxn)
+        # Get Stoichiometric matrix
+        dRxnF = dRxn.dropna(how = 'all')
+        dRxnF = pd.concat([dRxn.iloc[dRxnF.index, [0]], dRxnF], axis=1).fillna(0)
+        mRxn = np.array(dRxnF.loc[:, dRxnF.columns != 'Compounds'])
+        if infoRxn.size == 0:
+            return None, None, None
+        else:
             return rComp, mRxn, infoRxn
