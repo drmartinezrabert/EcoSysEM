@@ -70,6 +70,7 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **Pandas**. Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of the Python programming language. For more info and tutorials, click [here](https://pandas.pydata.org/).
 - **Matplotlib**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
 - **SciPy**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
+- **iteration_utilites**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -96,6 +97,10 @@ pip install matplotlib
 **SciPy**:
 ```
 pip install scipy
+```
+**iteration_utilites**:
+```
+pip install iteration_utilities
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
