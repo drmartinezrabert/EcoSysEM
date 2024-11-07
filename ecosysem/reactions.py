@@ -37,7 +37,8 @@ class Reactions:
             Information of reaction if any (in parenthesis in csv/Excel file)
         
         """
-        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(typeRxn, list): 
+            if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if input_ == 'All':
             return Reactions.getAllRxn(typeRxn, warnings)
         else:
@@ -88,23 +89,38 @@ class Reactions:
             Information of reaction if any (in parenthesis in csv/Excel file)
         
         """
-        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(typeRxn, list): 
+            if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+            typeRxn = [typeRxn]
         if not isinstance(compounds, list): compounds = [compounds]
-        dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
+        dRxn = pd.read_csv(Reactions.path + typeRxn[0] + '.csv')
+        rComp = list(dRxn['Compounds'])
+        diffComp = []
+        if len(typeRxn) > 1:
+            typeRxn = typeRxn[1:]
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                rComp_aux = list(dRxn_aux['Compounds'])
+                diffComp_aux = list(set(rComp_aux)-set(rComp))
+                diffComp += diffComp_aux
+            dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iCompound in compounds:
             dRxnAux1 = dRxn.filter(regex = f'^{iCompound}/')
             dRxnAux2 = dRxn.filter(regex = f'/{iCompound}/')
-            dRxnAux3 = dRxn.filter(like = f'/{iCompound} ')
-            if not dRxnAux1.empty:
+            dRxnAux3 = dRxn.filter(regex = f'/{iCompound} *')
+            dRxnSizes = [dRxnAux1.shape[1], dRxnAux2.shape[1], dRxnAux3.shape[1]]
+            ind_dRxnMax = dRxnSizes.index(max(dRxnSizes))
+            if ind_dRxnMax == 0:
                 dRxnAux = dRxnAux1
-            elif not dRxnAux2.empty:
+            elif ind_dRxnMax == 1:
                 dRxnAux = dRxnAux2
-            elif not dRxnAux3.empty:
+            elif ind_dRxnMax == 2:
                 dRxnAux = dRxnAux3
-            else:
-                dRxnAux = dRxnAux1
             if dRxnAux.empty:
                 if warnings:
                     print(f'!EcoSysEM.Warning: Reactions with {iCompound} as a compound not found.')
@@ -152,9 +168,24 @@ class Reactions:
         infoRxn : LIST
             Information of reaction if any (in parenthesis in csv/Excel file)
         """
-        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(typeRxn, list): 
+            if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+            typeRxn = [typeRxn]
         if not isinstance(nameRxn, list): nameRxn = [nameRxn]
-        dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
+        dRxn = pd.read_csv(Reactions.path + typeRxn[0] + '.csv')
+        rComp = list(dRxn['Compounds'])
+        diffComp = []
+        if len(typeRxn) > 1:
+            typeRxn = typeRxn[1:]
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                rComp_aux = list(dRxn_aux['Compounds'])
+                diffComp_aux = list(set(rComp_aux)-set(rComp))
+                diffComp += diffComp_aux
+            dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iRxn in nameRxn:
@@ -198,8 +229,21 @@ class Reactions:
             Information of reaction if any (in parenthesis in csv/Excel file)
 
         """
-        # Read csv
-        dRxn = pd.read_csv(Reactions.path + typeRxn + '.csv')
+        if not isinstance(typeRxn, list): typeRxn = [typeRxn]
+        dRxn = pd.read_csv(Reactions.path + typeRxn[0] + '.csv')
+        rComp = list(dRxn['Compounds'])
+        diffComp = []
+        if len(typeRxn) > 1:
+            typeRxn = typeRxn[1:]
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                rComp_aux = list(dRxn_aux['Compounds'])
+                diffComp_aux = list(set(rComp_aux)-set(rComp))
+                diffComp += diffComp_aux
+            dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
+            for iDB in typeRxn:
+                dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
         # Get compounds list
         rComp = list(dRxn['Compounds'])
         # Get info reactions (or names)
