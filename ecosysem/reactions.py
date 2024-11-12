@@ -254,9 +254,20 @@ class Reactions:
             dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
             for iDB in typeRxn:
                 dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left')
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iRxn in nameRxn:
+            dRxnAux1 = dRxn.filter(regex = f'^{iRxn} *').dropna(how='all')
+            dRxnAux2 = dRxn.filter(like = f'({iRxn})').dropna(how = 'all')
+            dRxnSizes = [dRxnAux1.shape[1], dRxnAux2.shape[1]]
+            ind_dRxnMax = dRxnSizes.index(max(dRxnSizes))
+            if ind_dRxnMax == 0:
+                dRxnAux = dRxnAux1
+                iHead = str(dRxnAux.columns.values)
+                iRxn = iHead[iHead.find('(')+1:iHead.find(')')]
+            elif ind_dRxnMax == 1:
+                dRxnAux = dRxnAux2
             iHeader = dRxnAux.columns.values[0:]
             headers = np.append(headers, iHeader)
             if not dRxnAux.empty:
@@ -310,6 +321,7 @@ class Reactions:
             dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
             for iDB in typeRxn:
                 dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left')
         # Get compounds list
         rComp = list(dRxn['Compounds'])
         # Get info reactions (or names)
