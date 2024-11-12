@@ -250,7 +250,7 @@ class ThEq:
         else:
             rSpec = np.empty([npH, nCt, nTemperature, nCompounds])
         for idCompound, iCompound in enumerate(compounds):
-            rComp, mRxn, infoRxn = Rxn.getRxnByComp('pHSpeciation', iCompound)
+            rComp, mRxn, infoRxn = Rxn.getRxnpH(iCompound)
             if not rComp:
                 return Ct
             c_rComp = iCompound in rComp
@@ -310,7 +310,7 @@ class ThEq:
             c_nFrac = np.nonzero(np.sum(nFrac, axis = 0))
             nFrac = nFrac[:, c_nFrac[0]]
             # Get name of chemical species
-            nCompounds = Rxn.getRxnByComp('pHSpeciation', iCompound)[0][1:]
+            nCompounds = Rxn.getRxnpH(iCompound)[0][1:]
             # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
             nCompounds = [nC.replace('H2CO3', 'H2CO3 (CO2)') for nC in nCompounds]
             text_ = f'Chemical (or ion) speciation at {textT}K.'
@@ -670,7 +670,7 @@ class ThSA:
             if isinstance(Ct, dict):
                 nameComp = list(Ct)
                 conc = np.array(list(Ct.values()))
-                toRemove = ["\{", "\}", "\[", "\]"]
+                toRemove = ["{", "}", "[", "]"]
                 pattern = '[' + ''.join(toRemove) + ']'
             for idCt in range(nCt):
                 if isinstance(Ct, dict):

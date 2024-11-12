@@ -63,19 +63,18 @@ class Reactions:
                 return None, None, None
             return rComp, mRxn, infoRxn
     
-    def getRxnByComp(typeRxn, compounds, warnings = False):
         """
-        Function to get reaction(s) involving the requested compound.
+        Specific function to get reaction(s) involving the requested compound 
+        on acid-base equilibrium (defined in `pHSpeciation.csv`)
     
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'pHSpeciation': pH equilibrium
-                - 'metabolisms': metabolic activities
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name.
+            Default: 'pHSpeciation'.
         warnings : BOOL
             Display function warnings. Default: False.
             
@@ -106,7 +105,7 @@ class Reactions:
             dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
             for iDB in typeRxn:
                 dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
-                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
+                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left')
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iCompound in compounds:
