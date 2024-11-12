@@ -254,11 +254,9 @@ class Reactions:
             dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
             for iDB in typeRxn:
                 dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
-                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iRxn in nameRxn:
-            dRxnAux = dRxn.filter(like = f'({iRxn})').dropna(how = 'all')
             iHeader = dRxnAux.columns.values[0:]
             headers = np.append(headers, iHeader)
             if not dRxnAux.empty:
@@ -312,7 +310,6 @@ class Reactions:
             dRxn = pd.concat([dRxn, pd.DataFrame({'Compounds': diffComp})], ignore_index=True)
             for iDB in typeRxn:
                 dRxn_aux = pd.read_csv(Reactions.path + iDB + '.csv')
-                dRxn = pd.merge(dRxn, dRxn_aux, on='Compounds', how='left').fillna(0)
         # Get compounds list
         rComp = list(dRxn['Compounds'])
         # Get info reactions (or names)
