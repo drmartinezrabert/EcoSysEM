@@ -1,5 +1,5 @@
 # EcoSysEM platform
-Eco-System Evolution &amp; Modelling
+Eco-System Evaluation &amp; Modelling
 
 *· Contributors: Eloi Martinez-Rabert*
 
