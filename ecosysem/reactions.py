@@ -63,6 +63,7 @@ class Reactions:
                 return None, None, None
             return rComp, mRxn, infoRxn
     
+    def getRxnpH(compounds, typeRxn='pHSpeciation', warnings = False):
         """
         Specific function to get reaction(s) involving the requested compound 
         on acid-base equilibrium (defined in `pHSpeciation.csv`)
