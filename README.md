@@ -160,7 +160,7 @@ The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have 
 ### How to modify reaction databases
 Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
 - pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
-- metabolisms. Stoichiometrix matrix of metabolic reactions.
+- Metabolisms. Stoichiometrix matrix of metabolic reactions.
 
 To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
 
@@ -169,12 +169,12 @@ To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.
 | Compound 1 | Stoich. value 1.1 | Stoich. value 2.1 |  ...  | Stoich. value N.1 |
 | Compound 2 | Stoich. value 1.2 | Stoich. value 2.2 |  ...  | Stoich. value N.1 |
 
-Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (<0) and positive for products (>0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers In column headers, it is written the participating compounds between '/' and the name of reaction between parenthesis.  
+Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (<0) and positive for products (>0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers is written the reaction name and its abbreviation between parenthesis.  
 
 · For example, biotic ammonia oxidation to nitrate by comammox bacteria (CMX): NH<sub>3</sub> + 2.0·O<sub>2</sub> → NO<sub>3</sub><sup>-</sup> + H<sub>2</sub>O + H<sup>+</sup>.
 
-|  Compound  |  NH3/O2/NO3-/H2O/H+ (CMX)  |
-| ---------- | -------------------------- |
+|  Compound  |  Complete ammonia oxidation (CMX)  |
+| ---------- | ---------------------------------- |
 | H+ | 1 |
 | H2O | 1 |
 | O2 | -2 |
@@ -183,10 +183,18 @@ Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Rea
 | NO3- | 1 |
 
 > [!NOTE]
-> In pHSpeciation database, a specific reaction names (in parenthesis) are used:
+> In pHSpeciation database, a different header format is used. The participating compounds are written between '/' and the type of protonation between parenthesis:
 > - First deP: first deprotonation.
 > - Second deP: second deprotonation.
 > - Third deP: third deprotonation.
+>
+> · For example, for the acid-base equilibrium of sulfuric acid (H<sub>2</sub>SO<sub>4</sub>): H<sub>2</sub>SO<sub>4</sub> ⇔ HSO<sub>4</sub><sup>-</sup> + H<sup>+</sup> ⇔ SO<sub>4</sub><sup>2-</sup> + 2.0·H<sup>+</sup>.
+> |  Compound  |  H2SO4/HSO4-/SO4-2 (First deP)  |  H2SO4/HSO4-/SO4-2 (Second deP)  |
+> | ---------- | ------------------------------- | -------------------------------- |
+> | H+ | 1 | 1 |
+> | H2SO4 | -1 |  |
+> | HSO4- | 1 | -1 |
+> | SO4-2 |  | 1 |
 
 [🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
