@@ -164,10 +164,11 @@ Like parameter databases, all chemical and biotic reactions are defined using lo
 
 To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
 
-|  Compound  |  Reaction no 1.0  |  Reaction no 2.0  |  ...  |  Reaction no N.0  |
-| ---------- | ----------------- | ----------------- | ----- | ----------------- |
-| Compound 1 | Stoich. value 1.1 | Stoich. value 2.1 |  ...  | Stoich. value N.1 |
-| Compound 2 | Stoich. value 1.2 | Stoich. value 2.2 |  ...  | Stoich. value N.1 |
+|  Compounds  |  Reaction n<sup>o</sup> 1  |  Reaction n<sup>o</sup> 2  |  ...  |  Reaction n<sup>o</sup> N  |
+| ----------- | -------------------------- | -------------------------- | ----- | -------------------------- |
+| Compound 1  | Stoich. value 1.1 | Stoich. value 1.2 |  ...  | Stoich. value 1.N |
+| Compound 2  | Stoich. value 2.1 | Stoich. value 2.2 |  ...  | Stoich. value 2.N |
+| Compound 3  | Stoich. value 3.1 | Stoich. value 3.2 |  ...  | Stoich. value 3.N |
 
 Where **Stoich. value A.B** is the stoichiometric value of _Compound B_ for _Reaction A_. Stoichiometric values are negative for substrates (<0) and positive for products (>0). If a compound does not participate in a reaction, that cell is left blank. Each column is a specific reaction, and in the headers is written the reaction name and its abbreviation in parentheses.  
 
