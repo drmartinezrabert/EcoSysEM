@@ -1,4 +1,4 @@
-Compounds,CO/O2/CO2 (COOB),H2/O2/H2O (HOB),H2S/O2/SO4-2/H+ (SOM),H2S/O2/S0/H2O (HypSOM),NH3/O2/NO2-/H2O/H+ (AOM),NH3/O2/NO3-/H2O/H+ (CMX),CH4/O2/CO2/H2O (Methanotrophs)
+Compounds,Carbon monoxide oxidation (COOB),Hydrogen oxidation (HOB),Sulfur oxidation (SOM),Hypoxic sulfur oxidation (HypSOM),Ammonia oxidation (AOM),Complete ammonia oxidation (CMX),Methanotrophs (Mth)
 H+,,,2,,1,1,
 H2O,,2,,1,1,1,2
 O2,-1,-1,-2,-0.5,-1.5,-2,-2
