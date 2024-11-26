@@ -1,0 +1,13 @@
+Compounds,Anaerobic hydrogen oxidation (AnHOB),Anaerobic sulfur oxidation (AnSOM),Anaerobic hypoxic sulfur oxidation (AnHypSOM),Anaerobic ammonia oxidation (AnAOM),Anaerobic complete ammonia oxidation (AnCMX),Anaerobic methanotrophs (AnMth)
+H+,,2,,1,1,
+H2O,2,,1,1,1,2
+O2,,,,,,
+CO2,,,,,,1
+H2,-2,,,,,
+H2S,,-1,-1,,,
+SO4-2,,1,,,,
+S0,,,1,,,
+NH3,,,,-1,-1,
+NO2-,,,,1,,
+NO3-,,,,,1,
+CH40,,,,,,-1
