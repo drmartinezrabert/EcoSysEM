@@ -16,7 +16,7 @@ class EcoA():
     Class for Ecosystem Analysis module (EcoA).
     
     """
-    def ecoysDirEdges(typeRxn, input_ = 'All', rxnDef = None, cycles = None, warnings = False):
+    def rxnDirEdges(typeRxn, input_ = 'All', rxnDef = None, cycles = None, warnings = False):
         """
         Function to get directional hyperedges from stoichiometric matrix 
         (read from `typeRxn.csv`) and cycle hyperedges (if cycles are defined).
