@@ -422,7 +422,36 @@ To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the insta
 - `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
 
 Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
-`ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has the following instance methods:
+`ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
+
+Once a new _ISA_ object is created, a specific region of ISA can be selected using `ISA.selectRegion`. Compound concentrations (`ISA.getDictConc` or `ISA.getVerticalProfiles`) will be calculated using the new region defined. Here is an example:
+```python
+from envdef import ISA
+import numpy as np
+
+newISA = ISA(0, 0.00, None, 500)
+
+>>> print(newISA.altitude)
+[    0.   500.  1000.  1500.  2000.  2500.  3000.  3500.  4000.  4500.
+  5000.  5500.  6000.  6500.  7000.  7500.  8000.  8500.  9000.  9500.
+ 10000. 10500. 11000.]
+>>> print(newISA.temperature)
+[ 15.    11.75   8.5    5.25   2.    -1.25  -4.5   -7.75 -11.   -14.25
+ -17.5  -20.75 -24.   -27.25 -30.5  -33.75 -37.   -40.25 -43.5  -46.75
+ -50.   -53.25 -56.5 ]
+
+newISA.selectRegion([1000, 3500])
+
+>>> print(newISA.altitude)
+[1000. 1500. 2000. 2500. 3000. 3500.]
+>>> print(newISA.temperature)
+[ 8.5   5.25  2.   -1.25 -4.5  -7.75]
+
+C = newISA.getDictConc('L-SW')
+
+>>> print(np.round(C['O2'], 7)) # np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
+[0.0003134, 0.0003138, 0.0003144, 0.0003153, 0.0003164, 0.0003178]
+```
 
 ### ISA.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
