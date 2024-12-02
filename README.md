@@ -435,7 +435,7 @@ Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on th
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _int_ or _float_: minAlt = 0; maxAlt = selAlt.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _list_: [minAlt, maxAlt].<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **No returns.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None**<br>
 
 ### ISA.getVerticalProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -532,8 +532,6 @@ _Lorem ipsum_
 #
 
 -->
-
-#
 
 #### <ins>Ecosystem Analysis (EcoA)</ins>
 :construction: Coming soon...
