@@ -432,9 +432,10 @@ Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on th
 **Parameters:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selAlt : _int, float or list_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Minimum and maximum altitude of the new atmosphere region.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a **_list_**: [minAlt, maxAlt].<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _int_ or _float_: minAlt = 0; maxAlt = selAlt.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _list_: [minAlt, maxAlt].<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **No returns.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **No returns.**<br>
 
 ### ISA.getVerticalProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
