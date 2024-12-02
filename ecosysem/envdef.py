@@ -167,7 +167,39 @@ class ISA(Environment):
         self.altitude = alt # [m]
         self.temperature = t # [C]
         self.pressure = p # [Pa]
+    
+    def selectRegion(self, selAlt):
+        """
+        Select a specific region of atmosphere based on a minimum and maximum 
+        altitud value.
         
+        """
+        if isinstance(selAlt, list):
+            if len(selAlt) > 2:
+                print('!EcoSysEM.Error: `selAlt` argument must be a int, float or list [minAlt, maxAlt].')
+                sys.exit()
+            elif len(selAlt) == 1:
+                selAlt = [0, selAlt[0]]
+            minAlt = selAlt[0]
+            maxAlt = selAlt[1]
+        elif isinstance(selAlt, (int, float)):
+            minAlt = 0
+            maxAlt = selAlt
+        # Previous altitude, temperature and pressure
+        prevAlt = self.altitude
+        prevT = self.temperature
+        prevP = self.pressure
+        # Correct min and max altitude, if out of previous range
+        minAlt = max(minAlt, min(prevAlt))
+        maxAlt = min(maxAlt, max(prevAlt))
+        # Indexes of min and max altitudes
+        imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
+        iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
+        # New altitude, temperature and pressure
+        self.altitude = prevAlt[imAlt:iMAlt]
+        self.temperature = prevT[imAlt:iMAlt]
+        self.pressure = prevP[imAlt:iMAlt]
+    
     def computeWaterContent(self, H2O, dDC):
         """
         It is assumed that atmospheric compositon of minor components (<0.9%, 
