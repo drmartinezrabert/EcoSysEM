@@ -258,6 +258,7 @@ ecosysem
   │           ├── .pressure
   │           ├── .compounds
   │           ├── .compositions
+  │           ├── selectRegion
   │           ├── getVerticalProfiles
   │           ├── getDictConc
   │           ├── plotTandP
@@ -422,6 +423,18 @@ To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the insta
 
 Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
 `ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout). The `ISA` subclass has four instance methods:
+
+### ISA.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ISA.selectRegion(selAlt)
+```
+Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on the minimum and maximum altitude given.<p>
+**Parameters:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selAlt : _int, float or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Minimum and maximum altitude of the new atmosphere region.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a **_list_**: [minAlt, maxAlt].<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **No returns.<br>
 
 ### ISA.getVerticalProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -843,6 +856,7 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.setComposition](#environmentsetcomposition---back-to-function-navigation)<br>
 
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectRegion](#isaselectregion---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getVerticalProfiles](#isagetverticalprofiles---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getDictConc](#isagetdictconc---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP](#isaplottandp---back-to-function-navigation)<br>
