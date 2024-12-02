@@ -449,7 +449,8 @@ newISA.selectRegion([1000, 3500])
 
 C = newISA.getDictConc('L-SW')
 
->>> print(np.round(C['O2'], 7)) # np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
+# np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
+>>> print(np.round(C['O2'], 7)) 
 [0.0003134, 0.0003138, 0.0003144, 0.0003153, 0.0003164, 0.0003178]
 ```
 
