@@ -420,7 +420,7 @@ class ThSA:
                 if isinstance(specComp, str): specComp = [specComp]
                 n_specComp = len(specComp)
                 if nRxn != n_specComp:
-                    print('!EcoSysEM.Error: Different number of reactions and specific compounds was found.')
+                    print(f'!EcoSysEM.Error: Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}')
                     sys.exit()
         # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
         for idRxn, iRxn in enumerate(infoRxn):
@@ -777,7 +777,7 @@ class ThSA:
         if not os.path.isfile(fullPathSave):
             with pd.ExcelWriter(fullPathSave) as writer:
                 introRow.to_excel(writer, sheet_name = nameSheet, index = False, header = False)
-        with pd.ExcelWriter(fullPathSave, mode = 'a', if_sheet_exists='overlay') as writer:
+        with pd.ExcelWriter(fullPathSave, engine="openpyxl", mode = 'a', if_sheet_exists='overlay') as writer:
             sRow = writer.sheets[nameSheet].max_row
             infoR.to_excel(writer, sheet_name = nameSheet, startrow = sRow+1, startcol = 0, index = False, header = False)
             df.to_excel(writer, sheet_name = nameSheet, startrow = sRow+2, startcol = startCol, index = False)
