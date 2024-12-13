@@ -33,8 +33,10 @@ Acetate,CH3COO-,L,-369.41,Thauer1997
 Carbonic acid,H2CO3,L,-623.16,Thauer1997
 Bicarbonate,HCO3-,L,-586.85,Thauer1997
 Carbonate,CO3-2,L,-527.9,Thauer1997
+Nitrous acid,HNO2,G,-46,Speight2005
 Nitrous acid,HNO2,L,-50.6,Alberty2004
 Nitrite,NO2-,L,-32.2,Alberty2004
+Nitric acid,HNO3,G,-73.54,Speight2005
 Nitric acid,HNO3,L,-111.25,Alberty2004
 Nitrate,NO3-,L,-108.74,Alberty2004
 Hydroxide,OH-,L,-157.293,Thauer1997
