@@ -1,19 +1,19 @@
 ﻿Strain,Catabolism,qmax (mol/h/cell),Km (nM),REF
-Methylocapsa gorgona MG08,CH4 oxidation,4.91E-17,48.54,Schmider2024
-Methylocapsa palsarum NE2,CH4 oxidation,1.33E-15,402.8,Schmider2024
-Mycobacterium smegmatis mc2155,H2 oxidation,2.74E-19,113,Greening2014
-Methylocapsa gorgona MG08,CH4 oxidation,9.5E-16,4910,Tveit2019
-Methylotuvimicrobium buryatense 5GB1C,CH4 oxidation,5.29E-15,8800,He2023
-Methylocystis sp. strain SC2,CH4 oxidation,1.1E-16,110,Baani2008
-Streptomyces sp. HFI6,H2 oxidation,1.68E-15,62.42,Meredith2014
-Streptomyces sp. HFI7,H2 oxidation,7.3E-16,46.81,Meredith2014
-Streptomyces sp. HFI8,H2 oxidation,2.8E-16,31.21,Meredith2014
-Streptomyces sp. HFI9,H2 oxidation,1.3E-16,31.21,Meredith2014
-Streptomyces sp. HP3,H2 oxidation,8.61E-15,43,Constant2010
-Streptomyces avermitilis 46492,H2 oxidation,1.427E-14,39,Constant2010
-Streptomyces sp. MP1,H2 oxidation,3.77E-15,100,Constant2010
-Streptomyces sp. MP2,H2 oxidation,4.4E-15,135,Constant2010
-Streptomyces sp. HP9,H2 oxidation,2.25E-15,374,Constant2010
-Streptomyces sp. HP12,H2 oxidation,1.25E-15,361,Constant2010
-Streptomyces sp. HP13,H2 oxidation,2.13E-15,112,Constant2010
-Streptomyces sp. PCB7,H2 oxidation,5.6E-16,47,Constant2010
+Methylocapsa gorgona MG08,Mth,4.91E-17,48.54,Schmider2024
+Methylocapsa palsarum NE2,Mth,1.33E-15,402.8,Schmider2024
+Mycobacterium smegmatis mc2155,HOB,2.74E-19,113,Greening2014
+Methylocapsa gorgona MG08,Mth,9.5E-16,4910,Tveit2019
+Methylotuvimicrobium buryatense 5GB1C,Mth,5.29E-15,8800,He2023
+Methylocystis sp. strain SC2,Mth,1.1E-16,110,Baani2008
+Streptomyces sp. HFI6,HOB,1.68E-15,62.42,Meredith2014
+Streptomyces sp. HFI7,HOB,7.3E-16,46.81,Meredith2014
+Streptomyces sp. HFI8,HOB,2.8E-16,31.21,Meredith2014
+Streptomyces sp. HFI9,HOB,1.3E-16,31.21,Meredith2014
+Streptomyces sp. HP3,HOB,8.61E-15,43,Constant2010
+Streptomyces avermitilis 46492,HOB,1.427E-14,39,Constant2010
+Streptomyces sp. MP1,HOB,3.77E-15,100,Constant2010
+Streptomyces sp. MP2,HOB,4.4E-15,135,Constant2010
+Streptomyces sp. HP9,HOB,2.25E-15,374,Constant2010
+Streptomyces sp. HP12,HOB,1.25E-15,361,Constant2010
+Streptomyces sp. HP13,HOB,2.13E-15,112,Constant2010
+Streptomyces sp. PCB7,HOB,5.6E-16,47,Constant2010
