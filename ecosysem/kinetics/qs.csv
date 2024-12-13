@@ -1,4 +1,4 @@
-﻿Strain,Catabolism,qmax (mol/h/cell),Km (nM),REF
+﻿Strain,Reaction,qmax (mol/h/cell),Km (nM),REF
 Methylocapsa gorgona MG08,Mth,4.91E-17,48.54,Schmider2024
 Methylocapsa palsarum NE2,Mth,1.33E-15,402.8,Schmider2024
 Mycobacterium smegmatis mc2155,HOB,2.74E-19,113,Greening2014
