@@ -778,9 +778,9 @@ Return a n-dimension array with the values of equilibrium constants.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compounds : _str_, _list of strs_, or _ndarray of strs_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested compounds.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **temperature : _float_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Temperature value.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Temperature value.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase of parameter requested. Phase value depends on the database. See local databases in `db\Excels\` folder.<p>
 **Returns:**<br>
@@ -811,7 +811,7 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user. The function always returns the abbreviation.<br>
 
@@ -832,13 +832,13 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user. The function always returns the abbreviation.<br>
 
 ### Reactions.getRxnByName() &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Reactions.getRxnByName(typeRxn, nameRxn, warnings = False)
+Reactions.getRxnByName(typeRxn, nameRxn, warnings=False)
 ```
 Load reaction information from local databases (`reactions\` folder) based on given reaction name(s).<br>
 Return a list with involving compounds, a n-dimension array with stoichiometric matrix of reaction and information of reaction.<p>
@@ -853,7 +853,7 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user. The function always returns the abbreviation.<br>
 
@@ -868,6 +868,54 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 
 #### <ins>Ecosystem modelling</ins>
 :construction: Coming soon...
+
+**·** _<ins>Kinetics</ins>_
+
+Lorem ipsum...
+
+### KinP.getKinP() &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+KinP.getKinP(typeParam, params, reaction, sample='All', comp=None)
+```
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+
+### KinRates.getRs() &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+KinRates.getRs(typeKin, typeParam, Rxn, Ct, sample='All', T=None, Tcorr=None)
+```
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+
+### KinRates.rMM() &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+KinRates.rMM(qmax, Km, C)
+```
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+
+### KinRates.arrhCorr() &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+KinRates.arrhCorr(rateBase, O, tempBase, temp)
+```
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
