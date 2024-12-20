@@ -90,6 +90,212 @@ class KinP:
                     print(f'!EcoSysEM.Error: You must to define the compounds for {iParam} with `comp` parameter.')
                     sys.exit()
         return dictR, sampleNames
+    
+class KinRates:
+    """
+    Class for kinetic rate calculations (biotic and abiotic transformations).
+    
+    """
+    # Direction of kinetic parameters
+    path = 'kinetics\\'
+    
+    def getRs(typeKin, typeParam, Rxn, Ct, sample = 'All', T = None, Tcorr = None):
+        """
+        Lorem ipsum...
+
+        Parameters
+        ----------
+        typeKin : STR
+            Type of kinetic equations (e.g., rMM - 'Michaelis-Menten equation').
+        typeParam : STR
+            What parameters are requested, matching with csv name.
+        Rxn : STR
+            Requested reaction.
+        Ct : FLOAT, LIST or DICT
+            Concentration of substrates, products and/or inhibitors.
+        sample : STR or LIST, optional
+            Requested samples (rows of `typeParam.csv`). The default is 'All'.
+        T : FLOAT or LIST, optional
+            Temperatures. The default is None.
+        Tcorr : STR, optional
+            Type of temperature correlation (e.g., Arrhenius - 'Arrhenius correlation'). The default is None.
+
+        Returns
+        -------
+        rs : np.ndarray
+            Resultant rates.
+        sampleNames : STR or LIST
+            Names of samples (rows of `typeParam.csv`).
+
+        """
+        if not isinstance(typeKin, str): typeKin = str(typeKin)
+        if not isinstance(typeParam, str): typeParam = str(typeParam)
+        if not isinstance(Rxn, str): Rxn = str(Rxn)
+        if not isinstance(Ct, dict): 
+            print('!EcoSysEM.Error: `Ct` parameter must be a dictionary.')
+            sys.exit()
+        else:
+            npCt = np.array(list(Ct.items()), dtype = object).T
+            lenCt = [len(i) for i in npCt[1, :]]
+            nCt = list(set(lenCt))
+            cLen = len(nCt) == 1
+            if not cLen:
+                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
+                sys.exit()
+            nCt = nCt[0]
+        if sample != 'All':
+            if not isinstance(sample, list): sample = [sample]
+        if T:
+            if isinstance(T, int): T = float(T)
+            if isinstance(T, float): T = [T]
+            if not Tcorr:
+                print('!EcoSysEM.Error: You must to define the temperature correlation with `Tcorr` parameter.')
+                sys.exit()
+            else:
+                if not isinstance(Tcorr, str): Tcorr = str(Tcorr)
+        # Type Kinetics (Equation to calculate rs)   
+        if typeKin == 'rMM':
+            params = ['qmax', 'Km']
+            comp = list(Ct.keys())
+            Cs = pd.DataFrame(Ct).values
+            p, sampleNames = KinP.getKinP(typeParam, params, Rxn, sample, comp)
+            qmax = p['qmax']
+            Km = p['Km']
+            rs = KinRates.rMM(qmax, Km, Cs)
+            if T:
+                if Tcorr == 'Arrhenius':
+                    p, _ = KinP.getKinP('ArrhCor', 'Coeff', Rxn)
+                    O = p['Coeff']
+                    # If more than one Arrhenius parameter, average value is taken.
+                    if len(O) > 1:
+                        O = np.mean(O)
+                    p, _ = KinP.getKinP(typeParam, 'Texp', Rxn, sample)
+                    Texp = p['Texp']
+                    rs = KinRates.arrhCorr(rs, O, Texp, T)
+                else:
+                    print(f'!EcoSysEM.Error: {Tcorr} correlation not found. Available temperature correlations: "Arrhenius".')
+                    sys.exit()
+        else:
+            print(f'!EcoSysEM.Error: {typeKin} equation not found. Available reaction equations: "rMM" (Michaelis-Menten eq.).')
+            sys.exit()
+        return np.squeeze(rs), sampleNames
+    
+    def rMM(qmax, Km, C):
+        """
+        Function to compute Michaelis-Menten equation.
+
+        Parameters
+        ----------
+        qmax : FLOAT, LIST, np.ndarray
+            Values of maximum uptake rate.
+        Km : FLOAT, LIST, np.ndarray
+            Values of half-saturation constants (or Michaelis constants).
+        Cs : FLOAT, LIST, np.ndarray, DICT
+            Concentrations of limiting substrates.
+
+        Returns
+        -------
+        r : np.ndarray
+            Resultant substrate uptake rates.
+
+        """
+        if not isinstance(qmax, np.ndarray): qmax = np.array(qmax)
+        if qmax.ndim == 0: qmax = np.array([qmax])
+        if not isinstance(Km, np.ndarray): Km = np.array(Km)
+        if Km.ndim == 0: Km = np.array([Km])
+        if isinstance(C, dict): 
+            C = np.array(pd.DataFrame(C))
+        else:
+            if not isinstance(C, np.ndarray): C = np.array(C)
+            if C.ndim == 0: C = np.array([C])
+        # qmax
+        nqmax = len(qmax)
+        # Km
+        if Km.ndim == 1:
+            Km = np.array([Km])
+            if Km.shape[0] == 1 and nqmax > 1:
+                Km = Km.T
+        nKm = Km.shape[0]
+        # Checking number of qmax and Km values
+        cN = nqmax == nKm
+        if not cN:
+            print('!EcoSysEM.Error: Same number of qmax and Km must be given.')
+            sys.exit()
+        else:
+            nParam = nKm
+        # C
+        if C.ndim == 1:
+            C = np.array([C])
+            if C.shape[0] == 1 and Km.shape[1] == 1:
+                C = C.T
+        nConc = C.shape[0]
+        # Checking number of limiting substrates
+        nLS_Km = Km.shape[1]
+        nLS_C = C.shape[1]
+        cN = nLS_Km == nLS_C
+        if not cN:
+            print('!EcoSysEM.Error: Number of limiting substrates is not consistent. Km and C must have the same number of columns.')
+            sys.exit()
+        # Initializing result variable
+        r = np.empty([nParam, nConc])
+        # Calculation of rate(s)
+        for iP in range(nParam):
+            for iC in range(nConc):
+                K = Km[iP,:]
+                c = C[iC,:]
+                M = np.prod((c) / (K + c + 1e-25)) # + 1e-25 to prevent NaN when conc == 0 and Ks == 0
+                r[iP, iC] = qmax[iP] * M
+        return np.squeeze(r) # (samples)x(concs), (samples) = (qmax) and (Km)
+    
+    def arrhCorr(rateBase, O, tempBase, temp):
+        """
+        Function to compute Arrhenius correlation.
+
+        Parameters
+        ----------
+        rateBase : FLOAT or LIST or np.ndarray
+            Base reaction rate at temparature base (tempBase).
+        O : FLOAT
+            Arrhenius parameter.
+        tempBase : FLOAT or LIST
+            Temperature base, that is, the original temperature of substrate rate.
+        temp : FLOAT or LIST
+            Set of temperatures.
+
+        Returns
+        -------
+        rT : np.ndarray
+            Resultant substrate uptake rates as function of temperature.
+
+        """
+        rBaslist = False
+        if not isinstance(rateBase, np.ndarray): rateBase = np.array(rateBase)
+        if rateBase.ndim == 0: rateBase = np.array([rateBase])
+        if rateBase.ndim == 1: nRateBase = len(rateBase); rateBase = np.array([rateBase]); rBaslist = True
+        if not isinstance(tempBase, np.ndarray): tempBase = np.array(tempBase)
+        if tempBase.ndim == 0: tempBase = np.array([tempBase])
+        if not isinstance(temp, list): temp = [temp]
+        # Check number of rates and base temperatures
+        if not rBaslist:
+            nRateBase = rateBase.shape[0]
+        nTempBase = len(tempBase)
+        cN = nRateBase == nTempBase
+        if not cN:
+            print('!EcoSysEM.Error: Same number of rateBase and tempBase must be given.')
+            sys.exit()
+        else:
+            nSamples = rateBase.shape[0]
+        # Number of concentrations
+        nConc = rateBase.shape[1]
+        # Number of temperatures
+        nT = len(temp)
+        # Initializing result variable
+        rT = np.empty([nSamples, nConc, nT])
+        for iS in range(nSamples):
+            for iC in range(nConc):
+                for iT in range(nT):
+                    rT[iS, iC, iT] = rateBase[iS, iC] * O ** (temp[iT] - tempBase[iS])
+        return np.squeeze(rT) # (samples)x(concs)x(temp)
 
 class Reactions:
     # Directory of reactions
