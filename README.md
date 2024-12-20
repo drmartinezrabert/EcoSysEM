@@ -580,7 +580,7 @@ _Lorem ipsum_
 With the <ins>Thermodynamic State Analysis module (ThSA)</ins>, the user can identify which rections are feasible (_i.e.,_ exergonic) considering the environmental conditions (nonstandard conditions). It is important to take into account that because a given reaction is exergonic under a particular environmental conditions (ΔG<sub>r</sub><0), it does not necessary mean that organisms will be able to catalyze it and, if they can, they have enough energy for growth and/or maintenance. Remember that Gibbs energy quantifies the tendency of a chemical reaction to proceed in a particular direction. To determine the actual energy that organisms can take from a particular transformation and if these can growth and/or satisfy maintenance requirements, the [Biological Thermodynamic State Analysis (BioThSA)](#bio-thermodynamic-state-analysis-biothsa) should be used. To calculate the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>), the Gibbs-Helmholtz-Nernst relationship is used. The Gibbs-Helmholtz-Nernst relationship considers the influnce of temperature, pH and concentrations of substrates and products on ΔG<sub>r</sub>.
 
 The main and auxiliary functions to perform the ThSA are located in `thermodynamics.py` module, and organized in three classes:
-- `ThSA`. Class with the functions to perform the ThSa and export the results.
+- `ThSA`. Class with the functions to perform the ThSA and export the results.
 - `ThP`. Class with the functions to get thermodynamic parameters and calculate Gibbs energies and enthalpies of reactions.
 - `ThEq`. Class with the functions to compute thermodynamic equilibriums (such as Henry solubility and pH speciation).
 
