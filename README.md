@@ -263,7 +263,13 @@ ecosysem
   │           ├── getDictConc
   │           ├── plotTandP
   │           └── plotCompsProfiles
-  ├── reactions.py 
+  ├── reactions.py
+  │      ├── KinP
+  │      │    └── getKinP
+  │      ├── KinRates
+  │      │    ├── getRs
+  │      │    ├── rMM
+  │      │    └── arrhCorr
   │      └── Reactions
   │           ├── getRxn
   │           ├── getRxnByComp
