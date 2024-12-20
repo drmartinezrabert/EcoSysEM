@@ -7,6 +7,89 @@ Created on Thu Aug 15 07:44:51 2024
 
 import pandas as pd
 import numpy as np
+import sys
+
+class KinP:
+    """
+    Class for kinetic parameters.
+    
+    """
+    # Direction of kinetic parameters
+    path = 'kinetics\\'
+    # Parameters associated to Compound (like 'Km', 'Ks' or 'Ki')
+    assocParamComp = ['Km', 'Ks', 'Ki']
+    
+    def checkKinP(typeParam, dParam, params):
+        """
+        Function to check if parameters are in .csv file.
+
+        Parameters
+        ----------
+        typeParam : STR
+            What parameters will be checked from `typeParam.csv` file.
+        dParam : DICT
+            Dictionary from `typeParam.csv` file.
+        params : TYPE
+            Requested parameters.
+
+        Returns
+        -------
+        None.
+
+        """
+        col = dParam.columns.values
+        for iParam in params:
+            if not iParam in KinP.assocParamComp:
+                if not iParam in col:
+                    print(f'!EcoSysEM.Error: Parameter `{iParam}` not found in `{typeParam}.csv`. Please, add a column with `{iParam}` values.')
+                    sys.exit()
+    
+    def getKinP(typeParam, params, reaction, sample = 'All', comp = None):
+        """
+        Function to get kinetic parameters from csv file. 
+
+        Parameters
+        ----------
+        typeParam : STR
+            What parameters are requested, matching with csv name.
+        params : STR or LIST
+            Requested parameters.
+        reaction : STR
+            Requested reaction.
+        sample : STR or LIST, optional
+            Requested samples (rows of `typeParam.csv`). The default is 'All'.
+        comp : STR or LIST, optional
+            Compounds of parameters associated to compounds (e.g., Km). The default is None.
+
+        Returns
+        -------
+        dictR : DICT
+            Dictionary with requested parameters.
+        sampleNames : STR or LIST
+            Names of samples (rows of `typeParam.csv`.
+        """
+        if not isinstance(params, list): params = [params]
+        dParam = pd.read_csv(KinP.path + typeParam + '.csv')
+        KinP.checkKinP(typeParam, dParam, params)
+        dParam = dParam.loc[dParam['Reaction'] == reaction]
+        if sample != 'All':
+            dParam = dParam.loc[dParam['Sample'].isin(sample)]
+        sampleNames = dParam['Sample'].values
+        dictR = {}
+        for iParam in params:
+            if not iParam in KinP.assocParamComp:
+                dictR[iParam] = dParam[iParam].values
+            else:
+                if comp:
+                    dictR[iParam] = np.squeeze(dParam[comp].fillna(0).values)
+                    cVal = np.all(dictR[iParam] == 0.0)
+                    if cVal:
+                        print('!EcoSysEM.Error: Limiting substrate not found. Check `Ct` parameter in `getRs()` or `exportRs()`, and Km values in csv file.')
+                        sys.exit()
+                else:
+                    print(f'!EcoSysEM.Error: You must to define the compounds for {iParam} with `comp` parameter.')
+                    sys.exit()
+        return dictR, sampleNames
 
 class Reactions:
     # Directory of reactions
