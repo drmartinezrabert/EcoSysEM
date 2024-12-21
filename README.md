@@ -871,51 +871,103 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 
 **·** _<ins>Kinetics</ins>_
 
-Lorem ipsum...
+The main and auxiliary functions to calculate kinetic rates are located in `reactions.py` module, and organized in two classes:
+- `KinP`. Class with the functions to get the kinetic parameters from local databases.
+- `KinRates`. Class with the functions to calculate the kinetic rates (biotic and abiotic transformations).
 
 ### KinP.getKinP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 KinP.getKinP(typeParam, params, reaction, sample='All', comp=None)
 ```
+Load the kinetic parameters from local databases (`kinetics\` folder).<br>
+Return a dictionary with the requested kinetic parameters and an array with the `sample` names (rows of `typeParam.csv` file).<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeParam : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of parameter database, matching with csv name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **params : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of requested parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **reaction : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sample : _str or list_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested samples (rows of `typeParam.csv`).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **comp : _str or list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Compounds of parameters associated to compounds (e.g., Km).<p>
 **Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictR : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with requested parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictR = {'Name parameter': [values]}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sampleNames : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of samples (_i.e._, rows of `typeParam.csv`).<br>
 
 ### KinRates.getRs &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 KinRates.getRs(typeKin, typeParam, Rxn, Ct, sample='All', T=None, Tcorr=None)
 ```
+Compute reaction rates as a function of limiting substrate, inhibitors and temperatures based on the chosen kinetic equation (`typeKin`) and temperature correlation (`Tcorr`).<br> 
+Return a n-dimension array with the calculated kinetic rates and an array with the `sample` names (rows of `typeParam.csv` file).<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeKin : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of kinetic equations (e.g., rMM - 'Michaelis-Menten equation').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeParam : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of parameter database, matching with csv name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _float, list or dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of substrates, products and/or inhibitors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If Ct is a _dict_: {'Name compound': [concentrations]}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sample : _str or list_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested samples (rows of `typeParam.csv`).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float or list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperatures.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Tcorr : _str_ ('Arrhenius'), _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resultant rates.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If Ct is a _dict_: {'Name compound': [concentrations]}.<br>
 **Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rs : _np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resultant substrate uptake rates.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If T and Tcoor are given: rs.shape = (parameters)x(concentrations)x(temperatures).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If they are not given: rs.shape = (parameters)x(concentrations).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sampleNames : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of samples (_i.e._, rows of `typeParam.csv`).<br>
 
 ### KinRates.rMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 KinRates.rMM(qmax, Km, C)
 ```
+Compute reaction rates as a function of limiting substrate  and inhibitors based on the Michaelis-Menten equation.<br> 
+Return a n-dimension array with the calculated kinetic rates.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **qmax : _float, list, or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of maximum uptake rate.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Km : _float, list, or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of half-saturation constants (or Michaelis constants).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C : _float, list, np.ndarray or dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentrations of limiting substrates, inhibitors or products.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If C is a _dict_: {'Name compound': [concentrations]}.<p>
 **Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **r : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resultant substrate uptake rates.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.shape = (parameters)x(concentrations).<br>
 
 ### KinRates.arrhCorr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 KinRates.arrhCorr(rateBase, O, tempBase, temp)
 ```
+Compute reaction rates as a function of temperature based on the Arrhenius correlation.<br> 
+Return a n-dimension array with the calculated kinetic rates.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reaction database.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rateBase : _float, list, or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reaction rate at base (measured) temparature (tempBase).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **O : _float_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Arrhenius coefficient.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **tempBase : _float or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emperature base, that is, the original temperature of substrate rate.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **temp : _float or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperatures.<p>
 **Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of involving compounds of reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rT : _np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resultant substrate uptake rates.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r.shape = (parameters)x(concentrations)x(temperatures).<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
