@@ -26,7 +26,7 @@ class KinP:
         Parameters
         ----------
         typeParam : STR
-            What parameters will be checked from `typeParam.csv` file.
+            Name of parameter database, matching with csv name.
         dParam : DICT
             Dictionary from `typeParam.csv` file.
         params : TYPE
@@ -51,7 +51,7 @@ class KinP:
         Parameters
         ----------
         typeParam : STR
-            What parameters are requested, matching with csv name.
+            Name of parameter database, matching with csv name.
         params : STR or LIST
             Requested parameters.
         reaction : STR
@@ -108,7 +108,7 @@ class KinRates:
         typeKin : STR
             Type of kinetic equations (e.g., rMM - 'Michaelis-Menten equation').
         typeParam : STR
-            What parameters are requested, matching with csv name.
+            Name of parameter database, matching with csv name.
         Rxn : STR
             Requested reaction.
         Ct : FLOAT, LIST or DICT
@@ -190,7 +190,7 @@ class KinRates:
             Values of maximum uptake rate.
         Km : FLOAT, LIST, np.ndarray
             Values of half-saturation constants (or Michaelis constants).
-        Cs : FLOAT, LIST, np.ndarray, DICT
+        C : FLOAT, LIST, np.ndarray, DICT
             Concentrations of limiting substrates.
 
         Returns
@@ -254,9 +254,9 @@ class KinRates:
         Parameters
         ----------
         rateBase : FLOAT or LIST or np.ndarray
-            Base reaction rate at temparature base (tempBase).
+            Reaction rate at base (measured) temparature (tempBase).
         O : FLOAT
-            Arrhenius parameter.
+            Arrhenius coefficient.
         tempBase : FLOAT or LIST
             Temperature base, that is, the original temperature of substrate rate.
         temp : FLOAT or LIST
