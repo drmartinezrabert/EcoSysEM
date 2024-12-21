@@ -1019,6 +1019,14 @@ Return a n-dimension array with the calculated kinetic rates.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Reactions.getRxnByComp](#reactionsgetrxnbycomp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Reactions.getRxnByName](#reactionsgetrxnbyname---back-to-function-navigation)<br>
 
+#### · <ins>Kinetic parameters (KinP)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinP.getKinP](#kinpgetkinp---back-to-function-navigation)<br>
+
+#### · <ins>Kinetic rates (KinRates)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.getRs](#kinratesgetrs---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.rMM](#kinratesrmm---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.arrhCorr](#kinratesarrhcorr---back-to-function-navigation)<br>
+
 [🔼 Back to **Contents**](#readme-contents)
 __________________________________________________
 
