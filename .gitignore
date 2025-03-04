@@ -2,3 +2,6 @@
 ~*
 test*
 ecosysem/results/*.xlsx
+*.nc
+ecosysem/data/*
+*.csv
