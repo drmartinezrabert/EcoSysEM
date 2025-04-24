@@ -5,3 +5,4 @@ ecosysem/results/*.xlsx
 *.nc
 ecosysem/data/*
 *.csv
+ecosysem/plots
