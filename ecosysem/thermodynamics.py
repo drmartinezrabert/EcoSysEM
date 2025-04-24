@@ -482,9 +482,17 @@ class ThSA:
                                         iConc = 10**(-ipH) * np.ones((1, nCt))
                                     elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
                                         iConc = 1.0 * np.ones((1, nCt))
-                                    else: # [P] is calculated based on stoichiometry.
-                                        if asm == 'stoich':
-                                            iConc = (vi) * Ct[uComp[findSpecComp]]
+                                    else: 
+                                        # Check if product is a species of iComp
+                                        rComp, _, _ = Rxn.getRxnpH(iComp)
+                                        uIComp = np.isin(uComp, rComp)
+                                        rxn_iComp =  uComp[uIComp][0]
+                                        uComp = np.char.replace(uComp, rxn_iComp, iComp)
+                                        if rComp is None:
+                                            if asm == 'stoich': # [P] is calculated based on stoichiometry.
+                                                iConc = (vi) * Ct[uComp[findSpecComp]]
+                                                print(iComp)
+                                                print('Asm!')
                             else:
                                 iConc = Ct[iComp]
                             # pH speciation
