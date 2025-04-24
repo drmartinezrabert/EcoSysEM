@@ -103,12 +103,12 @@ class ISA(Environment):
         dryComposition = {
                          'Compounds': ['N2', 'O2', 'Ar', 'CO2', 'Ne', 
                                        'He', 'CH4', 'Kr', 'H2', 'N2O', 
-                                       'CO', 'Xe','O3', 'NO2', 'I2', 
-                                       'NH3','NO', 'SO2', 'H2S'], # Formula
+                                       'CO', 'Xe','O3', 'NO2', 'SO2', 
+                                       'I2','NH3', 'HNO2', 'HNO3', 'H2S'], # Formula
                          'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.2e-4, 1.8182e-5, 
                                           5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
-                                          1e-7, 9e-8, 7e-8, 2e-8, 1e-8, 
-                                          4e-9, 1e-9, 1e-9, 5e-11] # [%vol]
+                                          1e-7, 9e-8, 7e-8, 2e-8, 1.5e-8, 
+                                          1e-8, 6e-9, 1e-9, 1e-9, 3.3e-10] # [%vol]
                           }
         dDC = pd.DataFrame(data = dryComposition)
         self.layers = layers
