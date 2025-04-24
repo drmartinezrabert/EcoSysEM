@@ -1,4 +1,4 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
 Nitrogen,N2,FW,1300,Sander2023
 Nitrogen,N2,SW,1300,Asm.
 Oxygen,O2,FW,1500,Sander2023
@@ -30,3 +30,7 @@ Sulfur dioxide,SO2,FW,2900,Sander2023
 Sulfur dioxide,SO2,SW,2900,Asm.
 Hydrogen sulfide,H2S,FW,2100,Sander2023
 Hydrogen sulfide,H2S,SW,2100,Asm.
+Nitrous acid,HNO2,FW,4900,Sander2023
+Nitrous acid,HNO2,SW,4900,Asm.
+Nitric acid,HNO3,FW,8700,Sander2023
+Nitric acid,HNO3,SW,8700,Asm.
