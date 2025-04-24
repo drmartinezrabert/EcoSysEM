@@ -347,10 +347,10 @@ class ISA(Environment):
         t = self.temperature + 273.15   # [K]
         p = self.pressure / 101325      # [atm]
         # Temperature
-        fig, ax1 = plt.subplots(figsize = (3, 6))
+        fig, ax1 = plt.subplots(figsize = (3, 4))
         ax1.set_ylabel('Altitude (km)')
         ax1.set_xlabel('Temperature (K)', color = 'tab:red')
-        ax1.set_xlim([0, 300])
+        ax1.set_xlim([150, 300])
         ax1.set_ylim([0, alt[-1]])
         ax1.plot(t, alt, color = 'tab:red')
         # Pressure
