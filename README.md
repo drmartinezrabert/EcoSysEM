@@ -1,7 +1,7 @@
 # EcoSysEM platform
 Eco-System Evolution &amp; Modelling
 
-*· Contributors: Eloi Martinez-Rabert*
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı*
 
 *· Funded by:*
 
