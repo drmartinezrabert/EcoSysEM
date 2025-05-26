@@ -71,6 +71,8 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **Matplotlib**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
 - **SciPy**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
 - **iteration_utilites**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
+- **Xarray**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info ant tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
+- **Earthaccess**. Earthaccess is a python library to search for, and download or stream NASA Earth science data with just a few lines of code. For more info and tutorials, click [here](https://earthaccess.readthedocs.io/en/latest/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -81,7 +83,7 @@ You can install any Python package using the **Anaconda Navigator**. For this, e
 
 ### Installation of packages using pip
 **pip** is the package installer for Python. In general, pip installs the minimal instalation requirements automatically, but not the optionals requirements. To install the mentioned packages using pip, you have only to write the following command lines in **Anaconda Prompt or Terminal**:
-
+#### · <ins>Anaconda Prompt</ins>
 **NumPy**:
 ```
 pip install numpy
@@ -101,6 +103,43 @@ pip install scipy
 **iteration_utilites**:
 ```
 pip install iteration_utilities
+```
+**Xarray**:
+```
+pip install xarray
+```
+**earthaccess**:
+```
+pip install earthaccess
+```
+#### · <ins>Windows Terminal</ins>
+**NumPy**:
+```
+python -m pip install numpy
+```
+**Pandas**:
+```
+python -m pip install pandas
+```
+**Matplotlib**:
+```
+python -m pip install matplotlib
+```
+**SciPy**:
+```
+python -m pip install scipy
+```
+**iteration_utilites**:
+```
+python -m pip install iteration_utilities
+```
+**Xarray**:
+```
+python -m pip install xarray
+```
+**earthaccess**:
+```
+python -m pip install earthaccess
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
