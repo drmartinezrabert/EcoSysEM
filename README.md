@@ -331,7 +331,6 @@ ecosysem
 ### Fundamentals and usage
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
-  - General Environment | [GO](#general-environment)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
@@ -351,112 +350,24 @@ One of the advantages of Python is that supports both **Object-Oriented Programm
 The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
 #
-
-<a name="general-environment">**General environment**</a><br>
-Environments can be defined as class instances. An instance is an object that's built from a class and contains real data. Many instances can be created from a single class. To create a new general environment instance (_i.e.,_ instantiate the class `Environment`), several instances attributes must be given, called `.temperature`, `.pressure`, `.pH`, `.compounds` and `.compositions`:
-```python
-from envdef import Environment
-
-newEnv1 = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
-newEnv2 = Environment(15, 1.0, 7.0, ['O2', 'CO2', 'CH4', 'NH3'], [[9.375e-5, 1.0e-7], [1.000e-3, 1.000e-3], [3.500e-3, 2.231e-5], [1.000e-3, 1.000e-5]])
-```
-Once created the Environment instances (`newEnv1` and `newEnv2`), their attributes can be accessed using **dot notation**. All attributes of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). Here are some examples:
-```python
->>> print(newEnv1.temperature)
--5
->>> print(newEnv2.temperature)
-15
->>> print(newEnv1.compositions)
-{'A': 0.001, 'B': 0.001, 'C': 0.001}
->>> print(newEnv2.compositions)
-{'O2': [9.375e-05, 1e-07], 'CO2': [0.001, 0.001], 'CH4': [0.0035, 2.231e-05], 'NH3': [0.001, 1e-05]}
-```
-In addition to class attributes, `Environment` class also contains class functions (known as _instance mehtods_). These functions can only be called on an instance of that class. All functions of `Environment` class are shown in [EcoSysEM package layout](#ecosysem-package-layout). The `Environment` class has four instance methods:
-
-### Environment.setT &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-Environment.setT(newT)
-```
-Modify temerature of the `Environment` instance.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newT : _int_ or _float_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New tempearture value of `Environment` instance.
-
-### Environment.setP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-Environment.setP(newP)
-```
-Modify pressure of the `Environment` instance.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newP : _int_ or _float_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pressure value of `Environment` instance.
-
-### Environment.setpH &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-Environment.setpH(newpH)
-```
-Modify pH of the `Environment` instance.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **newpH : _int_ or _float_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New pH value of `Environment` instance.
-
-### Environment.setComposition &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-Environment.setComposition(compound, composition)
-```
-Add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New compound or compound to modify.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
-
-To call the instance methods of `Environment`, the name of the `Environment` object must be preceded by the function name and its arguments in parentheses. Here is an example:
-```python
-from envdef import Environment
-
-newEnv = Environment(-5, 5.0, 7.0, ['A', 'B', 'C'], [1.00e-3, 1.00e-3, 1.00e-3])
-
->>> print(newEnv.pressure)
-5.0
->>> print(newEnv.pH)
-7.0
->>> print(newEnv.compositions)
-{'A': 0.001, 'B': 0.001, 'C': 0.001}
-
-newEnv.setP(1.0)
-newEnv.setpH(8.5)
-newEnv.setComposition(['A', 'D'], [5.00e-3, 2.00e-3])
-
->>> print(newEnv.pressure)
-1.0
->>> print(newEnv.pH)
-8.5
->>> print(newEnv.compositions)
-{'A': 0.005, 'B': 0.001, 'C': 0.001, 'D': 0.002}
-```
-
-[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-#
-
+<!--
 From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
-
+-->
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
-The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. The ISA model divides the atmosphere into different layers with specific physical properties (such as temperature rate change, base temperature, base atmospheric pressure or base atmospheric density). With these properties, the temperature and pressure profiles are calculated. On the other hand, the ISA model assumes that Earth's atmosphere is a mixture of gas, water vapor and a certain quantity of aerosols, in which the composition remains pratically constant up to altitudes of 90 - 95 km. The dry (0%<sub>vol</sub> of water) and wet composition (up to 4%<sub>vol</sub> of water) of Earth's atmosphere are from National Oceanic and Atmospheric Administration (NOAA)[^2] and _Atmospheric Radiation: Theoretical Basis (2<sup>nd</sup> edition)_[^3] (**Table 1**).
+The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. The ISA model divides the atmosphere into different layers with specific physical properties (such as temperature rate change, base temperature, base atmospheric pressure or base atmospheric density). With these properties, the temperature and pressure profiles are calculated. On the other hand, the ISA model assumes that Earth's atmosphere is a mixture of gas, water vapor and a certain quantity of aerosols, in which the composition remains pratically constant up to altitudes of 90 - 95 km. The dry (0%<sub>vol</sub> of water) and wet composition (up to 4%<sub>vol</sub> of water) of Earth's atmosphere are from National Oceanic and Atmospheric Administration (NOAA)[^2], Agency for Toxic Substances and Disease Registry (ATSDR), United States ENvironmental Protection Agency, _Atmospheric Radiation: Theoretical Basis (2<sup>nd</sup> edition)_[^3], and scientific publications[^4]  (**Table 1**).
 
 **Table 1. Dry Earth's atmosphere composition (in %<sub>vol</sub>)**
 
 | Compound | Value | Compound | Value | Compound | Value |
 |---|---|---|---|---|---|
-| __N<sub>2</sub>__  | 7.8084·10<sup>-1</sup> | __H<sub>2</sub>__  | 5.500·10<sup>-7</sup> | __NO__             | 1.000·10<sup>-9</sup>  |
-| __O<sub>2</sub>__  | 2.0946·10<sup>-1</sup> | __N<sub>2</sub>O__ | 3.300·10<sup>-7</sup> | __SO<sub>2</sub>__ | 1.000·10<sup>-9</sup>  |
-| __Ar__             | 9.3400·10<sup>-3</sup> | __CO__             | 1.000·10<sup>-7</sup> | __H<sub>2</sub>S__ | 5.000·10<sup>-11</sup> |
-| __CO<sub>2</sub>__ | 4.2000·10<sup>-4</sup> | __Xe__             | 9.000·10<sup>-8</sup> | | |
+| __N<sub>2</sub>__  | 7.8084·10<sup>-1</sup> | __H<sub>2</sub>__  | 5.500·10<sup>-7</sup> | __NH<sub>3</sub>__  | 6.000·10<sup>-9</sup>  |
+| __O<sub>2</sub>__  | 2.0946·10<sup>-1</sup> | __N<sub>2</sub>O__ | 3.300·10<sup>-7</sup> | __HNO<sub>2</sub>__ | 1.000·10<sup>-9</sup>  |
+| __Ar__             | 9.3400·10<sup>-3</sup> | __CO__             | 1.000·10<sup>-7</sup> | __HNO<sub>3</sub>__ | 1.000·10<sup>-9</sup>  |
+| __CO<sub>2</sub>__ | 4.2600·10<sup>-4</sup> | __Xe__             | 9.000·10<sup>-8</sup> | __H<sub>2</sub>S__  | 3.300·10<sup>-10</sup> |
 | __Ne__             | 1.8182·10<sup>-5</sup> | __O<sub>3</sub>__  | 7.000·10<sup>-8</sup> | | |
 | __He__             | 5.2400·10<sup>-6</sup> | __NO<sub>2</sub>__ | 2.000·10<sup>-8</sup> | | |
-| __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
-| __Kr__             | 1.1400·10<sup>-6</sup> | __NH<sub>3</sub>__ | 4.000·10<sup>-9</sup> | | |
+| __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __SO<sub>2</sub>__ | 1.500·10<sup>-8</sup> | | |
+| __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
 To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
 - `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
@@ -474,20 +385,20 @@ import numpy as np
 
 newISA = ISA(0, 0.00, None, 500)
 
->>> print(newISA.altitude)
+>>> print(newISA.ISAaltitude)
 [    0.   500.  1000.  1500.  2000.  2500.  3000.  3500.  4000.  4500.
   5000.  5500.  6000.  6500.  7000.  7500.  8000.  8500.  9000.  9500.
  10000. 10500. 11000.]
->>> print(newISA.temperature)
+>>> print(newISA.ISAtemperature)
 [ 15.    11.75   8.5    5.25   2.    -1.25  -4.5   -7.75 -11.   -14.25
  -17.5  -20.75 -24.   -27.25 -30.5  -33.75 -37.   -40.25 -43.5  -46.75
  -50.   -53.25 -56.5 ]
 
 newISA.selectRegion([1000, 3500])
 
->>> print(newISA.altitude)
+>>> print(newISA.ISAaltitude)
 [1000. 1500. 2000. 2500. 3000. 3500.]
->>> print(newISA.temperature)
+>>> print(newISA.ISAtemperature)
 [ 8.5   5.25  2.   -1.25 -4.5  -7.75]
 
 C = newISA.getDictConc('L-SW')
@@ -496,6 +407,17 @@ C = newISA.getDictConc('L-SW')
 >>> print(np.round(C['O2'], 7)) 
 [0.0003134, 0.0003138, 0.0003144, 0.0003153, 0.0003164, 0.0003178]
 ```
+
+### ISA.setComposition &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ISA.setComposition(compound, composition)
+```
+Add (if _compound_ does not exist) or modify (if _compound_ does exist) composition of the `Environment` instance.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New compound or compound to modify.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
 
 ### ISA.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -509,35 +431,6 @@ Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on th
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _list_: [minAlt, maxAlt].<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None**<br>
-
-### ISA.getVerticalProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-ISA.getVerticalProfiles(phase, compound=None)
-```
-Return vertical profiles in _format=ndarray_ of selected compounds or all compounds of `ISA` subclass.<p>
-**Parameters:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, compoundsG : _ndarray_** (if _phase='G'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, compoundsLFW : _ndarray_** (if _phase='L-FW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLSW, compoundsLSW : _ndarray_** (if _phase='L-SW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **concLFW, concLSW, compoundsLFW, compoundsLSW : _ndarray_** (if _phase='L'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pi, concG, concLFW, concLSW, compoundsG, compoundsLFW, compoundsLSW  : _ndarray_** (if _phase='All'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Pi : Parcial pressure of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concG : Concentration in gas of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concLFW : Concentration in liquid (freshwater) of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; concSFW : Concentration in liquid (seawater) of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsG : Compounds names (gas).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (freshwater).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; compoundsLFW : Compounds names (seawater).<br>
 
 ### ISA.getDictConc &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -591,6 +484,13 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) to plot.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot**<br>
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
+<a name="MERRA2">**Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2)**</a><br>
+_Lorem ipsum_
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -1023,18 +923,14 @@ Return a n-dimension array with the calculated kinetic rates.<p>
 -->
 
 ## Function Navigation
-#### · <ins>General environment (_for any subclass of Environment_)</ins>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.setT](#environmentsett---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.setP](#environmentsetp---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.setpH](#environmentsetph---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.setComposition](#environmentsetcomposition---back-to-function-navigation)<br>
-
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.setComposition](#isasetcomposition---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectRegion](#isaselectregion---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getVerticalProfiles](#isagetverticalprofiles---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getDictConc](#isagetdictconc---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP](#isaplottandp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfiles](#isaplotcompsprofiles---back-to-function-navigation)<br>
+
+#### · <ins>MERRA2</ins>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
@@ -1078,3 +974,4 @@ __________________________________________________
 [^1]: International Organization for Standardization, Standard Atmosphere, ISO 2533:1975, 1975. [Link to ISO](https://www.iso.org/standard/7472.html).
 [^2]: The Atmosphere. Introduction to the Atmosphere. From National Oceanic and Atmospheric Administration (NOAA). Last updated: 2 July, 2024 [Link to NOAA](https://www.noaa.gov/jetstream/atmosphere).
 [^3]: Goody, R. M., & Yung, Y. L. (1989). Atmospheric Radiation: Theoretical Basis. Oxford University Press. [https://doi.org/10.1093/oso/9780195051346.001.0001](https://doi.org/10.1093/oso/9780195051346.001.0001).
+[^4]: [Acker et al. (2005)](https://www.sciencedirect.com/science/article/pii/S0169809504001462); [Hanke et al. (2003)](https://acp.copernicus.org/articles/3/417/2003/); [Lu et al. (2019)](https://acp.copernicus.org/articles/19/1971/2019/); [Zhong et al. (2023)](https://acp.copernicus.org/articles/23/14761/2023/)
