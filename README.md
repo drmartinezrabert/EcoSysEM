@@ -279,29 +279,27 @@ ecosysem
   │           ├── ecoysDirEdges
   │           └── ecoysDiHypergraph
   ├── envdef.py 
-  │      ├── Environment
-  │      │    ├── .temperature
-  │      │    ├── .pressure
-  │      │    ├── .pH
+  │      ├── ISA
+  │      │    ├── .ISAaltitude
+  │      │    ├── .ISAtemperature
+  │      │    ├── .ISApressure
   │      │    ├── .compounds
   │      │    ├── .compositions
-  │      │    ├── setT
-  │      │    ├── setP
-  │      │    ├── setpH
-  │      │    └── setComposition
-  │      └── ISA {subclass of Environment}
-  │           ├── ._ISAproperties
-  │           ├── .dryComposition
-  │           ├── .altitude
-  │           ├── .temperature
-  │           ├── .pressure
-  │           ├── .compounds
-  │           ├── .compositions
-  │           ├── selectRegion
-  │           ├── getVerticalProfiles
-  │           ├── getDictConc
-  │           ├── plotTandP
-  │           └── plotCompsProfiles
+  │      │    ├── setComposition
+  │      │    ├── selectRegion
+  │      │    ├── getDictConcISA
+  │      │    ├── plotTandP
+  │      │    └── plotCompsProfiles
+  │      ├── MERRA2
+  │      │    ├── getDataMERRA2
+  │      │    ├── combDataMERRA2
+  │      │    ├── dictMERRA2
+  │      │    ├── keysMERRA2
+  │      │    └── deleteKeyMERRA2
+  │      ├── CAMS
+  │      │    └── _testCAMS
+  │      ├── ISAMERRA2 {subclass of ISA & MERRA2}
+  │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
