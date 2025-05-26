@@ -296,10 +296,7 @@ ecosysem
   │      │    ├── dictMERRA2
   │      │    ├── keysMERRA2
   │      │    └── deleteKeyMERRA2
-  │      ├── CAMS
-  │      │    └── _testCAMS
-  │      ├── ISAMERRA2 {subclass of ISA & MERRA2}
-  │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
+  │      └── ISAMERRA2 {subclass of ISA & MERRA2}
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
