@@ -332,6 +332,7 @@ ecosysem
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
+  - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
   <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
@@ -350,9 +351,7 @@ One of the advantages of Python is that supports both **Object-Oriented Programm
 The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
 #
-<!--
-From `Environment` class, new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
--->
+
 <a name="ISA">**Ideal Earth's atmosphere (International Standard Atmosphere, ISA)**</a><br>
 The International Standard Atmosphere (ISA) is a static atmospheric model of how pressure, temperature, density and viscosity of the Earth's atmosphere change over a a wide range of altitudes. The ISA model is detailed in ISO 2533:1975[^1]. The ISA model divides the atmosphere into different layers with specific physical properties (such as temperature rate change, base temperature, base atmospheric pressure or base atmospheric density). With these properties, the temperature and pressure profiles are calculated. On the other hand, the ISA model assumes that Earth's atmosphere is a mixture of gas, water vapor and a certain quantity of aerosols, in which the composition remains pratically constant up to altitudes of 90 - 95 km. The dry (0%<sub>vol</sub> of water) and wet composition (up to 4%<sub>vol</sub> of water) of Earth's atmosphere are from National Oceanic and Atmospheric Administration (NOAA)[^2], Agency for Toxic Substances and Disease Registry (ATSDR), United States ENvironmental Protection Agency, _Atmospheric Radiation: Theoretical Basis (2<sup>nd</sup> edition)_[^3], and scientific publications[^4]  (**Table 1**).
 
@@ -369,14 +368,11 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __SO<sub>2</sub>__ | 1.500·10<sup>-8</sup> | | |
 | __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
-To create a new _ISA_ object (_i.e.,_ instantiate the subclass `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
+To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
 - `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
 - `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04.
 - `pH`. pH of atmosphere. This attribute must be a _float_.
 - `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
-
-Because `ISA` sublcass is a inhereted class of `Environment` class, this has also `.temperature`, `.pressure`, `.pH`, `.compounds` and `.composistions`. Additionally, `ISA` subclass has also its own inherent attributes, that is, attributes that are part of the essential nature of `ISA` sublcass: _i)_ the properties of ISA layers (`._ISAproperties`), _ii)_ dry composition (`.dryComposition`), _iii)_ altitude (an NumPy array with the range of altitudes of ISA instance).
-`ISA` subclass also contains its own class functions (or _instance mehtods_). All functions of `ISA` subclass are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
 
 Once a new _ISA_ object is created, a specific region of ISA can be selected using `ISA.selectRegion`. Compound concentrations (`ISA.getDictConc` or `ISA.getVerticalProfiles`) will be calculated using the new region defined. Here is an example:
 ```python
@@ -490,11 +486,65 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 #
 
 <a name="MERRA2">**Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2)**</a><br>
-_Lorem ipsum_
+The Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) provides data beginning in 1980. It was introduced to replace the original MERRA dataset because of the advances made in the assimilation system that enable assimilation of modern hyperspectral radiance and microwave observations, along with GPS-Radio Occultation datasets. It also uses NASA's ozone profile observations that began in late 2004. Additional advances in both the GEOS model and the GSI assimilation system are included in MERRA-2. Spatial resolution remains about the same (about 50 km in the latitudinal direction) as in MERRA.
+
+Along with the enhancements in the meteorological assimilation, MERRA-2 takes some significant steps towards GMAO’s target of an Earth System reanalysis. MERRA-2 is the first long-term global reanalysis to assimilate space-based observations of aerosols and represent their interactions with other physical processes in the climate system. MERRA-2 includes a representation of ice sheets over (say) Greenland and Antarctica.
+
+To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2` and `MERRA2.combDataMERRA2`, respectively. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.dictMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
+```python
+from envdef import MERRA2
+
+newMERRA2 = MERRA2()
+
+# Get monthly data from online databases
+## (Default arguments: product = 'M2I1NXASM', version = '5.12.4', var = ['PS', 'T2M', 'TROPT', 'TROPPB'])
+newMERRA2.getDataMERRA2(years = 1995, months = 1, days = 'All', bbox = (-180, -90, -178.125, -88.5))
+
+# See keys (_e.i._, variables names) of downloaded data
+keys = newMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
+
+>>> print(key)
+['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
+'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
+
+# See data
+data = newMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
+
+>>> print(data)
+{'lat': array([-90. , -89.5, -89. , -88.5]),
+'lon': array([-180.   , -179.375, -178.75 , -178.125]),
+'T2M': array([[244.29813, 244.29813, 244.29813, 244.29813],
+              [243.8813 , 243.88293, 243.88455, 243.88733],
+              [244.05316, 244.0517 , 244.04942, 244.04617],
+              [245.6959 , 245.69054, 245.68338, 245.67622]], dtype=float32)}
+>>> print(data['T2M'])
+[[244.29813 244.29813 244.29813 244.29813]
+ [243.8813  243.88293 243.88455 243.88733]
+ [244.05316 244.0517  244.04942 244.04617]
+ [245.6959  245.69054 245.68338 245.67622]]
+```
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
+
+<!--
+From existing classes (_e.g.,_ ISA or MERRA2), new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
+
+#
+
+<a name="ISAMERRA2">**ISA-MERRA2 model**</a><br>
+_Lorem ipsum_
+
+Because `ISAMERRA2` sublcass is a multiple-inhereted class of `ISA` and `MERRA2` classes, this has all attributes and methods of parent classes (_i.e._, `ISA` and `MERRA`). All functions of `ISA` and `MERRA2` classes are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
+
+# Example of ISAMERRA2
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
+-->
 
 <!--
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
