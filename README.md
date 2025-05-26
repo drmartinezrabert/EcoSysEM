@@ -522,6 +522,11 @@ data = newMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'l
 ```
 
 ### MERRA2.getDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+
+> [!NOTE]
+> If a significant amount of data needs to be downloaded, we recommend to run MERRA2.getDataMERRA2 [via Command Line Interface](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli).
+> With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
+
 ```python
 MERRA2.getDataMERRA2(years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'], daily=False)
 ```
