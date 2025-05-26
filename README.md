@@ -333,6 +333,7 @@ This section clarifies concepts, design decisions and technical details of this 
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
+  - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
   <!-- - How to create a new Environment subclass | [GO](#create-new-environment-subclass) -->
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
@@ -522,8 +523,8 @@ data = newMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'l
  [243.8813  243.88293 243.88455 243.88733]
  [244.05316 244.0517  244.04942 244.04617]
  [245.6959  245.69054 245.68338 245.67622]]
-
 ```
+
 ### MERRA2.getDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 MERRA2.getDataMERRA2(years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'])
@@ -619,23 +620,59 @@ Delete variable(s) from data.<p>
 
 #
 
-<!--
-From existing classes (_e.g.,_ ISA or MERRA2), new inhereted classes (also known as _subclasses_) can be created inhereting the attributes. New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
+New inhereted classes (also known as _subclasses_) can be created inhereting the attributes from existing classes (_e.g.,_ ISA or MERRA2). New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
-#
+<a name="ISAMERRA2">**ISA-MERRA2 atmospheric model**</a><br>
+Combination of International Standard Atmosphere ([ISA](#ISA)) model and Modern-Era Retrospective analysis for Research and Applications Version 2 ([MERRA2](#MERRA2)).
 
-<a name="ISAMERRA2">**ISA-MERRA2 model**</a><br>
-_Lorem ipsum_
+Because `ISAMERRA2` sublcass is a multiple-inhereted class of `ISA` and `MERRA2` classes, this has all attributes and methods of parent classes (_i.e._, `ISA` and `MERRA2`). All functions of `ISA` and `MERRA2` classes are summarized in [EcoSysEM package layout](#ecosysem-package-layout). `ISAMERRA2` has no new attributes or functions. Here is an example how it works:
+```python
+from envdef import ISAMERRA2
 
-Because `ISAMERRA2` sublcass is a multiple-inhereted class of `ISA` and `MERRA2` classes, this has all attributes and methods of parent classes (_i.e._, `ISA` and `MERRA`). All functions of `ISA` and `MERRA2` classes are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
+newISAMERRA2 = ISAMERRA2(layers=[0], resolution = 200)
 
-# Example of ISAMERRA2
+# Get temperature profile from ISA model
+>>> print(newISAMERRA2.ISAtemperature)
+[ 15.   13.7  12.4  11.1   9.8   8.5   7.2   5.9   4.6   3.3   2.    0.7
+  -0.6  -1.9  -3.2  -4.5  -5.8  -7.1  -8.4  -9.7 -11.  -12.3 -13.6 -14.9
+ -16.2 -17.5 -18.8 -20.1 -21.4 -22.7 -24.  -25.3 -26.6 -27.9 -29.2 -30.5
+ -31.8 -33.1 -34.4 -35.7 -37.  -38.3 -39.6 -40.9 -42.2 -43.5 -44.8 -46.1
+ -47.4 -48.7 -50.  -51.3 -52.6 -53.9 -55.2 -56.5]
+
+# Get atmospheric composition from ISA model
+>>> print(ISAMERRA2.compositions)
+{'N2': 0.78084, 'O2': 0.20946, 'Ar': 0.00934, 'CO2': 0.000426, 'Ne': 1.8182e-05,
+'He': 5.24e-06, 'CH4': 1.92e-06, 'Kr': 1.14e-06, 'H2': 5.5e-07, 'N2O': 3.3e-07,
+'CO': 1e-07, 'Xe': 9e-08, 'O3': 7e-08, 'NO2': 2e-08, 'SO2': 1.5e-08, 'I2': 1e-08,
+'NH3': 6e-09, 'HNO2': 1e-09, 'HNO3': 1e-09, 'H2S': 3.3e-10}
+
+# See keys (_e.i._, variables names) of downloaded data
+keys = newISAMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
+
+>>> print(key)
+['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
+'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
+
+# See data
+data = newISAMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
+
+>>> print(data)
+{'lat': array([-90. , -89.5, -89. , -88.5]),
+'lon': array([-180.   , -179.375, -178.75 , -178.125]),
+'T2M': array([[244.29813, 244.29813, 244.29813, 244.29813],
+              [243.8813 , 243.88293, 243.88455, 243.88733],
+              [244.05316, 244.0517 , 244.04942, 244.04617],
+              [245.6959 , 245.69054, 245.68338, 245.67622]], dtype=float32)}
+>>> print(data['T2M'])
+[[244.29813 244.29813 244.29813 244.29813]
+ [243.8813  243.88293 243.88455 243.88733]
+ [244.05316 244.0517  244.04942 244.04617]
+ [245.6959  245.69054 245.68338 245.67622]]
+```
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
-
--->
 
 <!--
 <a name="create-new-environment-subclass">**How to create a new Environment subclass**</a><br>
@@ -1072,11 +1109,11 @@ Return a n-dimension array with the calculated kinetic rates.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfiles](#isaplotcompsprofiles---back-to-function-navigation)<br>
 
 #### · <ins>MERRA2</ins>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.setComposition](#isasetcomposition---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectRegion](#isaselectregion---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getDictConc](#isagetdictconc---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP](#isaplottandp---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfiles](#isaplotcompsprofiles---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.getDataMERRA2](#merra2getdatamerra2---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.combDataMERRA2](#merra2combdatamerra2---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.dictMERRA2](#merra2dictmerra2---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.keysMERRA2](#merra2keysmerra2---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.deleteKeyMERRA2](#merra2deletekeymerra2---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
