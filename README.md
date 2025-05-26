@@ -331,7 +331,7 @@ This section clarifies concepts, design decisions and technical details of this 
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
   - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
-  - How to create a new environemnt (class or subclass) | [GO](#create-new-environment)
+  - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
@@ -672,7 +672,7 @@ data = newISAMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat',
 
 #
 
-<a name="create-new-environment">**How to create a new environemnt (class or subclass)**</a><br>
+<a name="create-new-environment">**How to create a new environment (class or subclass)**</a><br>
 _Lorem ipsum_
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
