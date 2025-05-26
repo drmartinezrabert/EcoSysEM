@@ -551,10 +551,10 @@ Get average and standard deviation from a group of data.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _list of int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Years of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly')**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_, _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
 **Returns:** <br>
@@ -593,7 +593,7 @@ Get variable list of data.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable list of data.<br>
 
 ### MERRA2.deleteKeyMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
@@ -673,12 +673,93 @@ data = newISAMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat',
 #
 
 <a name="create-new-environment">**How to create a new environment (class or subclass)**</a><br>
-_Lorem ipsum_
+New environment classes (_Parent environment_) or subclasses (_child environment_) can be created in `envdef.py` module. Remember that a _child environment_ has all attributes and methods of _parent environments_ (_i.e._, `Environment01` and `Environment02` of example below). The _child environment_ can have its own attributes and methods in addition to those of the _parent environments_.
+
+· For a new _parent environment_, follow the example below:
+```python
+class EnvironmentName:
+    """
+    Class information.
+    """
+    # Method to initialize a new instance (if initialization is necessary)
+    def __init__(self, parameters):
+        self.attribute = value
+
+    # Instance method
+    def method_01(self, paramters):
+        """
+        Method information.
+        """
+        # Code of _method_01()_
+
+    # Another instance method
+    def method_02(self, paramters):
+        """
+        Method information.
+        """
+        # Code of _method_02()_
+```
+
+For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/). For more information of Constructors in Python (a special method that is called automatically when an object is created from a class), click [here](https://www.geeksforgeeks.org/constructors-in-python/).
+
+· For a new _child environment_, follow the exemple below:
+```python
+class Environment01:
+    """
+    Class information.
+    """
+    # Method to initialize a new instance of Environment01 (if initialization is necessary)
+    def __init__(self, parameters):
+        self.attribute = value
+
+    # Instance method of Environment01
+    def methodName(self, paramters):
+        """
+        Method information.
+        """
+        # Code of _methodName()_
+
+class Environment02:
+    """
+    Class information.
+    """
+    # Method to initialize a new instance of Environment02 (if initialization is necessary)
+    def __init__(self, parameters):
+        self.attribute = value
+
+    # Instance method of Environment02
+    def methodName(self, paramters):
+        """
+        Method information.
+        """
+        # Code of _methodName()_
+
+class ChildEnvironment(Environment01, Environment02):
+    """
+    Class information.
+    """
+    # Class attribute of ChildEnvironment
+    attribute = value
+
+    # Method to initialize a new instance of ChildEnvironments (required)
+    def __init__(self, parameters01, parameters02):
+        Environment01.__init__(self, parameters01)
+        Environment02.__init__(self, parameters02)
+
+    # Instance method of ChildEnvironment
+    def methodName(self, paramters):
+        """
+        Method information.
+        """
+        # Code of _methodName()_   
+```
+
+For more information of Multiple Inheritance in Python, click [here](https://www.geeksforgeeks.org/multiple-inheritance-in-python/).<br>
+A common error in Python Inheritance is `TypeError: got multiple values for keyword argument`. You can fix this error following the example above and/or consulting [this website](https://www.geeksforgeeks.org/how-to-fix-python-multiple-inheritance-generates-typeerror-got-multiple-values-for-keyword-argument/).
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
-
 
 #### <ins>Ecosystem Analysis (EcoA)</ins>
 :construction: Coming soon...
