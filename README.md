@@ -523,7 +523,7 @@ data = newMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'l
 
 ### MERRA2.getDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-MERRA2.getDataMERRA2(years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'])
+MERRA2.getDataMERRA2(years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'], daily=False)
 ```
 Download data from MERRA2 database.<p>
 **Parameters:**<br>
@@ -539,9 +539,11 @@ Download data from MERRA2 database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earths region of data, the bounding box.<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **var : _list of str_, _optional, default: ['PS', 'T2M', 'TROPT', 'TROPPB']_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **daily : _bool_, _optional, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Save daily data or not.<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\MERRA2\mly\`**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\MERRA2\mly\` and `data\MERRA\dly\` if _daily = True_**<br>
 
 ### MERRA2.combDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -562,17 +564,19 @@ Get average and standard deviation from a group of data.<p>
 
 ### MERRA2.dictMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-MERRA2.dictMERRA2(dataType, y, m, keys = 'All')
+MERRA2.dictMERRA2(dataType, y, m, d=None, keys='All')
 ```
 Get data in dictionary form.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly')*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly', 'dly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'cmly': combined monthly.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly') or _list of int_ ('cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly' and 'dly') or _list of int_ ('cmly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_, _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
 **Returns:** <br>
@@ -581,36 +585,40 @@ Get data in dictionary form.<p>
 
 ### MERRA2.keysMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-MERRA2.keysMERRA2(dataType, y, m)
+MERRA2.keysMERRA2(dataType, y, m, d=None)
 ```
 Get variable list of data.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly')*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly', 'dly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'cmly': combined monthly.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly') or _list of int_ ('cmly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable list of data.<br>
 
 ### MERRA2.deleteKeyMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-MERRA2.deleteKeyMERRA2(keys, dataType, y, m)
+MERRA2.deleteKeyMERRA2(keys, dataType, y, m, d=None)
 ```
 Delete variable(s) from data.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables to be deleted.<p>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly')*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly', 'dly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'cmly': combined monthly.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly') or _list of int_ ('cmly')**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<p>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
