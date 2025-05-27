@@ -28,6 +28,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import earthaccess
+import itertools
+import xarray as xr
+import datetime
+import calendar
+import os
+import time
 
 import warnings
 warnings.simplefilter(action = 'ignore')
@@ -359,3 +366,559 @@ class ISA:
         plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
         plt.show()
     
+class MERRA2:
+    """
+    The Modern-Era Retrospective analysis for Research and Applications, 
+    Version 2 (MERRA-2) provides data beginning in 1980. It was introduced 
+    to replace the original MERRA dataset because of the advances made in 
+    the assimilation system that enable assimilation of modern hyperspectral 
+    radiance and microwave observations, along with GPS-Radio Occultation 
+    datasets. It also uses NASA's ozone profile observations that began in 
+    late 2004. Additional advances in both the GEOS model and the GSI 
+    assimilation system are included in MERRA-2. Spatial resolution remains 
+    about the same (about 50 km in the latitudinal direction) as in MERRA.
+    --------------------------------------------------------------------------
+    References: - Global Modeling and Assimilation Office (NASA)
+                    https://gmao.gsfc.nasa.gov/reanalysis/merra-2/
+                - Gelaro et al. (2017), doi: 10.1175/JCLI-D-16-0758.1
+    """
+    
+    def _testMERRA2(self):
+        print('MERRA2 class works.')
+
+    def _closestCoord(self, lonR, latR, Coor):
+        """
+        Get closest coordinates from coordinates system of MERRA-2
+
+        Parameters
+        ----------
+        lonR : LIST
+            Reference longitude.
+        latR : LIST
+            Reference latitude.
+        Coor : TUPLE
+            Desired coordinates.
+            (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+
+        Returns
+        -------
+        bbox : TUPLE
+            Closest coordinate from reference coordinates.
+            (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+
+        """
+        bbox = (lonR[np.abs(lonR - Coor[0]).argmin()],
+                latR[np.abs(latR - Coor[1]).argmin()],
+                lonR[np.abs(lonR - Coor[2]).argmin()],
+                latR[np.abs(latR - Coor[3]).argmin()])
+        return bbox
+    
+    def _HfromP(self, P):
+        """
+        Get atmospheric altitude from pressure altitude (from NOAA).
+
+        Parameters
+        ----------
+        P : INT, FLOAT or ndarray
+            Pressure(s) values. [Pa]
+
+        Returns
+        -------
+        INT, FLOAT or ndarray.
+            Atmopspheric altitude value(s).
+
+        """
+        return np.maximum(145366.45 * (1 - (P / 101325) ** 0.190284) * (0.3048 / 1), np.zeros(P.shape))
+        
+    def _LR(self, T1, T2, H1, H2):
+        """
+        Estimate atmospheric lapse rate (K/km)
+
+        Parameters
+        ----------
+        T1 : FLOAT, LIST or ndarray
+            Temperature value(s) of minimum atmospheric altitude (H1). [K or °C]
+        T2 : FLOAT, LIST or ndarray
+            Temperature value(s) of maximum atmospheric altitude (H2). [K or °C]
+        H1 : FLOAT, LIST or ndarray
+            Minimum atmospheric altitude. [m]
+        H2 : FLOAT, LIST or ndarray
+            Maximum atmospheric altitude. [m]
+
+        Returns
+        -------
+        FLOAT, LIST or ndarray
+            Lapse rate value(s). (K/km)
+
+        """
+        return ((T2 - T1) / (H2 - H1) * 1000)
+    
+    def getDataMERRA2(self, years, months, 
+                      days = 'All',
+                      product = 'M2I1NXASM',
+                      version = '5.12.4',
+                      bbox = (-180, -90, 180, 90),
+                      var = ['PS', 'T2M', 'TROPT', 'TROPPB'], 
+                      update = False,
+                      daily = False):
+        """
+        Download data from MERRA2 database.
+        
+        Parameters
+        ----------
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data
+        days : INT, LIST of INT, or STR ('All')
+            Day(s) of data
+        product  : STR
+            Product of data (section of MERRA2 database).
+        version : STR
+            Version of data.
+        bbox : TUPLE
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        var : LIST of STR
+            List of requested variables.   
+        
+        """
+        # Coordinates (bbox)
+        if len(bbox) == 2:
+            bbox = bbox + bbox
+        elif len(bbox) == 4:
+            bbox = bbox
+        else:
+            print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
+            return None
+        # Check arguments
+        if not isinstance(years, list): years = [years]
+        if not isinstance(months, (list, np.ndarray)): months = [months]
+        start_time = time.time()
+        # This will work if Earthdata prerequisite files have already been generated
+        earthaccess.login()
+        # Combinations [(year1, month1), (year1, month2), ...]
+        dateList = list(itertools.product(years, months))
+        # Initialize dictionaries
+        monthData = {}
+        for date in dateList:
+            y = date[0]
+            m = date[1]
+            start_date = datetime.date(y, m, 1)
+            if days == 'All':
+                last_day = calendar.monthrange(y, m)[1]
+            else:
+                if not isinstance(days, list): days = [days]
+                last_day = max(days)
+            end_date = datetime.date(y, m, last_day)
+            delta = datetime.timedelta(days=1)
+            date = start_date
+            # Initialize dictionaries
+            hourData = {}
+            av_dayData = {}
+            dayData = {}
+            ## Day matrices
+            while (date <= end_date):
+                print(f"> {date.strftime('%Y-%m-%d')}")
+                # Open granules to local phat
+                results = earthaccess.search_data(
+                    short_name = product, 
+                    version = version,
+                    temporal = (date, date),
+                    bounding_box = bbox
+                )
+                # Open granules using Xarray
+                fs = earthaccess.open(results)
+                ds = xr.open_mfdataset(fs)
+                lonR = ds.lon.to_numpy()
+                latR = ds.lat.to_numpy()
+                # Get closest coordinates
+                bbox =  MERRA2._closestCoord(self, lonR, latR, bbox)
+                lat_slice = slice(bbox[1], bbox[3])
+                lon_slice = slice(bbox[0], bbox[2])
+                ds = ds.sel(lat = lat_slice, lon = lon_slice)
+                lon = ds.lon.to_numpy()
+                lat = ds.lat.to_numpy()
+                for key in var:
+                    try:
+                        ds[key]
+                    except:
+                        print(f'  {key} estimated.')
+                    else:
+                        hourData[key] = ds[key].values
+                        print(f'  {key} done.')
+                # Atmospheric altitudes
+                varH = ['H', 'TROPH']
+                varReqH = ['PS', 'TROPPB', 'TROPPT', 'TROPPV']
+                if np.any([np.char.find(var, iVar) > -1 for iVar in varH]):
+                    c = 0
+                    for iV in var:
+                        if np.any(np.char.find(iV, varReqH) > -1):
+                            varNames = {'PS': 'H',
+                                        'TROPPB': 'TROPH',
+                                        'TROPPT': 'TROPH',
+                                        'TROPPV': 'TROPH'}
+                            hourData[varNames[iV]] = MERRA2._HfromP(self, hourData[iV])
+                            c += 1
+                    if c == 0:
+                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'PS\', \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
+                        return None
+                # Lapse rate
+                varReqLR = ['T2M', 'TROPT', 'H', 'TROPH']
+                if np.any(np.char.find(var, 'LR') > -1):
+                    if np.all([np.any(np.char.find(var, iVarReq) > -1) for iVarReq in varReqLR]):
+                        hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
+                    else:
+                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
+                        return None
+                for iV in var:
+                    # Daily averages and std
+                    av_dayData[iV] = np.average(hourData[iV], axis = 0)
+                    av_dayData[f'{iV}_std'] = np.std(hourData[iV], axis = 0)
+                    # Day matrices
+                    if date == start_date:
+                        dayData[iV] = av_dayData[iV]
+                    else:
+                        dayData[iV] = np.dstack((dayData[iV], av_dayData[iV]))
+                # Save daily data
+                if daily == True:
+                    MERRA2._saveNPZMERRA2(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
+                # Next date
+                date += delta
+            # Month matrices
+            monthData['lat'] = lat
+            monthData['lon'] = lon
+            for iV in var:
+                if last_day != 1:
+                    monthData[iV] = np.average(dayData[iV], axis = -1)
+                    monthData[f'{iV}_std'] = np.std(dayData[iV], axis = -1)
+                else:
+                    monthData[iV] = dayData[iV]
+                    monthData[f'{iV}_std'] = np.array([0.0])
+            # Save numpy matrices in .npz format
+            MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
+        print("--- %s seconds ---" % (time.time() - start_time))
+    
+    def combDataMERRA2(self, years, month, dataType, keys = 'All'):
+        """
+        Get average and standard deviation from a group of data.
+        
+        Parameters
+        ----------
+        years : INT or LIST of INT
+            Year(s) of data.
+        month : INT or LIST of INT
+            Month of data
+        dataType   : STR ('mly')
+            Type of data.
+        keys  : LIST of STR
+            List of requested variables. (Default: 'All')     
+        
+        """
+        if not isinstance(month, int):
+            print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+            return None
+        if isinstance(years, int): years = [years]
+        if isinstance(years, float): years = [years]
+        if len(years) <= 1:
+            print('Error: Introduce at least 2 years.')
+            return None
+        # Get all files from data\npz
+        folder = f'data/MERRA2/{dataType}/'
+        allFiles = np.array(os.listdir(folder))
+        # Test elements
+        tEl = np.empty((0))
+        for y in years:
+            if dataType == 'mly':
+                el = f'{y}_{month}_month.npz'
+            tEl = np.append(tEl, el)
+        selFiles = allFiles[np.isin(allFiles, tEl)]
+        # Stack matrices
+        combData = {}
+        monthData = {}
+        for file in selFiles:
+            path = folder + file
+            f = np.load(path)
+            # Select keys
+            if keys == 'All':
+                keys = MERRA2.keysMERRA2(self, dataType, years[0], month)
+            else:
+                coor = []
+                if not np.any(np.char.find('lat', keys) > -1):
+                    coor += ['lat']
+                if not np.any(np.char.find('lon', keys) > -1):
+                    coor += ['lon']
+                keys = coor + keys
+            for key in keys:
+                if file == selFiles[0]:
+                    combData[key] = f[key]
+                else:
+                    combData[key] = np.dstack((combData[key], f[key]))
+        # Monthly average and std
+        for key in keys:
+            if np.char.find(key, '_std') == -1:
+                monthData[key] = np.average(combData[key], axis = -1)
+            else:
+                monthData[key] = np.std(combData[key], axis = -1)
+        # Save numpy matrices in .npz format (v2)
+        MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month) 
+        
+    def selectRegion(self, data, bbox):
+        """
+        Select specific region of Earth of downloaded data
+
+        Parameters
+        ----------
+        data : DICT
+            Data
+        bbox : Tuple
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+
+        Returns
+        -------
+        dataSel : DICT
+            Data from specific region.
+
+        """
+        # Selected coordinates
+        if len(bbox) == 2:
+            bbox = bbox + bbox
+            uniqueCoor = True
+        elif len(bbox) == 4:
+            bbox = bbox
+            uniqueCoor = False
+        else:
+            print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
+            return None
+        # BBox from data
+        lonR = data['lon']
+        latR = data['lat']
+        bboxData = (lonR[0], latR[0], lonR[-1], latR[-1])
+        # Get closest coordinates
+        bbox =  MERRA2._closestCoord(self, lonR, latR, bbox)
+        # Check if requested region is in data
+        cBBOX = [(bboxData[i] <= bbox[i] and bboxData[i+2] >= bbox[i+2]) for i in np.arange(2)]
+        if all(cBBOX) == True:
+            # Get indices
+            # (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+            idx = (int(np.argwhere(lonR == bbox[0])),
+                   int(np.argwhere(latR == bbox[1])),
+                   int(np.argwhere(lonR == bbox[2])),
+                   int(np.argwhere(latR == bbox[3])))
+            # Initialize dictionary of selected data
+            dataSel = {}
+            for var in data:
+                if var == 'lon':
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[0]]
+                    else:
+                        if idx[0] == idx[2]:
+                            dataSel[var] = data[var][idx[0]]
+                        else:
+                            dataSel[var] = data[var][idx[0]:idx[2]]
+                elif var == 'lat':
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[1]]
+                    else:
+                        if idx[1] == idx[3]:
+                            dataSel[var] = data[var][idx[1]]
+                        else:
+                            dataSel[var] = data[var][idx[1]:idx[3]]
+                else:
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[1],idx[0]]
+                    else:
+                        if idx[0] == idx[2]:
+                            dataSel[var] = data[var][idx[1]:idx[3],idx[0]]
+                        elif idx[1] == idx[3]:
+                            dataSel[var] = data[var][idx[1],idx[0]:idx[2]]
+                        else:
+                            dataSel[var] = data[var][idx[1]:idx[3],idx[0]:idx[2]]
+                if not isinstance(dataSel[var], (list, np.ndarray)): dataSel[var] = [dataSel[var]]
+            return dataSel
+        else:
+            print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
+            return None
+    
+    def _saveNPZMERRA2(self, data, dataType, y, m, d = None):
+        """
+        Create .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        
+        """
+        # Path check and folder creation if this does not exist
+        path = f'data/MERRA2/{dataType}/'
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        # File name (based on dataType)
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        elif dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        # Path generation
+        pathfile = path + file
+        # Save .npz file
+        np.savez(pathfile, **data)
+    
+    def _openNPZMERRA2(self, dataType, y, m, d = None):
+        """
+        Open .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        
+        """
+        path = f'data/MERRA2/{dataType}/'
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        if dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return 0
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return 0
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        return np.load(path + file)
+    
+    def dictMERRA2(self, dataType, y, m, d = None, keys = 'All'):
+        """
+        Get data in dictionary form.
+
+        Parameters
+        ----------
+        dataType : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        keys : LIST of STR
+            List of requested variables. (Default: 'All')
+        
+        Returns
+        -------
+        dictVar : DICT
+            Dictionary with requested variables.
+
+        """
+        npz = MERRA2._openNPZMERRA2(self, dataType, y, m, d)
+        if keys == 'All':
+            keys = MERRA2.keysMERRA2(self, dataType, y, m, d)
+            dictVar = {key: npz[key] for key in keys}
+        else:
+            coor = []
+            if not np.any(np.char.find('lat', keys) > -1):
+                coor += ['lat']
+            if not np.any(np.char.find('lon', keys) > -1):
+                coor += ['lon']
+            keys = coor + keys
+            dictVar = {key: npz[key] for key in keys}
+        npz.close()
+        return dictVar
+    
+    def keysMERRA2(self, dataType, y, m, d = None):
+        """
+        Get variable list of data.
+
+        Parameters
+        ----------
+        dataType : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        
+        Returns
+        -------
+        keys  : LIST of STR
+            Variable list of data.
+
+        """
+        npz = MERRA2._openNPZMERRA2(self, dataType, y, m, d)
+        keys = npz.files
+        npz.close()
+        return keys
+    
+    def deleteKeyMERRA2(self, keys, dataType, y, m, d = None):
+        """
+        Delete variable(s) from data.
+
+        Parameters
+        ----------
+        keys : LIST of STR
+            List of requested variables.
+        dataType : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+
+        """
+        dictVar = MERRA2.dictMERRA2(self, dataType, y, m, d)
+        for key in keys:
+            dictVar.pop(key, None)
+        # Save new .npz file
+        MERRA2._saveNPZMERRA2(self, dictVar, dataType, y, m, d)
+
