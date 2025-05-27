@@ -365,7 +365,7 @@ class ISA:
             compoundsName = compounds
         plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
         plt.show()
-    
+
 class MERRA2:
     """
     The Modern-Era Retrospective analysis for Research and Applications, 
@@ -922,3 +922,9 @@ class MERRA2:
         # Save new .npz file
         MERRA2._saveNPZMERRA2(self, dictVar, dataType, y, m, d)
 
+class CAMS:
+    """
+    Description of class CAMS.
+    """
+    def _testCAMS(self):
+        print('CAMS class works.')
