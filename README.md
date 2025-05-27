@@ -1225,7 +1225,7 @@ Return a n-dimension array with the calculated kinetic rates.<p>
 ## Function Navigation
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.setComposition](#isasetcomposition---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectRegion](#isaselectregion---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectAltitude](#isaselectaltitude---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getDictConc](#isagetdictconc---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP](#isaplottandp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfiles](#isaplotcompsprofiles---back-to-function-navigation)<br>
