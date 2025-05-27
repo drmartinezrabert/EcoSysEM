@@ -32,51 +32,6 @@ import sys
 import warnings
 warnings.simplefilter(action = 'ignore')
 
-class Environment:
-    """
-    Abstract base class for environment definition file.
-    
-    """
-    def __init__(self, temperature, pressure, pH, compounds, composition):
-        self.temperature = temperature
-        self.pressure = pressure
-        self.pH = pH
-        self.compounds = compounds
-        self.compositions = dict(zip(compounds, composition))
-        
-    def setT(self, new_T):
-        self.temperature = new_T
-        
-    def setP(self, new_P):
-        self.pressure = new_P
-    
-    def setpH(self, new_pH):
-        self.pH = new_pH
-    
-    def setComposition(self, compound, composition):
-        """
-        Modify composition of existing compounds or add new components with
-        their respective compositions.
-
-        Parameters
-        ----------
-        compound : STR or LIST
-            Set of new and/or existing compounds.
-        composition : FLOAT or LIST
-            Composition(s) of new and/or existing compound(s).
-            
-        """
-        if not isinstance(compound, list): compound = [compound]
-        if not isinstance(composition, list): composition = [composition]
-        pre_comp = self.compositions
-        new_comp = dict(zip(compound, composition))
-        pre_comp.update(new_comp)
-        self.compositions = pre_comp
-        ## Sorting doesn't work when setComposition() entry is a list(s).
-        # comp_sorted = dict(sorted(pre_comp.items(), key=lambda x: x[1], reverse = True))
-        # self.compositions = comp_sorted
-        
-class ISA(Environment):
     """
     International Standard Atmosphere (ISA). Static atmospheric model of how
     pressure, temperature, density and viscosity of the Earth's atmosphere
