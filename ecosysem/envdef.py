@@ -937,3 +937,13 @@ class ISAMERRA2(ISA, MERRA2):
     def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
+
+class CAMSMERRA2(CAMS, MERRA2):
+    """
+    Combination of Modern-Era Retrospective analysis for Research and 
+    Applications Version 2 (MERRA-2) and Copernicus Atmosphere Monitorinc
+    Service (CAMS) database.
+    """
+    def __init__(self):
+        CAMS.__init__(self)
+        MERRA2.__init__(self)
