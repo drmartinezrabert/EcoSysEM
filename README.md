@@ -1228,7 +1228,7 @@ python ecosysem_cmd.py -arg1 value1 -arg2 value2 -arg3 value3
 Where `arg#` are the arguments of the funtion and `value#` are the values of `arg#`. Once executed the above command line, an `input()` line will request what function will be executed with the list of available functions (see below). The user first gives all the arguments and corresponding values and then select the function.
 ```
 > Available functions: getDataMERRA2
->> Enterthe function:
+>> Enter the function:
 ```
 ### Arguments list:
 #### <ins>getDataMERRA2</ins>
