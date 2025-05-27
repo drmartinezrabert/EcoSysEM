@@ -1216,18 +1216,50 @@ Return a n-dimension array with the calculated kinetic rates.<p>
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
-:construction: Coming soon...
-
-[🔼 Back to **Contents**](#readme-contents)
-<!--
-1. Download .zip code. Last version: `v#.#`. [Download package](https://github.com/soundslikealloy/EcoSysEM).
+1. Download .zip code. Last version: `v0.1` **$${\color{orange}\textbf{(Pre-release)}}$$**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.1.zip).
 2. Extract files to a destination (Recommendation - Desktop).
 3. Open **Anaconda Prompt or Terminal**.
 4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
-5. _Lorem ipsum..._
-6. Execute one of the **EcoSysEM** blocks/functions using the following command lines.
--->
+5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
+```
+python ecosysem_cmd.py -arg1 value1 -arg2 value2 -arg3 value3
+```
+Where `arg#` are the arguments of the funtion and `value#` are the values of `arg#`. Once executed the above command line, an `input()` line will request what function will be executed with the list of available functions (see below). The user first gives all the arguments and corresponding values and then select the function.
+```
+> Available functions: getDataMERRA2
+>> Enterthe function:
+```
+### Arguments list:
+#### <ins>getDataMERRA2</ins>
+<table border="0">
+   <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> -y </td><td> [int] Year of requested data.</td></tr>
+   <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> -d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> -product </td><td> [str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).</td></tr>
+   <tr><td> -version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
+   <tr><td> -bbox </td><td> [tuple] (Default: '(-180, -90, 180, 90)') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
+   <tr><td> -var </td><td> [list of str] (Default: ['PS', 'T2M', 'TROPT', 'TROPPB']) List of requested variables.</td></tr>
+   <tr><td> --daily </td><td> [bool] (Default: False) Daily data is saved.</td></tr>
+</table>
+
+List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
+For example: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
+
+More examples below:
+```
+python ecosysem_cmd.py -y 2021 -m 4
+python ecosysem_cmd.py -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
+python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
+# Daily data is saved (--daily)
+python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily 
+```
+
+[🔼 Back to **Contents**](#readme-contents)
 
 ## Function Navigation
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
