@@ -37,6 +37,7 @@ ____________________________
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
+-  Error List | [GO](#error-list)
 -  Contact | [GO](#contact)
 ____________________________
 
@@ -1306,6 +1307,28 @@ python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.arrhCorr](#kinratesarrhcorr---back-to-function-navigation)<br>
 
 [🔼 Back to **Contents**](#readme-contents)
+
+## Error List
+#### <ins>MERRA2.getDataMERRA2</ins>
+**> _Invalid credentials (Earthacces username and/or password)_**<br>
+```
+[...]
+earthaccess.exceptions.LoginAttemptFailure: Authentication with Earthdata Login failed with:
+{"error":"invalid_credentials","error_description":"Invalid user credentials"}
+```
+**· Solution**: introduce valid credentials.<pr>
+
+**> _Server Error (MERRA-2 server)_**<br>
+```
+[...]
+RuntimeError: {"errors":["An Internal Error has occurred."]}
+```
+**· Solution 1**: accept all _end-user license aggrements_ (EULAs), if not yet done. You can find them after [login](https://urs.earthdata.nasa.gov/home) with your earthaccess account in <ins>EULAs</ins> -> <ins>Accept New EULAs</ins>.<br>
+**· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.<pr>
+
+
+[🔼 Back to **Contents**](#readme-contents)
+
 __________________________________________________
 
 ## Contact
