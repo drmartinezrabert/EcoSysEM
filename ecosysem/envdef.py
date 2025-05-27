@@ -928,3 +928,12 @@ class CAMS:
     """
     def _testCAMS(self):
         print('CAMS class works.')
+
+class ISAMERRA2(ISA, MERRA2):
+    """
+    Combination of International Standard Atmosphere (ISA) model and Modern-Era 
+    Retrospective analysis for Research and Applications Version 2 (MERRA-2).
+    """
+    def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
+        ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
+        MERRA2.__init__(self)
