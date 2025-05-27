@@ -286,10 +286,10 @@ ecosysem
   │      │    ├── .compounds
   │      │    ├── .compositions
   │      │    ├── setComposition
-  │      │    ├── selectRegion
-  │      │    ├── getDictConcISA
-  │      │    ├── plotTandP
-  │      │    └── plotCompsProfiles
+  │      │    ├── selectAltitude
+  │      │    ├── dictConcISA
+  │      │    ├── plotTandPISA
+  │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
   │      │    ├── getDataMERRA2
   │      │    ├── combDataMERRA2
@@ -413,9 +413,9 @@ Add (if _compound_ does not exist) or modify (if _compound_ does exist) composit
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
 
-### ISA.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.selectAltitude &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.selectRegion(selAlt)
+ISA.selectAltitude(selAlt)
 ```
 Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on the minimum and maximum altitude given.<p>
 **Parameters:** <br>
@@ -426,9 +426,9 @@ Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on th
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None**<br>
 
-### ISA.getDictConc &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.dictConcISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.getDictConc(phase, compound=None)
+ISA.dictConcISA(phase, compound=None)
 ```
 Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
 **Parameters:** <br>
@@ -452,9 +452,9 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
 
-### ISA.plotTandP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.plotTandPISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.plotTandP()
+ISA.plotTandPISA()
 ```
 Plot temperature and pressure profiles of `ISA` instance.<p>
 **Parameters:** <br>
@@ -462,9 +462,9 @@ Plot temperature and pressure profiles of `ISA` instance.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
 
-### ISA.plotCompsProfiles &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.plotCompsProfilesISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.plotCompsProfiles(Conc, xLabel, logCLabel=False, compounds=None)
+ISA.plotCompsProfilesISA(Conc, xLabel, logCLabel=False, compounds=None)
 ```
 Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
 **Parameters:** <br>
