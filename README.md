@@ -452,9 +452,9 @@ Return vertical profiles in _format=dict_ of selected compounds or all compounds
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
 
-### ISA.plotTandPISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.plotTandP_ISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.plotTandPISA()
+ISA.plotTandP_ISA()
 ```
 Plot temperature and pressure profiles of `ISA` instance.<p>
 **Parameters:** <br>
@@ -706,21 +706,21 @@ class EnvironmentName:
         """
         Method information.
         """
-        # Code of _method_01()_
+        # Code of method_01()
 
     # Another instance method
     def method_02(self, paramters):
         """
         Method information.
         """
-        # Code of _method_02()_
+        # Code of method_02()
 
     # Private instance method
     def _privateMethod(self, paramters):
         """
         Method information.
         """
-        # Code of __privateMethod()_
+        # Code of _privateMethod()
 ```
 
 For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/). For more information of Constructors in Python (a special method that is called automatically when an object is created from a class), click [here](https://www.geeksforgeeks.org/constructors-in-python/).
@@ -741,14 +741,14 @@ class Environment01:
         """
         Method information.
         """
-        # Code of _methodName()_
+        # Code of methodName()
 
     # Private instance method
     def _privateMethod(self, paramters):
         """
         Method information.
         """
-        # Code of __privateMethod()_
+        # Code of _privateMethod()
 
 class Environment02:
     """
@@ -763,26 +763,25 @@ class Environment02:
         """
         Method information.
         """
-        # Code of _methodName()_
+        # Code of methodName()
 
 class ChildEnvironment(Environment01, Environment02):
     """
     Class information.
     """
-    # Class attribute of ChildEnvironment
-    attribute = value
 
     # Method to initialize a new instance of ChildEnvironments (required)
     def __init__(self, parameters01, parameters02):
         Environment01.__init__(self, parameters01)
         Environment02.__init__(self, parameters02)
+        self.attribute = value
 
     # Instance method of ChildEnvironment
-    def methodName(self, paramters):
+    def methodChild(self, paramters):
         """
         Method information.
         """
-        # Code of _methodName()_   
+        # Code of methodChild()   
 ```
 
 For more information of Multiple Inheritance in Python, click [here](https://www.geeksforgeeks.org/multiple-inheritance-in-python/).<br>
