@@ -493,6 +493,7 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 > Enter your Earthdata Login username:
 > Enter your Earthdata password:
 > ```
+After registration, [login](https://urs.earthdata.nasa.gov/home) with your account and accept all _end-user license agreements_ (EULAs). You can find them in <ins>EULAs</ins> -> <ins>Accept New EULAs</ins>.
 
 To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2` and `MERRA2.combDataMERRA2`, respectively. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.dictMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
 ```python
