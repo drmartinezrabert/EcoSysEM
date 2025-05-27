@@ -6,3 +6,4 @@ ecosysem/results/*.xlsx
 ecosysem/data/*
 *.csv
 ecosysem/plots
+ThSA calculations.py
