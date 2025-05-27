@@ -699,6 +699,7 @@ class EnvironmentName:
     # Method to initialize a new instance (if initialization is necessary)
     def __init__(self, parameters):
         self.attribute = value
+        self._privateAttribute = value
 
     # Instance method
     def method_01(self, paramters):
@@ -713,6 +714,13 @@ class EnvironmentName:
         Method information.
         """
         # Code of _method_02()_
+
+    # Private instance method
+    def _privateMethod(self, paramters):
+        """
+        Method information.
+        """
+        # Code of __privateMethod()_
 ```
 
 For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/). For more information of Constructors in Python (a special method that is called automatically when an object is created from a class), click [here](https://www.geeksforgeeks.org/constructors-in-python/).
@@ -726,6 +734,7 @@ class Environment01:
     # Method to initialize a new instance of Environment01 (if initialization is necessary)
     def __init__(self, parameters):
         self.attribute = value
+        self._privateAttribute = value
 
     # Instance method of Environment01
     def methodName(self, paramters):
@@ -733,6 +742,13 @@ class Environment01:
         Method information.
         """
         # Code of _methodName()_
+
+    # Private instance method
+    def _privateMethod(self, paramters):
+        """
+        Method information.
+        """
+        # Code of __privateMethod()_
 
 class Environment02:
     """
