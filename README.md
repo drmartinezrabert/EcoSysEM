@@ -1324,8 +1324,7 @@ earthaccess.exceptions.LoginAttemptFailure: Authentication with Earthdata Login 
 RuntimeError: {"errors":["An Internal Error has occurred."]}
 ```
 **· Solution 1**: accept all _end-user license aggrements_ (EULAs), if not yet done. You can find them after [login](https://urs.earthdata.nasa.gov/home) with your earthaccess account in <ins>EULAs</ins> -> <ins>Accept New EULAs</ins>.<br>
-**· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.<pr>
-
+**· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.
 
 [🔼 Back to **Contents**](#readme-contents)
 
