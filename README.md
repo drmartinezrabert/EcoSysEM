@@ -35,7 +35,7 @@ ____________________________
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
--  Instructions to use EcoSysEM platform via Command Line Interface (CLI) 🚧 | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
+-  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Contact | [GO](#contact)
 ____________________________
