@@ -32,6 +32,7 @@ import sys
 import warnings
 warnings.simplefilter(action = 'ignore')
 
+class ISA:
     """
     International Standard Atmosphere (ISA). Static atmospheric model of how
     pressure, temperature, density and viscosity of the Earth's atmosphere
@@ -50,7 +51,7 @@ warnings.simplefilter(action = 'ignore')
                         'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
                         'End altitude': [11000, 20000, 32000, 47000, 51000, 71000, 84852, 85852],       # [m (above MSL)]
                         'Lapse rate': [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0, 0.0],                      # [C/km)]
-                        'Base temperature': [15, -56.5, -56.5, -44.5, -2.5, -2.5, -58.5, -86.204],      # [C]
+                        'Base temperature': [15.0, -56.5, -56.5, -44.5, -2.5, -2.5, -58.5, -86.204],      # [C]
                         'Base pressure': [101325, 22632, 5474.9, 868.02, 110.91, 66.939, 3.9564, 0],    # [Pa]
                         }
         dISA = pd.DataFrame(data = _ISAproperties)
@@ -60,7 +61,7 @@ warnings.simplefilter(action = 'ignore')
                                        'He', 'CH4', 'Kr', 'H2', 'N2O', 
                                        'CO', 'Xe','O3', 'NO2', 'SO2', 
                                        'I2','NH3', 'HNO2', 'HNO3', 'H2S'], # Formula
-                         'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.2e-4, 1.8182e-5, 
+                         'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.26e-4, 1.8182e-5, 
                                           5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
                                           1e-7, 9e-8, 7e-8, 2e-8, 1.5e-8, 
                                           1e-8, 6e-9, 1e-9, 1e-9, 3.3e-10] # [%vol]
@@ -69,12 +70,32 @@ warnings.simplefilter(action = 'ignore')
         self.layers = layers
         self.pH = pH
         self.resolution = resolution
-        self.computeTandP(layers, dISA)
+        self._computeTandP(layers, dISA)
         self.compounds = dDC['Compounds']
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
-        self.computeWaterContent(H2O, dDC)
+        self._computeWaterContent(H2O, dDC)
     
-    def computeTandP(self, layers, dISA):
+    def setComposition(self, compound, composition):
+        """
+        Modify composition of existing compounds or add new components with
+        their respective compositions.
+
+        Parameters
+        ----------
+        compound : STR or LIST
+            Set of new and/or existing compounds.
+        composition : FLOAT or LIST
+            Composition(s) of new and/or existing compound(s).
+            
+        """
+        if not isinstance(compound, list): compound = [compound]
+        if not isinstance(composition, list): composition = [composition]
+        pre_comp = self.compositions
+        new_comp = dict(zip(compound, composition))
+        pre_comp.update(new_comp)
+        self.compositions = pre_comp
+    
+    def _computeTandP(self, layers, dISA):
         """
         Compute the change of temperaature and pressure of the Earth's
         atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
@@ -98,7 +119,7 @@ warnings.simplefilter(action = 'ignore')
         # Temperature calculation (ISA)
         alt = t = p = []
         for i in range(lapse_rate.size):
-            alt_aux = np.array(range(start_alt[i], end_alt[i], resolution))
+            alt_aux = np.array(range(int(start_alt[i]), int(end_alt[i]), resolution))
             # Temperature
             t_aux = base_T[i] + lapse_rate[i] * ((alt_aux - start_alt[i]) / 1000)
             # Pressure
@@ -119,11 +140,11 @@ warnings.simplefilter(action = 'ignore')
         else:
             p = np.append(p, base_P[-1] * np.exp((-(g0 * M0) / (R * (base_T[-1]+273.15))) * (alt_end - start_alt[-1])))
         # Safe Altitude, Temperature and Pressure
-        self.altitude = alt # [m]
-        self.temperature = t # [C]
-        self.pressure = p # [Pa]
+        self.ISAaltitude = alt # [m]
+        self.ISAtemperature = t # [C]
+        self.ISApressure = p # [Pa]
     
-    def selectRegion(self, selAlt):
+    def selectAltitude(self, selAlt):
         """
         Select a specific region of atmosphere based on a minimum and maximum 
         altitud value.
@@ -141,9 +162,9 @@ warnings.simplefilter(action = 'ignore')
             minAlt = 0
             maxAlt = selAlt
         # Previous altitude, temperature and pressure
-        prevAlt = self.altitude
-        prevT = self.temperature
-        prevP = self.pressure
+        prevAlt = self.ISAaltitude
+        prevT = self.ISAtemperature
+        prevP = self.ISApressure
         # Correct min and max altitude, if out of previous range
         minAlt = max(minAlt, min(prevAlt))
         maxAlt = min(maxAlt, max(prevAlt))
@@ -151,11 +172,11 @@ warnings.simplefilter(action = 'ignore')
         imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
         iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
         # New altitude, temperature and pressure
-        self.altitude = prevAlt[imAlt:iMAlt]
-        self.temperature = prevT[imAlt:iMAlt]
-        self.pressure = prevP[imAlt:iMAlt]
+        self.ISAaltitude = prevAlt[imAlt:iMAlt]
+        self.ISAtemperature = prevT[imAlt:iMAlt]
+        self.ISApressure = prevP[imAlt:iMAlt]
     
-    def computeWaterContent(self, H2O, dDC):
+    def _computeWaterContent(self, H2O, dDC):
         """
         It is assumed that atmospheric compositon of minor components (<0.9%, 
         such as CO2) does not change significantly when including water vapor 
@@ -170,9 +191,9 @@ warnings.simplefilter(action = 'ignore')
             newComp[0] -= 0.78100 * H2O # N2_wet
             newComp[1] -= 0.20925 * H2O # O2_wet
             newComp[2] -= 0.01100 * H2O # Ar_wet
-            self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
+            self.ISAcompositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
-    def getVerticalProfiles(self, phase, compound = None):
+    def _getVerticalProfiles(self, phase, compound = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -199,8 +220,8 @@ warnings.simplefilter(action = 'ignore')
         
         """
         # Data
-        p = np.c_[self.pressure]        # [Pa] `np.c_[]` -> Column array
-        t = self.temperature + 273.15   # [K]
+        p = np.c_[self.ISApressure]        # [Pa] `np.c_[]` -> Column array
+        t = self.ISAtemperature + 273.15   # [K]
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
         if compound:
@@ -249,8 +270,8 @@ warnings.simplefilter(action = 'ignore')
                      '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
             
-    def getDictConc(self, phase, compound = None):
-        r = ISA.getVerticalProfiles(self, phase, compound)
+    def dictConcISA(self, phase, compound = None):
+        r = ISA._getVerticalProfiles(self, phase, compound)
         if phase == 'G':
             nameCompounds_G = r[2]
             Pi = r[0]
@@ -291,16 +312,16 @@ warnings.simplefilter(action = 'ignore')
             return dictPi, dictCi_G, dictCi_LFW, dictCi_LSW
     
     ## Plotting functions 
-    def plotTandP(self):
+    def plotTandP_ISA(self):
         """
         Plotting of pressure (in atm) and temperature (in Kelvin) along the
         atmosphere (altitude in km).
         
         """
         # Variables
-        alt = self.altitude / 1000      # [km]
-        t = self.temperature + 273.15   # [K]
-        p = self.pressure / 101325      # [atm]
+        alt = self.ISAaltitude / 1000      # [km]
+        t = self.ISAtemperature + 273.15   # [K]
+        p = self.ISApressure / 101325      # [atm]
         # Temperature
         fig, ax1 = plt.subplots(figsize = (3, 4))
         ax1.set_ylabel('Altitude (km)')
@@ -317,13 +338,13 @@ warnings.simplefilter(action = 'ignore')
         fig.tight_layout()
         plt.show()
     
-    def plotCompsProfiles(self, C, xLabel, logCLabel = False, compounds = None):
+    def plotCompsProfilesISA(self, C, xLabel, logCLabel = False, compounds = None):
         """
         Plotting of composition profiles along the atmosphere (altitude in km).
         
         """
         # Variables
-        alt = self.altitude / 1000     # [km]
+        alt = self.ISAaltitude / 1000     # [km]
         # Plotting
         fig, ax = plt.subplots(figsize = (5,10))
         ax.set_ylabel('Altitude (km)')
