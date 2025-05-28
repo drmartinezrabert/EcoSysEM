@@ -10,8 +10,6 @@ Lorem ipsum...
 
 Classes
 -------
-
-    :py:class:`Environment` - Common ancestor. Abstract class.
     
     :py:class:`ISA` - International Standard Atmosphere (ISA).
 
