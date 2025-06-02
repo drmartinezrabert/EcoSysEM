@@ -11,7 +11,7 @@ assimilation system are included in MERRA-2. Spatial resolution remains
 about the same (about 50 km in the latitudinal direction) as in MERRA.
 --------------------------------------------------------------------------
 References: - Global Modeling and Assimilation Office (NASA). 
-		[Link](https://gmao.gsfc.nasa.gov/reanalysis/merra-2/)
+		https://gmao.gsfc.nasa.gov/reanalysis/merra-2/
             - Gelaro et al. (2017), doi: 10.1175/JCLI-D-16-0758.1
 --------------------------------------------------------------------------
 ### Data organization
