@@ -75,7 +75,7 @@ class ISA:
         self.layers = layers
         self.pH = pH
         self.resolution = resolution
-        self._computeTandP(layers, dISA)
+        self._computeTandP_ISA(layers, dISA)
         self.compounds = dDC['Compounds']
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
         self._computeWaterContent(H2O, dDC)
@@ -100,9 +100,9 @@ class ISA:
         pre_comp.update(new_comp)
         self.compositions = pre_comp
     
-    def _computeTandP(self, layers, dISA):
+    def _computeTandP_ISA(self, layers, dISA):
         """
-        Compute the change of temperaature and pressure of the Earth's
+        Compute the change of temperature and pressure of the Earth's
         atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
         
         """
@@ -658,6 +658,8 @@ class MERRA2:
                 monthData[key] = np.average(combData[key], axis = -1)
             else:
                 monthData[key] = np.std(combData[key], axis = -1)
+            if key == 'lat' or key == 'lon':
+                monthData[key] = np.squeeze(monthData[key])
         # Save numpy matrices in .npz format (v2)
         MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month) 
         
