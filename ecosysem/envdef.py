@@ -937,6 +937,62 @@ class ISAMERRA2(ISA, MERRA2):
     def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
+    
+    def computeTandP(self, PS, TS, LR, HS, TROPH, num = 50):
+        """
+        Compute the change of temperature and pressure of the Earth's
+        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
+        
+        Parameters
+        ----------
+        PS : FLOAT, LIST or ndarray
+            Surface pressure. [Pa]
+        TS : FLOAT, LIST or ndarray
+            Surface temperature. [K]
+        LR : FLOAT, LIST or ndarray
+            Atmospheric lapse rate. [K/km]
+        HS : FLOAT, LIST or ndarray
+            Surface altitude. [m]
+        TROPH : FLOAT, LIST or ndarray
+            Tropopause altitude. [m]
+        num : INT, optional
+            Number of altitude steps to generate.
+
+        Returns
+        -------
+        T : FLOAT, LIST or ndarray
+            Temperature in function of altitude. [K]
+        P : FLOAT, LIST or ndarray
+            Pressure in function of altitude. [Pa]
+        H : FLOAT, LIST or ndarray
+            Altitude. [m]
+        """
+        # Check argument format and dimension of data
+        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
+        if PS.ndim == 1: PS = np.array([PS])
+        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
+        if TS.ndim == 1: TS = np.array([TS])
+        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
+        if LR.ndim == 1: LR = np.array([LR])
+        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
+        if HS.ndim == 1: HS = np.array([HS])
+        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
+        if TROPH.ndim == 1: TROPH = np.array([TROPH])
+        # Constants
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        # Altitude. Shape: (alt, lat, lon)
+        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
+        # 3D matrix creation (TS, LR, HS)
+        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
+        # Temperature profile. Shape: (alt, lat, lon)
+        T = TS + LR * (H - HS)
+        # Pressure profile. Shape: (alt, lat, lon)
+        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
+        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
