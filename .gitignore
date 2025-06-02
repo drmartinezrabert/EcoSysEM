@@ -3,7 +3,8 @@
 test*
 ecosysem/results/*.xlsx
 *.nc
-ecosysem/data/*
+*.npz
+ecosysem/data/*.txt
 *.csv
 ecosysem/plots
 ThSA calculations.py
