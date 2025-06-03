@@ -691,6 +691,13 @@ class MERRA2:
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
             return None
+        # Check user coordinates
+        if bbox[0] > bbox[2]:
+            print('\n!EcoSysEM.Error: `upper_right_longitude` (bbox[2]) must be higher than `lower_left_longitude` (bbox[0])')
+            return None
+        if bbox[1] > bbox[3]:
+            print('\n!EcoSysEM.Error: `upper_right_latitude` (bbox[3]) must be higher than `lower_left_latitude` (bbox[1])')
+            return None
         # BBox from data
         lonR = data['lon']
         latR = data['lat']
