@@ -294,7 +294,7 @@ ecosysem
   │      ├── MERRA2
   │      │    ├── getDataMERRA2
   │      │    ├── combDataMERRA2
-  │      │    ├── dictMERRA2
+  │      │    ├── loadDataMERRA2
   │      │    ├── keysMERRA2
   │      │    └── deleteKeyMERRA2
   │      └── ISAMERRA2 {subclass of ISA & MERRA2}
@@ -495,7 +495,7 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 > Enter your Earthdata password:
 > ```
 
-To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2` and `MERRA2.combDataMERRA2`, respectively. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.dictMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
+To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2` and `MERRA2.combDataMERRA2`, respectively. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
 ```python
 from envdef import MERRA2
 
@@ -513,7 +513,7 @@ keys = newMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
 'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
 
 # See data
-data = newMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
+data = newMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
 
 >>> print(data)
 {'lat': array([-90. , -89.5, -89. , -88.5]),
@@ -592,9 +592,9 @@ Get average and standard deviation from a group of data.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataSel : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data from requested region.<br>
 
-### MERRA2.dictMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### MERRA2.loadDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-MERRA2.dictMERRA2(dataType, y, m, d=None, keys='All')
+MERRA2.loadDataMERRA2(dataType, y, m, d=None, keys='All')
 ```
 Get data in dictionary form.<p>
 **Parameters:**<br>
@@ -690,7 +690,7 @@ keys = newISAMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
 'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
 
 # See data
-data = newISAMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
+data = newISAMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
 
 >>> print(data)
 {'lat': array([-90. , -89.5, -89. , -88.5]),
@@ -1274,7 +1274,7 @@ python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.getDataMERRA2](#merra2getdatamerra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.combDataMERRA2](#merra2combdatamerra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.selectRegion](#merra2selectregion---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.dictMERRA2](#merra2dictmerra2---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.loadDataMERRA2](#merra2loadDataMERRA2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.keysMERRA2](#merra2keysmerra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.deleteKeyMERRA2](#merra2deletekeymerra2---back-to-function-navigation)<br>
 
