@@ -288,7 +288,7 @@ ecosysem
   │      │    ├── .compositions
   │      │    ├── setComposition
   │      │    ├── selectAltitude
-  │      │    ├── dictConcISA
+  │      │    ├── getConcISA
   │      │    ├── plotTandPISA
   │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
@@ -427,9 +427,9 @@ Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on th
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None**<br>
 
-### ISA.dictConcISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.getConcISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.dictConcISA(phase, compound=None)
+ISA.getConcISA(phase, compound=None)
 ```
 Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
 **Parameters:** <br>
@@ -1266,7 +1266,7 @@ python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.setComposition](#isasetcomposition---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectAltitude](#isaselectaltitude---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.dictConcISA](#isadictconcisa---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getConcISA](#isagetConcISA---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP_ISA](#isaplottandp_isa---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfilesISA](#isaplotcompsprofilesisa---back-to-function-navigation)<br>
 
