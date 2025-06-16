@@ -539,6 +539,76 @@ class MERRA2:
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
+    def _combDataMERRA2(self, years, month, dataType, keys = 'All'):
+        """
+        Get average and standard deviation from a group of data.
+        
+        Parameters
+        ----------
+        years : INT or LIST of INT
+            Year(s) of data.
+        month : INT
+            Month of data
+        dataType   : STR ('mly')
+            Type of data.
+        keys  : LIST of STR
+            List of requested variables. (Default: 'All')     
+        
+        Returns
+        -------
+        None
+        
+        """
+        if not isinstance(month, int):
+            print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+            return None
+        if isinstance(years, int): years = [years]
+        if isinstance(years, float): years = [years]
+        if len(years) <= 1:
+            print('\n!EcoSysEM.Error: Introduce at least 2 years to combine data.')
+            return None
+        # Get all files from data\npz
+        folder = f'data/MERRA2/{dataType}/'
+        allFiles = np.array(os.listdir(folder))
+        # Test elements
+        tEl = np.empty((0))
+        for y in years:
+            if dataType == 'mly':
+                el = f'{y}_{month}_month.npz'
+            tEl = np.append(tEl, el)
+        selFiles = allFiles[np.isin(allFiles, tEl)]
+        # Stack matrices
+        combData = {}
+        monthData = {}
+        for file in selFiles:
+            path = folder + file
+            f = np.load(path)
+            # Select keys
+            if keys == 'All':
+                keys = MERRA2.keysMERRA2(self, dataType, years[0], month)
+            else:
+                coor = []
+                if not np.any(np.char.find('lat', keys) > -1):
+                    coor += ['lat']
+                if not np.any(np.char.find('lon', keys) > -1):
+                    coor += ['lon']
+                keys = coor + keys
+            for key in keys:
+                if file == selFiles[0]:
+                    combData[key] = f[key]
+                else:
+                    combData[key] = np.dstack((combData[key], f[key]))
+        # Monthly average and std
+        for key in keys:
+            if np.char.find(key, '_std') == -1:
+                monthData[key] = np.average(combData[key], axis = -1)
+            else:
+                monthData[key] = np.std(combData[key], axis = -1)
+            if key == 'lat' or key == 'lon':
+                monthData[key] = np.squeeze(monthData[key])
+        # Save numpy matrices in .npz format (v2)
+        MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month)
+    
     def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
                       product = 'M2I1NXASM',
@@ -698,76 +768,6 @@ class MERRA2:
             for m in months:
                 MERRA2._combDataMERRA2(self, years, m, 'mly', var)
         print("--- %s seconds ---" % (time.time() - start_time))
-    
-    def _combDataMERRA2(self, years, month, dataType, keys = 'All'):
-        """
-        Get average and standard deviation from a group of data.
-        
-        Parameters
-        ----------
-        years : INT or LIST of INT
-            Year(s) of data.
-        month : INT
-            Month of data
-        dataType   : STR ('mly')
-            Type of data.
-        keys  : LIST of STR
-            List of requested variables. (Default: 'All')     
-        
-        Returns
-        -------
-        None
-        
-        """
-        if not isinstance(month, int):
-            print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-            return None
-        if isinstance(years, int): years = [years]
-        if isinstance(years, float): years = [years]
-        if len(years) <= 1:
-            print('Error: Introduce at least 2 years.')
-            return None
-        # Get all files from data\npz
-        folder = f'data/MERRA2/{dataType}/'
-        allFiles = np.array(os.listdir(folder))
-        # Test elements
-        tEl = np.empty((0))
-        for y in years:
-            if dataType == 'mly':
-                el = f'{y}_{month}_month.npz'
-            tEl = np.append(tEl, el)
-        selFiles = allFiles[np.isin(allFiles, tEl)]
-        # Stack matrices
-        combData = {}
-        monthData = {}
-        for file in selFiles:
-            path = folder + file
-            f = np.load(path)
-            # Select keys
-            if keys == 'All':
-                keys = MERRA2.keysMERRA2(self, dataType, years[0], month)
-            else:
-                coor = []
-                if not np.any(np.char.find('lat', keys) > -1):
-                    coor += ['lat']
-                if not np.any(np.char.find('lon', keys) > -1):
-                    coor += ['lon']
-                keys = coor + keys
-            for key in keys:
-                if file == selFiles[0]:
-                    combData[key] = f[key]
-                else:
-                    combData[key] = np.dstack((combData[key], f[key]))
-        # Monthly average and std
-        for key in keys:
-            if np.char.find(key, '_std') == -1:
-                monthData[key] = np.average(combData[key], axis = -1)
-            else:
-                monthData[key] = np.std(combData[key], axis = -1)
-            if key == 'lat' or key == 'lon':
-                monthData[key] = np.squeeze(monthData[key])
-        # Save numpy matrices in .npz format (v2)
-        MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month) 
     
     def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
         """
