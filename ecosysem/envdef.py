@@ -64,7 +64,7 @@ class ISA:
         dryComposition = {
                          'Compounds': ['N2', 'O2', 'Ar', 'CO2', 'Ne', 
                                        'He', 'CH4', 'Kr', 'H2', 'N2O', 
-                                       'CO', 'Xe','O3', 'NO2', 'SO2', 
+                                       'CO', 'Xe', 'O3', 'NO2', 'SO2', 
                                        'I2','NH3', 'HNO2', 'HNO3', 'H2S'], # Formula
                          'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.26e-4, 1.8182e-5, 
                                           5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
@@ -427,7 +427,264 @@ class MERRA2:
         """
         return ((T2 - T1) / (H2 - H1) * 1000)
     
-    def getDataMERRA2(self, years, months, 
+    def _saveNPZMERRA2(self, data, dataType, y, m, d = None):
+        """
+        Create .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        
+        Returns
+        -------
+        None.
+        
+        """
+        # Path check and folder creation if this does not exist
+        path = f'data/MERRA2/{dataType}/'
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        # File name (based on dataType)
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        elif dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        # Path generation
+        pathfile = path + file
+        # Save .npz file
+        np.savez(pathfile, **data)
+    
+    def _openNPZMERRA2(self, dataType, y, m, d = None):
+        """
+        Open .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        
+        Returns
+        -------
+        None.
+        
+        """
+        path = f'data/MERRA2/{dataType}/'
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        if dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return 0
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return 0
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        return np.load(path + file)
+    
+    def getDataMERRA2_v1(self, years, months, 
+                         days = 'All',
+                         product = 'M2I1NXASM',
+                         version = '5.12.4',
+                         bbox = (-180, -90, 180, 90),
+                         var = ['PS', 'T2M', 'TROPT', 'TROPPB'], 
+                         update = False,
+                         daily = False):
+        """
+        Download data from MERRA2 database.
+        
+        Parameters
+        ----------
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data
+        days : INT, LIST of INT, or STR ('All')
+            Day(s) of data
+        product  : STR
+            Product of data (section of MERRA2 database).
+        version : STR
+            Version of data.
+        bbox : TUPLE
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        var : LIST of STR
+            List of requested variables.   
+        
+        Returns
+        -------
+        None.
+        
+        """
+        # Coordinates (bbox)
+        if len(bbox) == 2:
+            bbox = bbox + bbox
+        elif len(bbox) == 4:
+            bbox = bbox
+        else:
+            print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
+            return None
+        # Check arguments
+        if not isinstance(years, list): years = [years]
+        if not isinstance(months, (list, np.ndarray)): months = [months]
+        start_time = time.time()
+        # This will work if Earthdata prerequisite files have already been generated
+        earthaccess.login()
+        # Combinations [(year1, month1), (year1, month2), ...]
+        dateList = list(itertools.product(years, months))
+        # Initialize dictionaries
+        monthData = {}
+        for date in dateList:
+            y = date[0]
+            m = date[1]
+            start_date = datetime.date(y, m, 1)
+            if days == 'All':
+                last_day = calendar.monthrange(y, m)[1]
+            else:
+                if not isinstance(days, list): days = [days]
+                last_day = max(days)
+            end_date = datetime.date(y, m, last_day)
+            delta = datetime.timedelta(days=1)
+            date = start_date
+            # Initialize dictionaries
+            hourData = {}
+            av_dayData = {}
+            dayData = {}
+            ## Day matrices
+            while (date <= end_date):
+                print(f"> {date.strftime('%Y-%m-%d')}")
+                # Open granules to local phat
+                results = earthaccess.search_data(
+                    short_name = product, 
+                    version = version,
+                    temporal = (date, date),
+                    bounding_box = bbox
+                )
+                # Open granules using Xarray
+                fs = earthaccess.open(results)
+                ds = xr.open_mfdataset(fs)
+                lonR = ds.lon.to_numpy()
+                latR = ds.lat.to_numpy()
+                # Get closest coordinates
+                bbox =  MERRA2._closestCoord(self, lonR, latR, bbox)
+                lat_slice = slice(bbox[1], bbox[3])
+                lon_slice = slice(bbox[0], bbox[2])
+                ds = ds.sel(lat = lat_slice, lon = lon_slice)
+                lon = ds.lon.to_numpy()
+                lat = ds.lat.to_numpy()
+                for key in var:
+                    try:
+                        ds[key]
+                    except:
+                        print(f'  {key} estimated.')
+                    else:
+                        hourData[key] = ds[key].values
+                        print(f'  {key} done.')
+                # Atmospheric altitudes
+                varH = ['H', 'TROPH']
+                varReqH = ['PS', 'TROPPB', 'TROPPT', 'TROPPV']
+                if np.any([np.char.find(var, iVar) > -1 for iVar in varH]):
+                    c = 0
+                    for iV in var:
+                        if np.any(np.char.find(iV, varReqH) > -1):
+                            varNames = {'PS': 'H',
+                                        'TROPPB': 'TROPH',
+                                        'TROPPT': 'TROPH',
+                                        'TROPPV': 'TROPH'}
+                            hourData[varNames[iV]] = MERRA2._HfromP(self, hourData[iV])
+                            c += 1
+                    if c == 0:
+                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'PS\', \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
+                        return None
+                # Lapse rate
+                varReqLR = ['T2M', 'TROPT', 'H', 'TROPH']
+                if np.any(np.char.find(var, 'LR') > -1):
+                    if np.all([np.any(np.char.find(var, iVarReq) > -1) for iVarReq in varReqLR]):
+                        hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
+                    else:
+                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
+                        return None
+                for iV in var:
+                    # Daily averages and std
+                    av_dayData[iV] = np.average(hourData[iV], axis = 0)
+                    av_dayData[f'{iV}_std'] = np.std(hourData[iV], axis = 0)
+                    # Day matrices
+                    if date == start_date:
+                        dayData[iV] = av_dayData[iV]
+                    else:
+                        dayData[iV] = np.dstack((dayData[iV], av_dayData[iV]))
+                # Save daily data
+                if daily == True:
+                    MERRA2._saveNPZMERRA2(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
+                # Next date
+                date += delta
+            # Month matrices
+            monthData['lat'] = lat
+            monthData['lon'] = lon
+            for iV in var:
+                if last_day != 1:
+                    monthData[iV] = np.average(dayData[iV], axis = -1)
+                    monthData[f'{iV}_std'] = np.std(dayData[iV], axis = -1)
+                else:
+                    monthData[iV] = dayData[iV]
+                    monthData[f'{iV}_std'] = np.array([0.0])
+            # Save numpy matrices in .npz format
+            MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
+        print("--- %s seconds ---" % (time.time() - start_time))
+    
+    def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
                       product = 'M2I1NXASM',
                       version = '5.12.4',
