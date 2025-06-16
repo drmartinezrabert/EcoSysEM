@@ -646,18 +646,18 @@ class ThSA:
         plt.gca().invert_yaxis()
         plt.show()
     
-    def plotOnlypH(pH, DGr_plot, iRxn, text_):
+    def _contourfAlt(pH, Alt, DGr_plot, iRxn, text_):
         """
-        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
+        Specific `contourf()` function (from matplotlib.pyplot) for plotting DGr.
         
         """
-        fig = plt.figure()
-        ax1 = fig.add_subplot()
-        ax1.plot(pH, DGr_plot, 'k')
-        ax1.set_xlabel('pH')
-        ax1.set_ylabel('∆Gr (kJ/mol)')
+        fig, ax = plt.subplots()
+        F = ax.contourf(pH, Alt/1000, DGr_plot, cmap = 'hot')
+        clb = fig.colorbar(F)
+        clb.set_label('∆Gr (kJ/mol)')
+        ax.set_xlabel('pH')
+        ax.set_ylabel('Altitude (km)')
         fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
-        fig.tight_layout(rect=(0,0.025,1,1)) 
+        fig.tight_layout(rect=(0,.05,1,1)) 
         plt.title(iRxn)
-        ax1.margins(x=0)
         plt.show()
