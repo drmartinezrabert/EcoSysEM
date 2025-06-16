@@ -131,7 +131,7 @@ class ThP:
         deltaH0r = deltaH0f @ mRxn
         return deltaH0r
     
-    def getKeq(compounds, mRxn, temperature, phase):
+    def getKeq(compounds, mRxn, t, phase):
         """
         Function to get equilibrium constants from DeltaG0f.
 
@@ -141,7 +141,7 @@ class ThP:
             Requested compound(s).
         mRxn : np.array
             Reaction matrix. (compounds)x(reactions)
-        temperature: FLOAT
+        temperature: FLOAT, LIST or np.ndarray
             Absolute temperature [K]
         phase : STR
             Fluid phase. Depending on typeParam.
@@ -149,15 +149,18 @@ class ThP:
         Returns
         -------
         Keq : np.array
-            Equilibrium constants.
+            Equilibrium constants. Shape: (Z)x(Y)x(X)x(compounds).
     
         """
-        # Constants
         R = 0.0083144598   # Universal gas constant [kJ/mol/K]
         deltaG0f, notNaN = ThP.getThP('deltaG0f', compounds, phase)
         deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn)
-        Keq = np.exp(deltaG0r / (-R * temperature))
-        return Keq
+        dG0r = [np.nan, np.nan, np.nan]
+        dG0r[0:len(deltaG0r)] = deltaG0r
+        Keq_ = [np.exp(DG0r*np.ones(t.shape) / (-R * t)) for DG0r in dG0r]
+        Keq = np.stack(Keq_, axis = -1)
+        Keq = np.nan_to_num(Keq, nan = 0.0)
+        return np.squeeze(Keq)
 
 class ThEq:
     """
