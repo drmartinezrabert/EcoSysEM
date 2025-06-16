@@ -659,6 +659,9 @@ class MERRA2:
         # Sort years and months
         years = sorted(years)
         months = sorted(months)
+        if np.any(np.isin(dataType, 'cmly')) and len(years) <= 1:
+            print('\n!EcoSysEM.Error: Introduce at least 2 years to combine monthly data.')
+            return None
         start_time = time.time()
         # This will work if Earthdata prerequisite files have already been generated
         earthaccess.login()
