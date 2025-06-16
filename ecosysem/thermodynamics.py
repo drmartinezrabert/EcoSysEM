@@ -316,7 +316,6 @@ class ThEq:
             ax.plot(pH, nFrac)
             ax.set_ylabel('Molar fraction (%)')
             ax.set_xlabel('pH')
-            ax.set_xticks(np.arange(pH[0], pH[-1]+1, 1))
             ax.set_yticks(np.arange(0, 110, 10))        
             fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
             fig.tight_layout(rect=(0,.05,1,1)) 
@@ -490,9 +489,9 @@ class ThSA:
             DGr[..., idRxn] = rDGr
         return np.squeeze(DGr), infoRxn
     
-    def exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
+    def exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, altitude = False, specComp = False, Ct = 1.0, asm = 'stoich', warnings = False):
         """
-        Export DeltaGr in function of pH, temperature and/or compound
+        Export DeltaGr in function of pH and temperature or altitude
         concentrations.
 
         Parameters
@@ -516,9 +515,6 @@ class ThSA:
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
             The default is 1.0.
-        Ct_associated : STR ('x', 'y' or 'xy')
-            Set if concentration is associated with coordinate x, y or both ('xy'). The default is None.
-            If None and Ct != 1.0, Ct is z automatically.
         asm : STRING
             Assumption when products are not present in the environment.
             By default: 'stoich' - stoichiometric concentrations.
@@ -530,11 +526,25 @@ class ThSA:
         Plot(s).
 
         """
-        # Default values
-        oneT = False
-        onepH = False
         # Checking arguments and variable definition
         if not isinstance(modeExport, str): modeExport = str(modeExport)
+        ### Calculations here
+        if isinstance(pH, int): pH = float(pH)
+        if isinstance(pH, float): pH = [pH]
+        if isinstance(T, np.ndarray):
+            if np.ndim(T) > 1:
+                print('!EcoSysEM.Error: temperature (`T`) must be a list or 1D np.ndarray.')
+                sys.exit()
+        ### If modeExport == 'plot', T must be a list or np.ndarray with ndim = 1
+        # Initializate DGr matrix
+        DGr = np.empty(T.shape)
+        DGr = DGr[..., np.newaxis]
+        DGr = np.repeat(DGr, len(input_), axis = -1) # Compounds
+        DGr = DGr[..., np.newaxis]
+        DGr = np.repeat(DGr, len(pH), axis = -1) # pH
+        for idpH, pH_ in enumerate(pH):
+            DGr_, infoRxn  = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, Ct, pH_, asm, warnings)
+            DGr[..., idpH] = DGr_
         if modeExport == 'Excel':
             path = 'results/'
             nameDocument = input(' > Name of result document: ')
@@ -543,159 +553,20 @@ class ThSA:
                 val = input(' > Do you want to overwrite `' + nameDocument + '.xlsx`? [Y/N]: ')
                 if val == 'Y' or val == 'y':       
                     os.remove(fullPathSave)
-        elif modeExport != 'plot' and modeExport != 'Excel':
-            print("`modeExport` argument must be 'plot' (for plotting in Spyder) or 'Excel' (for writing in Excel document).")
-            sys.exit()
-        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
-        if not isinstance(input_, list): input_ = [input_]
-        if T is None: oneT = True; T = [298.15] # Standard conditions (K)
-        if isinstance(T, int): T = float(T)
-        if isinstance(T, float): oneT = True; T = [T]
-        if pH is None: onepH = True; pH = [7.0]  # Standard conditions
-        if isinstance(pH, int): pH = float(pH)
-        if isinstance(pH, float): onepH = True; pH = [pH]
-        # Variable lenghts
-        nT = len(T)
-        npH = len(pH)
-        if phase != 'G' and phase != 'L':
-            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
-            sys.exit()
-        if isinstance(Ct, float):
-            nCt = 1
+            if not isinstance(altitude, bool):
+                ThSA._writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, altitude, True)
+            else:
+                ThSA._writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, T)
+        elif modeExport == 'plot':
+            text_ = 'Concentrations and temperature associated with altitude.'
+            for idRxn, rxn in enumerate(infoRxn):
+                if not isinstance(altitude, bool):
+                    ThSA._contourfAlt(pH, altitude, DGr[:, idRxn, :], rxn, text_)
+                else:
+                    ThSA._contourfT(pH, T, DGr[:, idRxn, :], rxn, text_)
         else:
-            npCt = np.array(list(Ct.items()), dtype = object).T
-            lenCt = [len(i) for i in npCt[1, :]]
-            nCt = list(set(lenCt))
-            cLen = len(nCt) == 1
-            if not cLen:
-                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
-                sys.exit()
-            nCt = nCt[0]
-        # Exporting DGr
-        if Ct_associated:
-            if Ct_associated == 'x' and nCt != npH:
-                print('!EcoSysEM.Error: Total concentrations and pH must have the same size.')
-                sys.exit()
-            elif Ct_associated == 'y' and nCt != nT:
-                print('!EcoSysEM.Error: Total concentrations and temperature must have the same size.')
-                sys.exit()
-            elif Ct_associated == 'xy' and len(list({nT, npH, nCt})) != 1:
-                print('!EcoSysEM.Error: Total concentrations, temperature and pH must have the same size.')
-                sys.exit()
-            elif Ct_associated != 'x' and Ct_associated != 'y' and Ct_associated != 'xy':
-                print('!EcoSysEM.Error: Ct_associated must be "x", "y" or "xy".')
-                sys.exit()
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, Ct, pH, asm, warnings)
-            nDimDGr = DGr.ndim
-            for idRxn, iRxn in enumerate(infoRxn):
-                # Selection of DGr for plotting
-                if Ct_associated == 'xy':
-                    index_Ct = list(range(nCt))
-                    if nDimDGr == 4:
-                        DGr_export = DGr[idRxn, index_Ct, index_Ct, index_Ct]
-                    else:
-                        DGr_export = DGr[index_Ct, index_Ct, index_Ct]
-                    text_ = 'Concentrations (in mol/L) associated with pH and T.'
-                elif Ct_associated == 'x':
-                    index_pH = list(range(npH))
-                    if not oneT:
-                        if nDimDGr == 4:
-                            DGr_export = DGr[idRxn, :, index_pH, index_pH].T
-                        elif nDimDGr == 3:
-                            DGr_export = DGr[:, index_pH, index_pH]
-                        text_ = 'Concentrations (in mol/L) associated with pH.'
-                    else:
-                        if nDimDGr == 3:
-                            DGr_export = DGr[idRxn, index_pH, index_pH]
-                        elif nDimDGr == 2:
-                            DGr_export = DGr[index_pH, index_pH]
-                        Ct_associated = 'OnlypH'
-                        text_ = f'Concentrations (in mol/L) associated with pH (T = {str(T[0])}K).'
-                elif Ct_associated == 'y':
-                    index_T = list(range(nT))
-                    if not onepH:
-                        if nDimDGr == 4:
-                            DGr_export = DGr[idRxn, index_T, :, index_T]
-                        elif nDimDGr == 3:
-                            DGr_export = DGr[index_T, :, index_T]
-                        text_ = 'Concentrations (in mol/L) associated with T.'
-                    else:
-                        if nDimDGr == 3:
-                            DGr_export = DGr[idRxn, index_T, index_T]
-                        elif nDimDGr == 2:
-                            DGr_export = DGr[index_T, index_T]
-                        Ct_associated = 'OnlyT'
-                        text_ = f'Concentrations (in mol/L) associated with T (pH = {str(pH[0])}).'
-                else:
-                    print("`Ct_associated` argument must be 'x' (pH, only one pH or pH = None), 'y' (temperature, only one temperature or temperature = None) or 'xy' (pH and temperature).")
-                    sys.exit()
-                # Exporting
-                if Ct_associated == 'xy':
-                    if modeExport == 'plot':
-                        ThSA.plot_(pH, T, DGr_export, iRxn, text_)
-                    elif modeExport == 'Excel':
-                        ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, Ct_associated, fullPathSave)
-                elif Ct_associated == 'OnlyT':
-                    if modeExport == 'plot':
-                        ThSA.plotOnlyT(T, DGr_export, iRxn, text_)
-                    elif modeExport == 'Excel':
-                        ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, Ct_associated, fullPathSave)
-                    Ct_associated = 'y'
-                elif Ct_associated == 'OnlypH':
-                    if modeExport == 'plot':
-                        ThSA.plotOnlypH(pH, DGr_export, iRxn, text_)
-                    elif modeExport == 'Excel':
-                        ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, Ct_associated, fullPathSave)
-                    Ct_associated = 'x'
-                else:
-                    if modeExport == 'plot':
-                        ThSA.contourf_(pH, T, DGr_export, iRxn, text_)
-                    elif modeExport == 'Excel':
-                        ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, Ct_associated, fullPathSave)
-        else:
-            if isinstance(Ct, dict):
-                nameComp = list(Ct)
-                conc = np.array(list(Ct.values()))
-                toRemove = ["{", "}", "[", "]"]
-                pattern = '[' + ''.join(toRemove) + ']'
-            for idCt in range(nCt):
-                if isinstance(Ct, dict):
-                    iCt = {nameComp [i]: [float(conc[i][idCt])] for i in range(len(nameComp))}
-                    text_ = re.sub(pattern, '', str(iCt)).replace("'", "[").replace("[:", "]:") + ' (in mol/L)'
-                else:
-                    iCt = 1.0
-                    text_ = 'Compound concentrations were not given.'
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, iCt, pH, asm, warnings)
-                nDimDGr = DGr.ndim
-                for idRxn, iRxn in enumerate(infoRxn):
-                    # Selection of DGr for exporting
-                    if not onepH and not oneT:
-                        if nDimDGr == 3:
-                            DGr_export = DGr[idRxn, :, :]
-                        else:
-                            DGr_export = DGr
-                        if modeExport == 'plot':
-                            ThSA.contourf_(pH, T, DGr_export, iRxn, text_)
-                        elif modeExport == 'Excel':
-                            ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, 'T-pH-Ct_noAssociated', fullPathSave)
-                    elif onepH:
-                        if nDimDGr == 2:
-                            DGr_export = DGr[idRxn, :]
-                        else:
-                            DGr_export = DGr
-                        if modeExport == 'plot':
-                            ThSA.plotOnlyT(T, DGr_export, iRxn, text_)
-                        elif modeExport == 'Excel':
-                            ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, 'OnlyT-Ct_noAssociated', fullPathSave)
-                    elif oneT:
-                        if nDimDGr == 2:
-                            DGr_export = DGr[idRxn, :]
-                        else:
-                            DGr_export = DGr
-                        if modeExport == 'plot':
-                            ThSA.plotOnlypH(pH, DGr_export, iRxn, text_)
-                        elif modeExport == 'Excel':
-                            ThSA.writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, 'OnlypH-Ct_noAssociated', fullPathSave)
+            print("!EcoSysEM.Error: `modeExport` argument must be 'plot' (for plotting in Spyder) or 'Excel' (for writing in Excel document).")
+            sys.exit()
     
     def writeExcel_(Ct, pH, T, DGr_export, iRxn, text_, typeData, fullPathSave):
         """
