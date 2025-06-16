@@ -768,7 +768,43 @@ class MERRA2:
                 monthData[key] = np.squeeze(monthData[key])
         # Save numpy matrices in .npz format (v2)
         MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month) 
+    
+    def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
+        """
+        Get data in dictionary form.
+
+        Parameters
+        ----------
+        dataType : STR ('mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data  
+        keys : LIST of STR
+            List of requested variables. (Default: 'All')
         
+        Returns
+        -------
+        dictVar : DICT
+            Dictionary with requested variables.
+
+        """
+        npz = MERRA2._openNPZMERRA2(self, dataType, y, m, d)
+        if keys == 'All':
+            keys = MERRA2.keysMERRA2(self, dataType, y, m, d)
+            dictVar = {key: npz[key] for key in keys}
+        else:
+            coor = []
+            if not np.any(np.char.find('lat', keys) > -1):
+                coor += ['lat']
+            if not np.any(np.char.find('lon', keys) > -1):
+                coor += ['lon']
+            keys = coor + keys
+            dictVar = {key: npz[key] for key in keys}
+        npz.close()
+        return dictVar    
+    
     def selectRegion(self, data, bbox):
         """
         Select specific region of Earth of downloaded data
