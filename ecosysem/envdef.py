@@ -381,10 +381,15 @@ class MERRA2:
             (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
 
         """
-        bbox = (lonR[np.abs(lonR - Coor[0]).argmin()],
-                latR[np.abs(latR - Coor[1]).argmin()],
-                lonR[np.abs(lonR - Coor[2]).argmin()],
-                latR[np.abs(latR - Coor[3]).argmin()])
+        bbox = (lonR[np.abs(np.array(lonR) - np.array(Coor[0])).argmin()],
+                latR[np.abs(np.array(latR) - np.array(Coor[1])).argmin()],
+                lonR[np.abs(np.array(lonR) - np.array(Coor[2])).argmin()],
+                latR[np.abs(np.array(latR) - np.array(Coor[3])).argmin()])
+        
+        # bbox = (lonR[np.abs(lonR - Coor[0]).argmin()],
+        #         latR[np.abs(latR - Coor[1]).argmin()],
+        #         lonR[np.abs(lonR - Coor[2]).argmin()],
+        #         latR[np.abs(latR - Coor[3]).argmin()])
         return bbox
     
     def _HfromP(self, P):
