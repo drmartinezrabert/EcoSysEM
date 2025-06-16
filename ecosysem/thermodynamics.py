@@ -329,6 +329,7 @@ class ThSA:
     Class for thermodynamic state analysis of environment.
     
     """
+
     def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
@@ -362,7 +363,7 @@ class ThSA:
         -------
         DGr : np.array
             Non-standard Gibbs free energy values.
-            Shape: (reactions)x(temperature)x(pH)x(total concentration)..
+            Shape: (Z)x(Y)x(X)x(reactions).
         infoRxn : LIST
             Name of reactions given by the user (see reaction/{typeRxn}.csv).
 
@@ -375,32 +376,16 @@ class ThSA:
         if isinstance(T, int): T = float(T)
         if isinstance(T, float): T = [T]
         if isinstance(pH, int): pH = float(pH)
-        if isinstance(pH, float): pH = [pH]
-        # Variable lenghts
-        nT = len(T)
-        npH = len(pH)
-        # Check compound concentrations
-        if isinstance(Ct, float):
-            nCt = 1
-        else:
-            npCt = np.array(list(Ct.items()), dtype = object).T
-            lenCt = [len(i) for i in npCt[1, :]]
-            nCt = list(set(lenCt))
-            cLen = len(nCt) == 1
-            if not cLen:
-                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
-                sys.exit()
-            if not specComp and asm == 'stoich':
-                print('!EcoSysEM.Error: You have to give the main compound (with `specComp` argument) to estimate product concentrations.')
-                sys.exit()
-            nCt = nCt[0]
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
         # Initialise variables
         Ts = 298.15                                                             # Standard temperature [K]
         R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
-        DGr = np.empty([nRxn, nT, npH, nCt])
+        # Initializate DGr matrix
+        DGr = np.empty(T.shape)
+        DGr = DGr[..., np.newaxis]
+        DGr = np.repeat(DGr, len(input_), axis = -1)
         if specComp:
             if specComp == True:
                 tSpecComp = 'compounds'
@@ -421,7 +406,7 @@ class ThSA:
         # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
         for idRxn, iRxn in enumerate(infoRxn):
             # iVariables definition
-            rDGr = np.empty([nT, npH, nCt])                                     # Initialise auxiliar result matrix (rDGr)
+            rDGr = np.empty(T.shape)            # Initialise auxiliar result matrix (rDGr)
             i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
             cNonZ = np.nonzero(i_mRxn)[:][0]
             i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
@@ -457,56 +442,53 @@ class ThSA:
             deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
             deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
             deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
-            for idT, iT in enumerate(T):
-                # Temperature influence (Gibbs–Helmholtz relationship)
-                deltaGTr = deltaG0r * (iT / Ts) + deltaH0r * ((Ts - iT) / Ts)
-                for idpH, ipH in enumerate(pH):
-                    if isinstance(Ct, dict):
-                        # Calculate reaction quotient (Qr)
-                        Qr = 0
-                        uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
-                        findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
-                        for idComp, iComp in enumerate(i_rComp):
-                            findComp = np.argwhere(uComp == iComp)
-                            vi = i_mRxn[idComp] / vSelected
-                            if findComp.size == 0:
-                                if vi < 0:
-                                    # iComp is a substrate and its concentration was not given.
-                                    print(f'!EcoSysEM.Error: Concentration for {iComp} not found.')
+            deltaGTr = deltaG0r * (T / Ts) + deltaH0r * ((Ts - T) / Ts)
+            if isinstance(Ct, dict):
+                # Calculate reaction quotient (Qr)
+                Qr = 0
+                uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
+                findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
+                for idComp, iComp in enumerate(i_rComp):
+                    findComp = np.argwhere(uComp == iComp)
+                    vi = i_mRxn[idComp] / vSelected
+                    if findComp.size == 0:
+                        if vi < 0:
+                            # iComp is a substrate and its concentration was not given.
+                            print(f'!EcoSysEM.Error: Concentration for {iComp} not found.')
+                        else:
+                            if iComp == 'H+':
+                                iConc = 10**(-pH) * np.ones(T.shape)
+                            elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
+                                iConc = 1.0 * np.ones(T.shape)
+                            else: 
+                                # Check if product is a species of iComp
+                                rComp_pH, _, _ = Rxn.getRxnpH(iComp)
+                                uIComp = np.isin(uComp, rComp_pH)
+                                if (rComp is None) or (any(uIComp) == False):
+                                    if asm == 'stoich': # [P] is calculated based on stoichiometry.
+                                        iConc = (vi) * Ct[uComp[findSpecComp]]
                                 else:
-                                    if iComp == 'H+':
-                                        iConc = 10**(-ipH) * np.ones((1, nCt))
-                                    elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
-                                        iConc = 1.0 * np.ones((1, nCt))
-                                    else: 
-                                        # Check if product is a species of iComp
-                                        rComp, _, _ = Rxn.getRxnpH(iComp)
-                                        uIComp = np.isin(uComp, rComp)
-                                        rxn_iComp =  uComp[uIComp][0]
-                                        uComp = np.char.replace(uComp, rxn_iComp, iComp)
-                                        if rComp is None:
-                                            if asm == 'stoich': # [P] is calculated based on stoichiometry.
-                                                iConc = (vi) * Ct[uComp[findSpecComp]]
-                                                print(iComp)
-                                                print('Asm!')
-                            else:
-                                iConc = Ct[iComp]
-                            # pH speciation
-                            if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                                # Only pH speciation in liquid
-                                if phase == 'L':
-                                    if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                    iConc = ThEq.pHSpeciation(iComp, ipH, iT, iConc)
-                            # Calculation of reaction quotient (Qr)
-                            Qr += vi * np.log(iConc)
-                        # Concentration influence (Nernst relationship)
-                        deltaGr = deltaGTr + R * iT * Qr
-                        rDGr[idT, idpH, :] = deltaGr
+                                    rxn_iComp =  uComp[uIComp][0]
+                                    # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
+                                    iConc = Ct[rxn_iComp]
                     else:
-                        rDGr[idT, idpH, :] = deltaGTr
-            DGr[idRxn, :, :, :] = rDGr
-        DGr = np.squeeze(DGr)
-        return DGr, infoRxn
+                        iConc = Ct[iComp]
+                    # pH speciation
+                    if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                        # Only pH speciation in liquid
+                        if phase == 'L':
+                            if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                            # iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                            iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                    # Calculation of reaction quotient (Qr)
+                    Qr += vi * np.log(iConc)
+                # Concentration influence (Nernst relationship)
+                deltaGr = deltaGTr + R * T * Qr
+                rDGr = deltaGr
+            else:
+                rDGr = deltaGTr
+            DGr[..., idRxn] = rDGr
+        return np.squeeze(DGr), infoRxn
     
     def exportDeltaGr(modeExport, T, pH, phase, typeRxn, input_, specComp = False, Ct = 1.0, Ct_associated = None, asm = 'stoich', warnings = False):
         """
