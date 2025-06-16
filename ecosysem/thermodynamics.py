@@ -168,7 +168,7 @@ class ThEq:
     
     """
     
-    def solubilityHenry(compounds, wType = 'FW', temperature = []):
+    def solubilityHenry(compounds, wType = 'FW', t = None):
         """
         Get Henry's law solubility constants (Hs) in function of temperature.
 
@@ -183,13 +183,16 @@ class ThEq:
 
         Returns
         -------
-        Hs : FLOAT or np.array
-            Henry's law solubility constant(s). Shape: (temperature)x(compounds).
+        Hs : np.array
+            Henry's law solubility constant(s). Shape: (Z)x(Y)x(X)x(compounds).
             If no temperature is given, Hs is (1)x(compounds).
         notNaN : np.array
             Indices of parameters that are available.
 
         """
+        if isinstance(compounds, str): compounds = [compounds]
+        # Standard temperature [K]
+        Ts = 298.15
         if wType == 'FW' or wType == 'SW':
             # Henry's solubilities (Hs and B)
             Hs, notNaN_Hs = ThP.getThP('Hs', compounds, wType)
@@ -198,12 +201,21 @@ class ThEq:
                 notNaN = notNaN_B
             else:
                 notNaN = notNaN_Hs
-            if any(temperature):
-                # Temperatures
-                t = np.c_[temperature]                                  # Absolute temperature [K]
-                Ts = 298.15                                             # Standard temperature [K]
-                Hs = Hs * np.exp(B.astype(float) * ((1 / t) - (1/Ts)))  # [mol/m3]
-            return Hs, notNaN
+            if t.all():
+                # Initialize Hs result
+                Hs_r = np.empty(t.shape)
+                Hs_r = Hs_r[..., np.newaxis]
+                Hs_r = np.repeat(Hs_r, len(compounds), axis = -1)
+                Hs_ = [H_*np.ones(t.shape) * np.exp(B[idH]*np.ones(t.shape) * ((1 / t) - (1/Ts))) for idH, H_ in enumerate(Hs)]
+                Hs = np.stack(Hs_, axis = -1)
+                c = 0
+                for idComp in range(len(compounds)):
+                    if notNaN[idComp] == True:
+                        Hs_r[..., idComp] = Hs[..., c]
+                        c += 1
+                    else:
+                        Hs_r[..., idComp] = np.zeros(Hs[..., 0].shape)
+            return Hs_r, notNaN
         else:
             print('!EcosysEM.Error: No water type selected. Use one of the following wType:\n'+
               '                 \'FW\'      - Fresh Water.\n'+
