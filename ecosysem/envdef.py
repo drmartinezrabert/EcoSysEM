@@ -199,6 +199,7 @@ class ISA:
             self.ISAcompositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
     def _getVerticalProfiles(self, phase, compound = None):
+    def getConcISA(self, phase, compound = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -221,11 +222,20 @@ class ISA:
 
         Returns
         -------
-        Vertical profile/s of compounds as NumPy array (altitude)x(compounds).
+        Dictionaries with pressures/concentrations.
+        dict_Pi, dict_Ci_G : DICT (if phase='G')
+        dict_Ci_LFW : DICT (if phase='L-FW')
+        dict_Ci_LSW : DICT (if phase='L-SW')
+        dict_Ci_LFW, dictCi_LSW : DICT (if phase='L')
+        dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW : DICT (if phase='All')
+             dict_Pi : Parcial pressure of desired compounds.
+             dict_Ci_G : Concentration in gas of desired compounds.
+             dict_Ci_LFW : Concentration in liquid (freshwater) of desired compounds.
+             dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
         
         """
         # Data
-        p = np.c_[self.ISApressure]        # [Pa] `np.c_[]` -> Column array
+        p = self.ISApressure
         t = self.ISAtemperature + 273.15   # [K]
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
@@ -238,42 +248,50 @@ class ISA:
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
         Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
-        # Gas phase - Partial pressure (Pi)
-        Pi = p * compositions
-        # Gas concentration (Ci_G)
-        Ci_G = (Pi.T / (R_g * t)).T
-        # Re-selection of compounds (parcial pressures, Pi)
-        Pi_FW = Pi[:, notNaN_HsFW]
-        Pi_SW = Pi[:, notNaN_HsSW]
-        # Liquid concentrations fresh water (Ci_LFW)
-        Ci_LFW = Pi_FW * Hs_FW * (1/1000) # [mol/L]
-        # Liquid concentrations sea water (Ci_LSW)
-        Ci_LSW = Pi_SW * Hs_SW * (1/1000) # [mol/L]
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        compounds = compounds.values
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = p * composition # [Pa]
+            # Gas phase - Gas concentration (Ci_G)
+            Ci_G = (Pi / (R_g * t))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[compounds[id_]] = Pi
+            dict_Ci_G[compounds[id_]] = Ci_G
+            dict_Ci_LFW[compounds[id_]] = Ci_LFW
+            dict_Ci_LSW[compounds[id_]] = Ci_LSW
         if phase == 'G':
-            compounds_G = compounds.values
-            return Pi, Ci_G, compounds_G
+            return dict_Pi, dict_Ci_G
         elif phase == 'L-FW':
-            compounds_FW = compounds.values[notNaN_HsFW]
-            return Ci_LFW, compounds_FW
+            return dict_Ci_LFW
         elif phase == 'L-SW':
-            compounds_SW = compounds.values[notNaN_HsSW]
-            return Ci_LSW, compounds_SW
+            return dict_Ci_LSW
         elif phase == 'L':
-            compounds_FW = compounds.values[notNaN_HsFW]
-            compounds_SW = compounds.values[notNaN_HsSW]
-            return Ci_LFW, Ci_LSW, compounds_FW, compounds_SW
+            return dict_Ci_LFW, dict_Ci_LSW
         elif phase == 'All':
-            compounds_G = compounds.values
-            compounds_FW = compounds.values[notNaN_HsFW]
-            compounds_SW = compounds.values[notNaN_HsSW]
-            return Pi, Ci_G, Ci_LFW, Ci_LSW, compounds_G, compounds_FW, compounds_SW
+            return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
         else:
-            sys.exit('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
-                     '                             \'G\'       - Gas.\n'+
-                     '                             \'L-FW\'    - Liquid fresh water.\n'+
-                     '                             \'L-SW\'    - Liquid sea water.\n'+
-                     '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
-                     '                             \'All\'     - All phases (G, L-FW, L-SW).')
+            print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
+                  '                             \'G\'       - Gas.\n'+
+                  '                             \'L-FW\'    - Liquid fresh water.\n'+
+                  '                             \'L-SW\'    - Liquid sea water.\n'+
+                  '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
+                  '                             \'All\'     - All phases (G, L-FW, L-SW).')
+            return None
             
     def dictConcISA(self, phase, compound = None):
         r = ISA._getVerticalProfiles(self, phase, compound)
