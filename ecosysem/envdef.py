@@ -699,7 +699,7 @@ class MERRA2:
                 MERRA2._combDataMERRA2(self, years, m, 'mly', var)
         print("--- %s seconds ---" % (time.time() - start_time))
     
-    def combDataMERRA2(self, years, month, dataType, keys = 'All'):
+    def _combDataMERRA2(self, years, month, dataType, keys = 'All'):
         """
         Get average and standard deviation from a group of data.
         
@@ -707,12 +707,16 @@ class MERRA2:
         ----------
         years : INT or LIST of INT
             Year(s) of data.
-        month : INT or LIST of INT
+        month : INT
             Month of data
         dataType   : STR ('mly')
             Type of data.
         keys  : LIST of STR
             List of requested variables. (Default: 'All')     
+        
+        Returns
+        -------
+        None
         
         """
         if not isinstance(month, int):
