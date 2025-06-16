@@ -502,12 +502,12 @@ newMERRA2 = MERRA2()
 
 # Get monthly data from online databases
 ## (Default arguments: product = 'M2I1NXASM', version = '5.12.4', var = ['PS', 'T2M', 'TROPT', 'TROPPB'])
-newMERRA2.getDataMERRA2(years = 1995, months = 1, days = 'All', bbox = (-180, -90, -178.125, -88.5))
+newMERRA2.getDataMERRA2(dataType = 'mly', years = 1995, months = 1, days = 'All', bbox = (-180, -90, -178.125, -88.5))
 
 # See keys (_e.i._, variables names) of downloaded data
 keys = newMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
 
->>> print(key)
+>>> print(keys)
 ['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
 'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
 
@@ -535,10 +535,13 @@ data = newMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat'
 > With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
 
 ```python
-MERRA2.getDataMERRA2(years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'], daily=False)
+MERRA2.getDataMERRA2(dataType, years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'])
 ```
 Download data from MERRA2 database.<p>
 **Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ or _list of int_ ('dly', 'mly', 'cmly', 'All')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly': daily; 'mly': monthly; 'cmly': combined monthly; 'All': ['dly', 'mly', 'cmly'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _int_ or _list of int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **months : _int_ or _list of int_**<br>
@@ -553,11 +556,9 @@ Download data from MERRA2 database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earths region of data, the bounding box.<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **var : _list of str_, _optional, default: ['PS', 'T2M', 'TROPT', 'TROPPB']_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **daily : _bool_, _optional, default: False_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Save daily data or not.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\MERRA2\mly\` and `data\MERRA\dly\` if _daily = True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folders, `data\MERRA2\dly\`, `data\MERRA2\mly\` and/or `data\MERRA\cmly\`**<br>
 
 ### MERRA2.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -880,7 +881,8 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DGr : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nonstandard Gibbs free energy of reaction.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(reactions)x(temperature)x(pH)x(total concentration)_.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(reactions)_.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
 
@@ -901,13 +903,13 @@ Plot pH (or ion) speciation of requested compounds.<p>
 
 ### ThEq.pHSpeciation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThEq.pHSpeciation(compounds, pH, temperature, Ct, rAllConc=False)
+ThEq.pHSpeciation(iCompound, pH, t, Ct, rAllConc=False)
 ```
 Compute pH (or ion) speciation of selected compounds.<br> 
 Return a n-dimension array with concentrations of all chemical species.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compounds : _str_, _list of strs_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **iCompound : _str_, _list of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested compound.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _list of floats_ or _ndarray of floats_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of requested pH values.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **temperature : _float_, _list of floats_ or _ndarray of floats_** <br>
@@ -919,13 +921,14 @@ Return a n-dimension array with concentrations of all chemical species.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rSpec : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentrations of chemical species.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(pH)x(total concentration)x(temperature)x(compounds)_, (if _rAllConc = False_).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(species)x(pH)x(total concentration)x(temperature)x(compounds)_, (if _rAllConc = True_).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Where species: [B], [B<sup>-</sup>], [B<sup>-2</sup>], [B<sup>-3</sup>]. 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)_, (if _rAllConc = False_).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(species)_, (if _rAllConc = True_).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(species).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Where species: [B], [B<sup>-</sup>], [B<sup>-2</sup>], [B<sup>-3</sup>].<br>
 
 ### ThEq.solubilityHenry &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThEq.solubilityHenry(compounds, wType='FW', temperature=[])
+ThEq.solubilityHenry(compounds, wType='FW', t=None)
 ```
 Compute gas-liquid equilibrium based on Henry's law.<br> 
 Return a n-dimension array with Henry's law solubility constant(s) and an array with the `compounds` indices of parameters that are available.<p>
@@ -936,12 +939,13 @@ Return a n-dimension array with Henry's law solubility constant(s) and an array 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water type (phase).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'FW' - Freshwater.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SW' - Seawater.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **temperature : _float_ or _ndarray of floats_, _optional, default: empty_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **temperature : _float_ or _ndarray of floats_, _optional, default: None** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Hs : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Henry's law solubility constant(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(temperature)x(compounds)_, (if _temperature != empty_).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(compounds)_, (if _temperature != empty_).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(1)x(compounds)_, (if _temperature = empty_).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **notNaN : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The `compounds` indices of parameters that are available.<br>
@@ -997,7 +1001,7 @@ Return a n-dimension array with the values of standard enthalpy of reactions.<p>
 
 ### ThP.getKeq &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThP.getKeq(compounds, mRxn, temperature, phase)
+ThP.getKeq(compounds, mRxn, t, phase)
 ```
 Compute the equilibrium constant from the standard Gibbs free energy of reaction.<br>
 Return a n-dimension array with the values of equilibrium constants.<p>
@@ -1012,7 +1016,8 @@ Return a n-dimension array with the values of equilibrium constants.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase of parameter requested. Phase value depends on the database. See local databases in `db\Excels\` folder.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Keq : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the equilibrium constants.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(compounds)_, (if _temperature != empty_).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
 
 #
 
@@ -1217,6 +1222,7 @@ Where `arg#` are the arguments of the funtion and `value#` are the values of `ar
 #### <ins>getDataMERRA2</ins>
 <table border="0">
    <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> -dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
    <tr><td> -y </td><td> [int] Year of requested data.</td></tr>
    <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
    <tr><td> -d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
@@ -1224,22 +1230,21 @@ Where `arg#` are the arguments of the funtion and `value#` are the values of `ar
    <tr><td> -version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
    <tr><td> -bbox </td><td> [tuple] (Default: '(-180, -90, 180, 90)') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
    <tr><td> -var </td><td> [list of str] (Default: ['PS', 'T2M', 'TROPT', 'TROPPB']) List of requested variables.</td></tr>
-   <tr><td> --daily </td><td> [bool] (Default: False) Daily data is saved.</td></tr>
 </table>
 
 List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
 For example: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-dataType cmly mly` => `dataType = ['cmly' 'mly']` <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-y 2024 2025` => `year = [2024 2025]` <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py -y 2021 -m 4
-python ecosysem_cmd.py -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
-python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
-# Daily data is saved (--daily)
-python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily 
+python ecosysem_cmd.py -dataType mly -y 2021 -m 4
+python ecosysem_cmd.py -dataType mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
+python ecosysem_cmd.py -dataType dly mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
+python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
