@@ -1007,62 +1007,116 @@ class ISAMERRA2(ISA, MERRA2):
     def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
-    
-    def computeTandP(self, PS, TS, LR, HS, TROPH, num = 50):
-        """
-        Compute the change of temperature and pressure of the Earth's
-        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
         
+    def getConcISAMERRA2(self, data, phase, compound = None, num = 50):
+        """
+        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
+        and liquid concentration in sea water, Ci_L-SW).
+        Gas concentrations (Ci_G) are calculated using Dalton's law and the 
+        ideal gas law, and liquid concentration (Ci_LFW and Ci_LSW) with 
+        Henry's law.
+
         Parameters
         ----------
-        PS : FLOAT, LIST or ndarray
-            Surface pressure. [Pa]
-        TS : FLOAT, LIST or ndarray
-            Surface temperature. [K]
-        LR : FLOAT, LIST or ndarray
-            Atmospheric lapse rate. [K/km]
-        HS : FLOAT, LIST or ndarray
-            Surface altitude. [m]
-        TROPH : FLOAT, LIST or ndarray
-            Tropopause altitude. [m]
-        num : INT, optional
-            Number of altitude steps to generate.
+        data : DICT
+            Required data to estimate concentration values.
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            DESCRIPTION. Selection of phase of vertical profile.
+                        'G' - Gas.
+                        'L-FW' - Liquid fresh water.
+                        'L-SW' - Liquid sea water.
+                        'L' - Both liquid phases (L-FW, L-SW).
+                        'All' - All phaes (G, L-FW, L-SW).
+        compound : STR or LIST, optional
+            DESCRIPTION. Interested compounds. Default: None -> All compounds.
+        num : INT
+            Number of altitude steps to generate. Default: 50.
 
         Returns
         -------
-        T : FLOAT, LIST or ndarray
-            Temperature in function of altitude. [K]
-        P : FLOAT, LIST or ndarray
-            Pressure in function of altitude. [Pa]
-        H : FLOAT, LIST or ndarray
-            Altitude. [m]
+        Dictionaries with pressures/concentrations.
+        dict_Pi, dict_Ci_G : DICT (if phase='G')
+        dict_Ci_LFW : DICT (if phase='L-FW')
+        dict_Ci_LSW : DICT (if phase='L-SW')
+        dict_Ci_LFW, dictCi_LSW : DICT (if phase='L')
+        dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW : DICT (if phase='All')
+             dict_Pi : Parcial pressure of desired compounds.
+             dict_Ci_G : Concentration in gas of desired compounds.
+             dict_Ci_LFW : Concentration in liquid (freshwater) of desired compounds.
+             dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
+
         """
-        # Check argument format and dimension of data
-        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
-        if PS.ndim == 1: PS = np.array([PS])
-        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
-        if TS.ndim == 1: TS = np.array([TS])
-        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
-        if LR.ndim == 1: LR = np.array([LR])
-        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
-        if HS.ndim == 1: HS = np.array([HS])
-        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
-        if TROPH.ndim == 1: TROPH = np.array([TROPH])
-        # Constants
-        R = 8.3144598                   # Universal gas constant [J/mol/K]
-        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
-        M0 = 0.0289644                  # Molar mass of Earth's air
-        # Altitude. Shape: (alt, lat, lon)
-        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
-        # 3D matrix creation (TS, LR, HS)
-        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
-        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
-        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
-        # Temperature profile. Shape: (alt, lat, lon)
-        T = TS + LR * (H - HS)
-        # Pressure profile. Shape: (alt, lat, lon)
-        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
-        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
+        # Check if data have ['PS', 'T2M', 'LR', 'H', 'TROPH']
+        keys = np.array(list(data.keys()))
+        mask = np.isin(keys, ['PS', 'T2M', 'LR', 'H', 'TROPH'])
+        compounds = self.compounds
+        compositions = np.array(list(self.compositions.values()))
+        if compound:
+            if type(compound) is str: compound = [compound]
+            findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
+            compositions = compositions[findC]
+            compounds = compounds[findC]
+        cKeys = len(keys[mask]) == 5
+        if cKeys:
+            TS = np.array(data['T2M'])
+            LR = np.array(data['LR'])
+            PS = np.array(data['PS'])
+            HS = np.array(data['H'])
+            TROPH = np.array(data['TROPH'])
+            # Temperature [K], pressure [Pa], altitude [m]
+            t, p, alt = MERRA2.getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = num)
+            # Constants
+            R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+            Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
+            Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
+            # Dictionaries initialization
+            dict_Pi = {}
+            dict_Ci_G = {}
+            dict_Ci_LFW = {}
+            dict_Ci_LSW = {}
+            compounds = compounds.values
+            for id_, composition in enumerate(compositions):
+                # Gas phase - Partial pressure (Pi)
+                Pi = p * composition # [Pa]
+                # Gas phase - Gas concentration (Ci_G)
+                Ci_G = (Pi / (R_g * t))
+                # Liquid phase - Freshwater (Ci_LFW)
+                if notNaN_HsFW[id_]:
+                    Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+                else:
+                    Ci_LFW = None
+                # Liquid phase - Seawater (Ci_LSW)
+                if notNaN_HsSW[id_]:
+                    Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+                else:
+                    Ci_LSW = None
+                # Save data in dictionary
+                dict_Pi[compounds[id_]] = Pi
+                dict_Ci_G[compounds[id_]] = Ci_G
+                dict_Ci_LFW[compounds[id_]] = Ci_LFW
+                dict_Ci_LSW[compounds[id_]] = Ci_LSW
+            if phase == 'G':
+                return dict_Pi, dict_Ci_G
+            elif phase == 'L-FW':
+                return dict_Ci_LFW
+            elif phase == 'L-SW':
+                return dict_Ci_LSW
+            elif phase == 'L':
+                return dict_Ci_LFW, dict_Ci_LSW
+            elif phase == 'All':
+                return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
+            else:
+                print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
+                      '                             \'G\'       - Gas.\n'+
+                      '                             \'L-FW\'    - Liquid fresh water.\n'+
+                      '                             \'L-SW\'    - Liquid sea water.\n'+
+                      '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
+                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
+                return None
+        else:
+            print("\n!EcoSysEM.Error: required variables are missing in data ['PS', 'T2M', 'LR', 'H', 'TROPH'].")
+            return None
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
