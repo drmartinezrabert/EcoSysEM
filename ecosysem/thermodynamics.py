@@ -644,56 +644,6 @@ class ThSA:
         fig.tight_layout(rect=(0,.05,1,1)) 
         plt.title(iRxn)
         plt.gca().invert_yaxis()
-        plt.show() 
-    
-    def plot_(pH, T, DGr_plot, iRxn, text_):
-        """
-        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
-        
-        """
-        # Check if temperature axis must be inverted using Kendall's Tau.
-        tau_pH, p_pH = kTau(pH, DGr_plot)
-        tauSign_pH = tau_pH > 0
-        tau_T, p_T = kTau(T, DGr_plot)
-        tauSign_T = tau_T > 0
-        if p_pH < 0.05 and p_T < 0.05:
-            cTaus = tauSign_pH == tauSign_T
-        else:
-            cTaus = True
-        fig = plt.figure()
-        ax1 = fig.add_subplot()
-        ax2 = fig.add_subplot()
-        ax1.plot(pH, DGr_plot, 'k')
-        ax1.set_xlabel('pH')
-        ax1.set_ylabel('∆Gr (kJ/mol)')
-        ax2.plot(T, DGr_plot, 'k')
-        ax2.set_xlabel('Temperature (K)')
-        ax2.xaxis.set_ticks_position('bottom')
-        ax2.xaxis.set_label_position('bottom')
-        ax2.axes.get_yaxis().set_visible(False)
-        ax2.spines['bottom'].set_position(('axes', -0.20))
-        if not cTaus:
-            ax2.invert_xaxis()
-        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
-        fig.tight_layout(rect=(0,0.025,1,1)) 
-        plt.title(iRxn)
-        plt.show()
-        
-    def plotOnlyT(T, DGr_plot, iRxn, text_):
-        """
-        Specific `plot()` function (from matplotlib.pyplot) for plotting DGr.
-        
-        """
-        fig = plt.figure()
-        ax1 = fig.add_subplot()
-        ax1.plot(T, DGr_plot, 'k')
-        ax1.set_xlabel('Temperature (K)')
-        ax1.set_ylabel('∆Gr (kJ/mol)')
-        fig.text(0.5, 0.025, text_, horizontalalignment = 'center', wrap = True)
-        fig.tight_layout(rect=(0,0.025,1,1)) 
-        plt.title(iRxn)
-        plt.gca().invert_xaxis()
-        ax1.margins(x=0)
         plt.show()
     
     def plotOnlypH(pH, DGr_plot, iRxn, text_):
