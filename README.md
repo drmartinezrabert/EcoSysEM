@@ -293,7 +293,6 @@ ecosysem
   │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
   │      │    ├── getDataMERRA2
-  │      │    ├── combDataMERRA2
   │      │    ├── loadDataMERRA2
   │      │    ├── keysMERRA2
   │      │    └── deleteKeyMERRA2
@@ -495,7 +494,7 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 > Enter your Earthdata password:
 > ```
 
-To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2` and `MERRA2.combDataMERRA2`, respectively. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
+To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2`. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
 ```python
 from envdef import MERRA2
 
@@ -559,23 +558,6 @@ Download data from MERRA2 database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Save daily data or not.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\MERRA2\mly\` and `data\MERRA\dly\` if _daily = True_**<br>
-
-### MERRA2.combDataMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-MERRA2.combDataMERRA2(years, month, dataType, keys = 'All')
-```
-Get average and standard deviation from a group of data.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _list of int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Years of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly')**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_, _optional, default: 'All'_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\MERRA2\cmly\`**<br>
 
 ### MERRA2.selectRegion &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -1272,7 +1254,6 @@ python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily
 
 #### · <ins>MERRA2</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.getDataMERRA2](#merra2getdatamerra2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.combDataMERRA2](#merra2combdatamerra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.selectRegion](#merra2selectregion---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.loadDataMERRA2](#merra2loadDataMERRA2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.keysMERRA2](#merra2keysmerra2---back-to-function-navigation)<br>
