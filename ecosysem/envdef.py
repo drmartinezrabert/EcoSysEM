@@ -890,140 +890,61 @@ class MERRA2:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
             return None
     
-    def _saveNPZMERRA2(self, data, dataType, y, m, d = None):
+    def getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = 50):
         """
-        Create .npz file with downladed data.
-
+        Compute the change of temperature and pressure of the Earth's
+        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
+        
         Parameters
         ----------
-        date : DICT
-            Data in dictionary form.
-        dataType   : STR ('mly' or 'cmly')
-            Type of data.
-        y : INT or LIST of INT
-            Year(s) of data.
-        m : INT or LIST of INT
-            Month of data  
-        
-        """
-        # Path check and folder creation if this does not exist
-        path = f'data/MERRA2/{dataType}/'
-        if not os.path.isdir(path):
-            os.makedirs(path)
-        # File name (based on dataType)
-        if dataType == 'dly':
-            if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
-            if not isinstance(d, int):
-                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
-            file = f'{y}_{m}_{d}_day.npz'
-        elif dataType == 'mly':
-            if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
-            file = f'{y}_{m}_month.npz'
-        elif dataType == 'cmly':
-            if not isinstance(y, list):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
-            file = f'{y[0]}_{y[-1]}_{m}.npz'
-        # Path generation
-        pathfile = path + file
-        # Save .npz file
-        np.savez(pathfile, **data)
-    
-    def _openNPZMERRA2(self, dataType, y, m, d = None):
-        """
-        Open .npz file with downladed data.
+        PS : FLOAT, LIST or ndarray
+            Surface pressure. [Pa]
+        TS : FLOAT, LIST or ndarray
+            Surface temperature. [K]
+        LR : FLOAT, LIST or ndarray
+            Atmospheric lapse rate. [K/km]
+        HS : FLOAT, LIST or ndarray
+            Surface altitude. [m]
+        TROPH : FLOAT, LIST or ndarray
+            Tropopause altitude. [m]
+        num : INT, optional
+            Number of altitude steps to generate.
 
-        Parameters
-        ----------
-        date : DICT
-            Data in dictionary form.
-        dataType   : STR ('mly' or 'cmly')
-            Type of data.
-        y : INT or LIST of INT
-            Year(s) of data.
-        m : INT or LIST of INT
-            Month of data  
-        
-        """
-        path = f'data/MERRA2/{dataType}/'
-        if dataType == 'dly':
-            if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
-            if not isinstance(d, int):
-                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
-            file = f'{y}_{m}_{d}_day.npz'
-        if dataType == 'mly':
-            if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return 0
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return 0
-            file = f'{y}_{m}_month.npz'
-        elif dataType == 'cmly':
-            if not isinstance(y, list):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
-            if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
-            file = f'{y[0]}_{y[-1]}_{m}.npz'
-        return np.load(path + file)
-    
-    def dictMERRA2(self, dataType, y, m, d = None, keys = 'All'):
-        """
-        Get data in dictionary form.
-
-        Parameters
-        ----------
-        dataType : STR ('mly' or 'cmly')
-            Type of data.
-        y : INT or LIST of INT
-            Year(s) of data.
-        m : INT or LIST of INT
-            Month of data  
-        keys : LIST of STR
-            List of requested variables. (Default: 'All')
-        
         Returns
         -------
-        dictVar : DICT
-            Dictionary with requested variables.
-
+        T : FLOAT, LIST or ndarray
+            Temperature in function of altitude. [K]
+        P : FLOAT, LIST or ndarray
+            Pressure in function of altitude. [Pa]
+        H : FLOAT, LIST or ndarray
+            Altitude. [m]
         """
-        npz = MERRA2._openNPZMERRA2(self, dataType, y, m, d)
-        if keys == 'All':
-            keys = MERRA2.keysMERRA2(self, dataType, y, m, d)
-            dictVar = {key: npz[key] for key in keys}
-        else:
-            coor = []
-            if not np.any(np.char.find('lat', keys) > -1):
-                coor += ['lat']
-            if not np.any(np.char.find('lon', keys) > -1):
-                coor += ['lon']
-            keys = coor + keys
-            dictVar = {key: npz[key] for key in keys}
-        npz.close()
-        return dictVar
+        # Check argument format and dimension of data
+        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
+        if PS.ndim == 1: PS = np.array([PS])
+        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
+        if TS.ndim == 1: TS = np.array([TS])
+        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
+        if LR.ndim == 1: LR = np.array([LR])
+        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
+        if HS.ndim == 1: HS = np.array([HS])
+        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
+        if TROPH.ndim == 1: TROPH = np.array([TROPH])
+        # Constants
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        # Altitude. Shape: (alt, lat, lon)
+        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
+        # 3D matrix creation (TS, LR, HS)
+        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
+        # Temperature profile. Shape: (alt, lat, lon)
+        T = TS + LR * (H - HS)
+        # Pressure profile. Shape: (alt, lat, lon)
+        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
+        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
     
     def keysMERRA2(self, dataType, y, m, d = None):
         """
