@@ -222,17 +222,17 @@ class ThEq:
               '                 \'SW\'      - Sew Water.')
             return None, None
     
-    def pHSpeciation(compounds, pH, temperature, Ct, rAllConc = False):
+    def pHSpeciation(iCompound, pH, t, Ct, rAllConc = False):
         """
         Calculate pH (or ion) speciation of selected compounds.
 
         Parameters
         ----------
-        compounds : STR or LIST
-            Requested compound(s).
-        pH : FlOAT, LIST or np.array
+        compounds : STR
+            Requested compound.
+        pH : FlOAT
                 Set of pH.
-        temperature : FLOAT, LIST or np.array
+        t : FLOAT, LIST or np.array
             Set of temperature for pH speciation [K].
         Ct : LIST or np.array
             Total concentrations of compounds.
@@ -243,57 +243,41 @@ class ThEq:
         -------
         rSpec : np.array
             Concentrations of selected compound species.
-            If rAllConc = False: (pH)x(total concentration)x(temperature)x(compounds).
-            If rAllConc = True: (species)x(pH)x(total concentration)x(temperature)x(compounds).
+            If rAllConc = False: (Z)x(Y)x(X).
+            If rAllConc = True: (Z)x(Y)x(X)x(species).
             Where species: [B], [B-], [B-2], [B-3].
     
         """
-        if isinstance(compounds, str): compounds = [compounds]
-        if isinstance(temperature, int): temperature = float(temperature)
-        if isinstance(temperature, float): temperature = [temperature]
-        if isinstance(pH, int): pH = float(pH)
-        if isinstance(pH, float): pH = [pH]
-        if isinstance(Ct, int): Ct = float(Ct)
-        if isinstance(Ct, float): Ct = [Ct]
-        nCompounds = len(compounds)
-        nTemperature = len(temperature)
-        npH = len(pH)
-        nCt = len(Ct)
+        if not isinstance(t, np.ndarray): t = np.array(t)
+        if not isinstance(Ct, np.ndarray): Ct = np.array(Ct)
+        # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
         H = np.power(10, -abs(np.array(pH)))
-        if rAllConc:
-            rSpec = np.empty([4, npH, nCt, nTemperature, nCompounds])
+        if iCompound == 'CO2': iCompound = 'H2CO3'
+        rSpec = np.empty(Ct.shape)
+        rComp, mRxn, infoRxn = Rxn.getRxnpH(iCompound)
+        # Return same concentration(s) if compound doesno't have acid-base equilibrium
+        if not rComp:
+            return Ct
+        c_rComp = iCompound in rComp
+        if not c_rComp:
+            return Ct
+        reqSp = rComp.index(iCompound) - 1 # Requested chemical species
+        Ka = ThP.getKeq(rComp, mRxn, t, 'L')
+        # Speciation
+        theta = H**3 + (Ka[..., 0] * H**2) + (Ka[..., 0] * Ka[..., 1] * H) + Ka[..., 0] * Ka[..., 1] * Ka[..., 2]
+        mSpec__ = np.array([Ct * H**3 / theta,                                    # [B]
+                              Ka[..., 0] * Ct * H**2 / theta,                       # [B-]
+                              Ka[..., 0] * Ka[..., 1] * Ct * H / theta,             # [B-2]
+                              Ka[..., 0] * Ka[..., 1] * Ka[..., 2] * Ct / theta])   # [B-3]
+        # Reshape matrix of chemical species
+        mSpec_ = [mSpec__[i, ...] for i in range(4)]
+        mSpec_aux = np.stack(mSpec_, axis = -1)
+        if not rAllConc:
+            rSpec = mSpec_aux[..., reqSp]
         else:
-            rSpec = np.empty([npH, nCt, nTemperature, nCompounds])
-        for idCompound, iCompound in enumerate(compounds):
-            rComp, mRxn, infoRxn = Rxn.getRxnpH(iCompound)
-            if not rComp:
-                return Ct
-            c_rComp = iCompound in rComp
-            if not c_rComp:
-                return Ct
-            reqSp = rComp.index(iCompound) - 1 # Requested chemical species
-            for idTemperature, iTemperature in enumerate(temperature):
-                # Acid dissociation constants (Ka)
-                transDict = {'First deP': 0, 'Second deP': 1, 'Third deP': 2}
-                intRxn = [transDict[letter] for letter in infoRxn]
-                Kai = ThP.getKeq(rComp, mRxn, iTemperature, 'L')
-                Ka = np.zeros(3)
-                Ka[intRxn] = Kai
-                # Speciation
-                theta = H**3 + (Ka[0] * H**2) + (Ka[0] * Ka[1] * H) + Ka[0] * Ka[1] * Ka[2]
-                for idC, iC in enumerate(Ct):
-                    mSpec_aux = np.array([iC * H**3 / theta,                    # [B]
-                                          Ka[0] * iC * H**2 / theta,            # [B-]
-                                          Ka[0] * Ka[1] * iC * H / theta,       # [B-2]
-                                          Ka[0] * Ka[1] * Ka[2] * iC / theta])  # [B-3]
-                    # Speciation matrix
-                    if rAllConc:
-                        rSpec[:,:,idC,idTemperature,idCompound] = mSpec_aux
-                    else:
-                        rSpec[:,idC,idTemperature,idCompound] = mSpec_aux[reqSp]
-        rSpec = np.squeeze(rSpec)
+            rSpec = mSpec_aux
         return rSpec
-
+    
     def plotpHSpeciation(compounds, pH, temperature):
         """
         Plotting of pH (or ion) speciation of requested compound(s).
