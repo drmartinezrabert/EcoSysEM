@@ -80,26 +80,6 @@ class ISA:
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
         self._computeWaterContent(H2O, dDC)
     
-    def setComposition(self, compound, composition):
-        """
-        Modify composition of existing compounds or add new components with
-        their respective compositions.
-
-        Parameters
-        ----------
-        compound : STR or LIST
-            Set of new and/or existing compounds.
-        composition : FLOAT or LIST
-            Composition(s) of new and/or existing compound(s).
-            
-        """
-        if not isinstance(compound, list): compound = [compound]
-        if not isinstance(composition, list): composition = [composition]
-        pre_comp = self.compositions
-        new_comp = dict(zip(compound, composition))
-        pre_comp.update(new_comp)
-        self.compositions = pre_comp
-    
     def _computeTandP_ISA(self, layers, dISA):
         """
         Compute the change of temperature and pressure of the Earth's
@@ -148,38 +128,6 @@ class ISA:
         self.ISAaltitude = alt # [m]
         self.ISAtemperature = t # [C]
         self.ISApressure = p # [Pa]
-    
-    def selectAltitude(self, selAlt):
-        """
-        Select a specific region of atmosphere based on a minimum and maximum 
-        altitud value.
-        
-        """
-        if isinstance(selAlt, list):
-            if len(selAlt) > 2:
-                print('!EcoSysEM.Error: `selAlt` argument must be a int, float or list [minAlt, maxAlt].')
-                sys.exit()
-            elif len(selAlt) == 1:
-                selAlt = [0, selAlt[0]]
-            minAlt = selAlt[0]
-            maxAlt = selAlt[1]
-        elif isinstance(selAlt, (int, float)):
-            minAlt = 0
-            maxAlt = selAlt
-        # Previous altitude, temperature and pressure
-        prevAlt = self.ISAaltitude
-        prevT = self.ISAtemperature
-        prevP = self.ISApressure
-        # Correct min and max altitude, if out of previous range
-        minAlt = max(minAlt, min(prevAlt))
-        maxAlt = min(maxAlt, max(prevAlt))
-        # Indexes of min and max altitudes
-        imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
-        iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
-        # New altitude, temperature and pressure
-        self.ISAaltitude = prevAlt[imAlt:iMAlt]
-        self.ISAtemperature = prevT[imAlt:iMAlt]
-        self.ISApressure = prevP[imAlt:iMAlt]
     
     def _computeWaterContent(self, H2O, dDC):
         """
@@ -292,6 +240,57 @@ class ISA:
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             return None
             
+    def setComposition(self, compound, composition):
+        """
+        Modify composition of existing compounds or add new components with
+        their respective compositions.
+
+        Parameters
+        ----------
+        compound : STR or LIST
+            Set of new and/or existing compounds.
+        composition : FLOAT or LIST
+            Composition(s) of new and/or existing compound(s).
+        
+        """
+        if not isinstance(compound, list): compound = [compound]
+        if not isinstance(composition, list): composition = [composition]
+        pre_comp = self.compositions
+        new_comp = dict(zip(compound, composition))
+        pre_comp.update(new_comp)
+        self.compositions = pre_comp
+    
+    def selectAltitude(self, selAlt):
+        """
+        Select a specific region of atmosphere based on a minimum and maximum 
+        altitud value.
+        
+        """
+        if isinstance(selAlt, list):
+            if len(selAlt) > 2:
+                print('!EcoSysEM.Error: `selAlt` argument must be a int, float or list [minAlt, maxAlt].')
+                sys.exit()
+            elif len(selAlt) == 1:
+                selAlt = [0, selAlt[0]]
+            minAlt = selAlt[0]
+            maxAlt = selAlt[1]
+        elif isinstance(selAlt, (int, float)):
+            minAlt = 0
+            maxAlt = selAlt
+        # Previous altitude, temperature and pressure
+        prevAlt = self.ISAaltitude
+        prevT = self.ISAtemperature
+        prevP = self.ISApressure
+        # Correct min and max altitude, if out of previous range
+        minAlt = max(minAlt, min(prevAlt))
+        maxAlt = min(maxAlt, max(prevAlt))
+        # Indexes of min and max altitudes
+        imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
+        iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
+        # New altitude, temperature and pressure
+        self.ISAaltitude = prevAlt[imAlt:iMAlt]
+        self.ISAtemperature = prevT[imAlt:iMAlt]
+        self.ISApressure = prevP[imAlt:iMAlt]
     
     ## Plotting functions 
     def plotTandP_ISA(self):
