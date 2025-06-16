@@ -10,8 +10,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-import re
-from scipy.stats import kendalltau as kTau
 import os.path
 
 class ThP:
@@ -301,10 +299,10 @@ class ThEq:
             print('!EcoSysEM.Warning: Temperature must be a FLOAT.')
             sys.exit()
         if isinstance(compounds, str): compounds = [compounds]
-        textT = float(f'{temperature:.2f}')
         for iCompound in compounds:
-            Spec = ThEq.pHSpeciation(iCompound, pH, temperature, Ct, True)
-            nFrac = (Spec.T / Ct) * 100 # Molar fraction [%]
+            Spec_ = [ThEq.pHSpeciation(iCompound, pH_, temperature, Ct, True) for pH_ in pH]
+            Spec = np.stack(Spec_, axis = 0)
+            nFrac = (Spec / Ct) * 100 # Molar fraction [%]
             # Selection of involved chemical species
             c_nFrac = np.nonzero(np.sum(nFrac, axis = 0))
             nFrac = nFrac[:, c_nFrac[0]]
@@ -312,7 +310,7 @@ class ThEq:
             nCompounds = Rxn.getRxnpH(iCompound)[0][1:]
             # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
             nCompounds = [nC.replace('H2CO3', 'H2CO3 (CO2)') for nC in nCompounds]
-            text_ = f'Chemical (or ion) speciation at {textT}K.'
+            text_ = f'Chemical (or ion) speciation at {float(f'{temperature:.2f}')}K.'
             # Plotting
             fig, ax = plt.subplots()
             ax.plot(pH, nFrac)
@@ -331,7 +329,6 @@ class ThSA:
     Class for thermodynamic state analysis of environment.
     
     """
-    
     def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
