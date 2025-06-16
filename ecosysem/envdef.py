@@ -198,7 +198,6 @@ class ISA:
             newComp[2] -= 0.01100 * H2O # Ar_wet
             self.ISAcompositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
-    def _getVerticalProfiles(self, phase, compound = None):
     def getConcISA(self, phase, compound = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
@@ -293,46 +292,6 @@ class ISA:
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             return None
             
-    def dictConcISA(self, phase, compound = None):
-        r = ISA._getVerticalProfiles(self, phase, compound)
-        if phase == 'G':
-            nameCompounds_G = r[2]
-            Pi = r[0]
-            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
-            Ci_G = r[1]
-            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
-            return dictPi, dictCi_G
-        elif phase == 'L-FW':
-            nameCompounds_FW = r[1]
-            Ci_LFW = r[0]
-            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
-            return dictCi_LFW
-        elif phase == 'L-SW':
-            nameCompounds_SW = r[1]
-            Ci_LSW = r[0]
-            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
-            return dictCi_LSW
-        elif phase == 'L':
-            nameCompounds_FW = r[2]
-            nameCompounds_SW = r[3]
-            Ci_LFW = r[0]
-            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
-            Ci_LSW = r[1]
-            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
-            return dictCi_LFW, dictCi_LSW
-        elif phase == 'All':
-            nameCompounds_G = r[4]
-            nameCompounds_FW = r[5]
-            nameCompounds_SW = r[6]
-            Pi = r[0]
-            dictPi = {nameCompounds_G[i]: Pi[:, i].tolist() for i in range(len(nameCompounds_G))}
-            Ci_G = r[1]
-            dictCi_G = {nameCompounds_G[i]: Ci_G[:, i].tolist() for i in range(len(nameCompounds_G))}
-            Ci_LFW = r[2]
-            dictCi_LFW = {nameCompounds_FW[i]: Ci_LFW[:, i].tolist() for i in range(len(nameCompounds_FW))}
-            Ci_LSW = r[3]
-            dictCi_LSW = {nameCompounds_SW[i]: Ci_LSW[:, i].tolist() for i in range(len(nameCompounds_SW))}
-            return dictPi, dictCi_G, dictCi_LFW, dictCi_LSW
     
     ## Plotting functions 
     def plotTandP_ISA(self):
