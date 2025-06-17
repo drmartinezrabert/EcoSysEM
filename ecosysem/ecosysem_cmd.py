@@ -7,6 +7,8 @@ Created on Tue Jul 30 12:23:23 2024
 
 from envdef import MERRA2, ISAMERRA2, CAMSMERRA2
 import argparse
+import numpy as np
+import sys
 
 # Parse command line input
 
@@ -16,6 +18,8 @@ function = input('>> Enter the function: ')
 if function == 'getDataMERRA2':
     parser = argparse.ArgumentParser(
         description="Execute getDataMERRA2() via Command Line Interface (CLI).")
+    parser.add_argument('-dataType', nargs = '+', type = str,
+                        help="[str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).")
     parser.add_argument('-y', nargs = '+', type = int,
                         help="[int] Year of requested data.")
     parser.add_argument('-m', nargs = '+', type = int,
@@ -30,29 +34,32 @@ if function == 'getDataMERRA2':
                         help="[tuple] (Default: '(-180, -90, 180, 90)') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.")
     parser.add_argument('-var', default="PS T2M TROPT TROPPB", nargs = '+', type = str,
                         help="[list of str] (Default: ['PS', 'T2M', 'TROPT', 'TROPPB']) List of requested variables.")
-    parser.add_argument('--daily', default = False, action = 'store_true',
-                        help="[bool] (Default: False) Daily data is saved.")
     # Argument definition
     args = parser.parse_args()
-    years = args.y; years.sort()
-    months = args.m; months.sort()
+    dataType = args.dataType
+    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
+        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
+        sys.exit()
+    years = args.y; years = sorted(years)
+    months = args.m; months = sorted(months)
     days = args.d
-    if days != 'All':
-        days = [int(days[0])]
+    if not np.any(np.isin(days, 'All')):
+        days = sorted([int(d) for d in days])
+    else:
+        days = 'All'
     product = args.product
     version = args.version
     bbox = tuple(args.bbox)
     var = args.var
     if type(var) == str:
         var = var.split()
-    daily = args.daily
     # Call function
     MERRA2 = MERRA2()
-    MERRA2.getDataMERRA2(years = years,
+    MERRA2.getDataMERRA2(dataType = dataType,
+                         years = years,
                          months = months,
                          days = days, 
                          product = product, 
                          version = version, 
                          bbox = bbox, 
-                         var = var, 
-                         daily = daily)
+                         var = var)
