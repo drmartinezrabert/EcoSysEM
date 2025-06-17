@@ -289,10 +289,11 @@ ecosysem
   │      │    ├── setComposition
   │      │    ├── selectAltitude
   │      │    ├── getConcISA
-  │      │    ├── plotTandPISA
+  │      │    ├── plotTandP_ISA
   │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
   │      │    ├── getDataMERRA2
+  │      │    ├── selectRegion
   │      │    ├── loadDataMERRA2
   │      │    ├── keysMERRA2
   │      │    └── deleteKeyMERRA2
@@ -319,8 +320,8 @@ ecosysem
          │    ├── pHSpeciation
          │    └── plotpHSpeciation
          └── ThSA
-              ├── getDeltaGr
-              └── exportDeltaGr
+              ├── exportDeltaGr
+              └── getDeltaGr
 ```
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
