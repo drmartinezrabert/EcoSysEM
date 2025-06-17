@@ -625,6 +625,8 @@ class MERRA2:
         
         Parameters
         ----------
+        dataType: STR or LIST of STR ('dly', 'mly', 'cmly' or 'All')
+            Type of data
         years : INT or LIST of INT
             Year(s) of data.
         months : INT or LIST of INT
@@ -646,9 +648,18 @@ class MERRA2:
         None.
         
         """
-        # Data type
-        if dataType == 'All': dataType = ['dly', 'mly', 'cmly']
+        # Initialize `mlyDelete` for _combDataMERRA2()
+        mlyDelete = False
+        # Data checking
         if isinstance(dataType, str): dataType = [dataType]
+        if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
+            print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
+            return None
+        if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
+        if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
+            dataType += ['mly']
+            mlyDelete = True
+        print(dataType)
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         # Coordinates (bbox)
         if len(bbox) == 2:
@@ -774,7 +785,7 @@ class MERRA2:
         # Combine monthly data if user required ('cmly')
         if np.any(np.isin(dataType, 'cmly')):
             for m in months:
-                MERRA2._combDataMERRA2(self, years, m, 'mly', var)
+                MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
     
     def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
