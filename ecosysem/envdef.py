@@ -539,7 +539,7 @@ class MERRA2:
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
-    def _combDataMERRA2(self, years, month, dataType, keys = 'All'):
+    def _combDataMERRA2(self, years, month, dataType, keys = 'All', mlyDelete = False):
         """
         Get average and standard deviation from a group of data.
         
@@ -598,6 +598,7 @@ class MERRA2:
                     combData[key] = f[key]
                 else:
                     combData[key] = np.dstack((combData[key], f[key]))
+            f.close()
         # Monthly average and std
         for key in keys:
             if np.char.find(key, '_std') == -1:
@@ -608,7 +609,11 @@ class MERRA2:
                 monthData[key] = np.squeeze(monthData[key])
         # Save numpy matrices in .npz format (v2)
         MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month)
-    
+        # Delete monthly data (if necessary)
+        for file in selFiles:
+            path = folder + file
+            os.remove(path)
+            
     def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
                       product = 'M2I1NXASM',
