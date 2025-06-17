@@ -1242,7 +1242,6 @@ For example: <br>
 More examples below:
 ```
 python ecosysem_cmd.py -dataType mly -y 2021 -m 4
-python ecosysem_cmd.py -dataType mly -y 2021 -m 4 -d All
 python ecosysem_cmd.py -dataType mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
 python ecosysem_cmd.py -dataType dly mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
 python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
