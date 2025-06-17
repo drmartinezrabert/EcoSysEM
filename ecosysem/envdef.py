@@ -440,7 +440,7 @@ class MERRA2:
         ----------
         date : DICT
             Data in dictionary form.
-        dataType   : STR ('mly' or 'cmly')
+        dataType : STR ('dly', 'mly' or 'cmly')
             Type of data.
         y : INT or LIST of INT
             Year(s) of data.
@@ -497,7 +497,7 @@ class MERRA2:
         ----------
         date : DICT
             Data in dictionary form.
-        dataType   : STR ('mly' or 'cmly')
+        dataType   : STR ('dly', 'mly' or 'cmly')
             Type of data.
         y : INT or LIST of INT
             Year(s) of data.
@@ -971,7 +971,7 @@ class MERRA2:
 
         Parameters
         ----------
-        dataType : STR ('mly' or 'cmly')
+        dataType : STR ('dly', 'mly' or 'cmly')
             Type of data.
         y : INT or LIST of INT
             Year(s) of data.
@@ -997,7 +997,7 @@ class MERRA2:
         ----------
         keys : LIST of STR
             List of requested variables.
-        dataType : STR ('mly' or 'cmly')
+        dataType : STR ('dly', 'mly' or 'cmly')
             Type of data.
         y : INT or LIST of INT
             Year(s) of data.
