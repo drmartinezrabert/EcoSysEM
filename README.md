@@ -1,7 +1,7 @@
 # EcoSysEM platform
 Eco-System Evaluation &amp; Modelling
 
-*· Contributors: Eloi Martinez-Rabert* 
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı* 
 
 *· Funded by:*
 
@@ -113,6 +113,14 @@ pip install xarray
 ```
 pip install earthaccess
 ```
+**cdsapi**:
+```
+pip install cdsapi
+```
+**molmass**:
+```
+pip install -U "molmass[all]"
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -141,6 +149,14 @@ python -m pip install xarray
 **earthaccess**:
 ```
 python -m pip install earthaccess
+```
+**cdsapi:**
+```
+python -m pip install cdsapi
+```
+**molmass**:
+```
+python -m pip install -U "molmass[all]"
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -297,7 +313,15 @@ ecosysem
   │      │    ├── loadDataMERRA2
   │      │    ├── keysMERRA2
   │      │    └── deleteKeyMERRA2
-  │      └── ISAMERRA2 {subclass of ISA & MERRA2}
+  │      ├── CAMS
+  │      │    ├── getDataCAMS
+  │      │    ├── selectRegionCAMS
+  │      │    ├── dictCAMS
+  │      │    ├── keysCAMS
+  │      │    └── deleteKeyCAMS
+  │      ├── ISAMERRA2 {subclass of ISA & MERRA2}
+  │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
+  │           └── interpolateCAMS
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
@@ -331,7 +355,9 @@ This section clarifies concepts, design decisions and technical details of this 
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
   - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
+  - Copernicus Atmosphere Monitoring Service (CAMS) | [GO](#CAMS)
   - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
+  - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
@@ -638,6 +664,153 @@ Delete variable(s) from data.<p>
 
 #
 
+<a name="CAMS">**Copernicus Atmosphere Monitoring Service (CAMS)**</a><br>
+The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous data and information on atmospheric composition, supporting a wide range of applications from air quality monitoring and forecasting to climate change assessment. It combines observations from satellites and in-situ measurements with sophisticated numerical models to provide consistent and quality-controlled data records. CAMS data typically encompasses global and regional analyses and forecasts of reactive gases, greenhouse gases (GHGs), aerosols, and stratospheric ozone. The data records span from approximately 2003 onwards for analyses and reanalyses, with forecast data available on a rolling basis.
+
+> [!NOTE]
+> The user needs an **Climate Data Store (CDS)** profile to access CAMS data ([registration and login page](https://cds.climate.copernicus.eu/)). After registration, [login](https://cds.climate.copernicus.eu/) with your account and accept Terms & conditions and Dataset licence, Licence to use Copernicus Products. You can find them in <ins>Your Profile</ins> -> <ins>Licences</ins>. The user also needs to add the installation and Script folder path in PATH using **set** (temporary) or **setx** (permanent) in a Command Prompt window (for **Windows**).
+> Examples are available [here](https://docs.python.org/3/using/windows.html#setting-envvars).<br>
+> Also, the user needs to copy a 2 line code and then paste into a  %USERPROFILE%\.cdsapirc file, where in the windows environment. <br>
+> Please check for further help (also for **Linux** and **MacOS** users): [CDSAPI setup](https://ads.atmosphere.copernicus.eu/how-to-api).
+
+To create a new _CAMS_ object (_i.e.,_ instantiate the class `CAMS`), no instance attributes are necessary. Once a new _CAMS_ object is created, the available data can be downloaded using `CAMS.getDataCAMS`. The data will be saved in the folder `data\CAMS\`. The data is downloaded first in .nc file in .zip format, then automatically processed and saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html)) by `CAMS.getDataCAMS`. Once the process is finished, the user can obtain the data with `CAMS.dictCAMS` function, see the parameters of data with `CAMS.keysCAMS`, or delete existing keys with `CAMS.deleteKeyCAMS`. Here is an example:
+```python
+from envdef import CAMS
+
+newCAMS = CAMS()
+
+# Get monthly data from online databases
+## (Default arguments: pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
+newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
+
+# See keys (_e.i._, variable names) of downloaded data
+keys = newCAMS.keysCAMS(dataType = 'mly', y = 2024, m = 4)
+
+>>> print(keys)
+['CO', 'CO_std', 'CO2', 'CO2_std', 'CH4', 'CH4_std', 'alt', 'lat', 'lon', 'P_level']
+
+# See data
+data = newCAMS.dictCAMS(dataType = 'mly', y = 2024, m = 4, keys = ['lat', 'lon', 'CO'])
+
+>>> print(data)
+{'lat': array([90. , 89.9, 89.8, ..., -89.8, -89.9, -90. ]),
+'lon': array([-180. , -179.9, -179.8, ...,  179.7,  179.8,  179.9]),
+'CO': array([[[6.9465514e-08, 6.9465514e-08, 6.9465514e-08, ...,
+              ...,
+               1.8593873e-08, 1.8593873e-08, 1.8593873e-08]],
+             [[1.9516536e-08, 1.9516536e-08, 1.9516536e-08, ...,
+              ...,
+               1.5532725e-08, 1.5532725e-08, 1.5532725e-08]]], dtype=float32)}
+>>> print(data['CO'])
+[[[6.9465514e-08 6.9465514e-08 ... 6.9465514e-08 6.9465514e-08]
+  [6.9230694e-08 6.9231163e-08 ... 6.9230012e-08 6.9230367e-08]
+  ...
+  [1.5548618e-08 1.5548547e-08 ... 1.5548789e-08 1.5548702e-08]
+  [1.5532725e-08 1.5532725e-08 ... 1.5532725e-08 1.5532725e-08]]]
+```
+
+### CAMS.getDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+
+```python
+CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
+```
+Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ or _list of str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type(s) of data (e.g., 'mly' and/or 'dly' and/or 'cmly').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data (e.g., 2024).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **months : _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data (e.g., [4, 5]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _list of int_, _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 15]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of pressure levels to download (e.g., [100, 200, ..., 1000]).<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _List of str_, _optional, default: ["carbon_dioxide", "carbon_monoxide", "methane"]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _List_, _optional, default: [90, -180, -90, 180]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)<br>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\` and/or `data\CAMS\cmly\`**<br>
+
+### CAMS.selectRegionCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CAMS.selectRegionCAMS(data, bbox)
+```
+Select specific region of Earth of downloaded data.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data in dictionary form.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _List of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested coordinates, the bounding box.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataSel : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data from requested region.<br>
+
+### CAMS.dictCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CAMS.dictCAMS(dataType, y, m, d=None, keys='All')
+```
+Get data in dictionary form.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly' or 'dly' or 'cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'dly': daily; 'cmly': combined monthly.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly' and 'dly') or _list of int_ ('cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_, _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictVar : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with requested variables.<br>
+
+### CAMS.keysCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CAMS.keysCAMS(dataType, y, m, d=None)
+```
+Get variable list of data.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly' or 'dly' or 'cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'dly': daily; 'cmly': combined monthly.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly' and 'dly') or _list of int_ ('cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable list of data.<br>
+
+### CAMS.deleteKeyCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CAMS.deleteKeyCAMS(keys, dataType, y, m, d=None)
+```
+Delete variable(s) from data.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _list of str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables to be deleted.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('mly', 'cmly', 'dly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly': monthly; 'dly': daily; 'cmly': combined monthly.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ ('mly' and 'dly') or _list of int_ ('cmly')**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<p>
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
 New inhereted classes (also known as _subclasses_) can be created inhereting the attributes from existing classes (_e.g.,_ ISA or MERRA2). New attributes and function can be defined in these sublcasses, which will belong only to the subclass in question.
 
 <a name="ISAMERRA2">**ISA-MERRA2 atmospheric model**</a><br>
@@ -689,6 +862,85 @@ data = newISAMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['l
  [244.05316 244.0517  244.04942 244.04617]
  [245.6959  245.69054 245.68338 245.67622]]
 ```
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
+<a name="CAMSMERRA2">**CAMS-MERRA2 atmospheric model**</a><br>
+Combination of Copernicus Atmosphere Monitoring Service ([CAMS](#CAMS)) model and Modern-Era Retrospective analysis for Research and Applications Version 2 ([MERRA2](#MERRA2)).
+
+Because `CAMSMERRA2` sublcass is a multiple-inhereted class of `CAMS` and `MERRA2` classes, this has all attributes and methods of parent classes (_i.e._, `CAMS` and `MERRA2`). All functions of `CAMS` and `MERRA2` classes are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
+
+To create a new _CAMSMERRA2_ object (_i.e.,_ instantiate the class `CAMSMERRA2`), no instance attributes are necessary. Here is an example:
+```python
+from envdef import CAMSMERRA2
+
+newCAMSMERRA2 = CAMSMERRA2()
+
+# Get interpolated data from CAMS model
+>>> print(newCAMSMERRA2.interpolateCAMS(dataType = 'mly'))
+Processing 2024_4_month.npz
+{'2024_4_month.npz': {'CO': array([[[2.1469465e-10, 2.1469465e-10, 2.1469465e-10, ...,
+                   1.1986655e-10, 1.1986655e-10, 1.1986655e-10]]], dtype=float32),
+   'CO2': array([[[4.6834889e-06, 4.6834889e-06, 4.6834889e-06, ...,
+                   2.4685271e-06, 2.4685271e-06, 2.4685271e-06]]], dtype=float32),
+   'CH4': array([[[2.0142485e-08, 2.0142485e-08, 2.0142485e-08, ...,
+                   8.7634273e-09, 8.7634273e-09, 8.7634273e-09]]], dtype=float32),
+   'lat': array([-90. , -89.5, -89. , ...,  89. ,  89.5, 90. ]),
+   'lon': array([-180.   , -179.375, -178.75, ...,  178.125,  178.75 ,  179.375]),
+   'alt': array([11769.86595602, 15790.46205054])},
+ {'2024_4_month.npz': {'lat': (361,),
+   'lon': (576,),
+   'alt': (2,),
+   'CO': (2, 361, 576),
+   'CO2': (2, 361, 576),
+   'CH4': (2, 361, 576)}}
+
+# See keys (_e.i._, variables names) of downloaded data
+keys = newCAMSMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
+
+>>> print(key)
+['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
+'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
+
+# See data
+data = newCAMSMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
+
+>>> print(data)
+{'lat': array([-90. , -89.5, -89. , -88.5]),
+'lon': array([-180.   , -179.375, -178.75 , -178.125]),
+'T2M': array([[244.29813, 244.29813, 244.29813, 244.29813],
+              [243.8813 , 243.88293, 243.88455, 243.88733],
+              [244.05316, 244.0517 , 244.04942, 244.04617],
+              [245.6959 , 245.69054, 245.68338, 245.67622]], dtype=float32)}
+>>> print(data['T2M'])
+[[244.29813 244.29813 244.29813 244.29813]
+ [243.8813  243.88293 243.88455 243.88733]
+ [244.05316 244.0517  244.04942 244.04617]
+ [245.6959  245.69054 245.68338 245.67622]]
+```
+
+### CAMSMERRA2.interpolateCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+
+```python
+CAMSMERRA2.interpolateCAMS(dataType, molecules = ('CO', 'CO2', 'CH4'), target_lats = np.arange(-90, 90.1, 0.5), target_lons = np.arange(-180,  179.375 + 1e-3, 0.625))
+```
+Interpolate CAMS .npz files onto target MERRA2 grid.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ or _list of str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type(s) of data (e.g., 'mly' and/or 'dly' and/or 'cmly').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molecules : _Tuple of str_, _optional, default: ('CO', 'CO2', 'CH4')_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable names to process.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lats : _1D array_, _optional, default: np.arange(-90, 90.1, 0.5)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired latitudes for the CAMS grid.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lons : _1D array_, _optional, default: np.arange(-180, 179.375+0.001, 0.625)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired longitudes for the CAMS grid.<br>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **all_results : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A mapping from each filename (e.g. '2024_4_month.npz') to a dict.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **all_shapes : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shapes of result dict.<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -1248,6 +1500,30 @@ python ecosysem_cmd.py -dataType dly mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H
 python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
 ```
 
+#### <ins>getDataCAMS</ins>
+<table border="0">
+   <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> -type </td><td> [str] Type(s) of data ('mly', 'dly', 'cmly').</td></tr>
+   <tr><td> -y </td><td> [int or list] Year(s) of requested data.</td></tr>
+   <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> -d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> -pressure </td><td> [int or list] (Default: '[100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> -bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
+</table>
+
+List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
+For example: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-pressure 200 300` => `pressure_levels = [200, 300]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
+
+More examples below:
+```
+python ecosysem_cmd.py -y 2024 -m 4
+python ecosysem_cmd.py -y 2024 -m 4 -pressure 200 300
+python ecosysem_cmd.py -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
+```
+
 [🔼 Back to **Contents**](#readme-contents)
 
 ## Function Navigation
@@ -1264,6 +1540,13 @@ python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 1
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.loadDataMERRA2](#merra2loadDataMERRA2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.keysMERRA2](#merra2keysmerra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.deleteKeyMERRA2](#merra2deletekeymerra2---back-to-function-navigation)<br>
+
+#### · <ins>CAMS</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.selectRegionCAMS](#camsselectregioncams---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.dictCAMS](#camsdictcams---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.keysCAMS](#camskeyscams---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.deleteKeyCAMS](#camsdeletekeycams---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
