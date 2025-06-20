@@ -1,7 +1,7 @@
 # EcoSysEM platform
 Eco-System Evaluation &amp; Modelling
 
-*· Contributors: Eloi Martinez-Rabert* 
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı* 
 
 *· Funded by:*
 
@@ -682,9 +682,9 @@ Delete variable(s) from data.<p>
 The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous data and information on atmospheric composition, supporting a wide range of applications from air quality monitoring and forecasting to climate change assessment. It combines observations from satellites and in-situ measurements with sophisticated numerical models to provide consistent and quality-controlled data records. CAMS data typically encompasses global and regional analyses and forecasts of reactive gases, greenhouse gases (GHGs), aerosols, and stratospheric ozone. The data records span from approximately 2003 onwards for analyses and reanalyses, with forecast data available on a rolling basis.
 
 > [!NOTE]
-> The user needs an **Climate Data Store (CDS)** profile to access CAMS data ([registration and login page](https://cds.climate.copernicus.eu/)). After registration, [login](https://cds.climate.copernicus.eu/) with your account and accept Terms & conditions and Dataset licence, Licence to use Copernicus Products. You can find them in <ins>Your Profile</ins> -> <ins>Licences</ins>. The user also needs to add the installation and Script folder path in PATH using **set** (temporary) or **setx** (permanent) in a Command Prompt window (for **Windows**).<br>
+> The user needs an **Climate Data Store (CDS)** profile to access CAMS data ([registration and login page](https://cds.climate.copernicus.eu/)). After registration, [login](https://cds.climate.copernicus.eu/) with your account and accept Terms & conditions and Dataset licence, Licence to use Copernicus Products. You can find them in <ins>Your Profile</ins> -> <ins>Licences</ins>. The user also needs to add the installation and Script folder path in PATH using **set** (temporary) or **setx** (permanent) in a Command Prompt window (for **Windows**).
 > Examples are available [here](https://docs.python.org/3/using/windows.html#setting-envvars).<br>
-> Then, the user needs to copy a 2 line code and then paste into a  %USERPROFILE%\.cdsapirc file, where in the windows environment. <br>
+> Also, the user needs to copy a 2 line code and then paste into a  %USERPROFILE%\.cdsapirc file, where in the windows environment. <br>
 > Please check for further help (also for **Linux** and **MacOS** users): [CDSAPI setup](https://ads.atmosphere.copernicus.eu/how-to-api).
 
 To create a new _CAMS_ object (_i.e.,_ instantiate the class `CAMS`), no instance attributes are necessary. Once a new _CAMS_ object is created, the available data can be downloaded using `CAMS.getDataCAMS`. The data will be saved in the folder `data\CAMS\`. The data is downloaded first in .nc file in .zip format, then automatically processed and saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html)) by `CAMS.getDataCAMS`. Once the process is finished, the user can obtain the data with `CAMS.dictCAMS` function, see the parameters of data with `CAMS.keysCAMS`, or delete existing keys with `CAMS.deleteKeyCAMS`. Here is an example:
