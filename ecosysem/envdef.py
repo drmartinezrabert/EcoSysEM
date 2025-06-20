@@ -21,6 +21,9 @@ Functions
 ------------------------------------------------------------------------------
 """
 from thermodynamics import ThEq as eQ
+from scipy.interpolate import RegularGridInterpolator
+from molmass import Formula
+from pyatmos import coesa76
 
 import pandas as pd
 import numpy as np
@@ -33,6 +36,8 @@ import datetime
 import calendar
 import os
 import time
+import cdsapi
+import zipfile
 
 import warnings
 warnings.simplefilter(action = 'ignore')
@@ -924,10 +929,540 @@ class MERRA2:
 
 class CAMS:
     """
-    Description of class CAMS.
+    The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous 
+    data and information on atmospheric composition, supporting a wide range 
+    of applications from air quality monitoring and forecasting to climate 
+    change assessment. It combines observations from satellites and in-situ 
+    measurements with sophisticated numerical models to provide consistent 
+    and quality-controlled data records. CAMS data typically encompasses 
+    global and regional analyses and forecasts of reactive gases, greenhouse 
+    gases (GHGs), aerosols, and stratospheric ozone. The data records span 
+    from approximately 2003 onwards for analyses and reanalyses, with 
+    forecast data available on a rolling basis.
+    --------------------------------------------------------------------------
+    Reference: Copernicus CAMS Website - https://atmosphere.copernicus.eu/
+    
     """
+
+    def __init__(self):
+        self.base_path = 'data/CAMS/'
+        self.processable_molecules = ['co', 'co2', 'ch4']
+
     def _testCAMS(self):
         print('CAMS class works.')
+
+    def getDataCAMS(self, dataType, years, months, days = 'All',
+                    pressure_levels = [100, 200, 300, 400,
+                                       500, 600, 700, 800, 
+                                       850, 900, 950, 1000],
+                    variables = ["carbon_dioxide", 
+                                 "carbon_monoxide", 
+                                 "methane"],
+                    bbox = [90, -180, -90, 180]):
+        """
+        Download data from CAMS Global Greenhouse Gas Forecasts database.
+
+        Parameters
+        ----------
+        dataType : STR or LIST of STR
+            Type(s) of data.
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data.
+        days : INT, LIST of INT, or STR ('All')
+            Day(s) of data.
+        pressure_levels : INT or LIST of INT
+            A list of pressure levels to download (e.g., [100, 200, ..., 1000]).
+        variables : LIST of STR
+            A list of variables to download (e.g., ["carbon_dioxide"]).
+        bbox : LIST
+            Earth's region of data, the bounding box (e.g., [90, -180, -90, 180]).
+            (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)
+        """
+        # Normalize inputs
+        dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
+        years     = [years]     if isinstance(years, int)     else list(years)
+        months    = [months]    if isinstance(months, int)    else list(months)
+        
+        if days == 'All':
+            days_list = None
+        else:
+            days_list = [days] if isinstance(days, int) else list(days)
+        
+        if isinstance(pressure_levels, (int)):
+            pressure_levels = [pressure_levels]
+        pressure_levels = [str(pl) for pl in pressure_levels]
+        
+        # Ensure output folder exists
+        raw_folder = os.path.join(self.base_path, 'temporary')
+        os.makedirs(raw_folder, exist_ok=True)
+        
+        client  = cdsapi.Client()
+        dataset = "cams-global-greenhouse-gas-forecasts"
+        
+        for y in years:
+            for m in months:
+                # Determine valid days in the month
+                month_max_day = calendar.monthrange(y, m)[1]
+                if days_list is None:
+                    day_ranges = [(1, month_max_day)]
+                else:
+                    # Validate user-provided days
+                    invalid_days = [d for d in days_list if d < 1 or d > month_max_day]
+                    if invalid_days:
+                        raise ValueError(
+                            f"Invalid day(s) {invalid_days} for year {y}, month {m}"
+                        )
+                    day_ranges = [(d, d) for d in days_list]
+        
+                for d_start, d_end in day_ranges:
+                    date_range = f"{datetime.date(y, m, d_start)}/{datetime.date(y, m, d_end)}"
+                    zip_name   = f"CAMS_{y}_{m}.zip"
+                    zip_path   = os.path.join(raw_folder, zip_name)
+        
+                    print(f"Downloading data for {date_range}")
+                    try:
+                        client.retrieve(
+                            dataset,
+                            {
+                                'variable': variables,
+                                'pressure_level': pressure_levels,
+                                'date': date_range,
+                                'leadtime_hour': ['0'],
+                                'data_format': 'netcdf_zip',
+                                'area': bbox,
+                            },
+                            zip_path
+                        )
+        
+                        # Extract netCDF from zip
+                        with zipfile.ZipFile(zip_path, 'r') as zf:
+                            members = zf.namelist()
+                            if members:
+                                nc_file = members[0]
+                                target_nc = os.path.join(raw_folder,
+                                    f"CAMS_{y}_{m}.nc")
+                                with zf.open(nc_file) as src, open(target_nc, 'wb') as dst:
+                                    dst.write(src.read())
+                        os.remove(zip_path)
+        
+                        # Process and clean up
+                        for dt in dataTypes:
+                            CAMS._processDataCAMS(self, dt)
+                        CAMS._deleteTempDataCAMS(self, target_nc)
+        
+                    except Exception as e:
+                        print(f"Failed for {date_range}: {e}")
+        
+        print("\nAll downloads completed.")
+
+    def _processDataCAMS(self, dataType, month = None):
+        """
+        Process CAMS .nc files, interpolate and save as .npz format.
+
+        Parameters
+        ----------
+        dataType : STR or LIST of STR
+            Type(s) of data. 
+        month : INT
+            Input for cmly dataType.
+        """
+        input_folder = os.path.join(self.base_path, 'temporary')
+        processed_folder = os.path.join(self.base_path, f"{dataType}")
+        os.makedirs(processed_folder, exist_ok=True)
+
+        try:
+            nc_files = [f for f in os.listdir(input_folder) if f.endswith('.nc')]
+            nc_files_month = [f for f in os.listdir(input_folder) if f.endswith(f'{month}.nc')]
+        except FileNotFoundError:
+            print(f"Input folder not found: '{input_folder}'")
+            return
+
+        if not nc_files:
+            print(f"No .nc files found in: '{input_folder}'")
+            return
+                    
+        if dataType == "dly":
+            for nc_file in nc_files:
+                path_file = os.path.join(input_folder, nc_file)
+                print(f"Processing: {path_file}")
+                try:
+                    ds = xr.open_dataset(path_file)
+                    data_dict = {}
+                    
+                    # Extract year/month from filename
+                    parts = os.path.basename(nc_file).split('_')
+                    year_int = int(parts[1])
+                    month_int = int(parts[2].split('.')[0])
+                    
+                    day_count = len(ds["forecast_reference_time"])
+                    for i in range(day_count):
+                        for mol in self.processable_molecules:                        
+                            data_dict.update({
+                                f"{mol.upper()}": ds[mol][0][i].values,
+                                })
+                    
+                        data_dict.update({
+                            'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
+                            'lat': ds['latitude'].values,
+                            'lon': ds['longitude'].values,
+                            'P_level': ds['pressure_level'].values*100
+                        })
+                        CAMS._saveNPZCAMS(self, data_dict, "dly", year_int, month_int, (i+1)) # !!! [redudant]
+                
+                except Exception as e:
+                    print(f"Error occurred: {nc_file}, {e}")
+                    continue
+            
+            print(f"{dataType} file is processed and saved.")
+                    
+        elif dataType == "mly":
+            for nc_file in nc_files:
+                path_file = os.path.join(input_folder, nc_file)
+                print(f"Processing: {path_file}")
+                try:
+                    ds = xr.open_dataset(path_file)
+                    data_dict = {}
+                    
+                    # Extract year/month from filename
+                    parts = os.path.basename(nc_file).split('_')
+                    year_int = int(parts[1])
+                    month_int = int(parts[2].split('.')[0])
+                       
+                    for mol in self.processable_molecules:
+                        data_dict.update({
+                            f"{mol.upper()}": ds[mol][0].mean(dim="forecast_reference_time").values,
+                            f"{mol.upper()}_std": ds[mol][0].std(dim="forecast_reference_time").values
+                            })
+                    
+                    data_dict.update({
+                        'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
+                        'lat': ds['latitude'].values,
+                        'lon': ds['longitude'].values,
+                        'P_level': ds['pressure_level'].values*100
+                    })
+                    CAMS._saveNPZCAMS(self, data_dict, "mly", year_int, month_int) # !!! [redudant]
+                
+                except Exception as e:
+                    print(f"Error occurred: {nc_file}, {e}")
+                    continue
+            
+            print(f"{dataType} files are processed and saved.")
+                    
+        elif dataType == "cmly":
+            for nc_file in nc_files_month:
+                path_file = os.path.join(input_folder, nc_file)
+                print(f"Processing: {path_file}")
+                try:
+                    ds = xr.open_dataset(path_file)
+                    data_dict = {}
+                    
+                    # Extract year/month from filename
+                    parts = os.path.basename(nc_file).split('_')
+                    year_int = int(parts[1])
+                    month_int = int(parts[2].split('.')[0])
+                       
+                    for mol in self.processable_molecules:
+                        data_dict.update({
+                            f"{mol.upper()}": ds[mol][0].mean(dim="forecast_reference_time").values,
+                            f"{mol.upper()}_std": ds[mol][0].std(dim="forecast_reference_time").values
+                            })
+                    
+                    data_dict.update({
+                        'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
+                        'lat': ds['latitude'].values,
+                        'lon': ds['longitude'].values,
+                        'P_level': ds['pressure_level'].values*100
+                    })
+                    CAMS._saveNPZCAMS(self, data_dict, "cmly", year_int, month_int) # !!! [redudant]
+                
+                except Exception as e:
+                    print(f"Error occurred: {nc_file}, {e}")
+                    continue
+            
+            print(f"{dataType} files are processed and saved.")
+        
+        else:
+            raise ValueError(f"Unknown dataType: {dataType}")
+
+        return
+    
+    def selectRegionCAMS(self, data, bbox): # !!! (redundant)
+        """
+        Select specific region of Earth of downloaded data.
+
+        Parameters
+        ----------
+        data : DICT
+            Data in dictionary form.
+        bbox : LIST
+            Requested coordinates, the bounding box.
+            (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)
+
+        Returns
+        -------
+        dataSel : DICT
+            Data from requested region.
+        """
+        # Selected coordinates
+        if len(bbox) == 2:
+            bbox = bbox + bbox
+            uniqueCoor = True
+        elif len(bbox) == 4:
+            bbox = bbox
+            uniqueCoor = False
+        else:
+            print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
+            return None
+        # BBox from data
+        lonR = data['lon']
+        latR = data['lat']
+        bboxData = (lonR[0], latR[0], lonR[-1], latR[-1])
+        # Get closest coordinates
+        bbox =  MERRA2._closestCoord(self, lonR, latR, bbox) # !!! (redundant)
+        # Check if requested region is in data
+        cBBOX = [(bboxData[i] <= bbox[i] and bboxData[i+2] >= bbox[i+2]) for i in np.arange(2)]
+        if all(cBBOX) == True:
+            # Get indices
+            # (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+            idx = (int(np.argwhere(lonR == bbox[0])),
+                   int(np.argwhere(latR == bbox[1])),
+                   int(np.argwhere(lonR == bbox[2])),
+                   int(np.argwhere(latR == bbox[3])))
+            # Initialize dictionary of selected data
+            dataSel = {}
+            for var in data:
+                if var == 'lon':
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[0]]
+                    else:
+                        if idx[0] == idx[2]:
+                            dataSel[var] = data[var][idx[0]]
+                        else:
+                            dataSel[var] = data[var][idx[0]:idx[2]]
+                elif var == 'lat':
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[1]]
+                    else:
+                        if idx[1] == idx[3]:
+                            dataSel[var] = data[var][idx[1]]
+                        else:
+                            dataSel[var] = data[var][idx[1]:idx[3]]
+                else:
+                    if uniqueCoor:
+                        dataSel[var] = data[var][idx[1],idx[0]]
+                    else:
+                        if idx[0] == idx[2]:
+                            dataSel[var] = data[var][idx[1]:idx[3],idx[0]]
+                        elif idx[1] == idx[3]:
+                            dataSel[var] = data[var][idx[1],idx[0]:idx[2]]
+                        else:
+                            dataSel[var] = data[var][idx[1]:idx[3],idx[0]:idx[2]]
+                if not isinstance(dataSel[var], (list, np.ndarray)): dataSel[var] = [dataSel[var]]
+            return dataSel
+        else:
+            print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
+            return None
+
+    def _saveNPZCAMS(self, data, dataType, y, m, d = None): # !!! (redundant)
+        """
+        Create .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('mly' or 'dly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month(s) of data. 
+        d : INT or LIST of INT
+            Day of month of data.
+        """
+        path = f'data/CAMS/{dataType}/'
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        # File name (based on dataType)
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        elif dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        # Path generation
+        pathfile = path + file
+        # Save .npz file
+        np.savez(pathfile, **data)   
+        return pathfile
+    
+    def _openNPZCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+        """
+        Open .npz file with downladed data.
+
+        Parameters
+        ----------
+        date : DICT
+            Data in dictionary form.
+        dataType   : STR ('dly' or 'mly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month(s) of data. 
+        d : INT or LIST of INT
+            Day of month of data.
+        """
+        path = f'data/CAMS/{dataType}/'
+        if dataType == 'dly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            if not isinstance(d, int):
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                return None
+            file = f'{y}_{m}_{d}_day.npz'
+        if dataType == 'mly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                return 0
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return 0
+            file = f'{y}_{m}_month.npz'
+        elif dataType == 'cmly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                return None
+            if not isinstance(m, int):
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                return None
+            file = f'{y[0]}_{y[-1]}_{m}.npz'
+        return np.load(path + file)
+    
+    def dictCAMS(self, dataType, y, m, d = None, keys = 'All'): # !!! (redundant)
+        """
+        Get data in dictionary form.
+
+        Parameters
+        ----------
+        dataType : STR ('mly' or 'dly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data.
+        d : INT
+            Day of month of data.
+        keys : LIST of STR
+            List of requested variables. (Default: 'All')
+        
+        Returns
+        -------
+        dictVar : DICT
+            Dictionary with requested variables.
+        """
+        npz = CAMS._openNPZCAMS(self, dataType, y, m, d) # !!! (redundant)
+        if keys == 'All':
+            keys = CAMS.keysCAMS(self, dataType, y, m, d) # !!! (redundant)
+            dictVar = {key: npz[key] for key in keys}
+        else:
+            coor = []
+            if not np.any(np.char.find('lat', keys) > -1):
+                coor += ['lat']
+            if not np.any(np.char.find('lon', keys) > -1):
+                coor += ['lon']
+            keys = coor + keys
+            dictVar = {key: npz[key] for key in keys}
+        npz.close()
+        return dictVar
+    
+    def keysCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+        """
+        Get variable list of data.
+
+        Parameters
+        ----------
+        dataType : STR ('mly' or 'dly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data. 
+        d : INT
+            Day of month of data.
+        Returns
+        -------
+        keys  : LIST of STR
+            Variable list of data.
+        """
+        npz = CAMS._openNPZCAMS(self, dataType, y, m, d) # !!! (redundant)
+        keys = npz.files
+        npz.close()
+        return keys
+    
+    def deleteKeyCAMS(self, keys, dataType, y, m, d = None): # !!! (redundant)
+        """
+        Delete variable(s) from data.
+
+        Parameters
+        ----------
+        keys : LIST of STR
+            List of variables to be deleted.
+        dataType : STR ('mly' or 'dly' or 'cmly')
+            Type of data.
+        y : INT or LIST of INT
+            Year(s) of data.
+        m : INT or LIST of INT
+            Month of data.
+        d : INT
+            Day of month of data.
+        """
+        dictVar = CAMS.dictCAMS(self, dataType, y, m, d) # !!! (redundant)
+        for key in keys:
+            dictVar.pop(key, None)
+        # Save new .npz file
+        CAMS._saveNPZCAMS(self, dictVar, dataType, y, m, d) # !!! (redundant)
+    
+    def _deleteTempDataCAMS(self, filename):
+        """
+        Remove .nc file in "temporary" folder.
+        
+        Parameters
+        ----------
+        filename : STR
+            Name of the file.
+        """
+        if os.path.exists(filename):
+            os.remove(filename)
+        else:
+            print("The file does not exist")
 
 class ISAMERRA2(ISA, MERRA2):
     """
@@ -997,9 +1532,122 @@ class ISAMERRA2(ISA, MERRA2):
 class CAMSMERRA2(CAMS, MERRA2):
     """
     Combination of Modern-Era Retrospective analysis for Research and 
-    Applications Version 2 (MERRA-2) and Copernicus Atmosphere Monitorinc
+    Applications Version 2 (MERRA-2) and Copernicus Atmosphere Monitoring
     Service (CAMS) database.
     """
     def __init__(self):
         CAMS.__init__(self)
         MERRA2.__init__(self)
+    
+    def interpolateCAMS(self, dataType, molecules = ('CO', 'CO2', 'CH4'), 
+                            target_lats = np.arange(-90, 90.1, 0.5),
+                            target_lons = np.arange(-180,  179.375 + 1e-3, 0.625)
+                            ):
+        """
+        Interpolate CAMS .npz files onto target MERRA2 grid.
+    
+        Parameters
+        ----------
+        dataType : STR
+            Name of the subfolder under `data/CAMS/` containing .npz files.
+        molecules : TUPLE of STR, optional
+            Variable names to process (default: ('CO', 'CO2', 'CH4')).
+        target_lats : 1D array, optional
+            Desired latitudes for the CAMS grid
+            (default: np.arange(-90, 90.1, 0.5)).
+        target_lons : 1D array, optional
+            Desired longitudes for the CAMS grid
+            (default: np.arange(-180, 179.375+0.001, 0.625)).
+    
+        Returns
+        -------
+        all_results: DICT
+            A mapping from each filename (e.g. '2024_4_month.npz') to a dict.
+        all_shapes: DICT
+            Shapes of result dict.
+        """
+        folder = f'data/CAMS/{dataType}/'
+        filenames = sorted([fn for fn in os.listdir(folder) if fn.endswith('.npz')])
+    
+        all_results = {}
+        all_shapes  = {}
+        
+        for fname in filenames:
+            print(f"Processing {fname}")
+            path = os.path.join(folder, fname)
+            npz = np.load(path)
+    
+            orig_lats = npz['lat']
+            orig_lons = npz['lon']
+            orig_alt  = npz['alt']
+            
+            if orig_lats[0] > orig_lats[-1]:
+                orig_lats = orig_lats[::-1]
+                flip_lat = True
+            else:
+                flip_lat = False
+    
+            mesh_lat, mesh_lon = np.meshgrid(target_lats, target_lons, indexing='ij')
+            points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+            
+            shape_info = {}
+            shape_info['lat'] = (target_lats.size,)
+            shape_info['lon'] = (target_lons.size,)
+            shape_info['alt'] = orig_alt.shape
+    
+            result = {}
+            for var in molecules:
+                data3d = npz[var] # (n_alt, n_lat, n_lon)
+                if flip_lat:
+                    data3d = data3d[:, ::-1, :]
+               
+                n_alt, _, _ = data3d.shape
+                n_tlat, n_tlon = target_lats.size, target_lons.size
+    
+                out = np.empty((n_alt, n_tlat, n_tlon), dtype=data3d.dtype)
+                for k in range(n_alt):
+                    layer = data3d[k]
+                    interp = RegularGridInterpolator(
+                        (orig_lats, orig_lons),
+                        layer,
+                        method='linear',
+                        bounds_error=False,
+                        fill_value=np.nan
+                    )
+                    vals = interp(points).reshape(n_tlat, n_tlon)
+                    out[k] = CAMSMERRA2._concentrationConvertCAMS(self, var, orig_alt[k], vals)
+    
+                result[var] = out
+                shape_info[var] = out.shape
+    
+            result['lat'] = target_lats
+            result['lon'] = target_lons
+            result['alt'] = orig_alt
+    
+            all_results[fname] = result
+            all_shapes[fname]  = shape_info
+    
+        return all_results, all_shapes
+    
+    def _concentrationConvertCAMS(self, molecule, alt, data_layer):
+        """
+        Converts the mass ratio (kg/kg) to concentration (kg/L).
+
+        Parameters
+        ----------
+        molecule : STR
+            DESCRIPTION.
+        alt : INT
+            Altitude of the layer.
+        data_layer : 2D array
+            
+        Returns
+        conc : 2D array
+            Array of converted values.
+        """
+        h = alt * 1e-3 # km
+        rho = coesa76([h]).rho[0] # kg/m^3
+        rho_kg_L = rho * 1e-3 # kg/L
+        conc = (data_layer * rho_kg_L) / (Formula(molecule).mass * 1e-3)
+        
+        return conc
