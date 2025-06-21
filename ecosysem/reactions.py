@@ -236,72 +236,44 @@ class KinRates:
             print(f'!EcoSysEM.Error: "{typeKin}"`" not defined. Available rate equation types: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
             sys.exit()
     
-    def rMM(qmax, Km, C):
+    def _rMM(qmax, Km, C):
         """
         Function to compute Michaelis-Menten equation.
 
         Parameters
         ----------
-        qmax : FLOAT, LIST, np.ndarray
-            Values of maximum uptake rate.
-        Km : FLOAT, LIST, np.ndarray
+        qmax : FLOAT
+            Value of maximum uptake rate.
+        Km : DICT
             Values of half-saturation constants (or Michaelis constants).
-        C : FLOAT, LIST, np.ndarray, DICT
+        C : DICT
             Concentrations of limiting substrates.
 
         Returns
         -------
-        r : np.ndarray
+        r : DICT
             Resultant substrate uptake rates.
 
         """
         if not isinstance(qmax, np.ndarray): qmax = np.array(qmax)
         if qmax.ndim == 0: qmax = np.array([qmax])
-        if not isinstance(Km, np.ndarray): Km = np.array(Km)
-        if Km.ndim == 0: Km = np.array([Km])
-        if isinstance(C, dict): 
-            C = np.array(pd.DataFrame(C))
-        else:
-            if not isinstance(C, np.ndarray): C = np.array(C)
-            if C.ndim == 0: C = np.array([C])
-        # qmax
-        nqmax = len(qmax)
-        # Km
-        if Km.ndim == 1:
-            Km = np.array([Km])
-            if Km.shape[0] == 1 and nqmax > 1:
-                Km = Km.T
-        nKm = Km.shape[0]
-        # Checking number of qmax and Km values
-        cN = nqmax == nKm
-        if not cN:
-            print('!EcoSysEM.Error: Same number of qmax and Km must be given.')
+        if not isinstance(Km, dict):
+            print('!EcoSysEM.Error: `Km` argument must be a dictionary. Km = {"Km_compound": [values]}')
             sys.exit()
-        else:
-            nParam = nKm
-        # C
-        if C.ndim == 1:
-            C = np.array([C])
-            if C.shape[0] == 1 and Km.shape[1] == 1:
-                C = C.T
-        nConc = C.shape[0]
-        # Checking number of limiting substrates
-        nLS_Km = Km.shape[1]
-        nLS_C = C.shape[1]
-        cN = nLS_Km == nLS_C
-        if not cN:
-            print('!EcoSysEM.Error: Number of limiting substrates is not consistent. Km and C must have the same number of columns.')
-            sys.exit()
-        # Initializing result variable
-        r = np.empty([nParam, nConc])
-        # Calculation of rate(s)
-        for iP in range(nParam):
-            for iC in range(nConc):
-                K = Km[iP,:]
-                c = C[iC,:]
-                M = np.prod((c) / (K + c + 1e-25)) # + 1e-25 to prevent NaN when conc == 0 and Ks == 0
-                r[iP, iC] = qmax[iP] * M
-        return np.squeeze(r) # (samples)x(concs), (samples) = (qmax) and (Km)
+        limCompds = [str(np.char.replace(k, 'Km_', '')) for k in Km if 'Km' in k]
+        M = 1.0
+        r = {}
+        for limComp in limCompds:
+            c = C[limComp]
+            k = Km[f'Km_{limComp}']
+            if not isinstance(k, (list, np.ndarray)): k = np.array(k)
+            if isinstance(k, np.ndarray):
+                if k.ndim != 1:
+                    k = np.array([k])
+            K = k * np.ones(c.shape)
+            M *= (c) / (K + c + 1e-25)
+        r = qmax * M
+        return r
     
     def arrhCorr(rateBase, O, tempBase, temp):
         """
