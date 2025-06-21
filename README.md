@@ -1412,14 +1412,29 @@ Return a dictionary with the requested kinetic parameters and an array with the 
 KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None):
 ```
 Compute reaction rates as a function of limiting substrate, inhibitors and temperatures based on the chosen kinetic equation (`typeKin`) and temperature correlation (`Tcorr`).<br> 
-Return a n-dimension array with the calculated kinetic rates and an array with the `sample` names (rows of `typeParam.csv` file).<p>
+Return a n-dimension array with the calculated kinetic rates and an array with the `sample` names (rows of `typeParam.csv` file).<br>
+
+> [!NOTE]
+> If you want to calculate the influence of T for one rate, use single value arrays in `Ct` dictionary with same shape as temperature:
+> ```python
+> import numpy as np
+> T = np.array([[273.15, 278.15, 283.15],
+>              [288.15, 293.15, 298.15],
+>              [303.15, 308.15, 313.15]])
+> Ct = {'Compound A': 1.0 * np.ones(T.shape);
+>      'Compound B': 2.0 * np.ones(T.shape);
+>      'Compound C': 3.0 * np.ones(T.shape)}
+> Rs, combNames, orderComb = typeKin = 'MM-Arrhenius', paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
+>               reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
+> ```
+
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeKin : _str_ ('MM' or 'MM-Arrhenihus')** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of kinetic equations.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM': Michaelis-Menten equation.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM-Arrhenihus': Michaelis-Menten-Arrhenius equation.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **paramDB : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of parameter database, matching with csv name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of parameter database, matching with csv name in `kinetics\` folder (without '.csv').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested reaction.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict of np.ndarray_** <br>
@@ -1432,7 +1447,7 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _np.ndarray_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperatures. It must have the same size as concentrations of `Ct` dictionary.<p>
 **Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rs : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rs : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resultant substrate uptake rates. {'reaction': {'comb_1': [rates], ..., 'comb_n': [rates]}} <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **combNames : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Combination of samples (rows of `typeParam.csv`). {'reaction: [combinations]'}<br>
