@@ -4,7 +4,8 @@ Created on Thu Aug 15 07:44:51 2024
 
 @author: 2424069M
 """
-
+# from thermodynamics import ThEq
+import importlib
 import pandas as pd
 import numpy as np
 import sys
@@ -105,86 +106,135 @@ class KinRates:
     # Direction of kinetic parameters
     path = 'kinetics\\'
     
-    def getRs(typeKin, typeParam, Rxn, Ct, sample = 'All', T = None, Tcorr = None):
+    def getRs(typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None):
         """
-        Lorem ipsum...
+        Function to compute reaction rates.
 
         Parameters
         ----------
-        typeKin : STR
-            Type of kinetic equations (e.g., rMM - 'Michaelis-Menten equation').
-        typeParam : STR
+        paramDB : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenihus - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR
             Name of parameter database, matching with csv name.
-        Rxn : STR
+        reactions : STR
             Requested reaction.
-        Ct : FLOAT, LIST or DICT
+        Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
-            Requested samples (rows of `typeParam.csv`). The default is 'All'.
-        T : FLOAT or LIST, optional
-            Temperatures. The default is None.
+            Requested samples (rows of `paramDB.csv`). Default: 'All'.
+        pH : FLOAT, optional
+            pH values. Default: None.
+        T : FLOAT, LIST or np.ndarray, optional
+            Temperatures. Default: None.
         Tcorr : STR, optional
-            Type of temperature correlation (e.g., Arrhenius - 'Arrhenius correlation'). The default is None.
-
+        
         Returns
         -------
-        rs : np.ndarray
-            Resultant rates.
-        sampleNames : STR or LIST
-            Names of samples (rows of `typeParam.csv`).
+        Rs : DICT
+            Resultant rates. Shape: (Z)x(Y)x(X)x(reactions).
+        combNames : DICT
+            Combination of samples (rows of `typeParam.csv`).
+        orderComb : STR
+            Order of samples in `combNames`.
 
         """
-        if not isinstance(typeKin, str): typeKin = str(typeKin)
-        if not isinstance(typeParam, str): typeParam = str(typeParam)
-        if not isinstance(Rxn, str): Rxn = str(Rxn)
+        # Dynamic import of ThEq
+        MyModule = importlib.import_module('thermodynamics')
+        ThEq = MyModule.ThEq
+        # Check variables
+        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(Ct, dict): 
-            print('!EcoSysEM.Error: `Ct` parameter must be a dictionary.')
+            print('!EcoSysEM.Error: `Ct` argument must be a dictionary.')
             sys.exit()
         else:
-            npCt = np.array(list(Ct.items()), dtype = object).T
-            lenCt = [len(i) for i in npCt[1, :]]
-            nCt = list(set(lenCt))
-            cLen = len(nCt) == 1
-            if not cLen:
-                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
+            # Check shapes of Ct dictionary
+            compounds = [c for c in Ct]
+            uShpConc = list(set([Ct[c].shape for c in Ct if np.all(Ct[c])]))
+            if not len(uShpConc) == 1:
+                print('!EcoSysEM.Error: All compounds must have same length.')
                 sys.exit()
-            nCt = nCt[0]
         if sample != 'All':
             if not isinstance(sample, list): sample = [sample]
-        if T:
-            if isinstance(T, int): T = float(T)
-            if isinstance(T, float): T = [T]
-            if not Tcorr:
-                print('!EcoSysEM.Error: You must to define the temperature correlation with `Tcorr` parameter.')
+        ## Concentrations (pH speciation)
+        if pH:
+            if T is None:
+                print('!EcoSysEM.Error: temperature (`T`) not defined.')
                 sys.exit()
-            else:
-                if not isinstance(Tcorr, str): Tcorr = str(Tcorr)
-        # Type Kinetics (Equation to calculate rs)   
-        if typeKin == 'rMM':
+            for comp in compounds:
+                Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
+        if typeKin == 'MM':
             params = ['qmax', 'Km']
-            comp = list(Ct.keys())
-            Cs = pd.DataFrame(Ct).values
-            p, sampleNames = KinP.getKinP(typeParam, params, Rxn, sample, comp)
-            qmax = p['qmax']
-            Km = p['Km']
-            rs = KinRates.rMM(qmax, Km, Cs)
-            if T:
-                if Tcorr == 'Arrhenius':
-                    p, _ = KinP.getKinP('ArrhCor', 'Coeff', Rxn)
-                    O = p['Coeff']
-                    # If more than one Arrhenius parameter, average value is taken.
-                    if len(O) > 1:
-                        O = np.mean(O)
-                    p, _ = KinP.getKinP(typeParam, 'Texp', Rxn, sample)
-                    Texp = p['Texp']
-                    rs = KinRates.arrhCorr(rs, O, Texp, T)
-                else:
-                    print(f'!EcoSysEM.Error: {Tcorr} correlation not found. Available temperature correlations: "Arrhenius".')
-                    sys.exit()
+            # Initialize results
+            Rs = {}
+            combNames = {}
+            for idRxn, Rxn in enumerate(reactions):
+                # Initialize combNames[Rxn]
+                combNames[Rxn] = []
+                p, sampleNames = KinP.getKinP(paramDB, params, Rxn, sample, compounds)
+                qmax = p['qmax']
+                # Select Km
+                Km = {k : p[k] for k in p if 'Km' in k}
+                rs = {}
+                for idMM, sample_MM in enumerate(sampleNames):
+                    # Rates
+                    qmax_ = qmax[idMM]
+                    Km_ = {k : Km[k][idMM] for k in Km}
+                    rs[f'comb_{idMM+1}'] = KinRates._rMM(qmax_, Km_, Ct)
+                    # CombNames
+                    combNames[Rxn].append(sample_MM)
+                Rs[Rxn] = rs
+            orderComb = 'MM'
+            return Rs, combNames, orderComb
+        elif typeKin == 'MM-Arrhenius':
+            if len(paramDB) != 2:
+                print('!EcoSysEM.Error: 2 databases must be given: paramDB = ["Michaelis-Menten DB", "Arrhenius DB"]')
+                sys.exit()
+            paramDB_MM = paramDB[0]
+            paramDB_Arrh = paramDB[1]
+            # Initialize results
+            Rs = {}
+            combNames = {}
+            for idRxn, Rxn in enumerate(reactions):
+                # Initialize combNames[Rxn]
+                combNames[Rxn] = []
+                ## Michaelis-Menten parameters
+                p, sampleNames_MM = KinP.getKinP(paramDB_MM, ['qmax', 'Km'], Rxn, sample, compounds)
+                qmax = p['qmax']
+                # Select Km
+                Km = {k : p[k] for k in p if 'Km' in k}
+                ## Arrhenius parameters
+                p, sampleNames_Arrh = KinP.getKinP(paramDB_Arrh, 'Coeff', Rxn)
+                O = p['Coeff']
+                p, _ = KinP.getKinP(paramDB_MM, 'Texp', Rxn, sample)
+                Texp = p['Texp']
+                ## Rate calculation (combinations of MM and Arrhenius)
+                c = 1
+                rs = {}
+                for idMM, sample_MM in enumerate(sampleNames_MM):
+                    for idArrh, sample_Arrh in enumerate(sampleNames_Arrh):
+                        #-DEBUGGING-#
+                        sampleComb = f'{sample_MM} - {sample_Arrh}'
+                        #-----------#
+                        ## Michaelis-Menten
+                        qmax_ = qmax[idMM]
+                        Km_ = {k : Km[k][idMM] for k in Km}
+                        rs_ = KinRates._rMM(qmax_, Km_, Ct)
+                        ## Arrhenius
+                        O_ = O[idArrh]
+                        Texp_ = Texp[idMM]
+                        rs[f'comb_{c}'] = KinRates._arrhCorr(rs_, O_, Texp_, T)
+                        c += 1
+                        # CombNames
+                        combNames[Rxn].append(sampleComb)
+                Rs[Rxn] = rs
+            orderComb = 'MM - Arrhenius'
+            return Rs, combNames, orderComb
         else:
-            print(f'!EcoSysEM.Error: {typeKin} equation not found. Available reaction equations: "rMM" (Michaelis-Menten eq.).')
+            print(f'!EcoSysEM.Error: "{typeKin}"`" not defined. Available rate equation types: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
             sys.exit()
-        return np.squeeze(rs), sampleNames
     
     def rMM(qmax, Km, C):
         """
