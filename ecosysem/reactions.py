@@ -275,55 +275,34 @@ class KinRates:
         r = qmax * M
         return r
     
-    def arrhCorr(rateBase, O, tempBase, temp):
+    def _arrhCorr(rateBase, O, tempBase, temp):
         """
         Function to compute Arrhenius correlation.
 
         Parameters
         ----------
-        rateBase : FLOAT or LIST or np.ndarray
+        rateBase : FLOAT, LIST or np.ndarray
             Reaction rate at base (measured) temparature (tempBase).
         O : FLOAT
             Arrhenius coefficient.
-        tempBase : FLOAT or LIST
+        tempBase : FLOAT
             Temperature base, that is, the original temperature of substrate rate.
-        temp : FLOAT or LIST
+        temp : FLOAT, LIST or np.ndarray
             Set of temperatures.
 
         Returns
         -------
-        rT : np.ndarray
+        rT : DICT
             Resultant substrate uptake rates as function of temperature.
 
         """
-        rBaslist = False
         if not isinstance(rateBase, np.ndarray): rateBase = np.array(rateBase)
-        if rateBase.ndim == 0: rateBase = np.array([rateBase])
-        if rateBase.ndim == 1: nRateBase = len(rateBase); rateBase = np.array([rateBase]); rBaslist = True
-        if not isinstance(tempBase, np.ndarray): tempBase = np.array(tempBase)
-        if tempBase.ndim == 0: tempBase = np.array([tempBase])
-        if not isinstance(temp, list): temp = [temp]
-        # Check number of rates and base temperatures
-        if not rBaslist:
-            nRateBase = rateBase.shape[0]
-        nTempBase = len(tempBase)
-        cN = nRateBase == nTempBase
-        if not cN:
-            print('!EcoSysEM.Error: Same number of rateBase and tempBase must be given.')
+        if not isinstance(temp, np.ndarray): rateBase = np.array(temp)
+        if rateBase.shape != temp.shape:
+            print('!EcoSysEM.Error: rate base (`rateBase`) and temperature (`temp`) must have the same shape.}')
             sys.exit()
-        else:
-            nSamples = rateBase.shape[0]
-        # Number of concentrations
-        nConc = rateBase.shape[1]
-        # Number of temperatures
-        nT = len(temp)
-        # Initializing result variable
-        rT = np.empty([nSamples, nConc, nT])
-        for iS in range(nSamples):
-            for iC in range(nConc):
-                for iT in range(nT):
-                    rT[iS, iC, iT] = rateBase[iS, iC] * O ** (temp[iT] - tempBase[iS])
-        return np.squeeze(rT) # (samples)x(concs)x(temp)
+        rT = rateBase * O ** (temp - tempBase)
+        return rT
 
 class Reactions:
     # Directory of reactions
