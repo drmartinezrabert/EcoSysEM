@@ -44,22 +44,22 @@ class KinP:
                     print(f'!EcoSysEM.Error: Parameter `{iParam}` not found in `{typeParam}.csv`. Please, add a column with `{iParam}` values.')
                     sys.exit()
     
-    def getKinP(typeParam, params, reaction, sample = 'All', comp = None):
+    def getKinP(paramDB, params, reaction, sample = 'All', compounds = None):
         """
         Function to get kinetic parameters from csv file. 
 
         Parameters
         ----------
-        typeParam : STR
+        paramDB : STR
             Name of parameter database, matching with csv name.
         params : STR or LIST
             Requested parameters.
         reaction : STR
             Requested reaction.
         sample : STR or LIST, optional
-            Requested samples (rows of `typeParam.csv`). The default is 'All'.
+            Requested samples (rows of `typeParam.csv`). Default: 'All'.
         comp : STR or LIST, optional
-            Compounds of parameters associated to compounds (e.g., Km). The default is None.
+            Compounds of parameters associated to compounds (e.g., Km). Default: None.
 
         Returns
         -------
@@ -69,8 +69,8 @@ class KinP:
             Names of samples (rows of `typeParam.csv`.
         """
         if not isinstance(params, list): params = [params]
-        dParam = pd.read_csv(KinP.path + typeParam + '.csv')
-        KinP.checkKinP(typeParam, dParam, params)
+        dParam = pd.read_csv(KinP.path + paramDB + '.csv', encoding_errors='ignore')
+        KinP.checkKinP(paramDB, dParam, params)
         dParam = dParam.loc[dParam['Reaction'] == reaction]
         if sample != 'All':
             dParam = dParam.loc[dParam['Sample'].isin(sample)]
@@ -80,12 +80,18 @@ class KinP:
             if not iParam in KinP.assocParamComp:
                 dictR[iParam] = dParam[iParam].values
             else:
-                if comp:
-                    dictR[iParam] = np.squeeze(dParam[comp].fillna(0).values)
-                    cVal = np.all(dictR[iParam] == 0.0)
-                    if cVal:
-                        print('!EcoSysEM.Error: Limiting substrate not found. Check `Ct` parameter in `getRs()` or `exportRs()`, and Km values in csv file.')
-                        sys.exit()
+                if compounds:
+                    for comp in compounds:
+                        try:
+                            dParam[comp]
+                        except:
+                            pass
+                        else:
+                            dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
+                            cVal = np.all(f'{iParam}_{comp}' == 0.0)
+                            if cVal:
+                                print('!EcoSysEM.Error: Limiting substrate not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
+                                sys.exit()
                 else:
                     print(f'!EcoSysEM.Error: You must to define the compounds for {iParam} with `comp` parameter.')
                     sys.exit()
