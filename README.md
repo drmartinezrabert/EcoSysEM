@@ -696,7 +696,7 @@ from envdef import CAMS
 newCAMS = CAMS()
 
 # Get monthly data from online databases
-## (Default arguments: pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
+## (Default arguments: pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
 newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
 
 # See keys (_e.i._, variable names) of downloaded data
@@ -728,7 +728,7 @@ data = newCAMS.dictCAMS(dataType = 'mly', y = 2024, m = 4, keys = ['lat', 'lon',
 ### CAMS.getDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
+CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900,925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -740,7 +740,7 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data (e.g., [4, 5]).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _list of int_, _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 15]).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of pressure levels to download (e.g., [100, 200, ..., 1000]).<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _List of str_, _optional, default: ["carbon_dioxide", "carbon_monoxide", "methane"]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download.<br> 
@@ -1531,9 +1531,10 @@ For example: <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py -y 2024 -m 4
-python ecosysem_cmd.py -y 2024 -m 4 -pressure 200 300
-python ecosysem_cmd.py -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
+python ecosysem_cmd.py -type mly -y 2024 -m 4
+python ecosysem_cmd.py -type mly -y 2024 -m 4 -d 1 15
+python ecosysem_cmd.py -type mly -y 2024 -m 4 5 -d 1 15 -pressure 200 300
+python ecosysem_cmd.py -type mly -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
@@ -1560,6 +1561,9 @@ python ecosysem_cmd.py -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.dictCAMS](#camsdictcams---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.keysCAMS](#camskeyscams---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.deleteKeyCAMS](#camsdeletekeycams---back-to-function-navigation)<br>
+
+#### · <ins>CAMSMERRA2</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2.interpolateCAMS](#camsmerra2interpolatecams---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
