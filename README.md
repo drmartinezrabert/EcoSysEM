@@ -1519,7 +1519,7 @@ python ecosysem_cmd.py -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 --daily
    <tr><td> -y </td><td> [int or list] Year(s) of requested data.</td></tr>
    <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
    <tr><td> -d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> -pressure </td><td> [int or list] (Default: '[100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> -pressure </td><td> [int or list] (Default: '[10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]') Pressure levels to download.</td></tr>
    <tr><td> -bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
 </table>
 
