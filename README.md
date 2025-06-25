@@ -74,6 +74,9 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
 - **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info ant tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
 - **<ins>Earthaccess</ins>**. Earthaccess is a python library to search for, and download or stream NASA Earth science data with just a few lines of code. For more info and tutorials, click [here](https://earthaccess.readthedocs.io/en/latest/).
+- **<ins>cdsapi</ins>**. The Climate Data Store (CDS) Application Program Interface (API) is a service providing programmatic access to CDS and ADS data. For more info and tutorials, click [here](https://cds.climate.copernicus.eu/how-to-api).
+- **<ins>molmass</ins>**. Molmass is a Python library, console script, and web application to calculate the molecular mass (average, nominal, and isotopic pure), the elemental composition, and the mass distribution spectrum of a molecule given by its chemical formula, relative element weights, or sequence. For more info and tutorials, click [here](https://pypi.org/project/molmass/).
+- **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -121,6 +124,10 @@ pip install cdsapi
 ```
 pip install -U "molmass[all]"
 ```
+**pyatmos**:
+```
+pip install pyatmos
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -157,6 +164,10 @@ python -m pip install cdsapi
 **molmass**:
 ```
 python -m pip install -U "molmass[all]"
+```
+**pyatmos**:
+```
+python -m pip install pyatmos
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
