@@ -75,9 +75,9 @@ elif function == 'getDataCAMS':
                         help="[int or list of int] Month(s) of requested data.")
     parser.add_argument('-d', default='All', nargs = '+',
                         help="[int or list of int or str ('All'))] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.")
-    parser.add_argument('-pressure', default="100 200 300 400 500 600 700 800 850 900 950 1000", nargs = '+', type = int,
-                        help="[int] (Default: '100 200 300 400 500 600 700 800 850 900 950 1000') Pressure levels to download.")
-    parser.add_argument('-bbox', default="90 -180 -90 180", nargs = '+', type = float,
+    parser.add_argument('-pressure', default=[20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000], nargs = '+', type = int,
+                        help="[int] (Default: '20 50 100 200 300 400 500 600 700 800 900 950 1000') Pressure levels to download.")
+    parser.add_argument('-bbox', default=[90, -180, -90, 180], nargs = '+', type = int,
                         help="[list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.")
     # Argument definition
     args = parser.parse_args()

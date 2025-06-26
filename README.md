@@ -74,6 +74,9 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
 - **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info ant tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
 - **<ins>Earthaccess</ins>**. Earthaccess is a python library to search for, and download or stream NASA Earth science data with just a few lines of code. For more info and tutorials, click [here](https://earthaccess.readthedocs.io/en/latest/).
+- **<ins>cdsapi</ins>**. The Climate Data Store (CDS) Application Program Interface (API) is a service providing programmatic access to CDS and ADS data. For more info and tutorials, click [here](https://cds.climate.copernicus.eu/how-to-api).
+- **<ins>molmass</ins>**. Molmass is a Python library, console script, and web application to calculate the molecular mass (average, nominal, and isotopic pure), the elemental composition, and the mass distribution spectrum of a molecule given by its chemical formula, relative element weights, or sequence. For more info and tutorials, click [here](https://pypi.org/project/molmass/).
+- **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -121,6 +124,10 @@ pip install cdsapi
 ```
 pip install -U "molmass[all]"
 ```
+**pyatmos**:
+```
+pip install pyatmos
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -157,6 +164,10 @@ python -m pip install cdsapi
 **molmass**:
 ```
 python -m pip install -U "molmass[all]"
+```
+**pyatmos**:
+```
+python -m pip install pyatmos
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -679,7 +690,7 @@ from envdef import CAMS
 newCAMS = CAMS()
 
 # Get monthly data from online databases
-## (Default arguments: pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
+## (Default arguments: pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
 newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
 
 # See keys (_e.i._, variable names) of downloaded data
@@ -711,7 +722,7 @@ data = newCAMS.dictCAMS(dataType = 'mly', y = 2024, m = 4, keys = ['lat', 'lon',
 ### CAMS.getDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
+CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900,925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -723,7 +734,7 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data (e.g., [4, 5]).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _list of int_, _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 15]).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of pressure levels to download (e.g., [100, 200, ..., 1000]).<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _List of str_, _optional, default: ["carbon_dioxide", "carbon_monoxide", "methane"]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download.<br> 
@@ -1507,7 +1518,7 @@ python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 1
    <tr><td> -y </td><td> [int or list] Year(s) of requested data.</td></tr>
    <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
    <tr><td> -d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> -pressure </td><td> [int or list] (Default: '[100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> -pressure </td><td> [int or list] (Default: '[10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]') Pressure levels to download.</td></tr>
    <tr><td> -bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
 </table>
 
@@ -1519,9 +1530,10 @@ For example: <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py -y 2024 -m 4
-python ecosysem_cmd.py -y 2024 -m 4 -pressure 200 300
-python ecosysem_cmd.py -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
+python ecosysem_cmd.py -type mly -y 2024 -m 4
+python ecosysem_cmd.py -type mly -y 2024 -m 4 -d 1 15
+python ecosysem_cmd.py -type mly -y 2024 -m 4 5 -d 1 15 -pressure 200 300
+python ecosysem_cmd.py -type mly -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
@@ -1550,6 +1562,9 @@ python ecosysem_cmd.py -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
 
 #### · <ins>ISAMERRA2</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISAMERRA2.getConcISAMERRA2](#isamerra2getconcisamerra2---back-to-function-navigation)<br>
+
+#### · <ins>CAMSMERRA2</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2.interpolateCAMS](#camsmerra2interpolatecams---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>

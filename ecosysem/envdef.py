@@ -1041,9 +1041,9 @@ class CAMS:
         print('CAMS class works.')
 
     def getDataCAMS(self, dataType, years, months, days = 'All',
-                    pressure_levels = [100, 200, 300, 400,
-                                       500, 600, 700, 800, 
-                                       850, 900, 950, 1000],
+                    pressure_levels = [50, 100, 200, 300, 
+                                       400, 500, 600, 700, 
+                                       800, 900, 950, 1000],
                     variables = ["carbon_dioxide", 
                                  "carbon_monoxide", 
                                  "methane"],
@@ -1682,9 +1682,11 @@ class CAMSMERRA2(CAMS, MERRA2):
         CAMS.__init__(self)
         MERRA2.__init__(self)
     
-    def interpolateCAMS(self, dataType, molecules = ('CO', 'CO2', 'CH4'), 
+    def interpolateCAMS(self, dataType, year, month, day=None, 
+                            molecules = ('CO', 'CO2', 'CH4'), 
                             target_lats = np.arange(-90, 90.1, 0.5),
-                            target_lons = np.arange(-180,  179.375 + 1e-3, 0.625)
+                            target_lons = np.arange(-180,  179.375 + 1e-3, 0.625),
+                            method='linear'
                             ):
         """
         Interpolate CAMS .npz files onto target MERRA2 grid.
@@ -1693,88 +1695,104 @@ class CAMSMERRA2(CAMS, MERRA2):
         ----------
         dataType : STR
             Name of the subfolder under `data/CAMS/` containing .npz files.
+        year : INT
+            Year of the desired dataset.
+        month : INT
+            Month of the desired dataset.
+        day : INT, optional
+            Day of the desired dataset.
         molecules : TUPLE of STR, optional
             Variable names to process (default: ('CO', 'CO2', 'CH4')).
         target_lats : 1D array, optional
-            Desired latitudes for the CAMS grid
+            Desired latitudes for the CAMS grid.
             (default: np.arange(-90, 90.1, 0.5)).
-        target_lons : 1D array, optional
+        target_lons : 1D array, optional.
             Desired longitudes for the CAMS grid
             (default: np.arange(-180, 179.375+0.001, 0.625)).
+        method : STR, optional
+            Method of interpolation (default: 'linear').
     
         Returns
         -------
-        all_results: DICT
-            A mapping from each filename (e.g. '2024_4_month.npz') to a dict.
-        all_shapes: DICT
+        result: DICT
+            Interpolated data.
+        shape_info: DICT
             Shapes of result dict.
         """
         folder = f'data/CAMS/{dataType}/'
-        filenames = sorted([fn for fn in os.listdir(folder) if fn.endswith('.npz')])
-    
-        all_results = {}
-        all_shapes  = {}
-        
-        for fname in filenames:
-            print(f"Processing {fname}")
-            path = os.path.join(folder, fname)
-            npz = np.load(path)
-    
-            orig_lats = npz['lat']
-            orig_lons = npz['lon']
-            orig_alt  = npz['alt']
-            
-            if orig_lats[0] > orig_lats[-1]:
-                orig_lats = orig_lats[::-1]
-                flip_lat = True
-            else:
-                flip_lat = False
-    
-            mesh_lat, mesh_lon = np.meshgrid(target_lats, target_lons, indexing='ij')
-            points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
-            
-            shape_info = {}
-            shape_info['lat'] = (target_lats.size,)
-            shape_info['lon'] = (target_lons.size,)
-            shape_info['alt'] = orig_alt.shape
-    
-            result = {}
-            for var in molecules:
-                data3d = npz[var] # (n_alt, n_lat, n_lon)
-                if flip_lat:
-                    data3d = data3d[:, ::-1, :]
-               
-                n_alt, _, _ = data3d.shape
-                n_tlat, n_tlon = target_lats.size, target_lons.size
-    
-                out = np.empty((n_alt, n_tlat, n_tlon), dtype=data3d.dtype)
-                for k in range(n_alt):
-                    layer = data3d[k]
-                    interp = RegularGridInterpolator(
-                        (orig_lats, orig_lons),
-                        layer,
-                        method='linear',
-                        bounds_error=False,
-                        fill_value=np.nan
-                    )
-                    vals = interp(points).reshape(n_tlat, n_tlon)
-                    out[k] = CAMSMERRA2._concentrationConvertCAMS(self, var, orig_alt[k], vals)
-    
-                result[var] = out
-                shape_info[var] = out.shape
-    
-            result['lat'] = target_lats
-            result['lon'] = target_lons
-            result['alt'] = orig_alt
-    
-            all_results[fname] = result
-            all_shapes[fname]  = shape_info
-    
-        return all_results, all_shapes
+        if day is None:
+            fname = f"{year}_{month}_month.npz"
+        else:
+            fname = f"{year}_{month}_{day}_day.npz"
+
+        path = os.path.join(folder, fname)
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"CAMS file not found: {path}")
+        #print(f"Processing {fname}")
+
+        npz = np.load(path)
+
+        orig_lats = npz['lat']
+        orig_lons = npz['lon']
+        orig_alt  = npz['alt']
+        orig_plev = npz['P_level']
+
+        # Ensure ascending latitude order
+        if orig_lats[0] > orig_lats[-1]:
+            orig_lats = orig_lats[::-1]
+            flip_lat = True
+        else:
+            flip_lat = False
+
+        mesh_lat, mesh_lon = np.meshgrid(target_lats, target_lons, indexing='ij')
+        points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+
+        result = {}
+        shape_info = {
+            'lat': (target_lats.size,),
+            'lon': (target_lons.size,),
+            'alt': orig_alt.shape,
+            'P_level': orig_plev.shape
+        }
+
+        all_vars = list(molecules) + [f"{m}_std" for m in molecules]
+        for var in all_vars:
+            data3d = npz[var]  # shape: (n_alt, n_lat, n_lon)
+            if flip_lat:
+                data3d = data3d[:, ::-1, :]
+
+            n_alt = data3d.shape[0]
+            out = np.empty((n_alt, target_lats.size, target_lons.size), dtype=data3d.dtype)
+            for k in range(n_alt):
+                layer = data3d[k]
+                interp = RegularGridInterpolator(
+                    (orig_lats, orig_lons),
+                    layer,
+                    method=method,
+                    bounds_error=False,
+                    fill_value=np.nan
+                )
+                vals = interp(points).reshape(target_lats.size, target_lons.size)
+                if var.endswith('_std'):
+                    mol = var[:-4]
+                else:
+                    mol = var
+                out[k] = CAMSMERRA2._concentrationConvertCAMS(self, mol, orig_alt[k], vals)
+
+            result[var] = out
+            shape_info[var] = out.shape
+
+        # Include coordinate arrays
+        result['lat'] = target_lats
+        result['lon'] = target_lons
+        result['alt'] = orig_alt
+        result['P_level'] = orig_plev
+
+        return result, shape_info
     
     def _concentrationConvertCAMS(self, molecule, alt, data_layer):
         """
-        Converts the mass ratio (kg/kg) to concentration (kg/L).
+        Converts the mass ratio (kg/kg) to concentration (mol/L).
 
         Parameters
         ----------
@@ -1794,3 +1812,103 @@ class CAMSMERRA2(CAMS, MERRA2):
         conc = (data_layer * rho_kg_L) / (Formula(molecule).mass * 1e-3)
         
         return conc
+    
+    def computeTandPMERRA2(self, PS, TS, LR, HS, TROPH, num = 20): # !!! (redundant)
+        """
+        Compute the change of temperature and pressure of the Earth's
+        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
+        
+        Parameters
+        ----------
+        PS : FLOAT, LIST or ndarray
+            Surface pressure. [Pa]
+        TS : FLOAT, LIST or ndarray
+            Surface temperature. [K]
+        LR : FLOAT, LIST or ndarray
+            Atmospheric lapse rate. [K/km]
+        HS : FLOAT, LIST or ndarray
+            Surface altitude. [m]
+        TROPH : FLOAT, LIST or ndarray
+            Tropopause altitude. [m]
+        num : INT, optional
+            Number of altitude steps to generate.
+
+        Returns
+        -------
+        T : FLOAT, LIST or ndarray
+            Temperature in function of altitude. [K]
+        P : FLOAT, LIST or ndarray
+            Pressure in function of altitude. [Pa]
+        H : FLOAT, LIST or ndarray
+            Altitude. [m]
+        """
+        # Check argument format and dimension of data
+        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
+        if PS.ndim == 1: PS = np.array([PS])
+        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
+        if TS.ndim == 1: TS = np.array([TS])
+        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
+        if LR.ndim == 1: LR = np.array([LR])
+        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
+        if HS.ndim == 1: HS = np.array([HS])
+        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
+        if TROPH.ndim == 1: TROPH = np.array([TROPH])
+        # Constants
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        # Altitude. Shape: (alt, lat, lon)
+        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
+        # 3D matrix creation (TS, LR, HS)
+        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
+        # Temperature profile. Shape: (alt, lat, lon)
+        T = TS + LR * (H - HS)
+        # Pressure profile. Shape: (alt, lat, lon)
+        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
+        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
+    
+    def reshapeAltitudesCAMS(self, orig_data, targ_data, plev):
+        """
+        Reshape altitude levels.
+
+        Parameters
+        ----------
+        orig_data : 3D array
+            CAMS concentration data.
+        targ_data : 3D array
+            MERRA2 pressure data.
+        plev : 1D array
+            CAMS pressure levels.
+
+        Returns
+        -------
+        new_data : 3D array
+            Concentration data in the shape of target data.
+
+        """
+        n_orig, n_lat, n_lon = orig_data.shape
+        n_target = targ_data.shape[0]
+        
+        new_data = np.empty((n_target, n_lat, n_lon), dtype=orig_data.dtype)
+        
+        # latitude/longitude indices for advanced indexing
+        i_idx = np.arange(n_lat)[:, None]   # shape (n_lat, 1)
+        j_idx = np.arange(n_lon)[None, :]   # shape (1, n_lon)
+        
+        for k in range(n_target):
+            tp = targ_data[k]  # target pressure slice for level k
+        
+            # compute absolute difference between each original level and target pressure
+            # result has shape (n_orig, n_lat, n_lon) via broadcasting
+            diffs = np.abs(plev[:, None, None] - tp[None, :, :])
+        
+            # for each (i,j) cell, find the index of the closest original level
+            idx_cell = diffs.argmin(axis=0)  # shape (n_lat, n_lon)
+        
+            # use advanced indexing to pull the concentration values from orig_data
+            # and assign them into the new_data array at level k
+            new_data[k, :, :] = orig_data[idx_cell, i_idx, j_idx]
+        
+        return new_data
