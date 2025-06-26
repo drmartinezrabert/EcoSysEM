@@ -264,9 +264,9 @@ class ThEq:
         # Speciation
         theta = H**3 + (Ka[..., 0] * H**2) + (Ka[..., 0] * Ka[..., 1] * H) + Ka[..., 0] * Ka[..., 1] * Ka[..., 2]
         mSpec__ = np.array([Ct * H**3 / theta,                                    # [B]
-                              Ka[..., 0] * Ct * H**2 / theta,                       # [B-]
-                              Ka[..., 0] * Ka[..., 1] * Ct * H / theta,             # [B-2]
-                              Ka[..., 0] * Ka[..., 1] * Ka[..., 2] * Ct / theta])   # [B-3]
+                            Ka[..., 0] * Ct * H**2 / theta,                       # [B-]
+                            Ka[..., 0] * Ka[..., 1] * Ct * H / theta,             # [B-2]
+                            Ka[..., 0] * Ka[..., 1] * Ka[..., 2] * Ct / theta])   # [B-3]
         # Reshape matrix of chemical species
         mSpec_ = [mSpec__[i, ...] for i in range(4)]
         mSpec_aux = np.stack(mSpec_, axis = -1)
@@ -477,7 +477,6 @@ class ThSA:
                         # Only pH speciation in liquid
                         if phase == 'L':
                             if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                            # iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
                             iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
                     # Calculation of reaction quotient (Qr)
                     Qr += vi * np.log(iConc)
@@ -573,32 +572,6 @@ class ThSA:
         Write calculated DeltaGr in Excel document.
 
         """
-        # Excel properties
-        # Initialize variables
-        '''
-        if not isinstance(pH, bool):
-            df_pH = pd.DataFrame({'pH': [pH]})
-            if dFrame.empty:
-                dFrame = df_pH
-            else:
-                pd.concat([dFrame, df_pH], axis = 1)
-            print(dFrame)
-        if not isinstance(T, bool):
-            df_T = pd.DataFrame({'T': [T]})
-            if dFrame.empty:
-                dFrame = df_T
-            else:
-                pd.concat([dFrame, df_T], axis = 1)
-            print(dFrame)
-        if not isinstance(Ct, bool):
-            for compound in Ct:
-                df_x = pd.DataFrame({compound: [Ct[compound]]})
-                if dFrame.empty:
-                    dFrame = df_x
-                else:
-                    pd.concat([dFrame, df_x], axis = 1)
-            print(dFrame)
-        '''
         nameSheet_DGr = 'DGr'
         introRowDGr = pd.DataFrame(np.array([f'∆Gr in Excel | Reactions: {infoRxn}']))
         introRowCt = pd.DataFrame(np.array(['Aerosol concentrations (mol/L)']))
@@ -608,9 +581,9 @@ class ThSA:
         pH = pd.DataFrame(np.round(np.array([pH]), 3))
         if altitude:
             yCt = pd.DataFrame({'Alt. (km)': np.round(y / 1000, 3)})
-            yDGr = pd.DataFrame({'Alt. (km)\ pH': np.round(y / 1000, 3)})
+            yDGr = pd.DataFrame({'Alt. (km)| pH': np.round(y / 1000, 3)})
         else:
-            yDGr = pd.DataFrame({'T (K)\pH': np.round(y, 3)})
+            yDGr = pd.DataFrame({'T (K)|pH': np.round(y, 3)})
             yCt = pd.DataFrame({'T (K)': np.round(y, 3)})
         if isinstance(Ct, dict):
             nameSheet_Ct = 'Ct'

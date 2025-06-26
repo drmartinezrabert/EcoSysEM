@@ -1581,9 +1581,9 @@ class ISAMERRA2(ISA, MERRA2):
                         'L-FW' - Liquid fresh water.
                         'L-SW' - Liquid sea water.
                         'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phaes (G, L-FW, L-SW).
+                        'All' - All phases (G, L-FW, L-SW).
         compound : STR or LIST, optional
-            DESCRIPTION. Interested compounds. Default: None -> All compounds.
+            Interested compounds. Default: None -> All compounds.
         num : INT
             Number of altitude steps to generate. Default: 50.
 
