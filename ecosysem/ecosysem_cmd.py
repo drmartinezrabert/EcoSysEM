@@ -30,10 +30,10 @@ if function == 'getDataMERRA2':
                         help="[str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).")
     parser.add_argument('-version', default='5.12.4',
                         help="[str] (Default: '5.12.4') Version of data.")
-    parser.add_argument('-bbox', default='-180 -90 180 90', nargs = '+', type = float,
-                        help="[tuple] (Default: '(-180, -90, 180, 90)') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.")
+    parser.add_argument('-bbox', default=(-180, -90, 180, 90), nargs = '+', type = float,
+                        help="[tuple] (Default: '-180 -90 180 90') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.")
     parser.add_argument('-var', default="PS T2M TROPT TROPPB", nargs = '+', type = str,
-                        help="[list of str] (Default: ['PS', 'T2M', 'TROPT', 'TROPPB']) List of requested variables.")
+                        help="[list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.")
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
@@ -49,7 +49,7 @@ if function == 'getDataMERRA2':
         days = 'All'
     product = args.product
     version = args.version
-    bbox = tuple(args.bbox)
+    bbox = args.bbox
     var = args.var
     if type(var) == str:
         var = var.split()
