@@ -412,6 +412,7 @@ class MERRA2:
 
         """
         return np.maximum(145366.45 * (1 - (P / 101325) ** 0.190284) * (0.3048 / 1), np.zeros(P.shape))
+    
     def _LR(self, T1, T2, H1, H2):
         """
         Estimate atmospheric lapse rate (K/km)
