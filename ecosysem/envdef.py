@@ -914,23 +914,27 @@ class MERRA2:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
             return None
     
-    def getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = 50):
+    # def getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, LWI, num = 50):
+    def getTPAlt(self, dataType, year, month, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
         Compute the change of temperature and pressure of the Earth's
         atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
         
         Parameters
         ----------
-        PS : FLOAT, LIST or ndarray
-            Surface pressure. [Pa]
-        TS : FLOAT, LIST or ndarray
-            Surface temperature. [K]
-        LR : FLOAT, LIST or ndarray
-            Atmospheric lapse rate. [K/km]
-        HS : FLOAT, LIST or ndarray
-            Surface altitude. [m]
-        TROPH : FLOAT, LIST or ndarray
-            Tropopause altitude. [m]
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
+        year : INT or LIST of INT
+            Year(s) of data
+        month : INT or LIST of INT
+            Month of data
+        day : INT or LIST of INT
+            Day(s) of data
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes
         num : INT, optional
             Number of altitude steps to generate.
 
@@ -944,30 +948,48 @@ class MERRA2:
             Altitude. [m]
         """
         # Check argument format and dimension of data
-        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
-        if PS.ndim == 1: PS = np.array([PS])
-        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
-        if TS.ndim == 1: TS = np.array([TS])
-        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
-        if LR.ndim == 1: LR = np.array([LR])
-        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
-        if HS.ndim == 1: HS = np.array([HS])
-        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
-        if TROPH.ndim == 1: TROPH = np.array([TROPH])
+        d = MERRA2.loadDataMERRA2(self, dataType, year, month, day)
+        d = MERRA2.selectRegion(self, d, bbox)
+        TS = np.array(d['T2M'])
+        LR = np.array(d['LR'])
+        PS = np.array(d['PS'])
+        HS = np.array(d['H'])
+        TROPH = np.array(d['TROPH'])
+        LWI = np.array(d['LWI'])
         # Constants
         R = 8.3144598                   # Universal gas constant [J/mol/K]
         g0 = 9.80665                    # Gravitational acceleration [m/s^2]
         M0 = 0.0289644                  # Molar mass of Earth's air
         # Altitude. Shape: (alt, lat, lon)
-        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
+        if not isinstance(altArray, (list, np.ndarray)):
+            HS_min = 0.0 * np.ones(HS.shape)
+            TROPH_max = np.max(TROPH) * 0.99 * np.ones(TROPH.shape)
+            H = np.linspace(start = HS_min, stop = TROPH_max, num = num)        # [m]
+        else:
+            max_TROPH = np.max(TROPH) * 0.99
+            altChk = altArray
+            if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
+            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = altArray[~np.isnan(altArray)]
+            if np.any(altChk > max_TROPH):
+                altArray = np.append(altArray, max_TROPH)
+            y = TS.shape[0]
+            x = TS.shape[1]
+            z = len(altArray)
+            H = np.tile(altArray, y * x).reshape((z, y, x), order = 'F')
+        # User variables
         # 3D matrix creation (TS, LR, HS)
-        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
-        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
-        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
-        # Temperature profile. Shape: (alt, lat, lon)
-        T = TS + LR * (H - HS)
-        # Pressure profile. Shape: (alt, lat, lon)
+        TS = np.repeat(TS[np.newaxis, ...], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, ...], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, ...], H.shape[0], axis = 0)              # [m]
+        # Temperature profile
+        T = TS + LR * (H - (HS - np.min(HS)))
+        # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
+        #-DEBUGGING-#
+        T = np.where((H < HS) & (LWI > 0), np.NaN, T)
+        T = np.where(H > TROPH, np.NaN, T)
+        #-----------#
         return np.squeeze(T), np.squeeze(P), np.squeeze(H)
     
     def keysMERRA2(self, dataType, y, m, d = None):
