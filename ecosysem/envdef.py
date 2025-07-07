@@ -831,7 +831,7 @@ class MERRA2:
         npz.close()
         return dictVar    
     
-    def selectRegion(self, data, bbox):
+    def selectRegion(self, data, bbox): # !!! (redundant)
         """
         Select specific region of Earth of downloaded data
 
