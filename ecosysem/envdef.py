@@ -23,7 +23,6 @@ Functions
 from thermodynamics import ThEq as eQ
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
-from pyatmos import coesa76
 
 import pandas as pd
 import numpy as np
@@ -413,7 +412,6 @@ class MERRA2:
 
         """
         return np.maximum(145366.45 * (1 - (P / 101325) ** 0.190284) * (0.3048 / 1), np.zeros(P.shape))
-        
     def _LR(self, T1, T2, H1, H2):
         """
         Estimate atmospheric lapse rate (K/km)
@@ -659,7 +657,7 @@ class MERRA2:
         if isinstance(dataType, str): dataType = [dataType]
         if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
             print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
-            return None
+            sys.exit()
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
             dataType += ['mly']
@@ -673,7 +671,7 @@ class MERRA2:
             bbox = bbox
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
-            return None
+            sys.exit()
         # Check arguments
         if not isinstance(years, list): years = [years]
         if not isinstance(months, (list, np.ndarray)): months = [months]
@@ -682,7 +680,7 @@ class MERRA2:
         months = sorted(months)
         if np.any(np.isin(dataType, 'cmly')) and len(years) <= 1:
             print('\n!EcoSysEM.Error: Introduce at least 2 years to combine monthly data.')
-            return None
+            sys.exit()
         start_time = time.time()
         # This will work if Earthdata prerequisite files have already been generated
         earthaccess.login()
@@ -751,7 +749,7 @@ class MERRA2:
                             c += 1
                     if c == 0:
                         print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'PS\', \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
-                        return None
+                        sys.exit()
                 # Lapse rate
                 varReqLR = ['T2M', 'TROPT', 'H', 'TROPH']
                 if np.any(np.char.find(var, 'LR') > -1):
@@ -759,7 +757,7 @@ class MERRA2:
                         hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
                     else:
                         print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
-                        return None
+                        sys.exit()
                 for iV in var:
                     # Daily averages and std
                     av_dayData[iV] = np.average(hourData[iV], axis = 0)
