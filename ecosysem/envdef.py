@@ -1830,6 +1830,8 @@ class CAMSMERRA2(CAMS, MERRA2):
         conc : 2D array
             Array of converted values.
         """
+        from pyatmos import coesa76
+        
         h = alt * 1e-3 # km
         rho = coesa76([h]).rho[0] # kg/m^3
         rho_kg_L = rho * 1e-3 # kg/L
