@@ -799,12 +799,14 @@ class MERRA2:
 
         Parameters
         ----------
-        dataType : STR ('mly' or 'cmly')
-            Type of data.
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
         y : INT or LIST of INT
-            Year(s) of data.
+            Year(s) of data
         m : INT or LIST of INT
-            Month of data  
+            Month of data
+        d : INT or LIST of INT
+            Day(s) of data
         keys : LIST of STR
             List of requested variables. (Default: 'All')
         
