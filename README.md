@@ -1520,30 +1520,30 @@ Where `arg#` are the arguments of the funtion and `value#` are the values of `ar
 ### Arguments list:
 #### <ins>getDataMERRA2</ins>
 <table border="0">
-   <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> -dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
-   <tr><td> -y </td><td> [int] Year of requested data.</td></tr>
-   <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
-   <tr><td> -d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> -product </td><td> [str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).</td></tr>
-   <tr><td> -version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
-   <tr><td> -bbox </td><td> [tuple] (Default: '(-180, -90, 180, 90)') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
-   <tr><td> -var </td><td> [list of str] (Default: ['PS', 'T2M', 'TROPT', 'TROPPB']) List of requested variables.</td></tr>
+   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> _dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
+   <tr><td> _y </td><td> [int] Year of requested data.</td></tr>
+   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> _d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> _product </td><td> [str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).</td></tr>
+   <tr><td> _version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
+   <tr><td> _bbox </td><td> [tuple] (Default: '-180 -90 180 90) Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
+   <tr><td> _var </td><td> [list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.</td></tr>
 </table>
 
 List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
 For example: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-dataType cmly mly` => `dataType = ['cmly' 'mly']` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-y 2024 2025` => `year = [2024 2025]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dataType cmly mly` => `dataType = ['cmly' 'mly']` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py -dataType mly -y 2021 -m 4
-python ecosysem_cmd.py -dataType mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
-python ecosysem_cmd.py -dataType dly mly -y 2021 -m 4 -var PS TROPPB T2M TROPT H TROPH LR
-python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 11 12 -bbox -180 -90 -178.125 -86.5
+python ecosysem_cmd.py _dataType mly _y 2021 _m 4
+python ecosysem_cmd.py _dataType mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python ecosysem_cmd.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python ecosysem_cmd.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
 ```
 
 #### <ins>getDataCAMS</ins>
