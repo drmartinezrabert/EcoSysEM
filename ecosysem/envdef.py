@@ -708,6 +708,16 @@ class MERRA2:
             ## Day matrices
             while (date <= end_date):
                 print(f"> {date.strftime('%Y-%m-%d')}")
+                results_LWI = earthaccess.search_data(
+                    short_name = 'M2T1NXCHM', 
+                    version = version,
+                    temporal = (date, date),
+                    bounding_box = bbox
+                ) # M2I3NVAER | M2T1NXCHM
+                print('>> Product: M2T1NXCHM (LWI - LandWaterIce)')
+                fs_LWI = earthaccess.open(results_LWI)
+                ds_LWI = xr.open_mfdataset(fs_LWI)
+                # Open granules to local path
                 results = earthaccess.search_data(
                     short_name = product, 
                     version = version,
@@ -715,6 +725,7 @@ class MERRA2:
                     bounding_box = bbox
                 )
                 # Open granules using Xarray
+                print(f'>> Product: {product}')
                 fs = earthaccess.open(results)
                 ds = xr.open_mfdataset(fs)
                 lonR = ds.lon.to_numpy()
@@ -724,6 +735,10 @@ class MERRA2:
                 lat_slice = slice(bbox[1], bbox[3])
                 lon_slice = slice(bbox[0], bbox[2])
                 ds = ds.sel(lat = lat_slice, lon = lon_slice)
+                ds_LWI = ds_LWI.sel(lat = lat_slice, lon = lon_slice)
+                # LWI [Land(1) Water(0) Ice(2)]
+                LWI = ds_LWI['LWI'].values
+                print('  LWI done.')
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
                 for key in var:
@@ -758,6 +773,13 @@ class MERRA2:
                     else:
                         print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
                         sys.exit()
+                # LWI [Land(1) Water(0) Ice(2)]
+                av_dayData['LWI'] = np.round(np.average(LWI, axis = 0))
+                if date == start_date:
+                    dayData['LWI'] = av_dayData['LWI']
+                else:
+                    dayData['LWI'] = np.dstack((dayData['LWI'], av_dayData['LWI']))
+                # User variables
                 for iV in var:
                     # Daily averages and std
                     av_dayData[iV] = np.average(hourData[iV], axis = 0)
@@ -777,6 +799,12 @@ class MERRA2:
             # Month matrices
             monthData['lat'] = lat
             monthData['lon'] = lon
+            # LWI [Land(1) Water(0) Ice(2)]
+            if last_day != 1:
+                monthData['LWI'] = np.round(np.average(dayData['LWI'], axis = -1))
+            else:
+                monthData['LWI'] = dayData['LWI']
+            # User variables
             for iV in var:
                 if last_day != 1:
                     monthData[iV] = np.average(dayData[iV], axis = -1)
@@ -789,6 +817,7 @@ class MERRA2:
                 MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
         # Combine monthly data if user required ('cmly')
         if np.any(np.isin(dataType, 'cmly')):
+            var += ['LWI']
             for m in months:
                 MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
