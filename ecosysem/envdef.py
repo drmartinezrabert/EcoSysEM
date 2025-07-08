@@ -741,6 +741,7 @@ class MERRA2:
                 print('  LWI done.')
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
+                # User variables
                 for key in var:
                     try:
                         ds[key]
