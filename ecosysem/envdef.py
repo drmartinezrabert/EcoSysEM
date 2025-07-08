@@ -614,9 +614,10 @@ class MERRA2:
         # Save numpy matrices in .npz format (v2)
         MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month)
         # Delete monthly data (if necessary)
-        for file in selFiles:
-            path = folder + file
-            os.remove(path)
+        if mlyDelete:
+            for file in selFiles:
+                path = folder + file
+                os.remove(path)
             
     def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
@@ -663,7 +664,6 @@ class MERRA2:
         if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
             dataType += ['mly']
             mlyDelete = True
-        print(dataType)
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         # Coordinates (bbox)
         if len(bbox) == 2:
@@ -708,7 +708,6 @@ class MERRA2:
             ## Day matrices
             while (date <= end_date):
                 print(f"> {date.strftime('%Y-%m-%d')}")
-                # Open granules to local phat
                 results = earthaccess.search_data(
                     short_name = product, 
                     version = version,
@@ -770,6 +769,8 @@ class MERRA2:
                         dayData[iV] = np.dstack((dayData[iV], av_dayData[iV]))
                 # Save daily data
                 if np.any(np.isin(dataType, 'dly')):
+                    av_dayData['lat'] = lat
+                    av_dayData['lon'] = lon
                     MERRA2._saveNPZMERRA2(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
                 # Next date
                 date += delta
