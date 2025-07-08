@@ -722,7 +722,7 @@ data = newCAMS.dictCAMS(dataType = 'mly', y = 2024, m = 4, keys = ['lat', 'lon',
 ### CAMS.getDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900,925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
+CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -734,7 +734,7 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data (e.g., [4, 5]).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _list of int_, _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 15]).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [50, 100, 200, 400, 600, 800, 900, 1000]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of pressure levels to download (e.g., [100, 200, ..., 1000]).<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _List of str_, _optional, default: ["carbon_dioxide", "carbon_monoxide", "methane"]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download.<br> 
@@ -1514,26 +1514,26 @@ python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 1
 #### <ins>getDataCAMS</ins>
 <table border="0">
    <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> -type </td><td> [str] Type(s) of data ('mly', 'dly', 'cmly').</td></tr>
-   <tr><td> -y </td><td> [int or list] Year(s) of requested data.</td></tr>
-   <tr><td> -m </td><td> [int or list] Month(s) of requested data.</td></tr>
-   <tr><td> -d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> -pressure </td><td> [int or list] (Default: '[10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000]') Pressure levels to download.</td></tr>
-   <tr><td> -bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
+   <tr><td> _type </td><td> [str] Type(s) of data ('mly', 'dly', 'cmly').</td></tr>
+   <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
+   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> _d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
 </table>
 
 List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
 For example: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-y 2024 2025` => `year = [2024 2025]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-pressure 200 300` => `pressure_levels = [200, 300]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_pressure 200 400` => `pressure_levels = [200, 400]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py -type mly -y 2024 -m 4
-python ecosysem_cmd.py -type mly -y 2024 -m 4 -d 1 15
-python ecosysem_cmd.py -type mly -y 2024 -m 4 5 -d 1 15 -pressure 200 300
-python ecosysem_cmd.py -type mly -y 2024 -m 4 5 6 7 8 -bbox 90 -180 -90 180
+python ecosysem_cmd.py _type mly _y 2024 _m 4
+python ecosysem_cmd.py _type mly _y 2024 _m 4 _d 1 15
+python ecosysem_cmd.py _type mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
+python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
