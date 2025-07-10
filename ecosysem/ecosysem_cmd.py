@@ -32,8 +32,8 @@ if function == 'getDataMERRA2':
                         help="[str] (Default: '5.12.4') Version of data.")
     parser.add_argument('_bbox', default=(-180, -90, 180, 90), nargs = '+', type = float,
                         help="[tuple] (Default: '-180 -90 180 90') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.")
-    parser.add_argument('_var', default="PS T2M TROPT TROPPB", nargs = '+', type = str,
-                        help="[list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.")
+    parser.add_argument('_var', default="PS TROPPB T2M TROPT TROPH LR", nargs = '+', type = str,
+                        help="[list of str] (Default: PS TROPPB T2M TROPT TROPH LR) List of requested variables.")
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
