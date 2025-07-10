@@ -624,7 +624,7 @@ class MERRA2:
                       product = 'M2I1NXASM',
                       version = '5.12.4',
                       bbox = (-180, -90, 180, 90),
-                      var = ['PS', 'T2M', 'TROPT', 'TROPPB']):
+                      var = ['PS', 'TROPPB', 'T2M', 'TROPT', 'TROPH', 'LR']):
         """
         Download data from MERRA2 database.
         
@@ -708,15 +708,16 @@ class MERRA2:
             ## Day matrices
             while (date <= end_date):
                 print(f"> {date.strftime('%Y-%m-%d')}")
-                results_LWI = earthaccess.search_data(
-                    short_name = 'M2T1NXCHM', 
+                # M2C0NXASM
+                results_PHIS = earthaccess.search_data(
+                    short_name = 'M2C0NXASM', 
                     version = version,
                     temporal = (date, date),
                     bounding_box = bbox
-                ) # M2I3NVAER | M2T1NXCHM
-                print('>> Product: M2T1NXCHM (LWI - LandWaterIce)')
-                fs_LWI = earthaccess.open(results_LWI)
-                ds_LWI = xr.open_mfdataset(fs_LWI)
+                )
+                print('>> Product: M2C0NXASM (PHIS - Surface geopotential height)')
+                fs_PHIS = earthaccess.open(results_PHIS)
+                ds_PHIS = xr.open_mfdataset(fs_PHIS)
                 # Open granules to local path
                 results = earthaccess.search_data(
                     short_name = product, 
@@ -735,10 +736,12 @@ class MERRA2:
                 lat_slice = slice(bbox[1], bbox[3])
                 lon_slice = slice(bbox[0], bbox[2])
                 ds = ds.sel(lat = lat_slice, lon = lon_slice)
-                ds_LWI = ds_LWI.sel(lat = lat_slice, lon = lon_slice)
-                # LWI [Land(1) Water(0) Ice(2)]
-                LWI = ds_LWI['LWI'].values
-                print('  LWI done.')
+                ds_PHIS = ds_PHIS.sel(lat = lat_slice, lon = lon_slice)
+                # PHIS [Surface geopotential height]
+                H = ds_PHIS['PHIS'].values / 9.80665
+                H = np.where(H < 0, 0, H)
+                hourData['H'] = H
+                print('  PHIS done.')
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
                 # User variables
@@ -751,35 +754,34 @@ class MERRA2:
                         hourData[key] = ds[key].values
                         print(f'  {key} done.')
                 # Atmospheric altitudes
-                varH = ['H', 'TROPH']
-                varReqH = ['PS', 'TROPPB', 'TROPPT', 'TROPPV']
-                if np.any([np.char.find(var, iVar) > -1 for iVar in varH]):
+                varH = ['TROPH']
+                varReqH = ['TROPPB', 'TROPPT', 'TROPPV']
+                if np.any([np.char.find(var, iVar) == 0 for iVar in varH]):
                     c = 0
                     for iV in var:
                         if np.any(np.char.find(iV, varReqH) > -1):
-                            varNames = {'PS': 'H',
-                                        'TROPPB': 'TROPH',
+                            varNames = {'TROPPB': 'TROPH',
                                         'TROPPT': 'TROPH',
                                         'TROPPV': 'TROPH'}
                             hourData[varNames[iV]] = MERRA2._HfromP(self, hourData[iV])
                             c += 1
                     if c == 0:
-                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'PS\', \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
+                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
                         sys.exit()
                 # Lapse rate
-                varReqLR = ['T2M', 'TROPT', 'H', 'TROPH']
+                varReqLR = ['T2M', 'TROPT', 'TROPH']
                 if np.any(np.char.find(var, 'LR') > -1):
                     if np.all([np.any(np.char.find(var, iVarReq) > -1) for iVarReq in varReqLR]):
                         hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
                     else:
-                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
+                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', or \'TROPH\'.')
                         sys.exit()
-                # LWI [Land(1) Water(0) Ice(2)]
-                av_dayData['LWI'] = np.round(np.average(LWI, axis = 0))
+                # PHIS [Surface geopotential height]
+                av_dayData['H'] = np.round(np.average(H, axis = 0))
                 if date == start_date:
-                    dayData['LWI'] = av_dayData['LWI']
+                    dayData['H'] = av_dayData['H']
                 else:
-                    dayData['LWI'] = np.dstack((dayData['LWI'], av_dayData['LWI']))
+                    dayData['H'] = np.dstack((dayData['H'], av_dayData['H'])) 
                 # User variables
                 for iV in var:
                     # Daily averages and std
@@ -800,11 +802,11 @@ class MERRA2:
             # Month matrices
             monthData['lat'] = lat
             monthData['lon'] = lon
-            # LWI [Land(1) Water(0) Ice(2)]
+            # PHIS [Surface geopotential height]
             if last_day != 1:
-                monthData['LWI'] = np.round(np.average(dayData['LWI'], axis = -1))
+                monthData['H'] = np.round(np.average(dayData['H'], axis = -1))
             else:
-                monthData['LWI'] = dayData['LWI']
+                monthData['H'] = dayData['H']
             # User variables
             for iV in var:
                 if last_day != 1:
@@ -818,7 +820,7 @@ class MERRA2:
                 MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
         # Combine monthly data if user required ('cmly')
         if np.any(np.isin(dataType, 'cmly')):
-            var += ['LWI']
+            var += ['H']
             for m in months:
                 MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
