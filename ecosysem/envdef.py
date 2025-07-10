@@ -946,7 +946,6 @@ class MERRA2:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
             return None
     
-    # def getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, LWI, num = 50):
     def getTPAlt(self, dataType, year, month, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
         Compute the change of temperature and pressure of the Earth's
@@ -985,9 +984,9 @@ class MERRA2:
         TS = np.array(d['T2M'])
         LR = np.array(d['LR'])
         PS = np.array(d['PS'])
-        HS = np.array(d['H'])
         TROPH = np.array(d['TROPH'])
-        LWI = np.array(d['LWI'])
+        HS = np.array(d['H'])
+        HS = np.where(HS < 0, 0, HS)
         # Constants
         R = 8.3144598                   # Universal gas constant [J/mol/K]
         g0 = 9.80665                    # Gravitational acceleration [m/s^2]
@@ -1018,11 +1017,13 @@ class MERRA2:
         T = TS + LR * (H - (HS - np.min(HS)))
         # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
-        #-DEBUGGING-#
-        T = np.where((H < HS) & (LWI > 0), np.NaN, T)
+        # Temperature
+        T = np.where(H < HS, np.NaN, T)
         T = np.where(H > TROPH, np.NaN, T)
-        #-----------#
-        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
+        # Pressure
+        P = np.where(H < HS, np.NaN, P)
+        P = np.where(H > TROPH, np.NaN, P)
+        return T, P, H
     
     def keysMERRA2(self, dataType, y, m, d = None):
         """
