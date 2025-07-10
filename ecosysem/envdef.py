@@ -1669,7 +1669,6 @@ class ISAMERRA2(ISA, MERRA2):
              dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
 
         """
-        
         # Selection of compound and composition
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
@@ -1728,9 +1727,6 @@ class ISAMERRA2(ISA, MERRA2):
                   '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             return None
-        # else:
-        #     print("\n!EcoSysEM.Error: required variables are missing in data ['PS', 'T2M', 'LR', 'H', 'TROPH'].")
-        #     return None
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
