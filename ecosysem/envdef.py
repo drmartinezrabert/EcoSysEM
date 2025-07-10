@@ -1618,8 +1618,9 @@ class ISAMERRA2(ISA, MERRA2):
     def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
-        
-    def getConcISAMERRA2(self, data, phase, compound = None, num = 50):
+    
+    # def getConcISAMERRA2(self, data, phase, compound = None, num = 50):
+    def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -1630,19 +1631,30 @@ class ISAMERRA2(ISA, MERRA2):
 
         Parameters
         ----------
-        data : DICT
-            Required data to estimate concentration values.
         phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
-            DESCRIPTION. Selection of phase of vertical profile.
-                        'G' - Gas.
-                        'L-FW' - Liquid fresh water.
-                        'L-SW' - Liquid sea water.
-                        'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phases (G, L-FW, L-SW).
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
+        y : INT or LIST of INT
+            Year(s) of data
+        m : INT or LIST of INT
+            Month of data
+        d : INT or LIST of INT
+            Day(s) of data
         compound : STR or LIST, optional
             Interested compounds. Default: None -> All compounds.
-        num : INT
-            Number of altitude steps to generate. Default: 50.
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes
+        num : INT, optional
+            Number of altitude steps to generate.
 
         Returns
         -------
@@ -1658,9 +1670,8 @@ class ISAMERRA2(ISA, MERRA2):
              dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
 
         """
-        # Check if data have ['PS', 'T2M', 'LR', 'H', 'TROPH']
-        keys = np.array(list(data.keys()))
-        mask = np.isin(keys, ['PS', 'T2M', 'LR', 'H', 'TROPH'])
+        
+        # Selection of compound and composition
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
         if compound:
@@ -1668,66 +1679,59 @@ class ISAMERRA2(ISA, MERRA2):
             findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
             compositions = compositions[findC]
             compounds = compounds[findC]
-        cKeys = len(keys[mask]) == 5
-        if cKeys:
-            TS = np.array(data['T2M'])
-            LR = np.array(data['LR'])
-            PS = np.array(data['PS'])
-            HS = np.array(data['H'])
-            TROPH = np.array(data['TROPH'])
-            # Temperature [K], pressure [Pa], altitude [m]
-            t, p, alt = MERRA2.getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = num)
-            # Constants
-            R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
-            Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
-            Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
-            # Dictionaries initialization
-            dict_Pi = {}
-            dict_Ci_G = {}
-            dict_Ci_LFW = {}
-            dict_Ci_LSW = {}
-            compounds = compounds.values
-            for id_, composition in enumerate(compositions):
-                # Gas phase - Partial pressure (Pi)
-                Pi = p * composition # [Pa]
-                # Gas phase - Gas concentration (Ci_G)
-                Ci_G = (Pi / (R_g * t))
-                # Liquid phase - Freshwater (Ci_LFW)
-                if notNaN_HsFW[id_]:
-                    Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
-                else:
-                    Ci_LFW = None
-                # Liquid phase - Seawater (Ci_LSW)
-                if notNaN_HsSW[id_]:
-                    Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
-                else:
-                    Ci_LSW = None
-                # Save data in dictionary
-                dict_Pi[compounds[id_]] = Pi
-                dict_Ci_G[compounds[id_]] = Ci_G
-                dict_Ci_LFW[compounds[id_]] = Ci_LFW
-                dict_Ci_LSW[compounds[id_]] = Ci_LSW
-            if phase == 'G':
-                return dict_Pi, dict_Ci_G
-            elif phase == 'L-FW':
-                return dict_Ci_LFW
-            elif phase == 'L-SW':
-                return dict_Ci_LSW
-            elif phase == 'L':
-                return dict_Ci_LFW, dict_Ci_LSW
-            elif phase == 'All':
-                return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
+        # Temperature [K], pressure [Pa], altitude [m]
+        t, p, alt = MERRA2.getTPAlt(self, dataType, y, m, d, bbox, altArray, num)
+        # Constants
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
+        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        compounds = compounds.values
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = p * composition # [Pa]
+            # Gas phase - Gas concentration (Ci_G)
+            Ci_G = (Pi / (R_g * t))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
             else:
-                print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
-                      '                             \'G\'       - Gas.\n'+
-                      '                             \'L-FW\'    - Liquid fresh water.\n'+
-                      '                             \'L-SW\'    - Liquid sea water.\n'+
-                      '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
-                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
-                return None
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[compounds[id_]] = Pi
+            dict_Ci_G[compounds[id_]] = Ci_G
+            dict_Ci_LFW[compounds[id_]] = Ci_LFW
+            dict_Ci_LSW[compounds[id_]] = Ci_LSW
+        if phase == 'G':
+            return dict_Pi, dict_Ci_G
+        elif phase == 'L-FW':
+            return dict_Ci_LFW
+        elif phase == 'L-SW':
+            return dict_Ci_LSW
+        elif phase == 'L':
+            return dict_Ci_LFW, dict_Ci_LSW
+        elif phase == 'All':
+            return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
         else:
-            print("\n!EcoSysEM.Error: required variables are missing in data ['PS', 'T2M', 'LR', 'H', 'TROPH'].")
+            print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
+                  '                             \'G\'       - Gas.\n'+
+                  '                             \'L-FW\'    - Liquid fresh water.\n'+
+                  '                             \'L-SW\'    - Liquid sea water.\n'+
+                  '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
+                  '                             \'All\'     - All phases (G, L-FW, L-SW).')
             return None
+        # else:
+        #     print("\n!EcoSysEM.Error: required variables are missing in data ['PS', 'T2M', 'LR', 'H', 'TROPH'].")
+        #     return None
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
