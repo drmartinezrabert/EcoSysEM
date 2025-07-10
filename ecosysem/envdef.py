@@ -1619,7 +1619,6 @@ class ISAMERRA2(ISA, MERRA2):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
     
-    # def getConcISAMERRA2(self, data, phase, compound = None, num = 50):
     def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
