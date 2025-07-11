@@ -1513,7 +1513,7 @@ python ecosysem_cmd.py -dataType All -y 2021 2022 2023 -m 1 2 3 4 5 6 7 8 9 10 1
 
 #### <ins>getDataCAMS</ins>
 <table border="0">
-   <tr><td> -h<br>--help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
    <tr><td> _type </td><td> [str] Type(s) of data ('mly', 'dly', 'cmly').</td></tr>
    <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
    <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
