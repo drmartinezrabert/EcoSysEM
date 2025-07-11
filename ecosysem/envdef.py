@@ -706,18 +706,8 @@ class MERRA2:
             av_dayData = {}
             dayData = {}
             ## Day matrices
-            while (date <= end_date):
+            while(date <= end_date):
                 print(f"> {date.strftime('%Y-%m-%d')}")
-                # M2C0NXASM
-                results_PHIS = earthaccess.search_data(
-                    short_name = 'M2C0NXASM', 
-                    version = version,
-                    temporal = (date, date),
-                    bounding_box = bbox
-                )
-                print('>> Product: M2C0NXASM (PHIS - Surface geopotential height)')
-                fs_PHIS = earthaccess.open(results_PHIS)
-                ds_PHIS = xr.open_mfdataset(fs_PHIS)
                 # Open granules to local path
                 results = earthaccess.search_data(
                     short_name = product, 
@@ -736,12 +726,13 @@ class MERRA2:
                 lat_slice = slice(bbox[1], bbox[3])
                 lon_slice = slice(bbox[0], bbox[2])
                 ds = ds.sel(lat = lat_slice, lon = lon_slice)
-                ds_PHIS = ds_PHIS.sel(lat = lat_slice, lon = lon_slice)
-                # PHIS [Surface geopotential height]
-                H = ds_PHIS['PHIS'].values / 9.80665
+                # PHIS [Surface geopotential height] (local)
+                d_PHIS = np.load('data/MERRA2/PHIS.npz')
+                d_PHIS = MERRA2.selectRegion(self, d_PHIS, bbox)
+                H = d_PHIS['PHIS']
                 H = np.where(H < 0, 0, H)
+                H = np.repeat(H[np.newaxis, ...], 24, axis = 0)
                 hourData['H'] = H
-                print('  PHIS done.')
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
                 # User variables
