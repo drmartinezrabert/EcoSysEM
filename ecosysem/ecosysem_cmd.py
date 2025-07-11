@@ -16,24 +16,24 @@ print('> Available functions: getDataMERRA2, getDataCAMS')
 function = input('>> Enter the function: ')
 
 if function == 'getDataMERRA2':
-    parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(prefix_chars='_',
         description="Execute getDataMERRA2() via Command Line Interface (CLI).")
-    parser.add_argument('-dataType', nargs = '+', type = str,
+    parser.add_argument('_dataType', nargs = '+', type = str,
                         help="[str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).")
-    parser.add_argument('-y', nargs = '+', type = int,
+    parser.add_argument('_y', nargs = '+', type = int,
                         help="[int] Year of requested data.")
-    parser.add_argument('-m', nargs = '+', type = int,
+    parser.add_argument('_m', nargs = '+', type = int,
                         help="[int or list] Month(s) of requested data.")
-    parser.add_argument('-d', default='All', nargs = '+',
+    parser.add_argument('_d', default='All', nargs = '+',
                         help="[str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.")
-    parser.add_argument('-product', default='M2I1NXASM',
+    parser.add_argument('_product', default='M2I1NXASM',
                         help="[str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).")
-    parser.add_argument('-version', default='5.12.4',
+    parser.add_argument('_version', default='5.12.4',
                         help="[str] (Default: '5.12.4') Version of data.")
-    parser.add_argument('-bbox', default=(-180, -90, 180, 90), nargs = '+', type = float,
+    parser.add_argument('_bbox', default=(-180, -90, 180, 90), nargs = '+', type = float,
                         help="[tuple] (Default: '-180 -90 180 90') Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.")
-    parser.add_argument('-var', default="PS T2M TROPT TROPPB", nargs = '+', type = str,
-                        help="[list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.")
+    parser.add_argument('_var', default="PS TROPPB T2M TROPT TROPH LR", nargs = '+', type = str,
+                        help="[list of str] (Default: PS TROPPB T2M TROPT TROPH LR) List of requested variables.")
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
@@ -49,7 +49,7 @@ if function == 'getDataMERRA2':
         days = 'All'
     product = args.product
     version = args.version
-    bbox = args.bbox
+    bbox = tuple(args.bbox)
     var = args.var
     if type(var) == str:
         var = var.split()

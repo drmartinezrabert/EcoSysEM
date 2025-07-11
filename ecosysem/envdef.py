@@ -242,7 +242,7 @@ class ISA:
                   '                             \'L-SW\'    - Liquid sea water.\n'+
                   '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
-            return None
+            sys.exit()
             
     def setComposition(self, compound, composition):
         """
@@ -412,7 +412,7 @@ class MERRA2:
 
         """
         return np.maximum(145366.45 * (1 - (P / 101325) ** 0.190284) * (0.3048 / 1), np.zeros(P.shape))
-        
+    
     def _LR(self, T1, T2, H1, H2):
         """
         Estimate atmospheric lapse rate (K/km)
@@ -464,29 +464,29 @@ class MERRA2:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         # Path generation
         pathfile = path + file
@@ -517,29 +517,29 @@ class MERRA2:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         if dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return 0
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return 0
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
@@ -565,12 +565,12 @@ class MERRA2:
         """
         if not isinstance(month, int):
             print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-            return None
+            sys.exit()
         if isinstance(years, int): years = [years]
         if isinstance(years, float): years = [years]
         if len(years) <= 1:
             print('\n!EcoSysEM.Error: Introduce at least 2 years to combine data.')
-            return None
+            sys.exit()
         # Get all files from data\npz
         folder = f'data/MERRA2/{dataType}/'
         allFiles = np.array(os.listdir(folder))
@@ -614,16 +614,17 @@ class MERRA2:
         # Save numpy matrices in .npz format (v2)
         MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month)
         # Delete monthly data (if necessary)
-        for file in selFiles:
-            path = folder + file
-            os.remove(path)
+        if mlyDelete:
+            for file in selFiles:
+                path = folder + file
+                os.remove(path)
             
     def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
                       product = 'M2I1NXASM',
                       version = '5.12.4',
                       bbox = (-180, -90, 180, 90),
-                      var = ['PS', 'T2M', 'TROPT', 'TROPPB']):
+                      var = ['PS', 'TROPPB', 'T2M', 'TROPT', 'TROPH', 'LR']):
         """
         Download data from MERRA2 database.
         
@@ -658,12 +659,11 @@ class MERRA2:
         if isinstance(dataType, str): dataType = [dataType]
         if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
             print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
-            return None
+            sys.exit()
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
             dataType += ['mly']
             mlyDelete = True
-        print(dataType)
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         # Coordinates (bbox)
         if len(bbox) == 2:
@@ -672,7 +672,7 @@ class MERRA2:
             bbox = bbox
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
-            return None
+            sys.exit()
         # Check arguments
         if not isinstance(years, list): years = [years]
         if not isinstance(months, (list, np.ndarray)): months = [months]
@@ -681,7 +681,7 @@ class MERRA2:
         months = sorted(months)
         if np.any(np.isin(dataType, 'cmly')) and len(years) <= 1:
             print('\n!EcoSysEM.Error: Introduce at least 2 years to combine monthly data.')
-            return None
+            sys.exit()
         start_time = time.time()
         # This will work if Earthdata prerequisite files have already been generated
         earthaccess.login()
@@ -706,9 +706,9 @@ class MERRA2:
             av_dayData = {}
             dayData = {}
             ## Day matrices
-            while (date <= end_date):
+            while(date <= end_date):
                 print(f"> {date.strftime('%Y-%m-%d')}")
-                # Open granules to local phat
+                # Open granules to local path
                 results = earthaccess.search_data(
                     short_name = product, 
                     version = version,
@@ -716,6 +716,7 @@ class MERRA2:
                     bounding_box = bbox
                 )
                 # Open granules using Xarray
+                print(f'>> Product: {product}')
                 fs = earthaccess.open(results)
                 ds = xr.open_mfdataset(fs)
                 lonR = ds.lon.to_numpy()
@@ -725,8 +726,16 @@ class MERRA2:
                 lat_slice = slice(bbox[1], bbox[3])
                 lon_slice = slice(bbox[0], bbox[2])
                 ds = ds.sel(lat = lat_slice, lon = lon_slice)
+                # PHIS [Surface geopotential height] (local)
+                d_PHIS = np.load('data/MERRA2/PHIS.npz')
+                d_PHIS = MERRA2.selectRegion(self, d_PHIS, bbox)
+                H = d_PHIS['PHIS']
+                H = np.where(H < 0, 0, H)
+                H = np.repeat(H[np.newaxis, ...], 24, axis = 0)
+                hourData['H'] = H
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
+                # User variables
                 for key in var:
                     try:
                         ds[key]
@@ -736,29 +745,35 @@ class MERRA2:
                         hourData[key] = ds[key].values
                         print(f'  {key} done.')
                 # Atmospheric altitudes
-                varH = ['H', 'TROPH']
-                varReqH = ['PS', 'TROPPB', 'TROPPT', 'TROPPV']
-                if np.any([np.char.find(var, iVar) > -1 for iVar in varH]):
+                varH = ['TROPH']
+                varReqH = ['TROPPB', 'TROPPT', 'TROPPV']
+                if np.any([np.char.find(var, iVar) == 0 for iVar in varH]):
                     c = 0
                     for iV in var:
                         if np.any(np.char.find(iV, varReqH) > -1):
-                            varNames = {'PS': 'H',
-                                        'TROPPB': 'TROPH',
+                            varNames = {'TROPPB': 'TROPH',
                                         'TROPPT': 'TROPH',
                                         'TROPPV': 'TROPH'}
                             hourData[varNames[iV]] = MERRA2._HfromP(self, hourData[iV])
                             c += 1
                     if c == 0:
-                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'PS\', \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
-                        return None
+                        print('\n!EcoSysEM.Error: missing required variable missing for atmospheric altitude(s) - \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
+                        sys.exit()
                 # Lapse rate
-                varReqLR = ['T2M', 'TROPT', 'H', 'TROPH']
+                varReqLR = ['T2M', 'TROPT', 'TROPH']
                 if np.any(np.char.find(var, 'LR') > -1):
                     if np.all([np.any(np.char.find(var, iVarReq) > -1) for iVarReq in varReqLR]):
                         hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
                     else:
-                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', \'H\', or \'TROPH\'.')
-                        return None
+                        print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', or \'TROPH\'.')
+                        sys.exit()
+                # PHIS [Surface geopotential height]
+                av_dayData['H'] = np.round(np.average(H, axis = 0))
+                if date == start_date:
+                    dayData['H'] = av_dayData['H']
+                else:
+                    dayData['H'] = np.dstack((dayData['H'], av_dayData['H'])) 
+                # User variables
                 for iV in var:
                     # Daily averages and std
                     av_dayData[iV] = np.average(hourData[iV], axis = 0)
@@ -770,24 +785,33 @@ class MERRA2:
                         dayData[iV] = np.dstack((dayData[iV], av_dayData[iV]))
                 # Save daily data
                 if np.any(np.isin(dataType, 'dly')):
+                    av_dayData['lat'] = lat
+                    av_dayData['lon'] = lon
                     MERRA2._saveNPZMERRA2(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
                 # Next date
                 date += delta
             # Month matrices
             monthData['lat'] = lat
             monthData['lon'] = lon
+            # PHIS [Surface geopotential height]
+            if last_day != 1:
+                monthData['H'] = np.round(np.average(dayData['H'], axis = -1))
+            else:
+                monthData['H'] = dayData['H']
+            # User variables
             for iV in var:
                 if last_day != 1:
                     monthData[iV] = np.average(dayData[iV], axis = -1)
                     monthData[f'{iV}_std'] = np.std(dayData[iV], axis = -1)
                 else:
                     monthData[iV] = dayData[iV]
-                    monthData[f'{iV}_std'] = np.array([0.0])
+                    monthData[f'{iV}_std'] = 0.0 * np.ones(dayData[iV].shape)
             # Save numpy matrices in .npz format
             if np.any(np.isin(dataType, 'mly')):
                 MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
         # Combine monthly data if user required ('cmly')
         if np.any(np.isin(dataType, 'cmly')):
+            var += ['H']
             for m in months:
                 MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
@@ -798,12 +822,14 @@ class MERRA2:
 
         Parameters
         ----------
-        dataType : STR ('mly' or 'cmly')
-            Type of data.
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
         y : INT or LIST of INT
-            Year(s) of data.
+            Year(s) of data
         m : INT or LIST of INT
-            Month of data  
+            Month of data
+        d : INT or LIST of INT
+            Day(s) of data
         keys : LIST of STR
             List of requested variables. (Default: 'All')
         
@@ -828,7 +854,7 @@ class MERRA2:
         npz.close()
         return dictVar    
     
-    def selectRegion(self, data, bbox):
+    def selectRegion(self, data, bbox): # !!! (redundant)
         """
         Select specific region of Earth of downloaded data
 
@@ -855,14 +881,14 @@ class MERRA2:
             uniqueCoor = False
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
-            return None
+            sys.exit()
         # Check user coordinates
         if bbox[0] > bbox[2]:
             print('\n!EcoSysEM.Error: `upper_right_longitude` (bbox[2]) must be higher than `lower_left_longitude` (bbox[0])')
-            return None
+            sys.exit()
         if bbox[1] > bbox[3]:
             print('\n!EcoSysEM.Error: `upper_right_latitude` (bbox[3]) must be higher than `lower_left_latitude` (bbox[1])')
-            return None
+            sys.exit()
         # BBox from data
         lonR = data['lon']
         latR = data['lat']
@@ -876,8 +902,8 @@ class MERRA2:
             # (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
             idx = (int(np.argwhere(lonR == bbox[0])),
                    int(np.argwhere(latR == bbox[1])),
-                   int(np.argwhere(lonR == bbox[2])),
-                   int(np.argwhere(latR == bbox[3])))
+                   int(np.argwhere(lonR == bbox[2])) + 1,
+                   int(np.argwhere(latR == bbox[3])) + 1)
             # Initialize dictionary of selected data
             dataSel = {}
             for var in data:
@@ -911,25 +937,28 @@ class MERRA2:
             return dataSel
         else:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
-            return None
+            sys.exit()
     
-    def getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = 50):
+    def getTPAlt(self, dataType, year, month, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
         Compute the change of temperature and pressure of the Earth's
         atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
         
         Parameters
         ----------
-        PS : FLOAT, LIST or ndarray
-            Surface pressure. [Pa]
-        TS : FLOAT, LIST or ndarray
-            Surface temperature. [K]
-        LR : FLOAT, LIST or ndarray
-            Atmospheric lapse rate. [K/km]
-        HS : FLOAT, LIST or ndarray
-            Surface altitude. [m]
-        TROPH : FLOAT, LIST or ndarray
-            Tropopause altitude. [m]
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
+        year : INT or LIST of INT
+            Year(s) of data
+        month : INT or LIST of INT
+            Month of data
+        day : INT or LIST of INT
+            Day(s) of data
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes
         num : INT, optional
             Number of altitude steps to generate.
 
@@ -943,31 +972,51 @@ class MERRA2:
             Altitude. [m]
         """
         # Check argument format and dimension of data
-        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
-        if PS.ndim == 1: PS = np.array([PS])
-        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
-        if TS.ndim == 1: TS = np.array([TS])
-        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
-        if LR.ndim == 1: LR = np.array([LR])
-        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
-        if HS.ndim == 1: HS = np.array([HS])
-        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
-        if TROPH.ndim == 1: TROPH = np.array([TROPH])
+        d = MERRA2.loadDataMERRA2(self, dataType, year, month, day)
+        d = MERRA2.selectRegion(self, d, bbox)
+        TS = np.array(d['T2M'])
+        LR = np.array(d['LR'])
+        PS = np.array(d['PS'])
+        TROPH = np.array(d['TROPH'])
+        HS = np.array(d['H'])
+        HS = np.where(HS < 0, 0, HS)
         # Constants
         R = 8.3144598                   # Universal gas constant [J/mol/K]
         g0 = 9.80665                    # Gravitational acceleration [m/s^2]
         M0 = 0.0289644                  # Molar mass of Earth's air
         # Altitude. Shape: (alt, lat, lon)
-        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
+        if not isinstance(altArray, (list, np.ndarray)):
+            HS_min = 0.0 * np.ones(HS.shape)
+            TROPH_max = np.max(TROPH) * 0.99 * np.ones(TROPH.shape)
+            H = np.linspace(start = HS_min, stop = TROPH_max, num = num)        # [m]
+        else:
+            max_TROPH = np.max(TROPH) * 0.99
+            altChk = altArray
+            if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
+            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = altArray[~np.isnan(altArray)]
+            if np.any(altChk > max_TROPH):
+                altArray = np.append(altArray, max_TROPH)
+            y = TS.shape[0]
+            x = TS.shape[1]
+            z = len(altArray)
+            H = np.tile(altArray, y * x).reshape((z, y, x), order = 'F')
+        # User variables
         # 3D matrix creation (TS, LR, HS)
-        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
-        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
-        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
-        # Temperature profile. Shape: (alt, lat, lon)
-        T = TS + LR * (H - HS)
-        # Pressure profile. Shape: (alt, lat, lon)
+        TS = np.repeat(TS[np.newaxis, ...], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, ...], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, ...], H.shape[0], axis = 0)              # [m]
+        # Temperature profile
+        T = TS + LR * (H - (HS - np.min(HS)))
+        # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
-        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
+        # Temperature
+        T = np.where(H < HS, np.NaN, T)
+        T = np.where(H > TROPH, np.NaN, T)
+        # Pressure
+        P = np.where(H < HS, np.NaN, P)
+        P = np.where(H > TROPH, np.NaN, P)
+        return T, P, H
     
     def keysMERRA2(self, dataType, y, m, d = None):
         """
@@ -1561,8 +1610,8 @@ class ISAMERRA2(ISA, MERRA2):
     def __init__(self, layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
-        
-    def getConcISAMERRA2(self, data, phase, compound = None, num = 50):
+    
+    def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -1573,20 +1622,32 @@ class ISAMERRA2(ISA, MERRA2):
 
         Parameters
         ----------
-        data : DICT
-            Required data to estimate concentration values.
         phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
-            DESCRIPTION. Selection of phase of vertical profile.
-                        'G' - Gas.
-                        'L-FW' - Liquid fresh water.
-                        'L-SW' - Liquid sea water.
-                        'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phases (G, L-FW, L-SW).
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
+        dataType : STR ('mly', 'cmly', 'dly')
+            Type of data
+        y : INT or LIST of INT
+            Year(s) of data
+        m : INT or LIST of INT
+            Month of data
+        d : INT or LIST of INT
+            Day(s) of data
         compound : STR or LIST, optional
             Interested compounds. Default: None -> All compounds.
-        num : INT
-            Number of altitude steps to generate. Default: 50.
-
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes
+        num : INT, optional
+            Number of altitude steps to generate.
+        surftrop : STR ('surface', 'tropopause'), optional
+            Get concentration from 2-meters air following topography (surftrop='surface') or tropopause height (surftrop='tropopause').
         Returns
         -------
         Dictionaries with pressures/concentrations.
@@ -1601,9 +1662,7 @@ class ISAMERRA2(ISA, MERRA2):
              dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
 
         """
-        # Check if data have ['PS', 'T2M', 'LR', 'H', 'TROPH']
-        keys = np.array(list(data.keys()))
-        mask = np.isin(keys, ['PS', 'T2M', 'LR', 'H', 'TROPH'])
+        # Selection of compound and composition
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
         if compound:
@@ -1611,66 +1670,69 @@ class ISAMERRA2(ISA, MERRA2):
             findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
             compositions = compositions[findC]
             compounds = compounds[findC]
-        cKeys = len(keys[mask]) == 5
-        if cKeys:
-            TS = np.array(data['T2M'])
-            LR = np.array(data['LR'])
-            PS = np.array(data['PS'])
-            HS = np.array(data['H'])
-            TROPH = np.array(data['TROPH'])
-            # Temperature [K], pressure [Pa], altitude [m]
-            t, p, alt = MERRA2.getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num = num)
-            # Constants
-            R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
-            Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
-            Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
-            # Dictionaries initialization
-            dict_Pi = {}
-            dict_Ci_G = {}
-            dict_Ci_LFW = {}
-            dict_Ci_LSW = {}
-            compounds = compounds.values
-            for id_, composition in enumerate(compositions):
-                # Gas phase - Partial pressure (Pi)
-                Pi = p * composition # [Pa]
-                # Gas phase - Gas concentration (Ci_G)
-                Ci_G = (Pi / (R_g * t))
-                # Liquid phase - Freshwater (Ci_LFW)
-                if notNaN_HsFW[id_]:
-                    Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
-                else:
-                    Ci_LFW = None
-                # Liquid phase - Seawater (Ci_LSW)
-                if notNaN_HsSW[id_]:
-                    Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
-                else:
-                    Ci_LSW = None
-                # Save data in dictionary
-                dict_Pi[compounds[id_]] = Pi
-                dict_Ci_G[compounds[id_]] = Ci_G
-                dict_Ci_LFW[compounds[id_]] = Ci_LFW
-                dict_Ci_LSW[compounds[id_]] = Ci_LSW
-            if phase == 'G':
-                return dict_Pi, dict_Ci_G
-            elif phase == 'L-FW':
-                return dict_Ci_LFW
-            elif phase == 'L-SW':
-                return dict_Ci_LSW
-            elif phase == 'L':
-                return dict_Ci_LFW, dict_Ci_LSW
-            elif phase == 'All':
-                return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
-            else:
-                print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
-                      '                             \'G\'       - Gas.\n'+
-                      '                             \'L-FW\'    - Liquid fresh water.\n'+
-                      '                             \'L-SW\'    - Liquid sea water.\n'+
-                      '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
-                      '                             \'All\'     - All phases (G, L-FW, L-SW).')
-                return None
+        # Temperature [K], pressure [Pa], altitude [m]
+        if not surftrop:
+            t, p, _ = MERRA2.getTPAlt(self, dataType, y, m, d, bbox, altArray, num)
         else:
-            print("\n!EcoSysEM.Error: required variables are missing in data ['PS', 'T2M', 'LR', 'H', 'TROPH'].")
-            return None
+            data = MERRA2.loadDataMERRA2(self, dataType, y, m, d)
+            data = MERRA2.selectRegion(self, data, bbox)
+            if surftrop == 'surface':
+                t = np.array(data['T2M'])
+                p = np.array(data['PS'])
+            elif surftrop == 'tropopause':
+                t = np.array(data['TROPT'])
+                p = np.array(data['TROPPB'])
+            else:
+                print('\n!EcoSysEM.Error: argument \'surftrop\' must `surface` or `tropopause`.')
+                sys.exit()
+        # Constants
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
+        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        compounds = compounds.values
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = p * composition # [Pa]
+            # Gas phase - Gas concentration (Ci_G)
+            Ci_G = (Pi / (R_g * t))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[compounds[id_]] = Pi
+            dict_Ci_G[compounds[id_]] = Ci_G
+            dict_Ci_LFW[compounds[id_]] = Ci_LFW
+            dict_Ci_LSW[compounds[id_]] = Ci_LSW
+        if phase == 'G':
+            return dict_Pi, dict_Ci_G
+        elif phase == 'L-FW':
+            return dict_Ci_LFW
+        elif phase == 'L-SW':
+            return dict_Ci_LSW
+        elif phase == 'L':
+            return dict_Ci_LFW, dict_Ci_LSW
+        elif phase == 'All':
+            return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
+        else:
+            print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
+                  '                             \'G\'       - Gas.\n'+
+                  '                             \'L-FW\'    - Liquid fresh water.\n'+
+                  '                             \'L-SW\'    - Liquid sea water.\n'+
+                  '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
+                  '                             \'All\'     - All phases (G, L-FW, L-SW).')
+            sys.exit()
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
