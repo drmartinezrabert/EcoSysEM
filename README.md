@@ -908,7 +908,7 @@ data = newISAMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['l
 
 ### ISAMERRA2.getConcISAMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISAMERRA2.getConcISAMERRA2(phase, dataType, y, m, d=None, compound=None, bbox=(-180, -90, 180, 90), altArray=None, num=50)
+ISAMERRA2.getConcISAMERRA2(phase, dataType, y, m, d=None, compound=None, bbox=(-180, -90, 180, 90), altArray=None, num=50, surftrop=None)
 ```
 Computation of vertical profiles of compounds (parcial pressure, Pi; gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW; and liquid concentration in sea water, Ci_L-SW). Gas concentrations (Ci_G) are calculated using Dalton's law and the ideal gas law, and liquid concentration (Ci_LFW and Ci_LSW) with Henry's law.<p>
 **Parameters:**<br>
@@ -933,7 +933,9 @@ Computation of vertical profiles of compounds (parcial pressure, Pi; gas concent
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested altitudes.<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num : _int_, _optional, default: 50_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of altitude steps to generate if altitude is not given by the user.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; From 0.0 m to maximum tropopause altitude.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; From 0.0 m to maximum tropopause altitude.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **surftrop : _str_ ('surface', 'tropopause'), _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (`surftrop='surface'`) or tropopause height (`surftrop='tropopause'`).<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G : _dict_** (if _phase='G'_)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW : _dict_** (if _phase='L-FW'_)<br>
