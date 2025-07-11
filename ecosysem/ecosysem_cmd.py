@@ -65,23 +65,26 @@ if function == 'getDataMERRA2':
                          var = var)
 
 elif function == 'getDataCAMS':
-    parser = argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(prefix_chars='_',
         description="Execute getDataCAMS() via Command Line Interface (CLI).")
-    parser.add_argument('-type', nargs = '+', type = str,
+    parser.add_argument('_type', nargs = '+', type = str,
                         help="[str] Type(s) of data ('mly', 'dly', 'cmly').")
-    parser.add_argument('-y', nargs = '+', type = int,
+    parser.add_argument('_y', nargs = '+', type = int,
                         help="[int or list of int] Year(s) of requested data.")
-    parser.add_argument('-m', nargs = '+', type = int,
+    parser.add_argument('_m', nargs = '+', type = int,
                         help="[int or list of int] Month(s) of requested data.")
-    parser.add_argument('-d', default='All', nargs = '+',
+    parser.add_argument('_d', default='All', nargs = '+',
                         help="[int or list of int or str ('All'))] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.")
-    parser.add_argument('-pressure', default=[20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000], nargs = '+', type = int,
-                        help="[int] (Default: '20 50 100 200 300 400 500 600 700 800 900 950 1000') Pressure levels to download.")
-    parser.add_argument('-bbox', default=[90, -180, -90, 180], nargs = '+', type = int,
+    parser.add_argument('_pressure', default=[50, 100, 200, 400, 600, 800, 900, 1000], nargs = '+', type = int,
+                        help="[int] (Default: '50 100 200 400 600 800 900 1000') Pressure levels to download.")
+    parser.add_argument('_bbox', default=[90, -180, -90, 180], nargs = '+', type = int,
                         help="[list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.")
     # Argument definition
     args = parser.parse_args()
     dataType = args.type
+    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
+        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
+        sys.exit()
     years = args.y; years.sort()
     months = args.m; months.sort()
     days = args.d
