@@ -1089,9 +1089,8 @@ class CAMS:
         print('CAMS class works.')
 
     def getDataCAMS(self, dataType, years, months, days = 'All',
-                    pressure_levels = [50, 100, 200, 300, 
-                                       400, 500, 600, 700, 
-                                       800, 900, 950, 1000],
+                    pressure_levels = [50, 100, 200, 400, 
+                                       600, 800, 900, 1000],
                     variables = ["carbon_dioxide", 
                                  "carbon_monoxide", 
                                  "methane"],
@@ -1119,8 +1118,8 @@ class CAMS:
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
-        years     = [years]     if isinstance(years, int)     else list(years)
-        months    = [months]    if isinstance(months, int)    else list(months)
+        years = [years] if isinstance(years, int) else list(years)
+        months = [months] if isinstance(months, int) else list(months)
         
         if days == 'All':
             days_list = None
@@ -1148,9 +1147,9 @@ class CAMS:
                     # Validate user-provided days
                     invalid_days = [d for d in days_list if d < 1 or d > month_max_day]
                     if invalid_days:
-                        raise ValueError(
-                            f"Invalid day(s) {invalid_days} for year {y}, month {m}"
-                        )
+                        raise ValueError(f"Invalid day(s) {invalid_days} for year {y}, month {m}")
+                        sys.exit()
+                        
                     day_ranges = [(d, d) for d in days_list]
         
                 for d_start, d_end in day_ranges:
@@ -1174,6 +1173,7 @@ class CAMS:
                         )
         
                         # Extract netCDF from zip
+                        print("Extracting data from zip...")
                         with zipfile.ZipFile(zip_path, 'r') as zf:
                             members = zf.namelist()
                             if members:
@@ -1183,7 +1183,8 @@ class CAMS:
                                 with zf.open(nc_file) as src, open(target_nc, 'wb') as dst:
                                     dst.write(src.read())
                         os.remove(zip_path)
-        
+                        print("Extraction processes is done.")
+                        
                         # Process and clean up
                         for dt in dataTypes:
                             CAMS._processDataCAMS(self, dt)
@@ -1191,6 +1192,7 @@ class CAMS:
         
                     except Exception as e:
                         print(f"Failed for {date_range}: {e}")
+                        sys.exit()
         
         print("\nAll downloads completed.")
 
@@ -1214,11 +1216,11 @@ class CAMS:
             nc_files_month = [f for f in os.listdir(input_folder) if f.endswith(f'{month}.nc')]
         except FileNotFoundError:
             print(f"Input folder not found: '{input_folder}'")
-            return
+            sys.exit()
 
         if not nc_files:
             print(f"No .nc files found in: '{input_folder}'")
-            return
+            sys.exit()
                     
         if dataType == "dly":
             for nc_file in nc_files:
@@ -1250,9 +1252,9 @@ class CAMS:
                 
                 except Exception as e:
                     print(f"Error occurred: {nc_file}, {e}")
-                    continue
+                    sys.exit()
             
-            print(f"{dataType} file is processed and saved.")
+            print(f"{dataType} files are processed and saved.")
                     
         elif dataType == "mly":
             for nc_file in nc_files:
@@ -1283,9 +1285,9 @@ class CAMS:
                 
                 except Exception as e:
                     print(f"Error occurred: {nc_file}, {e}")
-                    continue
+                    sys.exit()
             
-            print(f"{dataType} files are processed and saved.")
+            print(f"{dataType} file is processed and saved.")
                     
         elif dataType == "cmly":
             for nc_file in nc_files_month:
@@ -1316,14 +1318,13 @@ class CAMS:
                 
                 except Exception as e:
                     print(f"Error occurred: {nc_file}, {e}")
-                    continue
+                    sys.exit()
             
-            print(f"{dataType} files are processed and saved.")
+            print(f"{dataType} file is processed and saved.")
         
         else:
             raise ValueError(f"Unknown dataType: {dataType}")
-
-        return
+            sys.exit()
     
     def selectRegionCAMS(self, data, bbox): # !!! (redundant)
         """
@@ -1351,7 +1352,7 @@ class CAMS:
             uniqueCoor = False
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
-            return None
+            sys.exit()
         # BBox from data
         lonR = data['lon']
         latR = data['lat']
@@ -1365,8 +1366,8 @@ class CAMS:
             # (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
             idx = (int(np.argwhere(lonR == bbox[0])),
                    int(np.argwhere(latR == bbox[1])),
-                   int(np.argwhere(lonR == bbox[2])),
-                   int(np.argwhere(latR == bbox[3])))
+                   int(np.argwhere(lonR == bbox[2])) + 1,
+                   int(np.argwhere(latR == bbox[3])) + 1)
             # Initialize dictionary of selected data
             dataSel = {}
             for var in data:
@@ -1400,7 +1401,7 @@ class CAMS:
             return dataSel
         else:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
-            return None
+            sys.exit()
 
     def _saveNPZCAMS(self, data, dataType, y, m, d = None): # !!! (redundant)
         """
@@ -1426,29 +1427,29 @@ class CAMS:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         # Path generation
         pathfile = path + file
@@ -1477,29 +1478,29 @@ class CAMS:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         if dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return 0
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return 0
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
@@ -1743,7 +1744,7 @@ class CAMSMERRA2(CAMS, MERRA2):
         CAMS.__init__(self)
         MERRA2.__init__(self)
     
-    def interpolateCAMS(self, dataType, year, month, day=None, 
+    def interpolateCAMS(self, phase, dataType, year, month, day=None,
                             molecules = ('CO', 'CO2', 'CH4'), 
                             target_lats = np.arange(-90, 90.1, 0.5),
                             target_lons = np.arange(-180,  179.375 + 1e-3, 0.625),
@@ -1754,6 +1755,13 @@ class CAMSMERRA2(CAMS, MERRA2):
     
         Parameters
         ----------
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
         dataType : STR
             Name of the subfolder under `data/CAMS/` containing .npz files.
         year : INT
@@ -1838,7 +1846,8 @@ class CAMSMERRA2(CAMS, MERRA2):
                     mol = var[:-4]
                 else:
                     mol = var
-                out[k] = CAMSMERRA2._concentrationConvertCAMS(self, mol, orig_alt[k], vals)
+                out[k] = CAMSMERRA2._concentrationConvertCAMS(self, phase, mol, orig_alt[k], vals, len(orig_alt), k,
+                                                              dataType, year, month, day)[mol]
 
             result[var] = out
             shape_info[var] = out.shape
@@ -1851,17 +1860,34 @@ class CAMSMERRA2(CAMS, MERRA2):
 
         return result, shape_info
     
-    def _concentrationConvertCAMS(self, molecule, alt, data_layer):
+    def _concentrationConvertCAMS(self, phase, molecule, alt, data_layer, num, idx, 
+                                  dataType, year, month, day=None):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
         Parameters
         ----------
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
         molecule : STR
             DESCRIPTION.
         alt : INT
             Altitude of the layer.
         data_layer : 2D array
+            Data in 2D.
+        dataType : STR
+            Name of the subfolder under `data/CAMS/` containing .npz files.
+        year : INT
+            Year of the desired dataset.
+        month : INT
+            Month of the desired dataset.
+        day : INT, optional
+            Day of the desired dataset.
             
         Returns
         conc : 2D array
@@ -1873,64 +1899,60 @@ class CAMSMERRA2(CAMS, MERRA2):
         rho = coesa76([h]).rho[0] # kg/m^3
         rho_kg_L = rho * 1e-3 # kg/L
         conc = (data_layer * rho_kg_L) / (Formula(molecule).mass * 1e-3)
+        compositions = conc[np.newaxis, ...]
         
-        return conc
-    
-    def computeTandPMERRA2(self, PS, TS, LR, HS, TROPH, num = 20): # !!! (redundant)
-        """
-        Compute the change of temperature and pressure of the Earth's
-        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
+        dataMERRA = CAMSMERRA2.loadDataMERRA2(self, dataType, year, month, day)
+        PS = np.array(dataMERRA['PS'])
+        TS = np.array(dataMERRA['T2M'])
+        LR = np.array(dataMERRA['LR'])
+        HS = np.array(dataMERRA['H'])
+        TROPH = np.array(dataMERRA['TROPH'])
+        t, p, _ = CAMSMERRA2.getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num)
         
-        Parameters
-        ----------
-        PS : FLOAT, LIST or ndarray
-            Surface pressure. [Pa]
-        TS : FLOAT, LIST or ndarray
-            Surface temperature. [K]
-        LR : FLOAT, LIST or ndarray
-            Atmospheric lapse rate. [K/km]
-        HS : FLOAT, LIST or ndarray
-            Surface altitude. [m]
-        TROPH : FLOAT, LIST or ndarray
-            Tropopause altitude. [m]
-        num : INT, optional
-            Number of altitude steps to generate.
-
-        Returns
-        -------
-        T : FLOAT, LIST or ndarray
-            Temperature in function of altitude. [K]
-        P : FLOAT, LIST or ndarray
-            Pressure in function of altitude. [Pa]
-        H : FLOAT, LIST or ndarray
-            Altitude. [m]
-        """
-        # Check argument format and dimension of data
-        if not isinstance(PS, np.ndarray): PS = np.asarray(PS)
-        if PS.ndim == 1: PS = np.array([PS])
-        if not isinstance(TS, np.ndarray): TS = np.asarray(TS)
-        if TS.ndim == 1: TS = np.array([TS])
-        if not isinstance(LR, np.ndarray): LR = np.asarray(LR)
-        if LR.ndim == 1: LR = np.array([LR])
-        if not isinstance(HS, np.ndarray): HS = np.asarray(HS)
-        if HS.ndim == 1: HS = np.array([HS])
-        if not isinstance(TROPH, np.ndarray): TROPH = np.asarray(TROPH)
-        if TROPH.ndim == 1: TROPH = np.array([TROPH])
-        # Constants
-        R = 8.3144598                   # Universal gas constant [J/mol/K]
-        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
-        M0 = 0.0289644                  # Molar mass of Earth's air
-        # Altitude. Shape: (alt, lat, lon)
-        H = np.linspace(start = HS, stop = TROPH, num = num)                    # [m]
-        # 3D matrix creation (TS, LR, HS)
-        TS = np.repeat(TS[np.newaxis, :, :], H.shape[0], axis = 0)              # [K]
-        LR = np.repeat(LR[np.newaxis, :, :], H.shape[0], axis = 0) / 1000       # [K/m]
-        HS = np.repeat(HS[np.newaxis, :, :], H.shape[0], axis = 0)              # [m]
-        # Temperature profile. Shape: (alt, lat, lon)
-        T = TS + LR * (H - HS)
-        # Pressure profile. Shape: (alt, lat, lon)
-        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
-        return np.squeeze(T), np.squeeze(P), np.squeeze(H)
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(molecule, 'FW', t[idx])
+        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(molecule, 'SW', t[idx])
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = (conc * (R_g * t[idx]))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[molecule] = Pi
+            dict_Ci_G[molecule] = conc
+            dict_Ci_LFW[molecule] = Ci_LFW
+            dict_Ci_LSW[molecule] = Ci_LSW
+        if phase == 'G':
+            return dict_Pi, dict_Ci_G
+        elif phase == 'L-FW':
+            return dict_Ci_LFW
+        elif phase == 'L-SW':
+            return dict_Ci_LSW
+        elif phase == 'L':
+            return dict_Ci_LFW, dict_Ci_LSW
+        elif phase == 'All':
+            return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
+        else:
+            print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
+                  '                             \'G\'       - Gas.\n'+
+                  '                             \'L-FW\'    - Liquid fresh water.\n'+
+                  '                             \'L-SW\'    - Liquid sea water.\n'+
+                  '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
+                  '                             \'All\'     - All phases (G, L-FW, L-SW).')
+            sys.exit()
     
     def reshapeAltitudesCAMS(self, orig_data, targ_data, plev):
         """
