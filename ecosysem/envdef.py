@@ -242,7 +242,7 @@ class ISA:
                   '                             \'L-SW\'    - Liquid sea water.\n'+
                   '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
-            return None
+            sys.exit()
             
     def setComposition(self, compound, composition):
         """
@@ -464,29 +464,29 @@ class MERRA2:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         # Path generation
         pathfile = path + file
@@ -517,29 +517,29 @@ class MERRA2:
         if dataType == 'dly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             if not isinstance(d, int):
                 print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         if dataType == 'mly':
             if not isinstance(y, int):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
-                return 0
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return 0
+                sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list):
                 print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
-                return None
+                sys.exit()
             if not isinstance(m, int):
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-                return None
+                sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
@@ -565,12 +565,12 @@ class MERRA2:
         """
         if not isinstance(month, int):
             print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
-            return None
+            sys.exit()
         if isinstance(years, int): years = [years]
         if isinstance(years, float): years = [years]
         if len(years) <= 1:
             print('\n!EcoSysEM.Error: Introduce at least 2 years to combine data.')
-            return None
+            sys.exit()
         # Get all files from data\npz
         folder = f'data/MERRA2/{dataType}/'
         allFiles = np.array(os.listdir(folder))
@@ -890,14 +890,14 @@ class MERRA2:
             uniqueCoor = False
         else:
             print('\n!EcoSysEM.Error: boundaries() requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional arguments.')
-            return None
+            sys.exit()
         # Check user coordinates
         if bbox[0] > bbox[2]:
             print('\n!EcoSysEM.Error: `upper_right_longitude` (bbox[2]) must be higher than `lower_left_longitude` (bbox[0])')
-            return None
+            sys.exit()
         if bbox[1] > bbox[3]:
             print('\n!EcoSysEM.Error: `upper_right_latitude` (bbox[3]) must be higher than `lower_left_latitude` (bbox[1])')
-            return None
+            sys.exit()
         # BBox from data
         lonR = data['lon']
         latR = data['lat']
@@ -946,7 +946,6 @@ class MERRA2:
             return dataSel
         else:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
-            return None
     
     def getTPAlt(self, dataType, year, month, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
@@ -1726,7 +1725,7 @@ class ISAMERRA2(ISA, MERRA2):
                   '                             \'L-SW\'    - Liquid sea water.\n'+
                   '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
-            return None
+            sys.exit()
 
 class CAMSMERRA2(CAMS, MERRA2):
     """
