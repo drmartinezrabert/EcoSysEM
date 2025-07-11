@@ -902,8 +902,8 @@ class MERRA2:
             # (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
             idx = (int(np.argwhere(lonR == bbox[0])),
                    int(np.argwhere(latR == bbox[1])),
-                   int(np.argwhere(lonR == bbox[2])),
-                   int(np.argwhere(latR == bbox[3])))
+                   int(np.argwhere(lonR == bbox[2])) + 1,
+                   int(np.argwhere(latR == bbox[3])) + 1)
             # Initialize dictionary of selected data
             dataSel = {}
             for var in data:
@@ -937,6 +937,7 @@ class MERRA2:
             return dataSel
         else:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
+            sys.exit()
     
     def getTPAlt(self, dataType, year, month, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
         """
