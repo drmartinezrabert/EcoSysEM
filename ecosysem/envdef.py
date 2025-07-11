@@ -805,7 +805,7 @@ class MERRA2:
                     monthData[f'{iV}_std'] = np.std(dayData[iV], axis = -1)
                 else:
                     monthData[iV] = dayData[iV]
-                    monthData[f'{iV}_std'] = np.array([0.0])
+                    monthData[f'{iV}_std'] = 0.0 * np.ones(dayData[iV].shape)
             # Save numpy matrices in .npz format
             if np.any(np.isin(dataType, 'mly')):
                 MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
