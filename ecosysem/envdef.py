@@ -1610,7 +1610,7 @@ class ISAMERRA2(ISA, MERRA2):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
     
-    def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
+    def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -1645,7 +1645,8 @@ class ISAMERRA2(ISA, MERRA2):
             List of altitudes
         num : INT, optional
             Number of altitude steps to generate.
-
+        surftrop : STR ('surface', 'tropopause'), optional
+            Get concentration from 2-meters air following topography (surftrop='surface') or tropopause height (surftrop='tropopause').
         Returns
         -------
         Dictionaries with pressures/concentrations.
@@ -1669,7 +1670,20 @@ class ISAMERRA2(ISA, MERRA2):
             compositions = compositions[findC]
             compounds = compounds[findC]
         # Temperature [K], pressure [Pa], altitude [m]
-        t, p, alt = MERRA2.getTPAlt(self, dataType, y, m, d, bbox, altArray, num)
+        if not surftrop:
+            t, p, _ = MERRA2.getTPAlt(self, dataType, y, m, d, bbox, altArray, num)
+        else:
+            data = MERRA2.loadDataMERRA2(self, dataType, y, m, d)
+            data = MERRA2.selectRegion(self, data, bbox)
+            if surftrop == 'surface':
+                t = np.array(data['T2M'])
+                p = np.array(data['PS'])
+            elif surftrop == 'tropopause':
+                t = np.array(data['TROPT'])
+                p = np.array(data['TROPPB'])
+            else:
+                print('\n!EcoSysEM.Error: argument \'surftrop\' must `surface` or `tropopause`.')
+                sys.exit()
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
