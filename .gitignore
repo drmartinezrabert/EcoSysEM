@@ -4,6 +4,7 @@ test*
 ecosysem/results/*.xlsx
 *.nc
 *.npz
+*.png
 ecosysem/data/*.txt
 *.csv
 ecosysem/plots
