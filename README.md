@@ -128,6 +128,10 @@ pip install -U "molmass[all]"
 ```
 pip install pyatmos
 ```
+**netCDF4 (h5netcdf)**
+```
+pip install netCDF4 h5netcdf
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -168,6 +172,10 @@ python -m pip install -U "molmass[all]"
 **pyatmos**:
 ```
 python -m pip install pyatmos
+```
+**netCDF4 (h5netcdf)**
+```
+python -m pip install netCDF4 h5netcdf
 ```
 [🔼 Back to **Contents**](#readme-contents)
 

@@ -25,7 +25,7 @@ if function == 'getDataMERRA2':
     parser.add_argument('_m', nargs = '+', type = int,
                         help="[int or list] Month(s) of requested data.")
     parser.add_argument('_d', default='All', nargs = '+',
-                        help="[str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.")
+                        help="[str, int or list] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.")
     parser.add_argument('_product', default='M2I1NXASM',
                         help="[str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).")
     parser.add_argument('_version', default='5.12.4',
