@@ -848,7 +848,7 @@ class MERRA2:
             var += ['H']
             for m in months:
                 MERRA2._combDataMERRA2(self, dataType = 'mly',
-                                       years = years,
+                                       year = years,
                                        month = m,
                                        days = days,
                                        keys = var, 
