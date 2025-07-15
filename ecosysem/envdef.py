@@ -631,9 +631,9 @@ class MERRA2:
         # Monthly average and std
         for key in keys:
             if np.char.find(key, '_std') == -1:
-                monthData[key] = np.average(combData[key], axis = -1)
+                monthData[key] = np.nanmean(combData[key], axis = -1)
             else:
-                monthData[key] = np.std(combData[key], axis = -1)
+                monthData[key] = np.nanstd(combData[key], axis = -1)
             if key == 'lat' or key == 'lon':
                 monthData[key] = np.squeeze(monthData[key])
         # Save numpy matrices in .npz format (v2)
@@ -802,7 +802,7 @@ class MERRA2:
                         print('\n!EcoSysEM.Error: missing required variable missing for lapse rate - \'T2M\', \'TROPT\', or \'TROPH\'.')
                         sys.exit()
                 # PHIS [Surface geopotential height]
-                av_dayData['H'] = np.round(np.average(H, axis = 0))
+                av_dayData['H'] = np.round(np.nanmean(H, axis = 0))
                 if date == start_date:
                     dayData['H'] = av_dayData['H']
                 else:
@@ -810,8 +810,8 @@ class MERRA2:
                 # User variables
                 for iV in var:
                     # Daily averages and std
-                    av_dayData[iV] = np.average(hourData[iV], axis = 0)
-                    av_dayData[f'{iV}_std'] = np.std(hourData[iV], axis = 0)
+                    av_dayData[iV] = np.nanmean(hourData[iV], axis = 0)
+                    av_dayData[f'{iV}_std'] = np.nanstd(hourData[iV], axis = 0)
                     # Day matrices
                     if date == start_date:
                         dayData[iV] = av_dayData[iV]
@@ -829,14 +829,14 @@ class MERRA2:
             monthData['lon'] = lon
             # PHIS [Surface geopotential height]
             if last_day != 1:
-                monthData['H'] = np.round(np.average(dayData['H'], axis = -1))
+                monthData['H'] = np.round(np.nanmean(dayData['H'], axis = -1))
             else:
                 monthData['H'] = dayData['H']
             # User variables
             for iV in var:
                 if last_day != 1:
-                    monthData[iV] = np.average(dayData[iV], axis = -1)
-                    monthData[f'{iV}_std'] = np.std(dayData[iV], axis = -1)
+                    monthData[iV] = np.nanmean(dayData[iV], axis = -1)
+                    monthData[f'{iV}_std'] = np.nanstd(dayData[iV], axis = -1)
                 else:
                     monthData[iV] = dayData[iV]
                     monthData[f'{iV}_std'] = 0.0 * np.ones(dayData[iV].shape)
@@ -1026,10 +1026,10 @@ class MERRA2:
         # Altitude. Shape: (alt, lat, lon)
         if not isinstance(altArray, (list, np.ndarray)):
             HS_min = 0.0 * np.ones(HS.shape)
-            TROPH_max = np.max(TROPH) * 0.99 * np.ones(TROPH.shape)
+            TROPH_max = np.nanmax(TROPH) * 0.99 * np.ones(TROPH.shape)
             H = np.linspace(start = HS_min, stop = TROPH_max, num = num)        # [m]
         else:
-            max_TROPH = np.max(TROPH) * 0.99
+            max_TROPH = np.nanmax(TROPH) * 0.99
             altChk = altArray
             if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
             altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
@@ -1046,7 +1046,7 @@ class MERRA2:
         LR = np.repeat(LR[np.newaxis, ...], H.shape[0], axis = 0) / 1000       # [K/m]
         HS = np.repeat(HS[np.newaxis, ...], H.shape[0], axis = 0)              # [m]
         # Temperature profile
-        T = TS + LR * (H - (HS - np.min(HS)))
+        T = TS + LR * (H - HS)
         # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
         # Temperature
