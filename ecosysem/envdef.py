@@ -543,7 +543,7 @@ class MERRA2:
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
-    def _combDataMERRA2(self, years, month, dataType, keys = 'All', mlyDelete = False):
+    def _combDataMERRA2(self, dataType, year, month, days = None, keys = 'All', mlyDelete = False):
         """
         Get average and standard deviation from a group of data.
         
@@ -553,7 +553,7 @@ class MERRA2:
             Year(s) of data.
         month : INT
             Month of data
-        dataType   : STR ('mly')
+        dataType   : STR ('mly', 'dly')
             Type of data.
         keys  : LIST of STR
             List of requested variables. (Default: 'All')     
@@ -566,20 +566,45 @@ class MERRA2:
         if not isinstance(month, int):
             print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
             sys.exit()
-        if isinstance(years, int): years = [years]
-        if isinstance(years, float): years = [years]
-        if len(years) <= 1:
-            print('\n!EcoSysEM.Error: Introduce at least 2 years to combine data.')
-            sys.exit()
+        if dataType == 'mly':
+            if isinstance(year, int): year = [year]
+            if isinstance(year, float): year = [year]
+            if len(year) <= 1:
+                print('\n!EcoSysEM.Error: Introduce at least 2 years to combine data.')
+                sys.exit()
         # Get all files from data\npz
         folder = f'data/MERRA2/{dataType}/'
         allFiles = np.array(os.listdir(folder))
         # Test elements
         tEl = np.empty((0))
-        for y in years:
-            if dataType == 'mly':
+        if dataType == 'mly':
+            for y in year:    
                 el = f'{y}_{month}_month.npz'
-            tEl = np.append(tEl, el)
+                tEl = np.append(tEl, el)
+        if dataType == 'dly':
+            if not isinstance(year, int):
+                print('\n!EcoSysEM.Error: `year` argument must be a integer.')
+                sys.exit()
+            if not isinstance(month, int):
+                print('\n!EcoSysEM.Error: `month` argument must be a integer.')
+                sys.exit()
+            y = year
+            m = month
+            if days == 'All':
+                last_day = calendar.monthrange(y, m)[1]
+                first_day = 1
+            else:
+                if not isinstance(days, list): days = [days]
+                days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
+                last_day = max(days)
+                if len(days) > 1:
+                    first_day = min(days)
+                else:
+                    first_day = 1
+            days = np.arange(first_day, last_day + 1, step = 1)  
+            for d in days:
+                el = f'{y}_{month}_{d}_day.npz'
+                tEl = np.append(tEl, el)
         selFiles = allFiles[np.isin(allFiles, tEl)]
         # Stack matrices
         combData = {}
@@ -589,7 +614,7 @@ class MERRA2:
             f = np.load(path)
             # Select keys
             if keys == 'All':
-                keys = MERRA2.keysMERRA2(self, dataType, years[0], month)
+                keys = f.files
             else:
                 coor = []
                 if not np.any(np.char.find('lat', keys) > -1):
@@ -612,7 +637,10 @@ class MERRA2:
             if key == 'lat' or key == 'lon':
                 monthData[key] = np.squeeze(monthData[key])
         # Save numpy matrices in .npz format (v2)
-        MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [years[0], years[-1]], m = month)
+        if dataType == 'mly':
+            MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'cmly', y = [year[0], year[-1]], m = month)
+        elif dataType == 'dly':
+            MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
         # Delete monthly data (if necessary)
         if mlyDelete:
             for file in selFiles:
@@ -692,12 +720,18 @@ class MERRA2:
         for date in dateList:
             y = date[0]
             m = date[1]
-            start_date = datetime.date(y, m, 1)
             if days == 'All':
                 last_day = calendar.monthrange(y, m)[1]
+                first_day = 1
             else:
                 if not isinstance(days, list): days = [days]
+                days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
                 last_day = max(days)
+                if len(days) > 1:
+                    first_day = min(days)
+                else:
+                    first_day = 1
+            start_date = datetime.date(y, m, first_day)
             end_date = datetime.date(y, m, last_day)
             delta = datetime.timedelta(days=1)
             date = start_date
@@ -813,7 +847,12 @@ class MERRA2:
         if np.any(np.isin(dataType, 'cmly')):
             var += ['H']
             for m in months:
-                MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
+                MERRA2._combDataMERRA2(self, dataType = 'mly',
+                                       year = years,
+                                       month = m,
+                                       days = days,
+                                       keys = var, 
+                                       mlyDelete = mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
     
     def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
@@ -1426,21 +1465,21 @@ class CAMS:
         # File name (based on dataType)
         if dataType == 'dly':
             if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer.')
                 sys.exit()
             if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer.')
                 sys.exit()
             if not isinstance(d, int):
-                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer.')
                 sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
             if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer.')
                 sys.exit()
             if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer.')
                 sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
