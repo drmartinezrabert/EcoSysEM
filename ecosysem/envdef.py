@@ -720,12 +720,18 @@ class MERRA2:
         for date in dateList:
             y = date[0]
             m = date[1]
-            start_date = datetime.date(y, m, 1)
             if days == 'All':
                 last_day = calendar.monthrange(y, m)[1]
+                first_day = 1
             else:
                 if not isinstance(days, list): days = [days]
+                days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
                 last_day = max(days)
+                if len(days) > 1:
+                    first_day = min(days)
+                else:
+                    first_day = 1
+            start_date = datetime.date(y, m, first_day)
             end_date = datetime.date(y, m, last_day)
             delta = datetime.timedelta(days=1)
             date = start_date
@@ -841,7 +847,12 @@ class MERRA2:
         if np.any(np.isin(dataType, 'cmly')):
             var += ['H']
             for m in months:
-                MERRA2._combDataMERRA2(self, years, m, 'mly', var, mlyDelete)
+                MERRA2._combDataMERRA2(self, dataType = 'mly',
+                                       years = years,
+                                       month = m,
+                                       days = days,
+                                       keys = var, 
+                                       mlyDelete = mlyDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
     
     def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
@@ -1454,21 +1465,21 @@ class CAMS:
         # File name (based on dataType)
         if dataType == 'dly':
             if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer.')
                 sys.exit()
             if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer.')
                 sys.exit()
             if not isinstance(d, int):
-                print('\n!EcoSysEM.Error: argument \'d\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'d\' must be a integer.')
                 sys.exit()
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
             if not isinstance(y, int):
-                print('\n!EcoSysEM.Error: argument \'y\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'y\' must be a integer.')
                 sys.exit()
             if not isinstance(m, int):
-                print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+                print('\n!EcoSysEM.Error: argument \'m\' must be a integer.')
                 sys.exit()
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
