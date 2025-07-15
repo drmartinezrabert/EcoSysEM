@@ -3,6 +3,7 @@
 test*
 ecosysem/results/*.xlsx
 *.nc
+*.avi
 *.npz
 *.png
 ecosysem/data/*.txt
