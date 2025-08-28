@@ -424,6 +424,135 @@ class ThP:
                     Y = 1.0 * np.ones(T.shape)
             actCoeff[compound] = Y
         return actCoeff
+    
+    def _setschenowShumpe(composition, T, salinity = None, molality = True, solvent = 'H2O', selComp = None):
+        """
+        Function to estimate activity coefficients with Setschenow-Shumpe equation.
+        --------------------------------------------------------------------------
+        References: 
+            - Weisenberger & Schumpe (1996), doi: 10.1002/aic.690420130
+            - F. Millero (2000). doi: 10.1016/S0304-4203(00)00011-6
+            
+        Parameters
+        ----------
+        composition : DICT
+            Composition of environment {'compound': concentration} [mol/L].
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        salinity : FLOAT, LIST or np.ndarray, optional
+            Salinity of solvent [ppt or g/L]. The default is 0.0.
+        molality : BOOL, optional
+            Select if activity calculation in molality (True) or molarity (False). The default is True.
+        solvent : STR, optional
+            Solvent name. The default is 'H2O' (water).
+        selComp: STR, optional
+            Select component from composition dictionary. The default is None.    
+        
+        Returns
+        -------
+        actCoeff : DICT
+            Activity coefficient of compounds.
+
+        """
+        # Model parameters
+        hi = {'H+': 0, 'Li+': 0.0754, 'Na+': 0.1143, 'K+': 0.0992,'Rb+': 0.0839,
+              'Cs+': 0.0759, 'NH4+': 0.0556, 'Mg+2': 0.1694, 'Ca+2': 0.1762,
+              'Sr+2': 0.1881, 'Ba+2': 0.2168, 'Mn+2': 0.1463, 'Fe+2': 0.1523,
+              'Co+2': 0.1680, 'Ni+2': 0.1654, 'Cu+2': 0.1675, 'Zn+2': 0.1537,
+              'Cd+2': 0.1869, 'Al+3': 0.2174, 'Cr+3': 0.0648, 'Fe+3': 0.1161,
+              'La+3': 0.2297, 'Ce+3': 0.2406, 'Th+4': 0.2709, 'OH-': 0.0839,
+              'HS-': 0.0851, 'F-': 0.0920, 'Cl-': 0.0318, 'Br-': 0.0269,
+              'I-': 0.0039, 'NO2-': 0.0795, 'NO3-': 0.0128, 'ClO3-': 0.1348,
+              'BrO3-': 0.1116, 'IO3-': 0.0913, 'ClO4-': 0.0492, 'IO4-': 0.1464,
+              'CN-': 0.0679, 'SCN-': 0.0627, 'HCrO4-': 0.0401, 'HCO3-': 0.0967,
+              'H2PO4-': 0.0906, 'HSO3-': 0.0549, 'CO3-2': 0.1423, 'HPO4-2': 0.1499,
+              'SO3-2': 0.1270, 'SO4-2': 0.1117, 'S2O3-2': 0.1149, 'PO4-3': 0.2119,
+              '[Fe(CN)6]-4': 0.3574}
+        h0g = {'H2': -0.0218, 'He': -0.0353, 'Ne': -0.0080, 'Ar': 0.0057, 
+               'Kr': -0.0071, 'Xe': 0.0133, 'Rn': 0.0447, 'N2': -0.0010, 
+               'O2': 0.0000, 'NO': 0.0060, 'N2O': -0.0085, 'NH3': -0.0481, 
+               'CO2': -0.0172, 'CH4': 0.0022, 'C2H2': -0.0159, 'C2H4': 0.0037,
+               'C2H6': 0.0120, 'C3H8': 0.0240, 'C4H10': 0.0297, 'H2S': -0.0333,
+               'SO2': -0.0817, 'SF6': 0.0100}
+        hT = {'H2': -2.99e-4, 'He': 4.64e-4, 'Ne': -9.13e-4, 'Ar': -4.85e-4, 
+              'Kr': 0.0000, 'Xe': -3.29e-4, 'Rn': -1.38e-4, 'N2': -6.05e-4, 
+              'O2': -3.34e-4, 'NO': 0.0000, 'N2O': -4.79e-4, 'NH3': 0.0000, 
+              'CO2': -3.38e-4, 'CH4': -5.24e-4, 'C2H2': 0.0000, 'C2H4': 0.0000,
+              'C2H6': -6.01e-4, 'C3H8': -7.02e-4, 'C4H10': -7.26e-4, 'H2S': 0.0000,
+              'SO2': 2.75e-4, 'SF6': 0.0000}
+        hi_comp = list(hi.keys())
+        h0g_comp = list(h0g.keys())
+        # Solvent density
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if salinity is None:
+            salinity = 0.0 * np.ones(T.shape)
+        rho_solv = density(T, salinity, solvent)
+        # Electrolyte contributions
+        dict_hi = {}
+        dict_ci = {}
+        for compEly in composition:                    
+            if compEly in h0g_comp:
+                continue
+            elif compEly in hi_comp:
+                hi_ = hi[compEly] * np.ones(T.shape)
+                ci_ = composition[compEly]
+                try:
+                    dict_ci[compEly]
+                except:
+                    dict_ci[compEly] = ci_
+                    dict_hi[compEly] = hi_
+                else:
+                    dict_ci[compEly] += ci_
+            else:
+                # Check `electrolytes.csv`
+                pd_lyte = pd.read_csv('reactions/electrolytes.csv')
+                try:
+                    stoic = pd_lyte[compEly].dropna()
+                except:
+                    continue
+                else:
+                    # Electrolyte (no pH speciation)
+                    compSalt = pd_lyte['Compounds'][stoic.index].values
+                    stoic = stoic.values
+                    c_ = composition[compEly]
+                    for idComp, iComp in enumerate(compSalt):
+                        if ('-' in iComp) or ('+' in iComp):
+                            ci_ = c_ * abs(stoic[idComp])
+                            if iComp in hi_comp:
+                                hi_ = hi[iComp] * np.ones(T.shape)
+                            try:
+                                dict_ci[iComp]
+                            except:
+                                dict_ci[iComp] = ci_
+                                dict_hi[iComp] = hi_
+                            else:
+                                dict_ci[iComp] += ci_
+        # Non-electrolyte gas contribution
+        actCoeff = {}
+        # Select compound (if `selComp != None`)
+        if selComp is not None:
+            composition = {selComp: composition[selComp]}
+        for comp in composition:
+            # Gas compound (non-electrolyte)
+            if comp in h0g_comp:
+                h0g_ = h0g[comp] * np.ones(T.shape)
+                hT_ = hT[comp] * np.ones(T.shape)
+                hg_ = h0g_ + hT_ * (T - 298.15)
+                if molality:
+                    hg_ = hg_ * (rho_solv)
+                logYn = 0
+                for ely in dict_hi:
+                    hi_ = dict_hi[ely]
+                    ci_ = dict_ci[ely]
+                    if molality:
+                        hi_ = hi_ * (rho_solv)
+                    logYn += (hi_ + hg_) * ci_
+                Yn = 10**logYn
+            else:
+                Yn = 1.0 * np.ones(T.shape)
+            actCoeff[comp] = Yn
+        return actCoeff
+        
 class ThEq:
     """
     Class for calulation of chemical, ion and interphase (G-L) equilibriums.
