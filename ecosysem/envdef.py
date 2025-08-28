@@ -598,6 +598,9 @@ class MERRA2:
                 sys.exit()
             y = year
             m = month
+            if not days:
+                print('\n!EcoSysEM.Error: `days` argument must be defined.')
+                sys.exit()
             if days == 'All':
                 last_day = calendar.monthrange(y, m)[1]
                 first_day = 1
