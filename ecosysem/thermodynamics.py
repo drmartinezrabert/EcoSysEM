@@ -303,6 +303,127 @@ class ThP:
         """
         I = ThP._sumI(composition)
         return 0.5 * I
+    
+    def _debyeHuckel(composition, T, salinity = None, molality = True, solvent = 'H2O', selComp = None):
+        """
+        Function to estimate activity coefficients with Debye-Hückel theory.
+        --------------------------------------------------------------------------
+        References: 
+            - Speight, J. (2005). Lange's Handbook of Chemistry, 16th ed
+            - Meissner & Peppas (1973). doi: 10.1002/aic.690190419 
+            
+        Parameters
+        ----------
+        composition : DICT
+            Composition of environment {'compound': concentration} [mol/L].
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        salinity : FLOAT, LIST or np.ndarray, optional
+            Salinity of solvent [ppt or g/L]. The default is 0.0.
+        molality : BOOL, optional
+            Select if activity calculation in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        selComp: STR, optional
+            Select component from composition dictionary. The default is None.
+            
+        Returns
+        -------
+        actCoeff : DICT
+            Activity coefficient of compounds.
+
+        """
+        # Solvent density
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if salinity is None:
+            salinity = 0.0 * np.ones(T.shape)
+        rho_solv = density(T, salinity, solvent)
+        a = 4.6 # Effective ionic radius (Å)
+        if molality:
+            # Constants of solvents (unit weight of solvent)
+            A = 4.495e-6 * T**2 - 1.848e-3 * T + 6.618e-1
+            B = 5.779e-7 * T**2 - 1.966e-4 * T + 3.357e-1
+            # B-dot parameter (unit weight of solvent)
+            by = -8.825e-13 * T**4 - 2.121e-9 * T**3 + 2.733e-6 * T**2 - 9.075e-4 * T + 1.317e-1
+            for comp in composition:
+                composition[comp] = composition[comp] * (1/rho_solv)
+        else:
+            # Constants of solvents (unit volum of solvent)
+            A = 5.135e-6 * T**2 - 2.154e-3 * T + 6.973e-1
+            B = 8.800e-7 * T**2 - 3.292e-4 * T + 3.491e-1
+            # B-dot parameter (unit weight of solvent)
+            by = (-8.825e-13 * T**4 - 2.121e-9 * T**3 + 2.733e-6 * T**2 - 9.075e-4 * T + 1.317e-1) * (1/rho_solv)
+        # Ionic strength
+        I = ThP.ionicStrength(composition)
+        # Select compound (if `selComp != None`)
+        if selComp is not None:
+            composition = {selComp: composition[selComp]}
+        # Initialize dictionary of activity coefficients
+        actCoeff = {}
+        for compound in composition:
+            if '-' in compound:
+                if len(compound) == compound.index('-')+1:
+                    z = -1 * np.ones(I.shape)
+                else:
+                    z = int(compound[compound.index('-'):]) * np.ones(I.shape)
+                # Activity coefficient
+                Y = 10**(-(A * z**2 * I**0.5) / (1 + B * a * I**0.5) + by * I)
+            elif '+' in compound:
+                if len(compound) == compound.index('+')+1:
+                    z = 1 * np.ones(I.shape)
+                else:
+                    z = int(compound[compound.index('+'):]) * np.ones(I.shape)
+                # Activity coefficient
+                Y = 10**(-(A * z**2 * I**0.5) / (1 + B * a * I**0.5) + by * I)
+            else:
+                pd_lyte = pd.read_csv('reactions/electrolytes.csv')
+                try:
+                    stoic = pd_lyte[compound].dropna()
+                except:
+                    # Electrolyte (pH speciation)
+                    # Not defined in `electrolytes.csv`. Check if it is defined in `pHSpeciation.csv`
+                    comp, stoic, infoRxn = Rxn.getRxnpH(compound)
+                    if not comp:    
+                        # If compound is not an electrolyte (pH speciation), assume ideal behaviour (Y = 1.0)
+                        Y = 1.0 * np.ones(T.shape)
+                    else:
+                        stoic = np.squeeze(stoic)
+                        if np.ndim(stoic) > 1:
+                            indexRxn = np.squeeze(np.argwhere(np.char.find(infoRxn, 'First deP') == 0))
+                            stoic = stoic[:, indexRxn]
+                else:
+                    # Electrolyte (no pH speciation)
+                    comp = pd_lyte['Compounds'][stoic.index].values
+                    stoic = stoic.values
+                dEly = {}
+                if comp is not None:
+                    for iComp in comp:
+                        if '-' in iComp:
+                            if len(iComp) == iComp.index('-')+1:
+                                z = -1 * np.ones(I.shape)
+                            else:
+                                z = int(iComp[iComp.index('-'):]) * np.ones(I.shape)
+                            dEly['s_neg'] = [stoic[i] for i, c in enumerate(comp) if '-' in c][0]
+                            # Activity coefficient
+                            dEly['Y_neg'] = 10**(-(A * z**2 * I**0.5) / (1 + B * a * I**0.5) + by * I)
+                        elif '+' in iComp:
+                            if len(iComp) == iComp.index('+')+1:
+                                z = 1 * np.ones(I.shape)
+                            else:
+                                z = int(iComp[iComp.index('+'):]) * np.ones(I.shape)
+                            dEly['s_pos'] = [stoic[i] for i, c in enumerate(comp) if '+' in c][0]
+                            # Activity coefficient
+                            dEly['Y_pos'] = 10**(-(A * z**2 * I**0.5) / (1 + B * a * I**0.5) + by * I)
+                    try:
+                        dEly['Y_neg'], dEly['Y_pos']
+                    except:
+                        Y = 1.0 * np.ones(T.shape)
+                    else:
+                        Y = (dEly['Y_pos']**dEly['s_pos'] * dEly['Y_neg']**dEly['s_neg'])**(1 / (dEly['s_pos'] + dEly['s_neg']))
+                else:
+                    Y = 1.0 * np.ones(T.shape)
+            actCoeff[compound] = Y
+        return actCoeff
 class ThEq:
     """
     Class for calulation of chemical, ion and interphase (G-L) equilibriums.
