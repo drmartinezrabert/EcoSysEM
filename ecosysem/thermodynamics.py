@@ -101,6 +101,8 @@ class ThP:
             Name of compounds.
         phase : STR
             Fluid phase. Depending on typeParam.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
 
         Returns
         -------
@@ -673,8 +675,8 @@ class ThEq:
             Requested compound(s).
         wType : STR ('FW' or 'SW')
             Water type (Phase). FW - Fresh Water; SW - Sea Water.
-        temperature : FLOAT or LIST
-            Set temperature for Henry's law solubility constant(s).
+        temperature : FLOAT or LIST, optional
+            Set temperature for Henry's law solubility constant(s). The default is None.
 
         Returns
         -------
@@ -731,8 +733,8 @@ class ThEq:
             Set of temperature for pH speciation [K].
         Ct : LIST or np.array
             Total concentrations of compounds.
-        rAllConc : BOOL
-            Option to select if return all compound species or only preferred.
+        rAllConc : BOOL, optional
+            Option to select if return all compound species or only preferred. The default is False.
 
         Returns
         -------
