@@ -357,6 +357,8 @@ ecosysem
          │    ├── getThP
          │    ├── getDeltaG0r
          │    ├── getDeltaH0r
+         │    ├── ionicStrength
+         │    ├── activity
          │    └── getKeq
          ├── ThEq
          │    ├── solubilityHenry
