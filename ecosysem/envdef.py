@@ -169,7 +169,7 @@ class ISA:
                         'L' - Both liquid phases (L-FW, L-SW).
                         'All' - All phaes (G, L-FW, L-SW).
         compound : STR or LIST, optional
-            DESCRIPTION. Interested compounds. Default: None -> All compounds.
+            DESCRIPTION. Interested compounds. The default is None. (i.e., all compounds are considered).
 
         Returns
         -------
@@ -449,7 +449,9 @@ class MERRA2:
         y : INT or LIST of INT
             Year(s) of data.
         m : INT or LIST of INT
-            Month of data  
+            Month of data. 
+        d : INT, optional
+            Day of data. The default is None.
         
         Returns
         -------
@@ -506,7 +508,9 @@ class MERRA2:
         y : INT or LIST of INT
             Year(s) of data.
         m : INT or LIST of INT
-            Month of data  
+            Month of data.
+        d : INT, optional
+            Day of data. The default is None.
         
         Returns
         -------
@@ -549,14 +553,18 @@ class MERRA2:
         
         Parameters
         ----------
+        dataType : STR ('mly', 'dly')
+            Type of data.
         years : INT or LIST of INT
             Year(s) of data.
         month : INT
-            Month of data
-        dataType   : STR ('mly', 'dly')
-            Type of data.
-        keys  : LIST of STR
-            List of requested variables. (Default: 'All')     
+            Month of data.
+        days : INT, optional
+            Last day of data.
+        keys : LIST of STR, optional
+            List of requested variables. The default is 'All'.
+        dataDelete : BOOL
+            Delete daily or monthly data after the average calculation. The default is False.
         
         Returns
         -------
@@ -659,22 +667,22 @@ class MERRA2:
         Parameters
         ----------
         dataType: STR or LIST of STR ('dly', 'mly', 'cmly' or 'All')
-            Type of data
+            Type of data.
         years : INT or LIST of INT
             Year(s) of data.
         months : INT or LIST of INT
-            Month(s) of data
-        days : INT, LIST of INT, or STR ('All')
-            Day(s) of data
-        product  : STR
-            Product of data (section of MERRA2 database).
-        version : STR
-            Version of data.
-        bbox : TUPLE
-            Earths region of data, the bounding box.
+            Month(s) of data.
+        days : INT, LIST of INT, or STR ('All'), optional
+            Day(s) of data. The default is 'All'.
+        product  : STR, optional
+            Product of data (section of MERRA2 database). The default is 'M2I1NXASM'.
+        version : STR, optional
+            Version of data. The default is '5.12.4'.
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
             (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
-        var : LIST of STR
-            List of requested variables.   
+        var : LIST of STR, optinal
+            List of requested variables. The default is ['PS', 'TROPPB', 'T2M', 'TROPT', 'TROPH', 'LR'].
         
         Returns
         -------
@@ -862,15 +870,15 @@ class MERRA2:
         Parameters
         ----------
         dataType : STR ('mly', 'cmly', 'dly')
-            Type of data
+            Type of data.
         y : INT or LIST of INT
-            Year(s) of data
+            Year(s) of data.
         m : INT or LIST of INT
-            Month of data
-        d : INT or LIST of INT
-            Day(s) of data
+            Month of data.
+        d : INT or LIST of INT, optional
+            Day(s) of data. The default is None.
         keys : LIST of STR
-            List of requested variables. (Default: 'All')
+            List of requested variables. The default is 'All'.
         
         Returns
         -------
@@ -986,20 +994,20 @@ class MERRA2:
         Parameters
         ----------
         dataType : STR ('mly', 'cmly', 'dly')
-            Type of data
+            Type of data.
         year : INT or LIST of INT
-            Year(s) of data
+            Year(s) of data.
         month : INT or LIST of INT
-            Month of data
-        day : INT or LIST of INT
-            Day(s) of data
+            Month of data.
+        day : INT or LIST of INT, optional
+            Day(s) of data. The default is None.
         bbox : TUPLE, optional
-            Earths region of data, the bounding box.
+            Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
             (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
         altArray : LIST or np.ndarray, optional
-            List of altitudes
+            List of altitudes. The default is None.
         num : INT, optional
-            Number of altitude steps to generate.
+            Number of altitude steps to generate. The default is 50.
 
         Returns
         -------
@@ -1068,7 +1076,9 @@ class MERRA2:
         y : INT or LIST of INT
             Year(s) of data.
         m : INT or LIST of INT
-            Month of data  
+            Month of data.
+        d : INT, optional
+            Day of data. The default is None.
         
         Returns
         -------
@@ -1094,7 +1104,9 @@ class MERRA2:
         y : INT or LIST of INT
             Year(s) of data.
         m : INT or LIST of INT
-            Month of data  
+            Month of data
+        d : INT, optional
+            Day of data. The default is None.
 
         """
         dictVar = MERRA2.dictMERRA2(self, dataType, y, m, d)
