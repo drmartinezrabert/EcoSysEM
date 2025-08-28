@@ -746,11 +746,10 @@ class ThEq:
         if not isinstance(t, np.ndarray): t = np.array(t)
         if not isinstance(Ct, np.ndarray): Ct = np.array(Ct)
         # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-        H = np.power(10, -abs(np.array(pH)))
         if iCompound == 'CO2': iCompound = 'H2CO3'
-        rSpec = np.empty(Ct.shape)
+        H = np.power(10, -abs(np.array(pH)))
         rComp, mRxn, infoRxn = Rxn.getRxnpH(iCompound)
-        # Return same concentration(s) if compound doesno't have acid-base equilibrium
+        # Return same concentration(s) if compound doesn't have acid-base equilibrium
         if not rComp:
             return Ct
         c_rComp = iCompound in rComp
@@ -767,10 +766,12 @@ class ThEq:
         # Reshape matrix of chemical species
         mSpec_ = [mSpec__[i, ...] for i in range(4)]
         mSpec_aux = np.stack(mSpec_, axis = -1)
-        if not rAllConc:
+        if rAllConc == False:
             rSpec = mSpec_aux[..., reqSp]
         else:
-            rSpec = mSpec_aux
+            nzeros = np.nonzero(mSpec_aux)
+            shapes = t.shape + (len(rComp) - 1,)
+            rSpec = np.reshape(mSpec_aux[nzeros], shapes)
         return rSpec
     
     def plotpHSpeciation(compounds, pH, temperature):
