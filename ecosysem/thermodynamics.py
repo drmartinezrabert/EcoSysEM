@@ -826,7 +826,9 @@ class ThSA:
     
     """
 
-    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, Ct = 1.0, pH = 7.0, asm = 'stoich', warnings = False):
+    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
+                   fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+                   warnings = False, printDG0r = False, printDH0r = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -840,20 +842,36 @@ class ThSA:
             Name(s) of requested compound(s) or reaction(s).
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
-        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True)
-            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). Default: False.
-        T : FLOAT or LIST
-            Set of temperature [K]. By default: standard temperature (298.15 K).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
-        pH : FLOAT or LIST
-            Set of pH. By default: neutral pH (pH: 7.0)
-        asm : STRING
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
             Assumption when products are not present in the environment.
-            By default: 'stoich' - stoichiometric concentrations.
-        warnings : BOOL
-            Display function warnings. Default: False.
+            The default is 'stoich' (stoichiometric concentrations).
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
 
         Returns
         -------
@@ -871,6 +889,7 @@ class ThSA:
             sys.exit()
         if isinstance(T, int): T = float(T)
         if isinstance(T, float): T = [T]
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if isinstance(pH, int): pH = float(pH)
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
@@ -934,10 +953,16 @@ class ThSA:
             deltaG0f = ThP.getThP('deltaG0f', i_rComp, phase)[0]
             deltaG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)                        # kJ
             deltaG0r = deltaG0r / vSelected                                     # kJ/mol-i (if specDGr)
+            if printDG0r:
+                print(f'· DG0r of {iRxn}: {deltaG0r}.')
             # Calculate DeltaH0r
             deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
             deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
             deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
+            if printDH0r:
+                print(f'· DH0r of {iRxn}: {deltaH0r}.')
+            if printDG0r or printDH0r:
+                print('')
             deltaGTr = deltaG0r * (T / Ts) + deltaH0r * ((Ts - T) / Ts)
             if isinstance(Ct, dict):
                 # Calculate reaction quotient (Qr)
@@ -947,16 +972,13 @@ class ThSA:
                 for idComp, iComp in enumerate(i_rComp):
                     findComp = np.argwhere(uComp == iComp)
                     vi = i_mRxn[idComp] / vSelected
-                    if findComp.size == 0:
-                        if vi < 0:
-                            # iComp is a substrate and its concentration was not given.
-                            print(f'!EcoSysEM.Error: Concentration for {iComp} not found.')
-                        else:
+                    if fluidType == 'ideal':
+                        if findComp.size == 0:
                             if iComp == 'H+':
                                 iConc = 10**(-pH) * np.ones(T.shape)
                             elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
                                 iConc = 1.0 * np.ones(T.shape)
-                            else: 
+                            else:
                                 # Check if product is a species of iComp
                                 rComp_pH, _, _ = Rxn.getRxnpH(iComp)
                                 uIComp = np.isin(uComp, rComp_pH)
@@ -967,17 +989,13 @@ class ThSA:
                                     rxn_iComp =  uComp[uIComp][0]
                                     # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
                                     iConc = Ct[rxn_iComp]
+                        else:
                     else:
-                        iConc = Ct[iComp]
-                    # pH speciation
-                    if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                        # Only pH speciation in liquid
-                        if phase == 'L':
-                            if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                            iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                        print("!EcoSysEM.Error: `fluidType` argument must be 'ideal' {Qr = f(concentrations)} or 'non-ideal' {Qr = f(activities)}.")
+                        sys.exit()
                     # Calculation of reaction quotient (Qr)
-                    Qr += vi * np.log(iConc)
-                # Concentration influence (Nernst relationship)
+                    Qr += vi * np.log(iAct)
+                # Activity/Concentration influence (Nernst equation)
                 deltaGr = deltaGTr + R * T * Qr
                 rDGr = deltaGr
             else:
