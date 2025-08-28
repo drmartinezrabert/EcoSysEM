@@ -547,7 +547,7 @@ class MERRA2:
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
-    def _combDataMERRA2(self, dataType, year, month, days = None, keys = 'All', mlyDelete = False):
+    def _combDataMERRA2(self, dataType, year, month, days = None, keys = 'All', dataDelete = False):
         """
         Get average and standard deviation from a group of data.
         
@@ -650,7 +650,7 @@ class MERRA2:
         elif dataType == 'dly':
             MERRA2._saveNPZMERRA2(self, data = monthData, dataType = 'mly', y = y, m = m)
         # Delete monthly data (if necessary)
-        if mlyDelete:
+        if dataDelete:
             for file in selFiles:
                 path = folder + file
                 os.remove(path)
@@ -689,8 +689,8 @@ class MERRA2:
         None.
         
         """
-        # Initialize `mlyDelete` for _combDataMERRA2()
-        mlyDelete = False
+        # Initialize `dataDelete` for _combDataMERRA2()
+        dataDelete = False
         # Data checking
         if isinstance(dataType, str): dataType = [dataType]
         if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
@@ -699,7 +699,7 @@ class MERRA2:
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
             dataType += ['mly']
-            mlyDelete = True
+            dataDelete = True
         if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
         # Coordinates (bbox)
         if len(bbox) == 2:
@@ -860,7 +860,7 @@ class MERRA2:
                                        month = m,
                                        days = days,
                                        keys = var, 
-                                       mlyDelete = mlyDelete)
+                                       dataDelete = dataDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
     
     def loadDataMERRA2(self, dataType, y, m, d = None, keys = 'All'):
