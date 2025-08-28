@@ -227,6 +227,82 @@ class ThP:
         Keq = np.nan_to_num(Keq, nan = 0.0)
         return np.squeeze(Keq)
 
+    def _sumI(composition):
+        """
+        Function to compute the sum concentration * (charge)^2 of all compounds.
+
+        Parameters
+        ----------
+        composition : DICT
+            Composition of solution.
+            {'compound': concentration}
+
+        Returns
+        -------
+        I : FLOAT
+            Sum of concentration * (charge)^2.
+
+        """
+        if not isinstance(composition, dict):
+            print('!EcosysEM.Error: Argument `composition` must be a dictionary.')
+            sys.exit()
+        # Initialize I
+        I = 0
+        for compound in composition:
+            Ct = composition[compound]
+            if not isinstance(Ct, np.ndarray): Ct = np.array(Ct)
+            if '-' in compound:
+                if len(compound) == compound.index('-')+1:
+                    z = -1 * np.ones(Ct.shape)
+                else:
+                    z = int(compound[compound.index('-'):]) * np.ones(Ct.shape)
+                c = Ct
+                I_ = c * z**2
+            elif '+' in compound:
+                if len(compound) == compound.index('+')+1:
+                    z = 1 * np.ones(Ct.shape)
+                else:
+                    z = int(compound[compound.index('+'):]) * np.ones(Ct.shape)
+                c = Ct
+                I_ = c * z**2
+            else:
+                pd_lyte = pd.read_csv('reactions/electrolytes.csv')
+                try:
+                    stoic = pd_lyte[compound].dropna()
+                except:
+                    continue
+                else:
+                    comp = pd_lyte['Compounds'][stoic.index].values
+                    stoic = [stoic.values[i] * np.ones(Ct.shape) for i, c in enumerate(comp) if '-' in c or '+' in c]
+                    stoic = np.squeeze(stoic)
+                    comp = [c for c in comp if '-' in c or '+' in c]
+                    # Composition dictionary with ions of salt
+                    composition_ = dict(zip(comp, stoic * Ct))
+                    I_ = 0
+                    for c in composition_:
+                        I_s = ThP._sumI({c: composition_[c]})
+                        I_ += I_s
+            I += I_
+        return I
+    
+    def ionicStrength(composition):
+        """
+        Function to compute ionic strength of solution.
+
+        Parameters
+        ----------
+        composition : DICT
+            Composition of solution.
+            {'compound': concentration}
+
+        Returns
+        -------
+        I : FLOAT
+            Ionic strength.
+
+        """
+        I = ThP._sumI(composition)
+        return 0.5 * I
 class ThEq:
     """
     Class for calulation of chemical, ion and interphase (G-L) equilibriums.
