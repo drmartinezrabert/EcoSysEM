@@ -58,9 +58,9 @@ class KinP:
         reaction : STR
             Requested reaction.
         sample : STR or LIST, optional
-            Requested samples (rows of `typeParam.csv`). Default: 'All'.
+            Requested samples (rows of `typeParam.csv`). The default is 'All'.
         comp : STR or LIST, optional
-            Compounds of parameters associated to compounds (e.g., Km). Default: None.
+            Compounds of parameters associated to compounds (e.g., Km). The default is None.
 
         Returns
         -------
@@ -123,12 +123,11 @@ class KinRates:
         Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). Default: 'All'.
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : FLOAT, optional
-            pH values. Default: None.
+            pH values. The default is None.
         T : FLOAT, LIST or np.ndarray, optional
-            Temperatures. Default: None.
-        Tcorr : STR, optional
+            Temperatures. The default is None.
         
         Returns
         -------
@@ -320,8 +319,8 @@ class Reactions:
                 - 'metabolisms': metabolic activities
         input_ : STR or LIST
             Name(s) of requested compound(s) or reaction(s).
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
         
         Returns
         -------
@@ -369,11 +368,10 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name.
-            Default: 'pHSpeciation'.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'pHSpeciation'.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
             
         Returns
         -------
@@ -451,8 +449,8 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
             
         Returns
         -------
@@ -521,8 +519,8 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
         
         Returns
         -------
@@ -590,8 +588,8 @@ class Reactions:
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'pHSpeciation': pH equilibrium
                 - 'metabolisms': metabolic activities
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
 
         Returns
         -------
