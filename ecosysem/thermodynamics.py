@@ -990,6 +990,29 @@ class ThSA:
                                     # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
                                     iConc = Ct[rxn_iComp]
                         else:
+                            iConc = Ct[iComp]
+                        # pH speciation
+                        if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                            # Only pH speciation in liquid
+                            if phase == 'L':
+                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                                iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                        iAct = iConc
+                    elif fluidType == 'non-ideal':
+                        if methods is None:
+                            print("!EcoSysEM.Error: `methods` must be defined to calculate activities of species.")
+                            sys.exit()
+                        if iComp == 'H+':
+                            Ct[iComp] = 10**(-pH) * np.ones(T.shape)
+                        if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
+                            iAct = 1.0 * np.ones(T.shape)
+                        else:
+                            if phase == 'G':
+                                iAct = iConc
+                                print(f"!EcoSysEM.Warning: Estimation of fugacities not included. Ideal behaviour of {iComp} is assumed.")
+                            elif phase == 'L':
+                                activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
+                                iAct = activity[iComp]
                     else:
                         print("!EcoSysEM.Error: `fluidType` argument must be 'ideal' {Qr = f(concentrations)} or 'non-ideal' {Qr = f(activities)}.")
                         sys.exit()
