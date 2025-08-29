@@ -547,7 +547,7 @@ class MERRA2:
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         return np.load(path + file)
     
-    def _combDataMERRA2(self, dataType, year, month, days = None, keys = 'All', dataDelete = False):
+    def combDataMERRA2(self, dataType, year, month, days = None, keys = 'All', dataDelete = False):
         """
         Get average and standard deviation from a group of data.
         
@@ -573,6 +573,9 @@ class MERRA2:
         """
         if not isinstance(month, int):
             print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
+            sys.exit()
+        if dataType != 'dly' and dataType != 'mly':
+            print('\n!EcoSysEM.Error: argument \'dataType\' must be \'dly\' (to generate mly data) or \'mly\' (to generate cmly data).')
             sys.exit()
         if dataType == 'mly':
             if isinstance(year, int): year = [year]
