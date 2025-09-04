@@ -696,10 +696,11 @@ class MERRA2:
             f.close()
         # Monthly average and std
         for key in keys:
-            if np.char.find(key, '_std') == -1:
-                resultData[key] = np.nanmean(combData[key], axis = -1)
+            if '_std' in key:
+                key_ = key.replace('_std', '')
+                resultData[key] = np.nanstd(combData[key_], axis = -1)
             else:
-                resultData[key] = np.nanstd(combData[key], axis = -1)
+                resultData[key] = np.nanmean(combData[key], axis = -1)
             if key == 'lat' or key == 'lon':
                 resultData[key] = np.squeeze(resultData[key])
         # Save numpy matrices in .npz format (v2)
