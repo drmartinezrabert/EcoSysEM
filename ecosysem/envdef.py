@@ -1725,7 +1725,7 @@ class ISAMERRA2(ISA, MERRA2):
         ISA.__init__(self, layers = layers, H2O = H2O, pH = pH, resolution = resolution)
         MERRA2.__init__(self)
     
-    def getConcISAMERRA2(self, phase, dataType, y, m, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
+    def getConcISAMERRA2(self, phase, dataType, y, m = None, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -1743,16 +1743,16 @@ class ISAMERRA2(ISA, MERRA2):
                 'L-SW' - Liquid sea water.
                 'L' - Both liquid phases (L-FW, L-SW).
                 'All' - All phases (G, L-FW, L-SW).
-        dataType : STR ('dly','mly', 'cmly', 'yly', 'cyly' )
+        dataType : STR ('dly','mly', 'cmly', 'yly', 'cyly')
             Type of data
         y : INT or LIST of INT
             Year(s) of data
-        m : INT or LIST of INT
-            Month of data
+        m : INT or LIST of INT, optional
+            Month of data. The default is None.
         d : INT or LIST of INT
             Day(s) of data
         compound : STR or LIST, optional
-            Interested compounds. Default: None -> All compounds.
+            Interested compounds. The default is None (all compounds of ISA).
         bbox : TUPLE, optional
             Earths region of data, the bounding box.
             (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
