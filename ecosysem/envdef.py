@@ -96,9 +96,10 @@ class ISA:
         M0 = 0.0289644                  # Molar mass of Earth's air
         resolution = self.resolution    # Resolution (size of altitude nodes per layer) [m]
         # Data from ISA to compute temperature
-        if layers == 'All':
-            layers = range(8)
-        elif type(layers) == int:
+        if isinstance(layers, str):
+            if layers == 'All':
+                layers = range(8)
+        elif isinstance(layers, int):
             layers = range(layers, layers+1)
         lapse_rate = (dISA.loc[layers]['Lapse rate']).to_numpy()
         base_T = (dISA.loc[layers]['Base temperature']).to_numpy()
