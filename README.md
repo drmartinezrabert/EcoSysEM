@@ -733,7 +733,7 @@ from envdef import CAMS
 newCAMS = CAMS()
 
 # Get monthly data from online databases
-## (Default arguments: pressure_levels = [10, 20, 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 925, 950, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
+## (Default arguments: pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
 newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
 
 # See keys (_e.i._, variable names) of downloaded data
@@ -765,27 +765,54 @@ data = newCAMS.dictCAMS(dataType = 'mly', y = 2024, m = 4, keys = ['lat', 'lon',
 ### CAMS.getDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days = 'All', pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"], bbox = [90, -180, -90, 180])
+CAMS.getDataCAMS(dataType, years, months, days = 'All', dataset = None, pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = None, bbox = [90, -180, -90, 180], mode = None, method = 'linear')
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ or _list of str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type(s) of data (e.g., 'mly' and/or 'dly' and/or 'cmly').<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type(s) of data (e.g., 'mly' and/or 'dly').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _int_ or _list of int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data (e.g., 2024).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **months : _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **months : _int_ or _list of int_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data (e.g., [4, 5]).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _list of int_, _optional, default: 'All'_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 15]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **days : _int_ or _list of int_ or _str_, _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day(s) of month of data (e.g., [1, 5, 15]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataset : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts", "cams-global-ghg-reanalysis-egg4", "cams-global-atmospheric-composition-forecasts").<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pressure_levels : _int or List of int_, _optional, default: [50, 100, 200, 400, 600, 800, 900, 1000]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of pressure levels to download (e.g., [100, 200, ..., 1000]).<br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _List of str_, _optional, default: ["carbon_dioxide", "carbon_monoxide", "methane"]_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_ or _List of str_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A list of variables to download (Allowed: "co", "co2", "ch4"). If None, uses the dataset defaults.<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _List_, _optional, default: [90, -180, -90, 180]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mode : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mode for the download of data (Allowed: "add"). If "add", adds variable(s) to downloaded data. If None, downloads new data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **method : _str_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation (default: 'linear').<br>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\` and/or `data\CAMS\cmly\`**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\`**<br>
+
+### CAMS.combDataCAMS  &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CAMS.combDataCAMS(dataType, years, months, method = 'linear', target_lats = None, target_lons = None)
+```
+Combine data as 'cmly', 'yly' or 'cyly'.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data ('cmly', 'yly', or 'cyly').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _int_ or _List of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **months : _int_ or _List of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month(s) of data.<br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **method : _str_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation (default: 'linear').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lats : _1D array_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired latitudes for the CAMS grid (e.g.: np.arange(-90, 90.1, 0.5)). Default: None; uses last year/month grid.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lons : _1D array_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired longitudes for the CAMS grid (e.g.: np.arange(-180, 179.375+0.001, 0.625)). Default: None; uses last year/month grid.<br>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\cmly\` or `data\CAMS\yly\` or `data\CAMS\cyly\`**<br>
 
 ### CAMS.selectRegionCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -804,7 +831,7 @@ Select specific region of Earth of downloaded data.<p>
 
 ### CAMS.dictCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-CAMS.dictCAMS(dataType, y, m, d=None, keys='All')
+CAMS.dictCAMS(dataType, y, m=None, d=None, keys='All')
 ```
 Get data in dictionary form.<p>
 **Parameters:**<br>
@@ -825,7 +852,7 @@ Get data in dictionary form.<p>
 
 ### CAMS.keysCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-CAMS.keysCAMS(dataType, y, m, d=None)
+CAMS.keysCAMS(dataType, y, m=None, d=None)
 ```
 Get variable list of data.<p>
 **Parameters:**<br>
@@ -844,7 +871,7 @@ Get variable list of data.<p>
 
 ### CAMS.deleteKeyCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-CAMS.deleteKeyCAMS(keys, dataType, y, m, d=None)
+CAMS.deleteKeyCAMS(keys, dataType, y, m=None, d=None)
 ```
 Delete variable(s) from data.<p>
 **Parameters:**<br>
@@ -971,23 +998,17 @@ from envdef import CAMSMERRA2
 newCAMSMERRA2 = CAMSMERRA2()
 
 # Get interpolated data from CAMS model
->>> print(newCAMSMERRA2.interpolateCAMS(dataType = 'mly'))
-Processing 2024_4_month.npz
-{'2024_4_month.npz': {'CO': array([[[2.1469465e-10, 2.1469465e-10, 2.1469465e-10, ...,
+>>> print(newCAMSMERRA2.interpolateCAMS(dataType = 'mly', year = 2024, month = 4))
+{'CO': array([[[2.1469465e-10, 2.1469465e-10, 2.1469465e-10, ...,
                    1.1986655e-10, 1.1986655e-10, 1.1986655e-10]]], dtype=float32),
-   'CO2': array([[[4.6834889e-06, 4.6834889e-06, 4.6834889e-06, ...,
+ 'CO2': array([[[4.6834889e-06, 4.6834889e-06, 4.6834889e-06, ...,
                    2.4685271e-06, 2.4685271e-06, 2.4685271e-06]]], dtype=float32),
-   'CH4': array([[[2.0142485e-08, 2.0142485e-08, 2.0142485e-08, ...,
+ 'CH4': array([[[2.0142485e-08, 2.0142485e-08, 2.0142485e-08, ...,
                    8.7634273e-09, 8.7634273e-09, 8.7634273e-09]]], dtype=float32),
-   'lat': array([-90. , -89.5, -89. , ...,  89. ,  89.5, 90. ]),
-   'lon': array([-180.   , -179.375, -178.75, ...,  178.125,  178.75 ,  179.375]),
-   'alt': array([11769.86595602, 15790.46205054])},
- {'2024_4_month.npz': {'lat': (361,),
-   'lon': (576,),
-   'alt': (2,),
-   'CO': (2, 361, 576),
-   'CO2': (2, 361, 576),
-   'CH4': (2, 361, 576)}}
+ 'lat': array([-90. , -89.5, -89. , ...,  89. ,  89.5, 90. ]),
+ 'lon': array([-180.   , -179.375, -178.75, ...,  178.125,  178.75 ,  179.375]),
+ 'alt': array([11769.86595602, 15790.46205054])
+ 'P_level': array([20000.,  10000.])}
 
 # See keys (_e.i._, variables names) of downloaded data
 keys = newCAMSMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
@@ -1016,23 +1037,57 @@ data = newCAMSMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat'
 ### CAMSMERRA2.interpolateCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ```python
-CAMSMERRA2.interpolateCAMS(dataType, molecules = ('CO', 'CO2', 'CH4'), target_lats = np.arange(-90, 90.1, 0.5), target_lons = np.arange(-180,  179.375 + 1e-3, 0.625))
+CAMSMERRA2.interpolateCAMS(dataType, year, month, day=None, loc=None, molecules = ('CO', 'CO2', 'CH4'), target_lats = np.arange(-90, 90.1, 0.5), target_lons = np.arange(-180,  179.375 + 1e-3, 0.625), method='linear')
 ```
 Interpolate CAMS .npz files onto target MERRA2 grid.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ or _list of str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type(s) of data (e.g., 'mly' and/or 'dly' and/or 'cmly').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the subfolder under `data/CAMS/` containing .npz files.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **year : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **day : _int_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molecules : _Tuple of str_, _optional, default: ('CO', 'CO2', 'CH4')_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable names to process.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lats : _1D array_, _optional, default: np.arange(-90, 90.1, 0.5)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired latitudes for the CAMS grid.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lons : _1D array_, _optional, default: np.arange(-180, 179.375+0.001, 0.625)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired longitudes for the CAMS grid.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **method : _str_, _optional, default: 'linear'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation.<br>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **all_results : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A mapping from each filename (e.g. '2024_4_month.npz') to a dict.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **all_shapes : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shapes of result dict.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **result : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interpolated data.<br>
+
+### CAMSMERRA2.getConcCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+
+```python
+CAMSMERRA2.getConcCAMS(phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=None)
+```
+Converts the mass ratio (kg/kg) to concentration (mol/L).<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of phase of vertical profile. 'G' - Gas. 'L-FW' - Liquid fresh water. 'L-SW' - Liquid sea water. 'L' - Both liquid phases (L-FW, L-SW). 'All' - All phases (G, L-FW, L-SW).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data in dictionary.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the subfolder under `data/CAMS/` containing .npz files.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **year : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **day : _int_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the desired dataset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altArray : _list_ or _nD array_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of altitudes in m.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num : _int_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of altitude steps to generate.<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -1572,17 +1627,21 @@ python ecosysem_cmd.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -9
 #### <ins>getDataCAMS</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> _type </td><td> [str] Type(s) of data ('mly', 'dly', 'cmly').</td></tr>
+   <tr><td> _type </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
    <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
    <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
    <tr><td> _d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> _dset </td><td> [str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').</td></tr>
    <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
    <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
+   <tr><td> _mode </td><td> [str] Mode of download ('add').</td></tr> 
+   <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr> 
 </table>
 
 List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
 For example: <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dset cams-global-greenhouse-gas-forecasts` => `dataset = 'cams-global-greenhouse-gas-forecasts'` <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_pressure 200 400` => `pressure_levels = [200, 400]` <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
 
