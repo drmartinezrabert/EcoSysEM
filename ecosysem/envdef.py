@@ -1122,251 +1122,929 @@ class CAMS:
 
     def __init__(self):
         self.base_path = 'data/CAMS/'
-        self.processable_molecules = ['co', 'co2', 'ch4']
 
     def _testCAMS(self):
         print('CAMS class works.')
 
     def getDataCAMS(self, dataType, years, months, days = 'All',
+                    dataset = None,
                     pressure_levels = [50, 100, 200, 400, 
                                        600, 800, 900, 1000],
-                    variables = ["carbon_dioxide", 
-                                 "carbon_monoxide", 
-                                 "methane"],
-                    bbox = [90, -180, -90, 180]):
+                    variables = None,
+                    bbox = [90, -180, -90, 180],
+                    mode = None,
+                    method = 'linear'):
         """
         Download data from CAMS Global Greenhouse Gas Forecasts database.
 
         Parameters
         ----------
         dataType : STR or LIST of STR
-            Type(s) of data.
+            Type(s) of data ('dly', 'mly').
         years : INT or LIST of INT
             Year(s) of data.
         months : INT or LIST of INT
             Month(s) of data.
         days : INT, LIST of INT, or STR ('All')
             Day(s) of data.
+        dataset : STR
+            CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
+                               "cams-global-ghg-reanalysis-egg4", 
+                               "cams-global-atmospheric-composition-forecasts").
         pressure_levels : INT or LIST of INT
             A list of pressure levels to download (e.g., [100, 200, ..., 1000]).
-        variables : LIST of STR
-            A list of variables to download (e.g., ["carbon_dioxide"]).
+        variables : STR or LIST of STR or None
+            A list of variables to download (Allowed: "co", "co2", "ch4").
+            If None, uses the dataset defaults.
         bbox : LIST
             Earth's region of data, the bounding box (e.g., [90, -180, -90, 180]).
             (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)
+        mode : STR or None
+            Mode for the download of data (Allowed: "add").
+            If "add", adds variable(s) to downloaded data. If None, downloads new data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
         years = [years] if isinstance(years, int) else list(years)
         months = [months] if isinstance(months, int) else list(months)
-        
+    
         if days == 'All':
             days_list = None
         else:
             days_list = [days] if isinstance(days, int) else list(days)
-        
-        if isinstance(pressure_levels, (int)):
+    
+        if isinstance(pressure_levels, (int, float)):
             pressure_levels = [pressure_levels]
-        pressure_levels = [str(pl) for pl in pressure_levels]
+        pressure_levels = [str(int(pl)) for pl in pressure_levels]
+    
+        if dataset == "cams-global-greenhouse-gas-forecasts":
+            support  = {"co": True, "co2": True, "ch4": True}
+            req_name = {"co": "carbon_monoxide", "co2": "carbon_dioxide", "ch4": "methane"}
+        elif dataset == "cams-global-ghg-reanalysis-egg4":
+            support  = {"co": False, "co2": True, "ch4": True}
+            req_name = {"co2": "carbon_dioxide", "ch4": "methane"}
+        elif dataset == "cams-global-atmospheric-composition-forecasts":
+            support  = {"co": True, "co2": False, "ch4": True}
+            req_name = {"co": "carbon_monoxide", "ch4": "methane"}
+        elif dataset == None:
+            raise ValueError("Dataset should be defined (e.g., 'cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts')")
+        else:
+            raise ValueError(f"Unknown dataset: {dataset}")
+    
+        # Variables to request
+        allowed_keys = ("co", "co2", "ch4")
+        if variables is None:
+            selected_mols = []
+            for mol, ok in support.items():
+                if ok:
+                    selected_mols.append(mol)
+        else:
+            if isinstance(variables, str):
+                variables = [variables]
         
-        # Ensure output folder exists
+            selected_mols = []
+            for v in variables:
+                mol = str(v).lower()
+                if mol in allowed_keys and mol in support and support[mol]:
+                    selected_mols.append(mol)
+
+            if not selected_mols:
+                raise ValueError("Selected variables are not available for this dataset. Use 'co', 'co2', 'ch4'.")
+    
+        req_vars = [req_name[m] for m in selected_mols]
+    
         raw_folder = os.path.join(self.base_path, 'temporary')
         os.makedirs(raw_folder, exist_ok=True)
-        
-        client  = cdsapi.Client()
-        dataset = "cams-global-greenhouse-gas-forecasts"
-        
+    
+        client = cdsapi.Client()
+    
         for y in years:
             for m in months:
-                # Determine valid days in the month
+                # Day ranges
                 month_max_day = calendar.monthrange(y, m)[1]
                 if days_list is None:
                     day_ranges = [(1, month_max_day)]
                 else:
-                    # Validate user-provided days
                     invalid_days = [d for d in days_list if d < 1 or d > month_max_day]
                     if invalid_days:
                         raise ValueError(f"Invalid day(s) {invalid_days} for year {y}, month {m}")
                         sys.exit()
-                        
                     day_ranges = [(d, d) for d in days_list]
-        
+    
                 for d_start, d_end in day_ranges:
                     date_range = f"{datetime.date(y, m, d_start)}/{datetime.date(y, m, d_end)}"
-                    zip_name   = f"CAMS_{y}_{m}.zip"
-                    zip_path   = os.path.join(raw_folder, zip_name)
-        
-                    print(f"Downloading data for {date_range}")
+    
+                    # Unique filenames
+                    if d_start == d_end:
+                        stamp = f"{y}_{m}_{d_start}"
+                    else:
+                        stamp = f"{y}_{m}_{d_start}-{d_end}"
+    
+                    zip_path  = os.path.join(raw_folder, f"CAMS_{stamp}.zip")
+                    target_nc = os.path.join(raw_folder, f"CAMS_{stamp}.nc")
+    
+                    if dataset == "cams-global-greenhouse-gas-forecasts":
+                        req = {
+                            'variable': req_vars,
+                            'pressure_level': pressure_levels,
+                            'date': [date_range],
+                            'data_format': 'netcdf_zip',
+                            'area': bbox,
+                            "leadtime_hour": ["0"]
+                        }
+                    elif dataset == "cams-global-ghg-reanalysis-egg4":
+                        req = {
+                            'variable': req_vars,
+                            'pressure_level': pressure_levels,
+                            'date': [date_range],
+                            'data_format': 'netcdf_zip',
+                            'area': bbox,
+                            "step": ["0"]
+                        }
+                    elif dataset == "cams-global-atmospheric-composition-forecasts":
+                        req = {
+                            'variable': req_vars,
+                            'pressure_level': pressure_levels,
+                            'date': [date_range],
+                            'data_format': 'netcdf_zip',
+                            'area': bbox,
+                            "time": ["00:00"],
+                            "leadtime_hour": ["0"],
+                            "type": ["forecast"]
+                        }
+                    else:
+                        raise ValueError(f"Unknown dataset: {dataset}")
+    
+                    print(f"[{dataset}] Downloading {date_range} for {req_vars}")
                     try:
-                        client.retrieve(
-                            dataset,
-                            {
-                                'variable': variables,
-                                'pressure_level': pressure_levels,
-                                'date': date_range,
-                                'leadtime_hour': ['0'],
-                                'data_format': 'netcdf_zip',
-                                'area': bbox,
-                            },
-                            zip_path
-                        )
-        
-                        # Extract netCDF from zip
-                        print("Extracting data from zip...")
+                        client.retrieve(dataset, req, zip_path)
+    
+                        # Extract .nc
                         with zipfile.ZipFile(zip_path, 'r') as zf:
-                            members = zf.namelist()
-                            if members:
-                                nc_file = members[0]
-                                target_nc = os.path.join(raw_folder,
-                                    f"CAMS_{y}_{m}.nc")
-                                with zf.open(nc_file) as src, open(target_nc, 'wb') as dst:
-                                    dst.write(src.read())
+                            nc_file = zf.namelist()[0]
+                            temp_nc = target_nc + ".tmp"
+                            with zf.open(nc_file) as zipped_nc, open(temp_nc, 'wb') as local_nc:
+                                local_nc.write(zipped_nc.read())
+
+                        os.replace(temp_nc, target_nc)
                         os.remove(zip_path)
-                        print("Extraction processes is done.")
-                        
+                        print("Extracted .nc")
+    
                         # Process and clean up
                         for dt in dataTypes:
-                            CAMS._processDataCAMS(self, dt)
-                        CAMS._deleteTempDataCAMS(self, target_nc)
-        
+                            self._processDataCAMS('mly', dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
+                        self._deleteTempDataCAMS(target_nc)
+    
                     except Exception as e:
                         print(f"Failed for {date_range}: {e}")
                         sys.exit()
         
         print("\nAll downloads completed.")
 
-    def _processDataCAMS(self, dataType, month = None):
+    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear'):
         """
-        Process CAMS .nc files, interpolate and save as .npz format.
+        Process CAMS .nc files and save as .npz format.
 
         Parameters
         ----------
-        dataType : STR or LIST of STR
-            Type(s) of data. 
+        dataType : STR 
+            Type of data ('dly', 'mly', or 'cmly'). 
+        dataset : STR
+            CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
+                               "cams-global-ghg-reanalysis-egg4", or 
+                               "cams-global-atmospheric-composition-forecasts").
+        molecules : STR or LIST of STR
+            Molecules to process: 'co', 'co2', 'ch4'. 
         month : INT
             Input for cmly dataType.
+        mode : STR or None
+            Mode for the download of data (Allowed: "add").
+            If "add", adds variable(s) to downloaded data. If None, downloads new data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
         """
         input_folder = os.path.join(self.base_path, 'temporary')
         processed_folder = os.path.join(self.base_path, f"{dataType}")
         os.makedirs(processed_folder, exist_ok=True)
-
+    
         try:
             nc_files = [f for f in os.listdir(input_folder) if f.endswith('.nc')]
-            nc_files_month = [f for f in os.listdir(input_folder) if f.endswith(f'{month}.nc')]
         except FileNotFoundError:
             print(f"Input folder not found: '{input_folder}'")
             sys.exit()
-
+    
         if not nc_files:
             print(f"No .nc files found in: '{input_folder}'")
             sys.exit()
-                    
+    
+        # Variable names in netCDF data
+        if dataset == "cams-global-greenhouse-gas-forecasts":
+            variable_names = {
+                "co":  ["co"],
+                "co2": ["co2"],
+                "ch4": ["ch4"]
+            }
+        elif dataset == "cams-global-ghg-reanalysis-egg4":
+            variable_names = {
+                "co2": ["co2"],
+                "ch4": ["ch4"]
+                # 'co' not available
+            }
+        elif dataset == "cams-global-atmospheric-composition-forecasts":
+            variable_names = {
+                "co":  ["co"],
+                "ch4": ["ch4_c"]
+                # 'co2' not available
+            }
+        else:
+            raise ValueError(f"Unknown dataset: {dataset}")
+    
+        mols_to_process = [molecules] if isinstance(molecules, str) else list(molecules)
+        mols_to_process = [m for m in mols_to_process if m in variable_names]
+    
         if dataType == "dly":
             for nc_file in nc_files:
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
                     ds = xr.open_dataset(path_file)
-                    data_dict = {}
+    
+                    # Time dimension
+                    if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
+                        time_dim = "forecast_reference_time"
+                    elif ("time" in ds.dims) or ("time" in ds.coords):
+                        time_dim = "time"
+                    elif ("valid_time" in ds.dims) or ("valid_time" in ds.coords):
+                        time_dim = "valid_time"
+                    else:
+                        ds.close()
+                        raise ValueError("Time dimension not found ('forecast_reference_time'/'valid_time').")
+    
+                    # Levels in Pa
+                    if "pressure_level" in ds:
+                        pressure_pa = ds["pressure_level"].values * 100
+                    elif "level" in ds:
+                        pressure_pa = ds["level"].values * 100
+                    elif "pressure_level" in ds.coords:
+                        pressure_pa = ds.coords["pressure_level"].values * 100
+                    elif "level" in ds.coords:
+                        pressure_pa = ds.coords["level"].values * 100
+                    else:
+                        ds.close()
+                        raise ValueError("Pressure levels not found (pressure_level/level).")
+    
+                    # Coords
+                    if 'latitude' in ds:
+                        lat = ds['latitude'].values
+                    elif 'lat' in ds:
+                        lat = ds['lat'].values
+                    else:
+                        ds.close()
+                        raise ValueError("Latitude coord not found (latitude/lat).")
                     
+                    if 'longitude' in ds:
+                        lon = ds['longitude'].values
+                    elif 'lon' in ds:
+                        lon = ds['lon'].values
+                    else:
+                        ds.close()
+                        raise ValueError("Longitude coord not found (longitude/lon).")
+    
+                    # Daily means
+                    daily_by_molecule = {}
+                    first_key = None
+    
+                    for mol in mols_to_process:
+                        names = variable_names[mol]
+                        if isinstance(names, str):
+                            names = [names]
+                        vname = next((nm for nm in names if nm in ds.data_vars), None)
+                        if vname is None:
+                            print(f"  - {mol.upper()} variable not found in file; skip.")
+                            continue
+    
+                        da = ds[vname]
+                        if "step" in da.dims:
+                            da = da.isel(step=0)
+                        if "leadtime" in da.dims:
+                            da = da.isel(leadtime=0)
+    
+                        da_daily = da.resample({time_dim: '1D'}).mean()
+                        daily_by_molecule[mol] = da_daily
+                        if first_key is None:
+                            first_key = mol
+    
+                    if not daily_by_molecule:
+                        ds.close()
+                        print("No variables found to process for daily product.")
+                        continue
+    
+                    days_coord = daily_by_molecule[first_key][time_dim].values
+    
                     # Extract year/month from filename
                     parts = os.path.basename(nc_file).split('_')
-                    year_int = int(parts[1])
-                    month_int = int(parts[2].split('.')[0])
-                    
-                    day_count = len(ds["forecast_reference_time"])
-                    for i in range(day_count):
-                        for mol in self.processable_molecules:                        
-                            data_dict.update({
-                                f"{mol.upper()}": ds[mol][0][i].values,
-                                })
-                    
+                    year_int = int(parts[1]); month_int = int(parts[2].split('.')[0])
+    
+                    for i_day in range(len(days_coord)):
+                        data_dict = {}
+                        for mol, da_daily in daily_by_molecule.items():
+                            data_dict[mol.upper()] = da_daily.isel({time_dim: i_day}).values
+    
                         data_dict.update({
-                            'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
-                            'lat': ds['latitude'].values,
-                            'lon': ds['longitude'].values,
-                            'P_level': ds['pressure_level'].values*100
+                            'alt': MERRA2._HfromP(self, pressure_pa), # !!! [redudant]
+                            'lat': lat,
+                            'lon': lon,
+                            'P_level': pressure_pa
                         })
-                        CAMS._saveNPZCAMS(self, data_dict, "dly", year_int, month_int, (i+1)) # !!! [redudant]
-                
+    
+                        # Make sure arrays are 3D
+                        for key_out, val_out in list(data_dict.items()):
+                            if isinstance(val_out, np.ndarray):
+                                arr = np.asarray(val_out).squeeze()
+                                if arr.ndim == 4 and 1 not in arr.shape:
+                                    arr = arr.mean(axis=0)
+                                data_dict[key_out] = arr
+                        
+                        if mode == 'add':
+                            NPZ = CAMS._openNPZCAMS(self, dataType, year_int, month_int, (i_day+1)) # !!! [redudant]
+                            existing = {k: NPZ[k] for k in NPZ.files}
+                            targ_lats = existing['lat']
+                            targ_lons = existing['lon']
+                            targ_alts = existing['alt']
+                            NPZ.close()
+                            
+                            orig_lats = lat
+                            orig_lons = lon
+                            
+                            mesh_lat, mesh_lon = np.meshgrid(targ_lats, targ_lons, indexing='ij')
+                            points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+                            
+                            vars_to_add = []
+                            for m in (mols_to_process if isinstance(mols_to_process, list) else [mols_to_process]):
+                                up = m.upper()
+                                if up in data_dict: 
+                                    vars_to_add.append(up)
+                                if f'{up}_std' in data_dict: 
+                                    vars_to_add.append(f'{up}_std')
+                            
+                            for var in (vars_to_add):
+                                data3d = np.asarray(data_dict[var])
+                                
+                                if data3d.shape[0] != targ_alts.size:
+                                    raise ValueError(f"Vertical level mismatch: Source={data3d.shape[0]} vs Target={targ_alts.size}")
+                                    
+                                out = np.empty((targ_alts.size, targ_lats.size, targ_lons.size), dtype=data3d.dtype)
+                                for k in range(targ_alts.size):
+                                    interp = RegularGridInterpolator(
+                                        (orig_lats, orig_lons),
+                                        data3d[k, :, :],
+                                        method=method,
+                                        bounds_error=False,
+                                        fill_value=np.nan
+                                    )
+                                    out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                                existing[var] = out
+                            CAMS._saveNPZCAMS(self, existing, "dly", year_int, month_int, (i_day+1)) # !!! [redudant]
+                            print(f"{mols_to_process} is added to the file.")
+                        else:
+                            CAMS._saveNPZCAMS(self, data_dict, "dly", year_int, month_int, (i_day+1)) # !!! [redudant]
+    
+                    ds.close()
+    
                 except Exception as e:
                     print(f"Error occurred: {nc_file}, {e}")
+                    try:
+                        ds.close()
+                    except:
+                        pass
                     sys.exit()
-            
+    
             print(f"{dataType} files are processed and saved.")
-                    
+    
         elif dataType == "mly":
-            for nc_file in nc_files:
+            target_list = nc_files
+            for nc_file in target_list:
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
                     ds = xr.open_dataset(path_file)
+    
+                    # Time dimension
+                    if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
+                        time_dim = "forecast_reference_time"
+                    elif ("time" in ds.dims) or ("time" in ds.coords):
+                        time_dim = "time"
+                    elif ("valid_time" in ds.dims) or ("valid_time" in ds.coords):
+                        time_dim = "valid_time"
+                    else:
+                        ds.close()
+                        raise ValueError("Time dimension not found ('forecast_reference_time'/'valid_time').")
+    
+                    # Levels in Pa
+                    if "pressure_level" in ds:
+                        pressure_pa = ds["pressure_level"].values * 100
+                    elif "level" in ds:
+                        pressure_pa = ds["level"].values * 100
+                    elif "pressure_level" in ds.coords:
+                        pressure_pa = ds.coords["pressure_level"].values * 100
+                    elif "level" in ds.coords:
+                        pressure_pa = ds.coords["level"].values * 100
+                    else:
+                        ds.close()
+                        raise ValueError("Pressure levels not found (pressure_level/level).")
+    
+                    # Coords
+                    if 'latitude' in ds:
+                        lat = ds['latitude'].values
+                    elif 'lat' in ds:
+                        lat = ds['lat'].values
+                    else:
+                        ds.close()
+                        raise ValueError("Latitude coord not found (latitude/lat).")
+                    
+                    if 'longitude' in ds:
+                        lon = ds['longitude'].values
+                    elif 'lon' in ds:
+                        lon = ds['lon'].values
+                    else:
+                        ds.close()
+                        raise ValueError("Longitude coord not found (longitude/lon).")
+    
                     data_dict = {}
-                    
-                    # Extract year/month from filename
-                    parts = os.path.basename(nc_file).split('_')
-                    year_int = int(parts[1])
-                    month_int = int(parts[2].split('.')[0])
-                       
-                    for mol in self.processable_molecules:
-                        data_dict.update({
-                            f"{mol.upper()}": ds[mol][0].mean(dim="forecast_reference_time").values,
-                            f"{mol.upper()}_std": ds[mol][0].std(dim="forecast_reference_time").values
-                            })
-                    
+                    for mol in mols_to_process:
+                        var_name = variable_names[mol]
+                        vname = None
+                        for name in var_name:
+                            if name in ds.data_vars:
+                                vname = name
+                                break
+                        if vname is None:
+                            print(f"  - {mol.upper()} variable not found in file; skip.")
+                            continue
+    
+                        da = ds[vname]
+                        if "step" in da.dims:
+                            da = da.isel(step=0)
+                        if "leadtime" in da.dims:
+                            da = da.isel(leadtime=0)
+    
+                        data_dict[mol.upper()] = da.mean(dim=time_dim).values
+                        data_dict[f"{mol.upper()}_std"] = da.std(dim=time_dim).values
+    
                     data_dict.update({
-                        'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
-                        'lat': ds['latitude'].values,
-                        'lon': ds['longitude'].values,
-                        'P_level': ds['pressure_level'].values*100
+                        'alt': MERRA2._HfromP(self, pressure_pa), # !!! [redudant]
+                        'lat': lat,
+                        'lon': lon,
+                        'P_level': pressure_pa
                     })
-                    CAMS._saveNPZCAMS(self, data_dict, "mly", year_int, month_int) # !!! [redudant]
-                
+    
+                    # Make sure arrays are 3D
+                    for key_out, val_out in list(data_dict.items()):
+                        if isinstance(val_out, np.ndarray):
+                            arr = np.asarray(val_out).squeeze()
+                            if arr.ndim == 4 and 1 not in arr.shape:
+                                arr = arr.mean(axis=0)
+                            data_dict[key_out] = arr
+    
+                    parts = os.path.basename(nc_file).split('_')
+                    year_int = int(parts[1]); month_int = int(parts[2].split('.')[0])
+                    if mode == 'add':
+                        NPZ = CAMS._openNPZCAMS(self, dataType, year_int, month_int) # !!! [redudant]
+                        existing = {k: NPZ[k] for k in NPZ.files}
+                        targ_lats = existing['lat']
+                        targ_lons = existing['lon']
+                        targ_alts = existing['alt']
+                        NPZ.close()
+                        
+                        orig_lats = lat
+                        orig_lons = lon
+                        
+                        mesh_lat, mesh_lon = np.meshgrid(targ_lats, targ_lons, indexing='ij')
+                        points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+                        
+                        vars_to_add = []
+                        for m in (mols_to_process if isinstance(mols_to_process, list) else [mols_to_process]):
+                            up = m.upper()
+                            if up in data_dict: 
+                                vars_to_add.append(up)
+                            if f'{up}_std' in data_dict: 
+                                vars_to_add.append(f'{up}_std')
+                        
+                        for var in (vars_to_add):
+                            data3d = np.asarray(data_dict[var])
+                            
+                            if data3d.shape[0] != targ_alts.size:
+                                raise ValueError(f"Vertical level mismatch: Source={data3d.shape[0]} vs Target={targ_alts.size}")
+                                
+                            out = np.empty((targ_alts.size, targ_lats.size, targ_lons.size), dtype=data3d.dtype)
+                            for k in range(targ_alts.size):
+                                interp = RegularGridInterpolator(
+                                    (orig_lats, orig_lons),
+                                    data3d[k, :, :],
+                                    method=method,
+                                    bounds_error=False,
+                                    fill_value=np.nan
+                                )
+                                out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                            existing[var] = out
+                        CAMS._saveNPZCAMS(self, existing, dataType, year_int, month_int) # !!! [redudant]
+                        print(f"{mols_to_process} is added to the file.")
+                    else:
+                        CAMS._saveNPZCAMS(self, data_dict, dataType, year_int, month_int) # !!! [redudant]
+    
+                    ds.close()
+    
                 except Exception as e:
                     print(f"Error occurred: {nc_file}, {e}")
+                    try:
+                        ds.close()
+                    except:
+                        pass
                     sys.exit()
-            
+    
             print(f"{dataType} file is processed and saved.")
-                    
-        elif dataType == "cmly":
-            for nc_file in nc_files_month:
-                path_file = os.path.join(input_folder, nc_file)
-                print(f"Processing: {path_file}")
-                try:
-                    ds = xr.open_dataset(path_file)
-                    data_dict = {}
-                    
-                    # Extract year/month from filename
-                    parts = os.path.basename(nc_file).split('_')
-                    year_int = int(parts[1])
-                    month_int = int(parts[2].split('.')[0])
-                       
-                    for mol in self.processable_molecules:
-                        data_dict.update({
-                            f"{mol.upper()}": ds[mol][0].mean(dim="forecast_reference_time").values,
-                            f"{mol.upper()}_std": ds[mol][0].std(dim="forecast_reference_time").values
-                            })
-                    
-                    data_dict.update({
-                        'alt': MERRA2._HfromP(self, (ds['pressure_level'].values*100)), # !!! [redudant]
-                        'lat': ds['latitude'].values,
-                        'lon': ds['longitude'].values,
-                        'P_level': ds['pressure_level'].values*100
-                    })
-                    CAMS._saveNPZCAMS(self, data_dict, "cmly", year_int, month_int) # !!! [redudant]
-                
-                except Exception as e:
-                    print(f"Error occurred: {nc_file}, {e}")
-                    sys.exit()
-            
-            print(f"{dataType} file is processed and saved.")
+    
+    def combDataCAMS(self, dataType, years, months, method = 'linear',
+                     target_lats = None, target_lons = None):
+        """
+        Combine data as 'cmly', 'yly' or 'cyly'.
+
+        Parameters
+        ----------
+        dataType : STR 
+            Type of data ('cmly', 'yly', or 'cyly'). 
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
+        target_lats : 1D array or None optional
+            Desired latitudes for the CAMS grid (e.g.: np.arange(-90, 90.1, 0.5)).
+            (default: None; uses last year/month grid).
+        target_lons : 1D array, optional.
+            Desired longitudes for the CAMS grid (e.g.: np.arange(-180, 179.375+0.001, 0.625)). 
+            (default: None; uses last year/month grid).
+        """ 
         
-        else:
-            raise ValueError(f"Unknown dataType: {dataType}")
-            sys.exit()
+        out_dir = f"data/CAMS/{dataType}"
+        os.makedirs(out_dir, exist_ok=True)
+        
+        years = [years] if isinstance(years, int) else list(years)
+        months = [months] if isinstance(months, int) else list(months)
+        source_type = 'mly'
+        
+        if dataType == 'cmly':
+            opened = {}
+            for m in months:
+                opened[m] = {}
+                for y in years:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[m][y] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+            
+            for m in months:
+                missing_years = [y for y in years if y not in opened.get(m, {})]
+                if missing_years:
+                    raise RuntimeError(f"[ERROR] month {m}: missing source files in 'mly' for years {missing_years}.")
+            
+            print("Regridding for data combining...")
+            regridded = {} 
+    
+            for m, yrs in opened.items():
+                # Last year that requested for this month
+                base_year = next((y for y in reversed(years) if y in yrs), None)
+            
+                base_npz  = yrs[base_year]
+                if target_lats is not None:
+                    targ_lats = np.flip(target_lats)
+                else:
+                    targ_lats = np.asarray(base_npz["lat"])
+                if target_lons is not None:
+                    targ_lons = target_lons
+                else:
+                    targ_lons = np.asarray(base_npz["lon"])
+            
+                targ_levels = np.asarray(base_npz["P_level"])
+                level_key = "P_level"
+            
+                LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+                points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[m] = {}
+                for y, npz in yrs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+            
+                    out_dict = {
+                        "lat": targ_lats,
+                        "lon": targ_lons,
+                    }
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+            
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+            
+                    regridded[m][y] = out_dict
+                    
+                    if hasattr(npz, "close"):
+                        npz.close()
+            
+            print("Combining the data...")
+            
+            for m, yrs in regridded.items():        
+                years_used = sorted(yrs.keys())
+                sample = next(iter(yrs.values()))  # schema
+                
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+            
+                output_data = {"lat": targ_lats,
+                               "lon": targ_lons}
+                output_data["P_level"] = sample["P_level"]
+                output_data["alt"] = sample["alt"]
+            
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in yrs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+            
+                for var in base_vars:
+                    arr_list = [yrs[y][var] for y in years_used if var in yrs[y]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nyears, lev, lat, lon)
+                    output_data[var] = np.nanmean(stack, axis=0)
+                    output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                    
+                    missing = [y for y in years_used if var not in yrs[y]]
+                    if missing:
+                        print(f"[INFO] month {m}: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
+                
+                CAMS._saveNPZCAMS(self, data=output_data, dataType='cmly', y=years, m=m) # !!! [redudant]
+
+        elif dataType == 'yly':
+            opened = {}
+            for y in years:
+                opened[y] = {}
+                for m in months:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[y][m] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+            
+            for y in years:
+                missing_months = [m for m in months if m not in opened.get(y, {})]
+                if missing_months:
+                    raise RuntimeError(f"[ERROR] year {y}: missing source files in 'mly' for months {missing_months}.")
+            
+            print("Regridding for data combining...")
+            regridded = {} 
+    
+            for y, mhs in opened.items():
+                # Last year that requested for this month
+                base_month = next((m for m in reversed(months) if m in mhs), None)
+            
+                base_npz  = mhs[base_month]
+                if target_lats is not None:
+                    targ_lats = np.flip(target_lats)
+                else:
+                    targ_lats = np.asarray(base_npz["lat"])
+                if target_lons is not None:
+                    targ_lons = target_lons
+                else:
+                    targ_lons = np.asarray(base_npz["lon"])
+            
+                targ_levels = np.asarray(base_npz["P_level"])
+                level_key = "P_level"
+            
+                LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+                points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[y] = {}
+                for m, npz in mhs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+            
+                    out_dict = {
+                        "lat": targ_lats,
+                        "lon": targ_lons,
+                    }
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+            
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+            
+                    regridded[y][m] = out_dict
+                    
+                    if hasattr(npz, "close"):
+                        npz.close()
+            
+            print("Combining the data...")
+            
+            for y, mhs in regridded.items():        
+                months_used = sorted(mhs.keys())
+                sample = next(iter(mhs.values()))  # schema
+                
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+            
+                output_data = {"lat": targ_lats,
+                               "lon": targ_lons}
+                output_data["P_level"] = sample["P_level"]
+                output_data["alt"] = sample["alt"]
+            
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in mhs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+            
+                for var in base_vars:
+                    arr_list = [mhs[m][var] for m in months_used if var in mhs[m]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nmonths, lev, lat, lon)
+                    output_data[var] = np.nanmean(stack, axis=0)
+                    output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                    
+                    missing = [mm for mm in months_used if var not in mhs[mm]]
+                    if missing:
+                        print(f"[INFO] year {y}: '{var}' averaged over {stack.shape[0]}/{len(months_used)} months; missing: {missing}")
+                
+                CAMS._saveNPZCAMS(self, data=output_data, dataType='yly', y=y) # !!! [redudant]
+                
+        elif dataType == 'cyly':
+            opened = {}
+            for y in years:
+                opened[y] = {}
+                for m in months:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[y][m] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+
+            for y in years:
+                missing_months = [m for m in months if m not in opened.get(y, {})]
+                if missing_months:
+                    raise RuntimeError(f"[ERROR] year {y}: missing source files in 'mly' for months {missing_months}.")
+
+            print("Regridding for data combining...")
+            regridded = {} 
+            
+            global_base_year = next((yy for yy in reversed(years) if opened.get(yy)), None)
+            if global_base_year is None:
+                raise RuntimeError("[ERROR] cyly: no source files found.")
+            global_base_month = next((mm for mm in reversed(months) if mm in opened[global_base_year]), None)
+            if global_base_month is None:
+                raise RuntimeError(f"[ERROR] cyly: base year {global_base_year} has none of the requested months.")
+
+            base_npz  = opened[global_base_year][global_base_month]
+            if target_lats is not None:
+                targ_lats = np.flip(target_lats)
+            else:
+                targ_lats = np.asarray(base_npz["lat"])
+            if target_lons is not None:
+                targ_lons = target_lons
+            else:
+                targ_lons = np.asarray(base_npz["lon"])
+            targ_levels = np.asarray(base_npz["P_level"])
+            level_key = "P_level"
+
+            LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+            points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+            for y, mhs in opened.items():
+
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[y] = {}
+                for m, npz in mhs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+
+                    out_dict = {"lat": targ_lats, "lon": targ_lons}
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+
+                    regridded[y][m] = out_dict
+                    if hasattr(npz, "close"):
+                        npz.close()
+
+            print("Combining the data...")
+
+            annual_map = {}
+            for y, mhs in regridded.items():        
+                months_used = sorted(mhs.keys())
+                if not months_used:
+                    continue
+                sample = next(iter(mhs.values()))
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in mhs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+
+                annual_map[y] = {"lat": targ_lats, "lon": targ_lons, 
+                                 "P_level": sample["P_level"], "alt": sample["alt"]}
+                for var in base_vars:
+                    arr_list = [mhs[m][var] for m in months_used if var in mhs[m]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nmonths, lev, lat, lon)
+                    annual_map[y][var] = np.nanmean(stack, axis=0)
+                    
+                    missing = [mm for mm in months_used if var not in mhs[mm]]
+                    if missing:
+                        print(f"[INFO] year {y}: '{var}' averaged over {stack.shape[0]}/{len(months_used)} months; missing: {missing}")
+            
+            # Years average
+            years_used = sorted(annual_map.keys())
+
+            sample_y = annual_map[years_used[-1]]
+            output_data = {"lat": sample_y["lat"], "lon": sample_y["lon"]}
+            output_data["P_level"] = sample_y["P_level"]
+            output_data["alt"] = sample_y["alt"]
+
+            axis_keys = {"lat", "lon", "P_level", "alt"}
+            all_keys_years = set().union(*[d.keys() for d in annual_map.values()])
+            base_vars = [k for k in all_keys_years if (k not in axis_keys) and (not k.endswith("_std"))]
+
+            for var in base_vars:
+                arr_list = [annual_map[y][var] for y in years_used if var in annual_map[y]]
+                if not arr_list:
+                    continue
+                stack = np.stack(arr_list, axis=0).astype(float)  # (nyears, lev, lat, lon)
+                output_data[var] = np.nanmean(stack, axis=0)
+                output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                
+                missing = [yy for yy in years_used if var not in annual_map[yy]]
+                if missing:
+                    print(f"[INFO] cyly: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
+
+            CAMS._saveNPZCAMS(self, data=output_data, dataType='cyly', y=years) # !!! [redudant]
+        
+        print("The data is combined.")
     
     def selectRegionCAMS(self, data, bbox): # !!! (redundant)
         """
+        !!! BE AWARE OF BBOX DIFFERENCE THAN MERRA-2 !!!
+        
         Select specific region of Earth of downloaded data.
 
         Parameters
@@ -1442,7 +2120,7 @@ class CAMS:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
             sys.exit()
 
-    def _saveNPZCAMS(self, data, dataType, y, m, d = None): # !!! (redundant)
+    def _saveNPZCAMS(self, data, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Create .npz file with downladed data.
 
@@ -1490,13 +2168,26 @@ class CAMS:
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
                 sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
+        elif dataType == 'yly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be an integer')
+                sys.exit()
+            file = f'{y}_year.npz'
+        elif dataType == 'cyly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                sys.exit()
+            file = f'{y[0]}_{y[-1]}.npz'
+        else:
+            print('\n!EcoSysEM.Error: argument \'dataType\' must be \'mly\' (to generate monthly data), \'cmly\' (to generate combined monthly data),  \'yly\' (to generate annual data) or \'cyly\' (to generate combined annual data).')
+            sys.exit()
         # Path generation
         pathfile = path + file
         # Save .npz file
         np.savez(pathfile, **data)   
         return pathfile
     
-    def _openNPZCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+    def _openNPZCAMS(self, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Open .npz file with downladed data.
 
@@ -1541,9 +2232,22 @@ class CAMS:
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
                 sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
+        elif dataType == 'yly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be an integer')
+                sys.exit()
+            file = f'{y}_year.npz'
+        elif dataType == 'cyly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                sys.exit()
+            file = f'{y[0]}_{y[-1]}.npz'
+        else:
+            print('\n!EcoSysEM.Error: argument \'dataType\' must be \'mly\' (to generate monthly data), \'cmly\' (to generate combined monthly data),  \'yly\' (to generate annual data) or \'cyly\' (to generate combined annual data).')
+            sys.exit()
         return np.load(path + file)
     
-    def dictCAMS(self, dataType, y, m, d = None, keys = 'All'): # !!! (redundant)
+    def dictCAMS(self, dataType, y, m = None, d = None, keys = 'All'): # !!! (redundant)
         """
         Get data in dictionary form.
 
@@ -1580,7 +2284,7 @@ class CAMS:
         npz.close()
         return dictVar
     
-    def keysCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+    def keysCAMS(self, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Get variable list of data.
 
@@ -1604,7 +2308,7 @@ class CAMS:
         npz.close()
         return keys
     
-    def deleteKeyCAMS(self, keys, dataType, y, m, d = None): # !!! (redundant)
+    def deleteKeyCAMS(self, keys, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Delete variable(s) from data.
 
@@ -1783,24 +2487,16 @@ class CAMSMERRA2(CAMS, MERRA2):
         CAMS.__init__(self)
         MERRA2.__init__(self)
     
-    def interpolateCAMS(self, phase, dataType, year, month, day=None,
+    def interpolateCAMS(self, dataType, year, month, day=None, loc=None,
                             molecules = ('CO', 'CO2', 'CH4'), 
                             target_lats = np.arange(-90, 90.1, 0.5),
                             target_lons = np.arange(-180,  179.375 + 1e-3, 0.625),
-                            method='linear'
-                            ):
+                            method='linear'):
         """
         Interpolate CAMS .npz files onto target MERRA2 grid.
     
         Parameters
         ----------
-        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
-            Selection of phase of vertical profile.
-                'G' - Gas.
-                'L-FW' - Liquid fresh water.
-                'L-SW' - Liquid sea water.
-                'L' - Both liquid phases (L-FW, L-SW).
-                'All' - All phases (G, L-FW, L-SW).
         dataType : STR
             Name of the subfolder under `data/CAMS/` containing .npz files.
         year : INT
@@ -1809,6 +2505,8 @@ class CAMSMERRA2(CAMS, MERRA2):
             Month of the desired dataset.
         day : INT, optional
             Day of the desired dataset.
+        loc : STR
+            Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').
         molecules : TUPLE of STR, optional
             Variable names to process (default: ('CO', 'CO2', 'CH4')).
         target_lats : 1D array, optional
@@ -1824,8 +2522,6 @@ class CAMSMERRA2(CAMS, MERRA2):
         -------
         result: DICT
             Interpolated data.
-        shape_info: DICT
-            Shapes of result dict.
         """
         folder = f'data/CAMS/{dataType}/'
         if day is None:
@@ -1836,10 +2532,8 @@ class CAMSMERRA2(CAMS, MERRA2):
         path = os.path.join(folder, fname)
         if not os.path.isfile(path):
             raise FileNotFoundError(f"CAMS file not found: {path}")
-        #print(f"Processing {fname}")
 
         npz = np.load(path)
-
         orig_lats = npz['lat']
         orig_lons = npz['lon']
         orig_alt  = npz['alt']
@@ -1856,51 +2550,36 @@ class CAMSMERRA2(CAMS, MERRA2):
         points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
 
         result = {}
-        shape_info = {
-            'lat': (target_lats.size,),
-            'lon': (target_lons.size,),
-            'alt': orig_alt.shape,
-            'P_level': orig_plev.shape
-        }
-
-        all_vars = list(molecules) + [f"{m}_std" for m in molecules]
-        for var in all_vars:
-            data3d = npz[var]  # shape: (n_alt, n_lat, n_lon)
+        
+        for var in list(molecules) + [f"{m}_std" for m in molecules]:
+            if var not in npz:
+                continue
+            data3d = npz[var]
             if flip_lat:
                 data3d = data3d[:, ::-1, :]
-
+    
             n_alt = data3d.shape[0]
             out = np.empty((n_alt, target_lats.size, target_lons.size), dtype=data3d.dtype)
             for k in range(n_alt):
-                layer = data3d[k]
                 interp = RegularGridInterpolator(
                     (orig_lats, orig_lons),
-                    layer,
+                    data3d[k],
                     method=method,
                     bounds_error=False,
                     fill_value=np.nan
                 )
-                vals = interp(points).reshape(target_lats.size, target_lons.size)
-                if var.endswith('_std'):
-                    mol = var[:-4]
-                else:
-                    mol = var
-                out[k] = CAMSMERRA2._concentrationConvertCAMS(self, phase, mol, orig_alt[k], vals, len(orig_alt), k,
-                                                              dataType, year, month, day)[mol]
-
+                out[k] = interp(points).reshape(target_lats.size, target_lons.size)
+    
             result[var] = out
-            shape_info[var] = out.shape
-
-        # Include coordinate arrays
+        
         result['lat'] = target_lats
         result['lon'] = target_lons
         result['alt'] = orig_alt
         result['P_level'] = orig_plev
-
-        return result, shape_info
     
-    def _concentrationConvertCAMS(self, phase, molecule, alt, data_layer, num, idx, 
-                                  dataType, year, month, day=None):
+        return result
+    
+    def getConcCAMS(self, phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=None):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
@@ -1913,12 +2592,8 @@ class CAMSMERRA2(CAMS, MERRA2):
                 'L-SW' - Liquid sea water.
                 'L' - Both liquid phases (L-FW, L-SW).
                 'All' - All phases (G, L-FW, L-SW).
-        molecule : STR
-            DESCRIPTION.
-        alt : INT
-            Altitude of the layer.
-        data_layer : 2D array
-            Data in 2D.
+        data : DICT
+            Data in dictionary.
         dataType : STR
             Name of the subfolder under `data/CAMS/` containing .npz files.
         year : INT
@@ -1927,53 +2602,85 @@ class CAMSMERRA2(CAMS, MERRA2):
             Month of the desired dataset.
         day : INT, optional
             Day of the desired dataset.
-            
-        Returns
-        conc : 2D array
-            Array of converted values.
+        altArray : LIST or np.ndarray, optional
+            List of altitudes in m.
+        loc : STR
+            Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').
+        num : INT, optional
+            Number of altitude steps to generate.
         """
         from pyatmos import coesa76
         
-        h = alt * 1e-3 # km
-        rho = coesa76([h]).rho[0] # kg/m^3
-        rho_kg_L = rho * 1e-3 # kg/L
-        conc = (data_layer * rho_kg_L) / (Formula(molecule).mass * 1e-3)
-        compositions = conc[np.newaxis, ...]
-        
-        dataMERRA = CAMSMERRA2.loadDataMERRA2(self, dataType, year, month, day)
-        PS = np.array(dataMERRA['PS'])
-        TS = np.array(dataMERRA['T2M'])
-        LR = np.array(dataMERRA['LR'])
-        HS = np.array(dataMERRA['H'])
-        TROPH = np.array(dataMERRA['TROPH'])
-        t, p, _ = CAMSMERRA2.getTandP_MERRA2(self, PS, TS, LR, HS, TROPH, num)
-        
+        cams_molecules = ('CO', 'CO2', 'CH4')
+        molecule_data = {}
+        for mol in cams_molecules:
+            if mol in data:
+                molecule_data[mol] = data[mol]
+        if not molecule_data:
+            raise ValueError("No valid molecule keys found. Expected one of: CO, CO2, CH4")
+    
+        cams_plev = np.asarray(data['P_level'], dtype=float)  # (L_cams,)
+        cams_alt  = np.asarray(data['alt'], dtype=float)      # (L_cams,)
+    
+        # MERRA2
+        merra2 = CAMSMERRA2.loadDataMERRA2(self, dataType, year, month, day)
+        PS = np.array(merra2['PS'])
+        TS = np.array(merra2['T2M'])
+        TROPPB = np.array(merra2['TROPPB'])
+        TROPT = np.array(merra2['TROPT'])
+    
+        # Target T/P by loc
+        if loc == 'surface':
+            t_target, p_target = TS, PS
+        elif loc == 'tropopause':
+            t_target, p_target = TROPT, TROPPB
+        else:
+            t_target, p_target, z_m = CAMSMERRA2.getTPAlt(self, dataType, year, month, day, bbox, altArray, num)
+    
+
+        h_km = cams_alt * 1e-3 # km
+        rho_kg_m3 = coesa76(h_km).rho # kg/m3
+        rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        rho = rho_kg_L[:, None, None]
+    
+        # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
-        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(molecule, 'FW', t[idx])
-        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(molecule, 'SW', t[idx])
+        
         # Dictionaries initialization
         dict_Pi = {}
         dict_Ci_G = {}
         dict_Ci_LFW = {}
         dict_Ci_LSW = {}
-        for id_, composition in enumerate(compositions):
-            # Gas phase - Partial pressure (Pi)
-            Pi = (conc * (R_g * t[idx]))
-            # Liquid phase - Freshwater (Ci_LFW)
-            if notNaN_HsFW[id_]:
-                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
-            else:
-                Ci_LFW = None
-            # Liquid phase - Seawater (Ci_LSW)
-            if notNaN_HsSW[id_]:
-                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
-            else:
-                Ci_LSW = None
+    
+        for molecule, cams_array in molecule_data.items():
+            cams_array = np.array(cams_array)
+            M_kg_per_mol = Formula(molecule).mass * 1e-3    # g/mol to kg/mol
+
+            conc_cams = (cams_array * rho) / M_kg_per_mol
+            conc = self._reshapeAltCAMS(conc_cams, p_target, cams_plev)
+            
+            Pi = conc * (R_g * t_target)
+            
+            Hs_FW, notNaN_HsFW = eQ.solubilityHenry(molecule, 'FW', t_target)
+            Hs_SW, notNaN_HsSW = eQ.solubilityHenry(molecule, 'SW', t_target)
+            if Hs_FW.ndim >= 3 and Hs_FW.shape[-1] == 1: 
+                Hs_FW = Hs_FW[..., 0]
+            if Hs_SW.ndim >= 3 and Hs_SW.shape[-1] == 1: 
+                Hs_SW = Hs_SW[..., 0]
+            if notNaN_HsFW.ndim >= 3 and notNaN_HsFW.shape[-1] == 1: 
+                notNaN_HsFW = notNaN_HsFW[..., 0]
+            if notNaN_HsSW.ndim >= 3 and notNaN_HsSW.shape[-1] == 1: 
+                notNaN_HsSW = notNaN_HsSW[..., 0]
+    
+            Ci_LFW = np.where(notNaN_HsFW, Pi * Hs_FW / 1000.0, np.nan)  # mol/L
+            Ci_LSW = np.where(notNaN_HsSW, Pi * Hs_SW / 1000.0, np.nan)  # mol/L
+    
             # Save data in dictionary
-            dict_Pi[molecule] = Pi
-            dict_Ci_G[molecule] = conc
+            dict_Pi[molecule]     = Pi
+            dict_Ci_G[molecule]   = conc
             dict_Ci_LFW[molecule] = Ci_LFW
             dict_Ci_LSW[molecule] = Ci_LSW
+    
         if phase == 'G':
             return dict_Pi, dict_Ci_G
         elif phase == 'L-FW':
@@ -1993,7 +2700,7 @@ class CAMSMERRA2(CAMS, MERRA2):
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             sys.exit()
     
-    def reshapeAltitudesCAMS(self, orig_data, targ_data, plev):
+    def _reshapeAltCAMS(self, orig_data, targ_data, plev):
         """
         Reshape altitude levels.
 
@@ -2012,27 +2719,50 @@ class CAMSMERRA2(CAMS, MERRA2):
             Concentration data in the shape of target data.
 
         """
-        n_orig, n_lat, n_lon = orig_data.shape
-        n_target = targ_data.shape[0]
-        
-        new_data = np.empty((n_target, n_lat, n_lon), dtype=orig_data.dtype)
-        
-        # latitude/longitude indices for advanced indexing
-        i_idx = np.arange(n_lat)[:, None]   # shape (n_lat, 1)
-        j_idx = np.arange(n_lon)[None, :]   # shape (1, n_lon)
-        
-        for k in range(n_target):
-            tp = targ_data[k]  # target pressure slice for level k
-        
-            # compute absolute difference between each original level and target pressure
-            # result has shape (n_orig, n_lat, n_lon) via broadcasting
+        if orig_data.ndim == 2:
+            orig_data = orig_data[np.newaxis, ...]
+       
+        if targ_data.ndim == 2:
+            n_lat, n_lon = targ_data.shape
+            new_data = np.full((n_lat, n_lon), np.nan, dtype=np.float64)
+            tp = targ_data
+    
             diffs = np.abs(plev[:, None, None] - tp[None, :, :])
+            diffs[:, np.isnan(tp)] = np.inf
+            idx_cell = diffs.argmin(axis=0)
+            idx_cell = np.clip(idx_cell, 0, orig_data.shape[0] - 1)
+            
+            for i in range(n_lat):
+                for j in range(n_lon):
+                    if np.isnan(tp[i, j]):
+                        continue
+                    val = orig_data[idx_cell[i, j], i, j]
+                    if not np.isnan(val):
+                        new_data[i, j] = val
+        elif targ_data.ndim == 3:
+            n_target, n_lat, n_lon = targ_data.shape
+            new_data = np.full((n_target, n_lat, n_lon), np.nan, dtype=np.float64)  # float64 for safe NaN handling
         
-            # for each (i,j) cell, find the index of the closest original level
-            idx_cell = diffs.argmin(axis=0)  # shape (n_lat, n_lon)
+            for k in range(n_target):
+                tp = targ_data[k]
         
-            # use advanced indexing to pull the concentration values from orig_data
-            # and assign them into the new_data array at level k
-            new_data[k, :, :] = orig_data[idx_cell, i_idx, j_idx]
+                # Compute absolute pressure difference between each CAMS level and target pressure
+                diffs = np.abs(plev[:, None, None] - tp[None, :, :])  # shape: (n_plev, n_lat, n_lon)
         
+                # Prevent NaNs in targ_data from biasing argmin — set their diffs to infinity
+                diffs[:, np.isnan(tp)] = np.inf
+        
+                # For each (i,j), take CAMS level index closest to target pressure
+                idx_cell = diffs.argmin(axis=0)  # shape (n_lat, n_lon)
+                idx_cell = np.clip(idx_cell, 0, orig_data.shape[0] - 1)
+        
+                # Assign concentration values only for valid target pressure points
+                for i in range(n_lat):
+                    for j in range(n_lon):
+                        if np.isnan(tp[i, j]):
+                            continue
+                        val = orig_data[idx_cell[i, j], i, j]
+                        if not np.isnan(val):
+                            new_data[k, i, j] = val
+    
         return new_data
