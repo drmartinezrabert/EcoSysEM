@@ -840,7 +840,7 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\`**<br>
 
-### CAMS.combDataCAMS  &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### CAMS.combDataCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 CAMS.combDataCAMS(dataType, years, months, method = 'linear', target_lats = None, target_lons = None)
 ```
