@@ -1122,24 +1122,25 @@ class CAMS:
 
     def __init__(self):
         self.base_path = 'data/CAMS/'
-        #self.processable_molecules = ['co', 'co2', 'ch4']
 
     def _testCAMS(self):
         print('CAMS class works.')
 
     def getDataCAMS(self, dataType, years, months, days = 'All',
-                    dataset = "cams-global-greenhouse-gas-forecasts",
+                    dataset = None,
                     pressure_levels = [50, 100, 200, 400, 
                                        600, 800, 900, 1000],
                     variables = None,
-                    bbox = [90, -180, -90, 180]):
+                    bbox = [90, -180, -90, 180],
+                    mode = None,
+                    method = 'linear'):
         """
         Download data from CAMS Global Greenhouse Gas Forecasts database.
 
         Parameters
         ----------
         dataType : STR or LIST of STR
-            Type(s) of data ('dly', 'mly', 'cmly').
+            Type(s) of data ('dly', 'mly').
         years : INT or LIST of INT
             Year(s) of data.
         months : INT or LIST of INT
@@ -1158,6 +1159,11 @@ class CAMS:
         bbox : LIST
             Earth's region of data, the bounding box (e.g., [90, -180, -90, 180]).
             (upper_right_latitude, lower_left_longitude, lower_left_latitude, upper_right_longitude)
+        mode : STR or None
+            Mode for the download of data (Allowed: "add").
+            If "add", adds variable(s) to downloaded data. If None, downloads new data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
@@ -1182,6 +1188,8 @@ class CAMS:
         elif dataset == "cams-global-atmospheric-composition-forecasts":
             support  = {"co": True, "co2": False, "ch4": True}
             req_name = {"co": "carbon_monoxide", "ch4": "methane"}
+        elif dataset == None:
+            raise ValueError("Dataset should be defined (e.g., 'cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts')")
         else:
             raise ValueError(f"Unknown dataset: {dataset}")
     
@@ -1286,16 +1294,16 @@ class CAMS:
     
                         # Process and clean up
                         for dt in dataTypes:
-                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m)
+                            self._processDataCAMS('mly', dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
                         self._deleteTempDataCAMS(target_nc)
     
                     except Exception as e:
                         print(f"Failed for {date_range}: {e}")
                         sys.exit()
-    
+        
         print("\nAll downloads completed.")
 
-    def _processDataCAMS(self, dataType, dataset, molecules, month = None):
+    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear'):
         """
         Process CAMS .nc files and save as .npz format.
 
@@ -1311,6 +1319,11 @@ class CAMS:
             Molecules to process: 'co', 'co2', 'ch4'. 
         month : INT
             Input for cmly dataType.
+        mode : STR or None
+            Mode for the download of data (Allowed: "add").
+            If "add", adds variable(s) to downloaded data. If None, downloads new data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
         """
         input_folder = os.path.join(self.base_path, 'temporary')
         processed_folder = os.path.join(self.base_path, f"{dataType}")
@@ -1318,7 +1331,6 @@ class CAMS:
     
         try:
             nc_files = [f for f in os.listdir(input_folder) if f.endswith('.nc')]
-            nc_files_month = [f for f in os.listdir(input_folder) if f.endswith(f'{month}.nc')]
         except FileNotFoundError:
             print(f"Input folder not found: '{input_folder}'")
             sys.exit()
@@ -1344,12 +1356,11 @@ class CAMS:
             variable_names = {
                 "co":  ["co"],
                 "ch4": ["ch4_c"]
-                # CO2 not available
+                # 'co2' not available
             }
         else:
             raise ValueError(f"Unknown dataset: {dataset}")
     
-        # Molecule selection (short keys)
         mols_to_process = [molecules] if isinstance(molecules, str) else list(molecules)
         mols_to_process = [m for m in mols_to_process if m in variable_names]
     
@@ -1365,9 +1376,11 @@ class CAMS:
                         time_dim = "forecast_reference_time"
                     elif ("time" in ds.dims) or ("time" in ds.coords):
                         time_dim = "time"
+                    elif ("valid_time" in ds.dims) or ("valid_time" in ds.coords):
+                        time_dim = "valid_time"
                     else:
                         ds.close()
-                        raise ValueError("Time dimension not found (forecast_reference_time/time).")
+                        raise ValueError("Time dimension not found ('forecast_reference_time'/'valid_time').")
     
                     # Levels in Pa
                     if "pressure_level" in ds:
@@ -1385,23 +1398,29 @@ class CAMS:
                     # Coords
                     if 'latitude' in ds:
                         lat = ds['latitude'].values
+                    elif 'lat' in ds:
+                        lat = ds['lat'].values
                     else:
-                        ds['lat'].values
+                        ds.close()
+                        raise ValueError("Latitude coord not found (latitude/lat).")
+                    
                     if 'longitude' in ds:
-                        lon = ds['longitude'].values 
+                        lon = ds['longitude'].values
+                    elif 'lon' in ds:
+                        lon = ds['lon'].values
                     else:
-                        ds['lon'].values
+                        ds.close()
+                        raise ValueError("Longitude coord not found (longitude/lon).")
     
-                    # Daily means via resample
+                    # Daily means
                     daily_by_molecule = {}
                     first_key = None
     
                     for mol in mols_to_process:
-                        var_name = variable_names[mol]
-                        vname = None
-                        if var_name in ds.data_vars:
-                            vname = var_name
-                            break
+                        names = variable_names[mol]
+                        if isinstance(names, str):
+                            names = [names]
+                        vname = next((nm for nm in names if nm in ds.data_vars), None)
                         if vname is None:
                             print(f"  - {mol.upper()} variable not found in file; skip.")
                             continue
@@ -1447,8 +1466,50 @@ class CAMS:
                                 if arr.ndim == 4 and 1 not in arr.shape:
                                     arr = arr.mean(axis=0)
                                 data_dict[key_out] = arr
-    
-                        CAMS._saveNPZCAMS(self, data_dict, "dly", year_int, month_int, (i_day+1)) # !!! [redudant]
+                        
+                        if mode == 'add':
+                            NPZ = CAMS._openNPZCAMS(self, dataType, year_int, month_int, (i_day+1)) # !!! [redudant]
+                            existing = {k: NPZ[k] for k in NPZ.files}
+                            targ_lats = existing['lat']
+                            targ_lons = existing['lon']
+                            targ_alts = existing['alt']
+                            NPZ.close()
+                            
+                            orig_lats = lat
+                            orig_lons = lon
+                            
+                            mesh_lat, mesh_lon = np.meshgrid(targ_lats, targ_lons, indexing='ij')
+                            points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+                            
+                            vars_to_add = []
+                            for m in (mols_to_process if isinstance(mols_to_process, list) else [mols_to_process]):
+                                up = m.upper()
+                                if up in data_dict: 
+                                    vars_to_add.append(up)
+                                if f'{up}_std' in data_dict: 
+                                    vars_to_add.append(f'{up}_std')
+                            
+                            for var in (vars_to_add):
+                                data3d = np.asarray(data_dict[var])
+                                
+                                if data3d.shape[0] != targ_alts.size:
+                                    raise ValueError(f"Vertical level mismatch: Source={data3d.shape[0]} vs Target={targ_alts.size}")
+                                    
+                                out = np.empty((targ_alts.size, targ_lats.size, targ_lons.size), dtype=data3d.dtype)
+                                for k in range(targ_alts.size):
+                                    interp = RegularGridInterpolator(
+                                        (orig_lats, orig_lons),
+                                        data3d[k, :, :],
+                                        method=method,
+                                        bounds_error=False,
+                                        fill_value=np.nan
+                                    )
+                                    out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                                existing[var] = out
+                            CAMS._saveNPZCAMS(self, existing, "dly", year_int, month_int, (i_day+1)) # !!! [redudant]
+                            print(f"{mols_to_process} is added to the file.")
+                        else:
+                            CAMS._saveNPZCAMS(self, data_dict, "dly", year_int, month_int, (i_day+1)) # !!! [redudant]
     
                     ds.close()
     
@@ -1462,8 +1523,8 @@ class CAMS:
     
             print(f"{dataType} files are processed and saved.")
     
-        elif dataType in ["mly", "cmly"]:
-            target_list = nc_files if dataType == "mly" else nc_files_month
+        elif dataType == "mly":
+            target_list = nc_files
             for nc_file in target_list:
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
@@ -1475,9 +1536,11 @@ class CAMS:
                         time_dim = "forecast_reference_time"
                     elif ("time" in ds.dims) or ("time" in ds.coords):
                         time_dim = "time"
+                    elif ("valid_time" in ds.dims) or ("valid_time" in ds.coords):
+                        time_dim = "valid_time"
                     else:
                         ds.close()
-                        raise ValueError("Time dimension not found (forecast_reference_time/time).")
+                        raise ValueError("Time dimension not found ('forecast_reference_time'/'valid_time').")
     
                     # Levels in Pa
                     if "pressure_level" in ds:
@@ -1495,12 +1558,19 @@ class CAMS:
                     # Coords
                     if 'latitude' in ds:
                         lat = ds['latitude'].values
+                    elif 'lat' in ds:
+                        lat = ds['lat'].values
                     else:
-                        ds['lat'].values
+                        ds.close()
+                        raise ValueError("Latitude coord not found (latitude/lat).")
+                    
                     if 'longitude' in ds:
-                        lon = ds['longitude'].values 
+                        lon = ds['longitude'].values
+                    elif 'lon' in ds:
+                        lon = ds['lon'].values
                     else:
-                        ds['lon'].values
+                        ds.close()
+                        raise ValueError("Longitude coord not found (longitude/lon).")
     
                     data_dict = {}
                     for mol in mols_to_process:
@@ -1540,7 +1610,49 @@ class CAMS:
     
                     parts = os.path.basename(nc_file).split('_')
                     year_int = int(parts[1]); month_int = int(parts[2].split('.')[0])
-                    CAMS._saveNPZCAMS(self, data_dict, dataType, year_int, month_int) # !!! [redudant]
+                    if mode == 'add':
+                        NPZ = CAMS._openNPZCAMS(self, dataType, year_int, month_int) # !!! [redudant]
+                        existing = {k: NPZ[k] for k in NPZ.files}
+                        targ_lats = existing['lat']
+                        targ_lons = existing['lon']
+                        targ_alts = existing['alt']
+                        NPZ.close()
+                        
+                        orig_lats = lat
+                        orig_lons = lon
+                        
+                        mesh_lat, mesh_lon = np.meshgrid(targ_lats, targ_lons, indexing='ij')
+                        points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+                        
+                        vars_to_add = []
+                        for m in (mols_to_process if isinstance(mols_to_process, list) else [mols_to_process]):
+                            up = m.upper()
+                            if up in data_dict: 
+                                vars_to_add.append(up)
+                            if f'{up}_std' in data_dict: 
+                                vars_to_add.append(f'{up}_std')
+                        
+                        for var in (vars_to_add):
+                            data3d = np.asarray(data_dict[var])
+                            
+                            if data3d.shape[0] != targ_alts.size:
+                                raise ValueError(f"Vertical level mismatch: Source={data3d.shape[0]} vs Target={targ_alts.size}")
+                                
+                            out = np.empty((targ_alts.size, targ_lats.size, targ_lons.size), dtype=data3d.dtype)
+                            for k in range(targ_alts.size):
+                                interp = RegularGridInterpolator(
+                                    (orig_lats, orig_lons),
+                                    data3d[k, :, :],
+                                    method=method,
+                                    bounds_error=False,
+                                    fill_value=np.nan
+                                )
+                                out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                            existing[var] = out
+                        CAMS._saveNPZCAMS(self, existing, dataType, year_int, month_int) # !!! [redudant]
+                        print(f"{mols_to_process} is added to the file.")
+                    else:
+                        CAMS._saveNPZCAMS(self, data_dict, dataType, year_int, month_int) # !!! [redudant]
     
                     ds.close()
     
@@ -1554,8 +1666,385 @@ class CAMS:
     
             print(f"{dataType} file is processed and saved.")
     
+    def combDataCAMS(self, dataType, years, months, method = 'linear',
+                     target_lats = None, target_lons = None):
+        """
+        Combine data as 'cmly', 'yly' or 'cyly'.
+
+        Parameters
+        ----------
+        dataType : STR 
+            Type of data ('cmly', 'yly', or 'cyly'). 
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data.
+        method : STR, optional
+            Method of interpolation (default: 'linear').
+        target_lats : 1D array or None optional
+            Desired latitudes for the CAMS grid (e.g.: np.arange(-90, 90.1, 0.5)).
+            (default: None; uses last year/month grid).
+        target_lons : 1D array, optional.
+            Desired longitudes for the CAMS grid (e.g.: np.arange(-180, 179.375+0.001, 0.625)). 
+            (default: None; uses last year/month grid).
+        """ 
+        
+        out_dir = f"data/CAMS/{dataType}"
+        os.makedirs(out_dir, exist_ok=True)
+        
+        years = [years] if isinstance(years, int) else list(years)
+        months = [months] if isinstance(months, int) else list(months)
+        source_type = 'mly'
+        
+        if dataType == 'cmly':
+            opened = {}
+            for m in months:
+                opened[m] = {}
+                for y in years:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[m][y] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+            
+            for m in months:
+                missing_years = [y for y in years if y not in opened.get(m, {})]
+                if missing_years:
+                    raise RuntimeError(f"[ERROR] month {m}: missing source files in 'mly' for years {missing_years}.")
+            
+            print("Regridding for data combining...")
+            regridded = {} 
+    
+            for m, yrs in opened.items():
+                # Last year that requested for this month
+                base_year = next((y for y in reversed(years) if y in yrs), None)
+            
+                base_npz  = yrs[base_year]
+                if target_lats is not None:
+                    targ_lats = np.flip(target_lats)
+                else:
+                    targ_lats = np.asarray(base_npz["lat"])
+                if target_lons is not None:
+                    targ_lons = target_lons
+                else:
+                    targ_lons = np.asarray(base_npz["lon"])
+            
+                targ_levels = np.asarray(base_npz["P_level"])
+                level_key = "P_level"
+            
+                LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+                points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[m] = {}
+                for y, npz in yrs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+            
+                    out_dict = {
+                        "lat": targ_lats,
+                        "lon": targ_lons,
+                    }
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+            
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+            
+                    regridded[m][y] = out_dict
+                    
+                    if hasattr(npz, "close"):
+                        npz.close()
+            
+            print("Combining the data...")
+            
+            for m, yrs in regridded.items():        
+                years_used = sorted(yrs.keys())
+                sample = next(iter(yrs.values()))  # schema
+                
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+            
+                output_data = {"lat": targ_lats,
+                               "lon": targ_lons}
+                output_data["P_level"] = sample["P_level"]
+                output_data["alt"] = sample["alt"]
+            
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in yrs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+            
+                for var in base_vars:
+                    arr_list = [yrs[y][var] for y in years_used if var in yrs[y]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nyears, lev, lat, lon)
+                    output_data[var] = np.nanmean(stack, axis=0)
+                    output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                    
+                    missing = [y for y in years_used if var not in yrs[y]]
+                    if missing:
+                        print(f"[INFO] month {m}: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
+                
+                CAMS._saveNPZCAMS(self, data=output_data, dataType='cmly', y=years, m=m) # !!! [redudant]
+
+        elif dataType == 'yly':
+            opened = {}
+            for y in years:
+                opened[y] = {}
+                for m in months:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[y][m] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+            
+            for y in years:
+                missing_months = [m for m in months if m not in opened.get(y, {})]
+                if missing_months:
+                    raise RuntimeError(f"[ERROR] year {y}: missing source files in 'mly' for months {missing_months}.")
+            
+            print("Regridding for data combining...")
+            regridded = {} 
+    
+            for y, mhs in opened.items():
+                # Last year that requested for this month
+                base_month = next((m for m in reversed(months) if m in mhs), None)
+            
+                base_npz  = mhs[base_month]
+                if target_lats is not None:
+                    targ_lats = np.flip(target_lats)
+                else:
+                    targ_lats = np.asarray(base_npz["lat"])
+                if target_lons is not None:
+                    targ_lons = target_lons
+                else:
+                    targ_lons = np.asarray(base_npz["lon"])
+            
+                targ_levels = np.asarray(base_npz["P_level"])
+                level_key = "P_level"
+            
+                LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+                points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[y] = {}
+                for m, npz in mhs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+            
+                    out_dict = {
+                        "lat": targ_lats,
+                        "lon": targ_lons,
+                    }
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+            
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+            
+                    regridded[y][m] = out_dict
+                    
+                    if hasattr(npz, "close"):
+                        npz.close()
+            
+            print("Combining the data...")
+            
+            for y, mhs in regridded.items():        
+                months_used = sorted(mhs.keys())
+                sample = next(iter(mhs.values()))  # schema
+                
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+            
+                output_data = {"lat": targ_lats,
+                               "lon": targ_lons}
+                output_data["P_level"] = sample["P_level"]
+                output_data["alt"] = sample["alt"]
+            
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in mhs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+            
+                for var in base_vars:
+                    arr_list = [mhs[m][var] for m in months_used if var in mhs[m]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nmonths, lev, lat, lon)
+                    output_data[var] = np.nanmean(stack, axis=0)
+                    output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                    
+                    missing = [mm for mm in months_used if var not in mhs[mm]]
+                    if missing:
+                        print(f"[INFO] year {y}: '{var}' averaged over {stack.shape[0]}/{len(months_used)} months; missing: {missing}")
+                
+                CAMS._saveNPZCAMS(self, data=output_data, dataType='yly', y=y) # !!! [redudant]
+                
+        elif dataType == 'cyly':
+            opened = {}
+            for y in years:
+                opened[y] = {}
+                for m in months:
+                    try:
+                        npz = self._openNPZCAMS(source_type, y, m) # !!! [redudant]
+                        opened[y][m] = npz
+                        print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
+                    except FileNotFoundError:
+                        continue
+
+            for y in years:
+                missing_months = [m for m in months if m not in opened.get(y, {})]
+                if missing_months:
+                    raise RuntimeError(f"[ERROR] year {y}: missing source files in 'mly' for months {missing_months}.")
+
+            print("Regridding for data combining...")
+            regridded = {} 
+            
+            global_base_year = next((yy for yy in reversed(years) if opened.get(yy)), None)
+            if global_base_year is None:
+                raise RuntimeError("[ERROR] cyly: no source files found.")
+            global_base_month = next((mm for mm in reversed(months) if mm in opened[global_base_year]), None)
+            if global_base_month is None:
+                raise RuntimeError(f"[ERROR] cyly: base year {global_base_year} has none of the requested months.")
+
+            base_npz  = opened[global_base_year][global_base_month]
+            if target_lats is not None:
+                targ_lats = np.flip(target_lats)
+            else:
+                targ_lats = np.asarray(base_npz["lat"])
+            if target_lons is not None:
+                targ_lons = target_lons
+            else:
+                targ_lons = np.asarray(base_npz["lon"])
+            targ_levels = np.asarray(base_npz["P_level"])
+            level_key = "P_level"
+
+            LAT, LON = np.meshgrid(targ_lats, targ_lons, indexing="ij")
+            points = np.stack([LAT.ravel(), LON.ravel()], axis=-1)
+            
+            for y, mhs in opened.items():
+
+                default_keys = {"lat", "lon", "P_level", "alt"}
+                regridded[y] = {}
+                for m, npz in mhs.items():
+                    orig_lats = np.asarray(npz["lat"])
+                    orig_lons = np.asarray(npz["lon"])
+
+                    out_dict = {"lat": targ_lats, "lon": targ_lons}
+                    out_dict[level_key] = targ_levels
+                    out_dict["alt"] = np.asarray(npz["alt"])
+
+                    for key in npz.files:
+                        if key in default_keys:
+                            continue
+                        data = np.asarray(npz[key])
+                        if data.ndim != 3:
+                            raise ValueError(f"Expected 3D (alt,lat,lon) for '{key}', got shape={data.shape} in {y}-{m}")
+                        if data.shape[0] != np.size(targ_levels):
+                            raise ValueError(f"Vertical level mismatch for '{key}' in {y}-{m}: "f"source={data.shape[0]} vs target={np.size(targ_levels)}")
+                        out = np.empty((np.size(targ_levels), targ_lats.size, targ_lons.size), dtype=data.dtype)
+                        for klevel in range(np.size(targ_levels)):
+                            interp = RegularGridInterpolator(
+                                (orig_lats, orig_lons), data[klevel, :, :],
+                                method=method, bounds_error=False, fill_value=np.nan
+                            )
+                            out[klevel] = interp(points).reshape(targ_lats.size, targ_lons.size)
+                        out_dict[key] = out
+
+                    regridded[y][m] = out_dict
+                    if hasattr(npz, "close"):
+                        npz.close()
+
+            print("Combining the data...")
+
+            annual_map = {}
+            for y, mhs in regridded.items():        
+                months_used = sorted(mhs.keys())
+                if not months_used:
+                    continue
+                sample = next(iter(mhs.values()))
+                targ_lats = sample["lat"]
+                targ_lons = sample["lon"]
+
+                axis_keys = {"lat", "lon", "P_level", "alt"}
+                all_keys  = set().union(*[d.keys() for d in mhs.values()])
+                base_vars = [k for k in all_keys if (k not in axis_keys) and (not k.endswith("_std"))]
+
+                annual_map[y] = {"lat": targ_lats, "lon": targ_lons, 
+                                 "P_level": sample["P_level"], "alt": sample["alt"]}
+                for var in base_vars:
+                    arr_list = [mhs[m][var] for m in months_used if var in mhs[m]]
+                    if not arr_list:
+                        continue
+                    stack = np.stack(arr_list, axis=0).astype(float)  # (nmonths, lev, lat, lon)
+                    annual_map[y][var] = np.nanmean(stack, axis=0)
+                    
+                    missing = [mm for mm in months_used if var not in mhs[mm]]
+                    if missing:
+                        print(f"[INFO] year {y}: '{var}' averaged over {stack.shape[0]}/{len(months_used)} months; missing: {missing}")
+            
+            # Years average
+            years_used = sorted(annual_map.keys())
+
+            sample_y = annual_map[years_used[-1]]
+            output_data = {"lat": sample_y["lat"], "lon": sample_y["lon"]}
+            output_data["P_level"] = sample_y["P_level"]
+            output_data["alt"] = sample_y["alt"]
+
+            axis_keys = {"lat", "lon", "P_level", "alt"}
+            all_keys_years = set().union(*[d.keys() for d in annual_map.values()])
+            base_vars = [k for k in all_keys_years if (k not in axis_keys) and (not k.endswith("_std"))]
+
+            for var in base_vars:
+                arr_list = [annual_map[y][var] for y in years_used if var in annual_map[y]]
+                if not arr_list:
+                    continue
+                stack = np.stack(arr_list, axis=0).astype(float)  # (nyears, lev, lat, lon)
+                output_data[var] = np.nanmean(stack, axis=0)
+                output_data[f"{var}_std"] = np.nanstd(stack, axis=0)
+                
+                missing = [yy for yy in years_used if var not in annual_map[yy]]
+                if missing:
+                    print(f"[INFO] cyly: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
+
+            CAMS._saveNPZCAMS(self, data=output_data, dataType='cyly', y=years) # !!! [redudant]
+        
+        print("The data is combined.")
+    
     def selectRegionCAMS(self, data, bbox): # !!! (redundant)
         """
+        !!! BE AWARE OF BBOX DIFFERENCE THAN MERRA-2 !!!
+        
         Select specific region of Earth of downloaded data.
 
         Parameters
@@ -1631,7 +2120,7 @@ class CAMS:
             print('\n!EcoSysEM.Error: selected region is outside the data boundaries.')
             sys.exit()
 
-    def _saveNPZCAMS(self, data, dataType, y, m, d = None): # !!! (redundant)
+    def _saveNPZCAMS(self, data, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Create .npz file with downladed data.
 
@@ -1679,13 +2168,26 @@ class CAMS:
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
                 sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
+        elif dataType == 'yly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be an integer')
+                sys.exit()
+            file = f'{y}_year.npz'
+        elif dataType == 'cyly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                sys.exit()
+            file = f'{y[0]}_{y[-1]}.npz'
+        else:
+            print('\n!EcoSysEM.Error: argument \'dataType\' must be \'mly\' (to generate monthly data), \'cmly\' (to generate combined monthly data),  \'yly\' (to generate annual data) or \'cyly\' (to generate combined annual data).')
+            sys.exit()
         # Path generation
         pathfile = path + file
         # Save .npz file
         np.savez(pathfile, **data)   
         return pathfile
     
-    def _openNPZCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+    def _openNPZCAMS(self, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Open .npz file with downladed data.
 
@@ -1730,9 +2232,22 @@ class CAMS:
                 print('\n!EcoSysEM.Error: argument \'m\' must be a integer')
                 sys.exit()
             file = f'{y[0]}_{y[-1]}_{m}.npz'
+        elif dataType == 'yly':
+            if not isinstance(y, int):
+                print('\n!EcoSysEM.Error: argument \'y\' must be an integer')
+                sys.exit()
+            file = f'{y}_year.npz'
+        elif dataType == 'cyly':
+            if not isinstance(y, list):
+                print('\n!EcoSysEM.Error: argument \'y\' must be a list: [start_year, end_year]')
+                sys.exit()
+            file = f'{y[0]}_{y[-1]}.npz'
+        else:
+            print('\n!EcoSysEM.Error: argument \'dataType\' must be \'mly\' (to generate monthly data), \'cmly\' (to generate combined monthly data),  \'yly\' (to generate annual data) or \'cyly\' (to generate combined annual data).')
+            sys.exit()
         return np.load(path + file)
     
-    def dictCAMS(self, dataType, y, m, d = None, keys = 'All'): # !!! (redundant)
+    def dictCAMS(self, dataType, y, m = None, d = None, keys = 'All'): # !!! (redundant)
         """
         Get data in dictionary form.
 
@@ -1769,7 +2284,7 @@ class CAMS:
         npz.close()
         return dictVar
     
-    def keysCAMS(self, dataType, y, m, d = None): # !!! (redundant)
+    def keysCAMS(self, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Get variable list of data.
 
@@ -1793,7 +2308,7 @@ class CAMS:
         npz.close()
         return keys
     
-    def deleteKeyCAMS(self, keys, dataType, y, m, d = None): # !!! (redundant)
+    def deleteKeyCAMS(self, keys, dataType, y, m = None, d = None): # !!! (redundant)
         """
         Delete variable(s) from data.
 
@@ -1976,8 +2491,7 @@ class CAMSMERRA2(CAMS, MERRA2):
                             molecules = ('CO', 'CO2', 'CH4'), 
                             target_lats = np.arange(-90, 90.1, 0.5),
                             target_lons = np.arange(-180,  179.375 + 1e-3, 0.625),
-                            method='linear'
-                            ):
+                            method='linear'):
         """
         Interpolate CAMS .npz files onto target MERRA2 grid.
     
@@ -2065,7 +2579,7 @@ class CAMSMERRA2(CAMS, MERRA2):
     
         return result
     
-    def getConcCAMS(self, phase, data, dataType, year, month, day=None, altArray=None, loc=None, num=None):
+    def getConcCAMS(self, phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=None):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
@@ -2121,12 +2635,12 @@ class CAMSMERRA2(CAMS, MERRA2):
         elif loc == 'tropopause':
             t_target, p_target = TROPT, TROPPB
         else:
-            t_target, p_target, z_m = CAMSMERRA2.getTPAlt(self, dataType, year, month, day, altArray=altArray, num=num)
+            t_target, p_target, z_m = CAMSMERRA2.getTPAlt(self, dataType, year, month, day, bbox, altArray, num)
     
 
-        h_km = cams_alt * 1e-3
-        rho_kg_m3 = coesa76(h_km).rho
-        rho_kg_L  = rho_kg_m3 * 1e-3
+        h_km = cams_alt * 1e-3 # km
+        rho_kg_m3 = coesa76(h_km).rho # kg/m3
+        rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
         rho = rho_kg_L[:, None, None]
     
         # Constants
