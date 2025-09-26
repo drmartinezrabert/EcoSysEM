@@ -14,13 +14,13 @@ import sys
 
 # Import classes from modules (as abb.) or import with importlib
 from envdef import ISA
-from reactions import Reactions as Rxn
+from reactions import Reactions as Rxn, KinRates as KR
 #from bioenergetics import ...
 from thermodynamics import ThP, ThEq, ThSA
-#TDmodule = importlib.import_module('thermodynamics')
-#ThEq = TDmodule.ThEq
-#ThP = TDmodule.ThP
-#ThSA = TDmodule.ThSA
+#ThModule = importlib.import_module('thermodynamics')
+#ThEq = ThModule.ThEq
+#ThP = ThModule.ThP
+#ThSA = ThModule.ThSA
 
 
 class MSMM:
@@ -41,7 +41,7 @@ class MSMM:
         #self.time = [setTime method]
         
     def ODEsystem_MSMM(Bini):
-        """
+        """ tooltip
         Function for the differential equations system of the model.
         
         Parameters
@@ -55,15 +55,19 @@ class MSMM:
         -------
         dB : LIST of FLOAT
             Biomass variation in each metabolic state
-        """
+        
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX definition
         
         Bgrowth = Bini[0]
         Bmaintenance = Bini[1]
         Bsurvival = Bini[2]
         
+        [...]
+        
         dB = [dBg, dBm, dBs, dBd]
         
         return dB
+        """
         
         
     def plotMSMM():
