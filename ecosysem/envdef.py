@@ -837,7 +837,7 @@ class MERRA2:
                 d_PHIS = MERRA2.selectRegion(self, d_PHIS, bbox)
                 H = d_PHIS['PHIS']
                 H = np.where(H < 0, 0, H)
-                H = np.repeat(H[np.newaxis, ...], 24, axis = 0)
+                H = np.repeat(H[np.newaxis, ...], 24, axis = 0) # !!! It can be 3-hourly data. 24 layers can be 8 or other? Test with `product = M2I3NVAER` (Aerosol Mixing Ratio)
                 hourData['H'] = H
                 lon = ds.lon.to_numpy()
                 lat = ds.lat.to_numpy()
