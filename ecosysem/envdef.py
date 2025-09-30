@@ -1127,6 +1127,7 @@ class CAMS:
         print('CAMS class works.')
 
     def getDataCAMS(self, dataType, years, months, days = 'All',
+                    hours = [0, 12],
                     dataset = None,
                     pressure_levels = [50, 100, 200, 400, 
                                        600, 800, 900, 1000],
@@ -1147,6 +1148,8 @@ class CAMS:
             Month(s) of data.
         days : INT, LIST of INT, or STR ('All')
             Day(s) of data.
+        hours : INT or LIST of INT
+            Hour(s) of data (3-hourly) (e.g., [0, 6, 12, 18]).
         dataset : STR
             CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
                                "cams-global-ghg-reanalysis-egg4", 
@@ -1174,6 +1177,10 @@ class CAMS:
             days_list = None
         else:
             days_list = [days] if isinstance(days, int) else list(days)
+    
+        if isinstance(hours, (int, float)):
+            hours = [hours]
+        hours = [str(int(hr)) for hr in hours]
     
         if isinstance(pressure_levels, (int, float)):
             pressure_levels = [pressure_levels]
@@ -1252,7 +1259,7 @@ class CAMS:
                             'date': [date_range],
                             'data_format': 'netcdf_zip',
                             'area': bbox,
-                            "leadtime_hour": ["0"]
+                            "leadtime_hour": hours
                         }
                     elif dataset == "cams-global-ghg-reanalysis-egg4":
                         req = {
@@ -1261,7 +1268,7 @@ class CAMS:
                             'date': [date_range],
                             'data_format': 'netcdf_zip',
                             'area': bbox,
-                            "step": ["0"]
+                            "step": hours
                         }
                     elif dataset == "cams-global-atmospheric-composition-forecasts":
                         req = {
@@ -1271,7 +1278,7 @@ class CAMS:
                             'data_format': 'netcdf_zip',
                             'area': bbox,
                             "time": ["00:00"],
-                            "leadtime_hour": ["0"],
+                            "leadtime_hour": hours,
                             "type": ["forecast"]
                         }
                     else:
@@ -1294,7 +1301,7 @@ class CAMS:
     
                         # Process and clean up
                         for dt in dataTypes:
-                            self._processDataCAMS('mly', dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
+                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
                         self._deleteTempDataCAMS(target_nc)
     
                     except Exception as e:
@@ -1427,9 +1434,9 @@ class CAMS:
     
                         da = ds[vname]
                         if "step" in da.dims:
-                            da = da.isel(step=0)
+                            da = da.mean(dim="step")
                         if "leadtime" in da.dims:
-                            da = da.isel(leadtime=0)
+                            da = da.mean(dim="leadtime")
     
                         da_daily = da.resample({time_dim: '1D'}).mean()
                         daily_by_molecule[mol] = da_daily
@@ -1586,12 +1593,16 @@ class CAMS:
     
                         da = ds[vname]
                         if "step" in da.dims:
-                            da = da.isel(step=0)
+                            da = da.mean(dim="step")
                         if "leadtime" in da.dims:
-                            da = da.isel(leadtime=0)
+                            da = da.mean(dim="leadtime")
     
-                        data_dict[mol.upper()] = da.mean(dim=time_dim).values
-                        data_dict[f"{mol.upper()}_std"] = da.std(dim=time_dim).values
+                        da_daily = da.resample({time_dim: "1D"}).mean()
+                        da_month = da_daily.resample({time_dim: "1M"}).mean()
+                        da_month_std = da_daily.resample({time_dim: "1M"}).std()
+    
+                        data_dict[mol.upper()] = da_month.squeeze().values
+                        data_dict[f"{mol.upper()}_std"] = da_month_std.squeeze().values
     
                     data_dict.update({
                         'alt': MERRA2._HfromP(self, pressure_pa), # !!! [redudant]

@@ -75,6 +75,8 @@ elif function == 'getDataCAMS':
                         help="[int or list of int] Month(s) of requested data.")
     parser.add_argument('_d', default='All', nargs = '+',
                         help="[int or list of int or str ('All'))] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.")
+    parser.add_argument('_h', nargs = '+', type = int,
+                        help="[int or list of int] Hour(s) of requested data.")
     parser.add_argument('_dset', type = str,
                         help="[str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').")
     parser.add_argument('_pressure', default=[50, 100, 200, 400, 600, 800, 900, 1000], nargs = '+', type = int,
@@ -95,6 +97,7 @@ elif function == 'getDataCAMS':
     years = args.y; years.sort()
     months = args.m; months.sort()
     days = args.d
+    hours = args.h
     dataset = args.dset
     pressure_levels = args.pressure; pressure_levels.sort()
     bbox = list(args.bbox)
@@ -106,6 +109,7 @@ elif function == 'getDataCAMS':
                      years = years,
                      months = months,
                      days = days,
+                     hours = hours,
                      dataset = dataset,
                      pressure_levels = pressure_levels,
                      bbox = bbox,
