@@ -59,7 +59,7 @@ class KinP:
             Requested reaction.
         sample : STR or LIST, optional
             Requested samples (rows of `typeParam.csv`). The default is 'All'.
-        comp : STR or LIST, optional
+        comp : LIST, optional
             Compounds of parameters associated to compounds (e.g., Km). The default is None.
 
         Returns
@@ -70,6 +70,7 @@ class KinP:
             Names of samples (rows of `typeParam.csv`.
         """
         if not isinstance(params, list): params = [params]
+        if not isinstance(compounds, list): compounds = [compounds]
         dParam = pd.read_csv(KinP.path + paramDB + '.csv', encoding_errors='ignore')
         KinP.checkKinP(paramDB, dParam, params)
         dParam = dParam.loc[dParam['Reaction'] == reaction]
@@ -86,6 +87,7 @@ class KinP:
                         try:
                             dParam[comp]
                         except:
+                            print(comp)
                             pass
                         else:
                             dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
