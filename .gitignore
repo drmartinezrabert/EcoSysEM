@@ -6,6 +6,7 @@ ecosysem/results/*.xlsx
 *.avi
 *.npz
 *.png
+*.tiff
 ecosysem/data/*.txt
 *.csv
 ecosysem/plots
