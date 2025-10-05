@@ -52,7 +52,7 @@ class ISA:
                 - Goody & Yung (1989), doi: 10.1093/oso/9780195051346.001.0001
     
     """
-    def __init__(self, layers, H2O, pH, resolution = 1000):
+    def __init__(self, layers, phase = 'All', H2O = 0.0, pH = 7.0, selCompounds = None, selAlt = None, resolution = 1000):
         # Layers of the Earth's atmosphere (ISA)
         _ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
