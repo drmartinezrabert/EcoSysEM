@@ -130,9 +130,9 @@ class ISA:
         else:
             p = np.append(p, base_P[-1] * np.exp((-(g0 * M0) / (R * (base_T[-1]+273.15))) * (alt_end - start_alt[-1])))
         # Safe Altitude, Temperature and Pressure
-        self.ISAaltitude = alt # [m]
-        self.ISAtemperature = t # [C]
-        self.ISApressure = p # [Pa]
+        self.altitude = alt # [m]
+        self.temperature = t + 273.15 # [K]
+        self.pressure = p # [Pa]
     
     def _computeWaterContent(self, H2O, dDC):
         """
@@ -149,7 +149,7 @@ class ISA:
             newComp[0] -= 0.78100 * H2O # N2_wet
             newComp[1] -= 0.20925 * H2O # O2_wet
             newComp[2] -= 0.01100 * H2O # Ar_wet
-            self.ISAcompositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
+            self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
     def getConcISA(self, phase, compound = None):
         """
@@ -187,8 +187,8 @@ class ISA:
         
         """
         # Data
-        p = self.ISApressure
-        t = self.ISAtemperature + 273.15   # [K]
+        p = self.pressure
+        t = self.temperature   # [K]
         compounds = self.compounds
         compositions = np.array(list(self.compositions.values()))
         if compound:
@@ -283,9 +283,9 @@ class ISA:
             minAlt = 0
             maxAlt = selAlt
         # Previous altitude, temperature and pressure
-        prevAlt = self.ISAaltitude
-        prevT = self.ISAtemperature
-        prevP = self.ISApressure
+        prevAlt = self.altitude
+        prevT = self.temperature
+        prevP = self.pressure
         # Correct min and max altitude, if out of previous range
         minAlt = max(minAlt, min(prevAlt))
         maxAlt = min(maxAlt, max(prevAlt))
@@ -293,9 +293,9 @@ class ISA:
         imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
         iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
         # New altitude, temperature and pressure
-        self.ISAaltitude = prevAlt[imAlt:iMAlt]
-        self.ISAtemperature = prevT[imAlt:iMAlt]
-        self.ISApressure = prevP[imAlt:iMAlt]
+        self.altitude = prevAlt[imAlt:iMAlt]
+        self.temperature = prevT[imAlt:iMAlt]
+        self.pressure = prevP[imAlt:iMAlt]
     
     ## Plotting functions 
     def plotTandP_ISA(self):
@@ -305,9 +305,9 @@ class ISA:
         
         """
         # Variables
-        alt = self.ISAaltitude / 1000      # [km]
-        t = self.ISAtemperature + 273.15   # [K]
-        p = self.ISApressure / 101325      # [atm]
+        alt = self.altitude / 1000      # [km]
+        t = self.temperature            # [K]
+        p = self.pressure / 101325      # [atm]
         # Temperature
         fig, ax1 = plt.subplots(figsize = (4.2, 2))
         ax1.set_xlabel('Altitude (km)')
@@ -330,7 +330,7 @@ class ISA:
         
         """
         # Variables
-        alt = self.ISAaltitude / 1000     # [km]
+        alt = self.altitude / 1000     # [km]
         # Plotting
         fig, ax = plt.subplots(figsize = (5,10))
         ax.set_ylabel('Altitude (km)')
