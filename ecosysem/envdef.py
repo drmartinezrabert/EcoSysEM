@@ -154,7 +154,7 @@ class ISA:
             newComp[2] -= 0.01100 * H2O # Ar_wet
             self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
-    def getConcISA(self, phase, compound = None):
+    def _getConcISA(self, phase, compound = None): # !!! Call in __init__ and create attributes for each return. If they are not used, self.attribute = None.
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -166,28 +166,14 @@ class ISA:
         Parameters
         ----------
         phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
-            DESCRIPTION. Selection of phase of vertical profile.
+            Selection of phase of vertical profile.
                         'G' - Gas.
                         'L-FW' - Liquid fresh water.
                         'L-SW' - Liquid sea water.
                         'L' - Both liquid phases (L-FW, L-SW).
                         'All' - All phaes (G, L-FW, L-SW).
         compound : STR or LIST, optional
-            DESCRIPTION. Interested compounds. The default is None. (i.e., all compounds are considered).
-
-        Returns
-        -------
-        Dictionaries with pressures/concentrations.
-        dict_Pi, dict_Ci_G : DICT (if phase='G')
-        dict_Ci_LFW : DICT (if phase='L-FW')
-        dict_Ci_LSW : DICT (if phase='L-SW')
-        dict_Ci_LFW, dictCi_LSW : DICT (if phase='L')
-        dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW : DICT (if phase='All')
-             dict_Pi : Parcial pressure of desired compounds.
-             dict_Ci_G : Concentration in gas of desired compounds.
-             dict_Ci_LFW : Concentration in liquid (freshwater) of desired compounds.
-             dict_Ci_LSW : Concentration in liquid (seawater) of desired compounds.
-        
+                Interested compounds. The default is None. (i.e., all compounds are considered).
         """
         # Data
         p = self.pressure
