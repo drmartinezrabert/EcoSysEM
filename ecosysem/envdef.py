@@ -83,6 +83,9 @@ class ISA:
         self.compounds = dDC['Compounds']
         self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
         self._computeWaterContent(H2O, dDC)
+        if selAlt:
+            self._selectAltitude(selAlt)
+        self._getConcISA(phase, selCompounds)
     
     def _computeTandP_ISA(self, layers, dISA):
         """
