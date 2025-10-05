@@ -316,14 +316,20 @@ ecosysem
   │           └── ecoysDiHypergraph
   ├── envdef.py 
   │      ├── ISA
-  │      │    ├── .ISAaltitude
-  │      │    ├── .ISAtemperature
-  │      │    ├── .ISApressure
+  │      │    ├── .altitude
+  │      │    ├── .temperature
+  │      │    ├── .pressure
+  │      │    ├── .Pi
+  │      │    ├── .Ci_G
+  │      │    ├── .Ci_LFW
+  │      │    ├── .Ci_LSW
   │      │    ├── .compounds
   │      │    ├── .compositions
+  │      │    ├── .pH
+  │      │    ├── .H2O
+  │      │    ├── .layers
+  │      │    ├── .resolution
   │      │    ├── setComposition
-  │      │    ├── selectAltitude
-  │      │    ├── getConcISA
   │      │    ├── plotTandP_ISA
   │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
@@ -415,40 +421,40 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __SO<sub>2</sub>__ | 1.500·10<sup>-8</sup> | | |
 | __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
-To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance attributes `layers`, `H2O`, `pH` and `resolution` are necessary:
+To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance arguments `layers` are necessary. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
 - `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
-- `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04.
-- `pH`. pH of atmosphere. This attribute must be a _float_.
+- `phase`. Selection of phase of vertical profile composition (gas: 'G', liquid: 'L', liquid freshwater: 'L-FW', liquid seawater: 'L-SW', all: 'All'. The default is 'All'.
+- `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04. The default is 0.0.
+- `pH`. pH of atmosphere. This attribute must be a _float_. The default is 7.0.
+- `selCompounds`. Interested compounds. The default is None. (i.e., all compounds are considered).
+- `selAlt`. Selected altitude (in m). List [min Altitude, max Altitude].
 - `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
 
-Once a new _ISA_ object is created, a specific region of ISA can be selected using `ISA.selectRegion`. Compound concentrations (`ISA.getDictConc` or `ISA.getVerticalProfiles`) will be calculated using the new region defined. Here is an example:
+Here is an example:
 ```python
 from envdef import ISA
 import numpy as np
 
-newISA = ISA(0, 0.00, None, 500)
-
->>> print(newISA.ISAaltitude)
+newISA = ISA(0, resolution = 500)
+>>> print(newISA.altitude)
 [    0.   500.  1000.  1500.  2000.  2500.  3000.  3500.  4000.  4500.
   5000.  5500.  6000.  6500.  7000.  7500.  8000.  8500.  9000.  9500.
  10000. 10500. 11000.]
->>> print(newISA.ISAtemperature)
-[ 15.    11.75   8.5    5.25   2.    -1.25  -4.5   -7.75 -11.   -14.25
- -17.5  -20.75 -24.   -27.25 -30.5  -33.75 -37.   -40.25 -43.5  -46.75
- -50.   -53.25 -56.5 ]
+>>> print(newISA.temperature)
+[288.15 284.9 281.65 278.4 275.15 271.9 268.65 265.4 262.15 258.9
+ 255.65 252.4 249.15 245.9 242.65 239.4 236.15 232.9 229.65 226.4
+ 223.15 219.9 216.65]
 
-newISA.selectRegion([1000, 3500])
-
+newISA = ISA(0, resolution = 500, selAlt = [1000, 3500])
 >>> print(newISA.ISAaltitude)
 [1000. 1500. 2000. 2500. 3000. 3500.]
 >>> print(newISA.ISAtemperature)
-[ 8.5   5.25  2.   -1.25 -4.5  -7.75]
+[281.65 278.4 275.15 271.9 268.65 265.4]
 
-C = newISA.getDictConc('L-SW')
-
+C = newISA.Ci_LSW
 # np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
 >>> print(np.round(C['O2'], 7)) 
-[0.0003134, 0.0003138, 0.0003144, 0.0003153, 0.0003164, 0.0003178]
+[0.0003134 0.0003138 0.0003144 0.0003153 0.0003164 0.0003178]
 ```
 
 ### ISA.setComposition &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
@@ -461,45 +467,6 @@ Add (if _compound_ does not exist) or modify (if _compound_ does exist) composit
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New compound or compound to modify.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
-
-### ISA.selectAltitude &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-ISA.selectAltitude(selAlt)
-```
-Modify `.altitude`, `.temperature` and `.pressure` of `ISA` subclass based on the minimum and maximum altitude given.<p>
-**Parameters:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selAlt : _int, float or list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Minimum and maximum altitude of the new atmosphere region.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _int_ or _float_: minAlt = 0; maxAlt = selAlt.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If _selAlt_ is a _list_: [minAlt, maxAlt].<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None**<br>
-
-### ISA.getConcISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-ISA.getConcISA(phase, compound=None)
-```
-Return vertical profiles in _format=dict_ of selected compounds or all compounds of `ISA` subclass.<p>
-**Parameters:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G', 'L-FW', 'L-SW', 'L' or 'All')_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired phase of compound concentration.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Both liquid phases (L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases (G, L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of strs_, _optional, default: None_ (all compounds)**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The desired compound(s) of `ISA` subclass.<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G : _dict_** (if _phase='G'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW : _dict_** (if _phase='L-FW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LSW : _dict_** (if _phase='L-SW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW, dictCi_LSW : _dict_** (if _phase='L'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G, dictCi_LFW, dictCi_LSW : _dict_** (if _phase='All'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictPi : Parcial pressure of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_G : Concentration in gas of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (freshwater) of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (seawater) of desired compounds.<br>
 
 ### ISA.plotTandP_ISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -1788,8 +1755,6 @@ python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 ## Function Navigation
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.setComposition](#isasetcomposition---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.selectAltitude](#isaselectaltitude---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.getConcISA](#isagetConcISA---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP_ISA](#isaplottandp_isa---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfilesISA](#isaplotcompsprofilesisa---back-to-function-navigation)<br>
 
