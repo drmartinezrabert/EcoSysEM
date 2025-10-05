@@ -262,26 +262,6 @@ class ISA:
                   '                             \'L\'       - Both liquid phases (L-FW, L-SW).\n'+
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             sys.exit()
-            
-    def setComposition(self, compound, composition):
-        """
-        Modify composition of existing compounds or add new components with
-        their respective compositions.
-
-        Parameters
-        ----------
-        compound : STR or LIST
-            Set of new and/or existing compounds.
-        composition : FLOAT or LIST
-            Composition(s) of new and/or existing compound(s).
-        
-        """
-        if not isinstance(compound, list): compound = [compound]
-        if not isinstance(composition, list): composition = [composition]
-        pre_comp = self.compositions
-        new_comp = dict(zip(compound, composition))
-        pre_comp.update(new_comp)
-        self.compositions = pre_comp
     
     def selectAltitude(self, selAlt):
         """
@@ -315,6 +295,26 @@ class ISA:
         self.temperature = prevT[imAlt:iMAlt]
         self.pressure = prevP[imAlt:iMAlt]
     
+    def setComposition(self, compound, composition):
+        """
+        Modify composition of existing compounds or add new components with
+        their respective compositions.
+
+        Parameters
+        ----------
+        compound : STR or LIST
+            Set of new and/or existing compounds.
+        composition : FLOAT or LIST
+            Composition(s) of new and/or existing compound(s).
+        
+        """
+        if not isinstance(compound, list): compound = [compound]
+        if not isinstance(composition, list): composition = [composition]
+        pre_comp = self.compositions
+        new_comp = dict(zip(compound, composition))
+        pre_comp.update(new_comp)
+        self.compositions = pre_comp
+        
     ## Plotting functions 
     def plotTandP_ISA(self):
         """
