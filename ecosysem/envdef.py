@@ -263,7 +263,7 @@ class ISA:
                   '                             \'All\'     - All phases (G, L-FW, L-SW).')
             sys.exit()
     
-    def selectAltitude(self, selAlt):
+    def _selectAltitude(self, selAlt):
         """
         Select a specific region of atmosphere based on a minimum and maximum 
         altitud value.
