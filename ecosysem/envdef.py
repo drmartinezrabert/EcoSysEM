@@ -230,15 +230,30 @@ class ISA:
             dict_Ci_LFW[compounds[id_]] = Ci_LFW
             dict_Ci_LSW[compounds[id_]] = Ci_LSW
         if phase == 'G':
-            return dict_Pi, dict_Ci_G
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = None
+            self.Ci_LSW = None
         elif phase == 'L-FW':
-            return dict_Ci_LFW
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = None
         elif phase == 'L-SW':
-            return dict_Ci_LSW
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = None
+            self.Ci_LSW = dict_Ci_LSW
         elif phase == 'L':
-            return dict_Ci_LFW, dict_Ci_LSW
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
         elif phase == 'All':
-            return dict_Pi, dict_Ci_G, dict_Ci_LFW, dict_Ci_LSW
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
         else:
             print('!EcosysEM.Error: No phase selected. Use one of the following string:\n'+
                   '                             \'G\'       - Gas.\n'+
