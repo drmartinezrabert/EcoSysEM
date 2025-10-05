@@ -430,6 +430,20 @@ To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance
 - `selAlt`. Selected altitude (in m). List [min Altitude, max Altitude].
 - `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
 
+The **ISA instance** has the following attributes:
+- Altitude (`.altitude`). List of atmospheric altitudes in meters. 
+- Temperature (`.temperature`). List of temperatures in Kelvin.
+- Pressure (`.pressure`). List of pressures in Pascals.
+- Partial pressure of compounds (`.Pi`). Dictionary of partial pressure of compounds throughout the atmosphere. `{'compound': [partial pressure]}`.
+- Gas concentration of compounds (`.Ci_G`). Dictionary of gas concentration of compounds throughout the atmosphere. `{'compound': [gas concentration]}`.
+- Freshwater concentration of compounds (`.Ci_LFW`). Dicitonary of concentration of compounds in freshwater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`
+- Seawater concentration of compounds (`.Ci_LSW`). Dictionary of concentration of compounds in seawater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`
+- Compounds (`.compounds`). List of atmospheric compounds.
+- Dry composition (`.compositions`). Dictionary of atmospheric dry composition of the atmospehre in %vol. `{'compound': [air composition]}`
+- pH (`.pH`). pH of aerosol.
+- Air water content (`.H2O`). Atmospheric water content.
+- Layers of atmosphere (`.layers`). Selected layers of the atmosphere. Layers from 0 to 7: 0 - 'Troposphere', 1 - 'Tropopause', 2 - 'Stratosphere I', 3 - 'Stratosphere II', 4 - Stratopause', 5 - 'Mesosphere I', 6 - 'Mesosphere II', 7 - 'Mesopause'. 
+
 Here is an example:
 ```python
 from envdef import ISA
