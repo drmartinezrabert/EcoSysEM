@@ -460,9 +460,9 @@ newISA = ISA(0, resolution = 500)
  223.15 219.9 216.65]
 
 newISA = ISA(0, resolution = 500, selAlt = [1000, 3500])
->>> print(newISA.ISAaltitude)
+>>> print(newISA.altitude)
 [1000. 1500. 2000. 2500. 3000. 3500.]
->>> print(newISA.ISAtemperature)
+>>> print(newISA.temperature)
 [281.65 278.4 275.15 271.9 268.65 265.4]
 
 C = newISA.Ci_LSW
