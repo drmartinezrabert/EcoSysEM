@@ -1,7 +1,7 @@
 # EcoSysEM platform
 Eco-System Evaluation &amp; Modelling
 
-*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire* 
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
 
 *· Funded by:*
 
