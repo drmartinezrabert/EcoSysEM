@@ -268,7 +268,7 @@ class KinRates:
             k = Km[f'Km_{limComp}']
             if not isinstance(k, (list, np.ndarray)): k = np.array(k)
             if isinstance(k, np.ndarray):
-                if k.ndim != 1:
+                if k.ndim == 0:
                     k = np.array([k])
             K = k * np.ones(c.shape)
             M *= (c) / (K + c + 1e-25)
