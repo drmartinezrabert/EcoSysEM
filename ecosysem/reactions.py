@@ -145,15 +145,22 @@ class KinRates:
         # Check variables
         if not isinstance(T, np.ndarray): T = np.ndarray(T)
         if not isinstance(reactions, list): reactions = [reactions]
-        if not isinstance(Ct, dict): 
+        if not isinstance(Ct, dict):
             print('!EcoSysEM.Error: `Ct` argument must be a dictionary.')
             sys.exit()
         else:
             # Check shapes of Ct dictionary
-            compounds = [c for c in Ct]
-            uShpConc = list(set([Ct[c].shape for c in Ct if np.all(Ct[c])]))
+            checkArray_compounds = []
+            compounds = list(Ct.keys())
+            for c in Ct:
+                if not isinstance(Ct[c], np.ndarray):
+                    print('!EcoSysEM.Error: All compounds must be a numpy array.')
+                    sys.exit()
+                else:
+                    checkArray_compounds += [Ct[c].shape]
+            uShpConc = list(set(checkArray_compounds))
             if not len(uShpConc) == 1:
-                print('!EcoSysEM.Error: All compounds must have same length.')
+                print('!EcoSysEM.Error: All compounds must have same dimension.')
                 sys.exit()
         if sample != 'All':
             if not isinstance(sample, list): sample = [sample]
