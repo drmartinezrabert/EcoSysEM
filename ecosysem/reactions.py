@@ -297,7 +297,7 @@ class KinRates:
 
         """
         if not isinstance(rateBase, np.ndarray): rateBase = np.array(rateBase)
-        if not isinstance(temp, np.ndarray): rateBase = np.array(temp)
+        if not isinstance(temp, np.ndarray): rateBase = np.array(temp) #!!! Bug solving, temp instead of rateBase
         if rateBase.shape != temp.shape:
             print('!EcoSysEM.Error: rate base (`rateBase`) and temperature (`temp`) must have the same shape.}')
             sys.exit()
