@@ -160,13 +160,18 @@ class KinRates:
             if not isinstance(sample, list): sample = [sample]
         ## Concentrations (pH speciation)
         if pH:
-            if T is None:
+            if T is None: # !!! if not T:
                 print('!EcoSysEM.Error: temperature (`T`) not defined.')
                 sys.exit()
             for comp in compounds:
                 Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
         if typeKin == 'MM':
             params = ['qmax', 'Km']
+            """ # !!!
+            if len(paramDB) != 1:
+                print('!EcoSysEM.Error: only 1 database must be given: paramDB = "Michaelis-Menten DB"')
+                sys.exit()
+            """
             # Initialize results
             Rs = {}
             combNames = {}
