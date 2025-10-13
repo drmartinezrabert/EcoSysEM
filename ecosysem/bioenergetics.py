@@ -9,13 +9,14 @@ from thermodynamics import ThSA
 from reactions import KinRates as KR
 
 import numpy as np
+import pandas as pd
 
 class CSP:
     
     Rj = 8.314      #universal gas constant [J/mol.K]
     T0 = 298.15     #standard temperature [K]
     
-    def getPcat(typeMetabo, reaction, pH = 7., S = None, Ct = 1., T = 298.15, phase = 'L'):
+    def getPcat(typeMetabo, reaction, Ct, T = 298.15, pH = 7., S = None, phase = 'L', DGsynth = 9.54E-11): #!!!
         """
         Function to compute the catabolic cell-specific power.
         
@@ -50,14 +51,51 @@ class CSP:
             
         """
         
-        # Get non-standard Gibbs free energy and cell-specific uptake rate     
-        DGr = ThSA.getDeltaGr(typeMetabo, reaction, phase, T = T)
-        Rs = KR.getRs('MM-Arrhenius', 'ArrhCor_AtmMicr', reaction, Ct)
+        # Set requested arguments for ThSA.getDeltaGr & KR.getRs #!!!
+        """ ThSA.getDeltaGr args:
+                typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
+                fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+                warnings = False, printDG0r = False, printDH0r = False
+            
+            KinRates.getRs args:
+                typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None
+        """
+        DGr_args = {'typeRxn' : typeMetabo,
+                    'input_' : reaction,
+                    'phase' : phase,
+                    'specComp' : False,
+                    'T' : T,
+                    'pH' : pH,
+                    'S' : S,
+                    'Ct' : Ct,
+                    'fluidType' : 'ideal',
+                    'molality' : True,
+                    'methods' : None,
+                    'solvent' : 'H2O',
+                    'asm' : 'stoich', 
+                    'warnings' : False,
+                    'printDG0r' : False,
+                    'printDH0r' : False
+                    }
+        
+        Rs_args = {'typeKin' : 'MM-Arrhenius',
+                   'paramDB' : 'ArrhCor_AtmMicr',
+                   'reactions' : reaction,
+                   'T' : T,
+                   'pH' : pH,
+                   'Ct' : Ct, 
+                   'sample' : 'All',
+                   }
+        
+        # Get non-standard Gibbs free energy and cell-specific uptake rate
+        DGr = ThSA.getDeltaGr(**DGr_args) * 1000  #[J/moleD]
+        Rs = KR.getRs(**Rs_args) / 3600   #[moleD/cell/s]
         # compute Pcat
-        Pcat = abs(Rs * DGr) * 1e18
-        return Pcat #[fJ/cell.h]
+        Pcat = abs(Rs * DGr) * 1e15
+        return Pcat      #[fW/cell]
     
-    def getPana(typeMetabo, reaction, pH = 7., S = None, Ct = 1., T = 298.15, phase = 'L', DGsynth = 9.54E-11):
+    
+    def getPana(typeMetabo, reaction, Ct, T = 298.15, pH = 7., S = None, phase = 'L', DGsynth = 9.54E-11): #!!!
         """
         Function to compute the anabolic cell-specific power.
         
@@ -93,13 +131,52 @@ class CSP:
             cellular components.
             
         """
+        # Set requested arguments for ThSA.getDeltaGr & KR.getRs #!!!
+        """ ThSA.getDeltaGr args:
+                typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
+                fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+                warnings = False, printDG0r = False, printDH0r = False
+            
+            KinRates.getRs args:
+                typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None
+        """
+        DGr_args = {'typeRxn' : typeMetabo,
+                    'input_' : reaction,
+                    'phase' : phase,
+                    'specComp' : False,
+                    'T' : T,
+                    'pH' : pH,
+                    'S' : S,
+                    'Ct' : Ct,
+                    'fluidType' : 'ideal',
+                    'molality' : True,
+                    'methods' : None,
+                    'solvent' : 'H2O',
+                    'asm' : 'stoich', 
+                    'warnings' : False,
+                    'printDG0r' : False,
+                    'printDH0r' : False
+                    }
+        
+        Rs_args = {'typeKin' : 'MM-Arrhenius',
+                   'paramDB' : 'ArrhCor_AtmMicr',
+                   'reactions' : reaction,
+                   'T' : T,
+                   'pH' : pH,
+                   'Ct' : Ct, 
+                   'sample' : 'All',
+                   }
         
         # Get non-standard Gibbs free energy and cell-specific uptake rate
-        DGr = ThSA.getDeltaGr(typeMetabo, reaction, phase, T = T)
-        Rs = KR.getRs('MM-Arrhenius', 'ArrhCor_AtmMicr', reaction, Ct)
-        # compute Pana
-        Pana = DGr * Rs * DGsynth * 1e15
-        return Pana #[fJ/cell.h]
+        
+        DGr, _ = ThSA.getDeltaGr(**DGr_args) * 1000 #[J/moleD]
+        Rs = pd.DataFrame((KR.getRs(**Rs_args)[0])[reaction]).mean(axis=1) / 3600   #[moleD/cell/s]
+        # !!! need for mean value of q for samples sharing same metabolism 
+        
+        # compute cell-growth yield and Pana
+        Yx = DGr * (0.5/1.04e-10)   # [cell/moleD]
+        Pana = Yx * Rs * DGsynth * 1e15
+        return Pana     #[fW/cell]
     
     def getPmg(T = 298.15):
         """
@@ -122,8 +199,8 @@ class CSP:
         R = CSP.Rj
         T0 = CSP.T0
         # compute Pmg
-        Pmg = (8.96 * np.exp((-6.40e4 / R) * ((1 / T) - (1 / T0)))) * 1e15
-        return Pmg #[fJ/cell.h]
+        Pmg = 8.96 * np.exp((-6.40e4 / R) * ((1 / T) - (1 / T0)))
+        return Pmg      #[fW/cell]
     
     def getPm0(T = 298.15):
         """
@@ -146,8 +223,8 @@ class CSP:
         R = CSP.Rj
         T0 = CSP.T0
         # compute Pm0
-        Pm0 = (1.70e-3 * np.exp((-9.07e4/R) * ((1/T) - (1/T0)))) * 1e15
-        return Pm0 #[fJ/cell.h]
+        Pm0 = 1.70e-3 * np.exp((-9.07e4/R) * ((1/T) - (1/T0)))
+        return Pm0      #[fW/cell]
     
     def getPs(T = 298.15):
         """
@@ -171,11 +248,11 @@ class CSP:
         R = CSP.Rj
         T0 = CSP.T0
         # compute Ps
-        Ps = (2.67e-6 * np.exp((-5.68e4 / R) * ((1 / T) - (1 / T0)))) * 1e15
-        return Ps #[fJ/cell.h]
+        Ps = 2.67e-6 * np.exp((-5.68e4 / R) * ((1 / T) - (1 / T0)))
+        return Ps   #[fW/cell]
     
         
-    def getAllCSP(typeMetabo, reaction, Ct, T = 298.15, phase = 'L', DGsynth = 9.54E-11):
+    def getAllCSP(typeMetabo, reaction, Ct, T = 298.15, phase = 'L', DGsynth = 9.54E-11): #!!!
         """
         Function to compute every cell-specific powers.
         
@@ -229,4 +306,8 @@ class CSP:
         Pcell = Pana + Pmg
         
         
-        return Pcat, Pana, Pmg, Pm0, Ps, Pcell  #[fJ/cell.h]
+        return Pcat, Pana, Pmg, Pm0, Ps, Pcell  # [fW/cell]
+
+
+ 
+    
