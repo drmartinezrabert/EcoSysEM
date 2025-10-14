@@ -898,11 +898,12 @@ class ThSA:
         if isinstance(Ct, dict):
             shapeT = T.shape
             shapeC = Ct[list(Ct.keys())[0]].shape
-            if shapeT[0] == 1:
-                T = T * np.ones(shapeC)
-            else:
-                print(f'!EcoSysEM.Error: `T` shape {shapeT} and `Ct` keys shape {shapeC} doesn''t match.')
-                sys.exit()
+            if shapeT != shapeC:
+                if shapeT[0] == 1:
+                    T = T * np.ones(shapeC)
+                else:
+                    print(f'!EcoSysEM.Error: `T` shape {shapeT} and `Ct` keys shape {shapeC} doesn''t match.')
+                    sys.exit()
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
