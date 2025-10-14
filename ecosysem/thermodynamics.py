@@ -981,7 +981,8 @@ class ThSA:
                 # Calculate reaction quotient (Qr)
                 Qr = 0
                 uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
-                findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
+                if specComp:
+                    findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
                 for idComp, iComp in enumerate(i_rComp):
                     findComp = np.argwhere(uComp == iComp)
                     vi = i_mRxn[idComp] / vSelected
@@ -997,7 +998,11 @@ class ThSA:
                                 uIComp = np.isin(uComp, rComp_pH)
                                 if (rComp is None) or (any(uIComp) == False):
                                     if asm == 'stoich': # [P] is calculated based on stoichiometry.
-                                        iConc = (vi) * Ct[uComp[findSpecComp]]
+                                        if specComp:
+                                            iConc = (vi) * Ct[uComp[findSpecComp]]
+                                        else:
+                                            print(f'!EcoSysEM.Error: `specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
+                                            sys.exit()
                                 else:
                                     rxn_iComp =  uComp[uIComp][0]
                                     # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
