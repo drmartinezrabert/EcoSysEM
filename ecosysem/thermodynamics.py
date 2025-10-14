@@ -894,6 +894,15 @@ class ThSA:
         if isinstance(T, float): T = [T]
         if not isinstance(T, np.ndarray): T = np.array(T)
         if isinstance(pH, int): pH = float(pH)
+        # Check shape of temperature (if `Ct` is a dictionary)
+        if isinstance(Ct, dict):
+            shapeT = T.shape
+            shapeC = Ct[list(Ct.keys())[0]].shape
+            if shapeT[0] == 1:
+                T = T * np.ones(shapeC)
+            else:
+                print(f'!EcoSysEM.Error: `T` shape {shapeT} and `Ct` keys shape {shapeC} doesn''t match.')
+                sys.exit()
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
