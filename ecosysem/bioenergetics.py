@@ -16,13 +16,21 @@ class CSP:
     Rj = 8.314      #universal gas constant [J/mol.K]
     T0 = 298.15     #standard temperature [K]
     
-    def getPcat(typeMetabo, reaction, Ct, T = 298.15, pH = 7., S = None, phase = 'L', DGsynth = 9.54E-11): #!!!
-        """
+    def getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
+                T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
+                fluidType = 'ideal', molality = 'True', methods = 'None',
+                solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11):
+        """   
         Function to compute the catabolic cell-specific power.
         
         Parameters
         ----------
-        
+        paramDB : STR or LIST
+            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+        typeKin : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         typeMetabo : STR
             Requested metabolism type, matching with csv name. E.g.:
                 - 'metabolisms' : aerobic metabolisms
@@ -31,66 +39,74 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        pH : INT or FLOAT, optional
-            Set of pH. The default is 7.0 (neutral pH).
-        S : FLOAT, LIST or np.array
-            Salinity [ppt]. The default is None.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
         T : FLOAT or LIST
             Set of temperature [K]. The default is 298.15 K (standard temperature).
-        phase : STR
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array, optional
+            Salinity [ppt]. The default is None.
+        phase : STR, optional
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid. The default is 'L'.
+        sample : STR or LIST, optional
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STR, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        DGsynth : FLOAT
+            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.         
                    
         Returns
         -------
-        Pcat : FLOAT or LIST
-        	Catabolic cell-specific power: energy flux produced by the cell, using environmental resources
-            or internal reservoirs.
+        Pcat : pandas.core.series.Series
+        	Catabolic cell-specific power: energy flux produced by the cell,
+            using environmental resources or internal reservoirs.
             
         """
-        
-        # Set requested arguments for ThSA.getDeltaGr & KR.getRs #!!!
-        """ ThSA.getDeltaGr args:
-                typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
-                fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
-                warnings = False, printDG0r = False, printDH0r = False
-            
-            KinRates.getRs args:
-                typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None
-        """
+        # Set requested arguments for ThSA.getDeltaGr & KR.getRs
         DGr_args = {'typeRxn' : typeMetabo,
                     'input_' : reaction,
                     'phase' : phase,
-                    'specComp' : False,
+                    'specComp' : specComp,
                     'T' : T,
                     'pH' : pH,
                     'S' : S,
                     'Ct' : Ct,
-                    'fluidType' : 'ideal',
-                    'molality' : True,
-                    'methods' : None,
-                    'solvent' : 'H2O',
-                    'asm' : 'stoich', 
+                    'fluidType' : fluidType,
+                    'molality' : molality,
+                    'methods' : methods,
+                    'solvent' : solvent,
+                    'asm' : asm, 
                     'warnings' : False,
                     'printDG0r' : False,
                     'printDH0r' : False
-                    }
-        
-        Rs_args = {'typeKin' : 'MM-Arrhenius',
-                   'paramDB' : 'ArrhCor_AtmMicr',
+                    }       
+        Rs_args = {'typeKin' : typeKin,
+                   'paramDB' : paramDB,
                    'reactions' : reaction,
                    'T' : T,
                    'pH' : pH,
                    'Ct' : Ct, 
-                   'sample' : 'All',
+                   'sample' : sample
                    }
-        
         # Get non-standard Gibbs free energy and cell-specific uptake rate
-        DGr = ThSA.getDeltaGr(**DGr_args) * 1000  #[J/moleD]
-        Rs = KR.getRs(**Rs_args) / 3600   #[moleD/cell/s]
-        # compute Pcat
+        DGr = ThSA.getDeltaGr(**DGr_args)[0] * 1000  #[J/moleD]
+        Rs = pd.DataFrame((KR.getRs(**Rs_args)[0])[reaction]).mean(axis=1) / 3600   #[moleD/(cell.s)]
+        # Compute Pcat
         Pcat = abs(Rs * DGr) * 1e15
         return Pcat      #[fW/cell]
     
