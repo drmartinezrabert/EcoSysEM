@@ -36,29 +36,37 @@ class MSMM:
 # -> respect presentation syntax
 
 
-    def __init__(self, typeMetabo, metabolism, Bini, K, mortality, envModel,
-                 envArgs = None, sample = None, DeltaGsynth = 9.54E-11, steepness = 0.2,
-                 degradation_pace = 'Moderate'):
+
+    def __init__(self, typeMetabo, metabolism, eDonor, Wtype, K, mortality, envModel,
+                 envArgs = None, DeltaGsynth = 9.54E-11, steepness = 0.2,
+                 degradPace = 'Moderate', fluidType = 'ideal', actMethods = None):
         
-              
-        
-        self.metaboType = typeMetabo    #metabolism type (STR), e.g. 'AnMetabolisms'
-        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth'
-        self.Bini = Bini                #initial biomass in each state (LIST)
+        _metaboProperties = {}
+        _metaboProperties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #resp. [h] & [1/h]
+        _metaboProperties['moderate'] = {'protein turnover rate':5 ,'specific metabolic shift rates':0.2}
+        _metaboProperties['slow'] = {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}    
+        dMtbRates = pd.DataFrame(data = _metaboProperties)
+        self.envModel = envModel
+        self.atmModels = ['ISA', 'MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2']
+        #!!! other models?
+        self.typeMtb = typeMetabo    #metabolism type (STR), e.g. 'AnMetabolisms'
+        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth' #??? only one community at a time?
+        #self.phase = phase             #'L' as default
+        self.Wtype = Wtype              # 'L_SW' or 'L_FW'
         self.K = K                      #carrying capacity (FLOAT)
         self.mortality = mortality      #(FLOAT) [1/h] #!!! and not 1/d
-        self.DeltGsynth = DeltaGsynth   #cell synthesis required energy
+        self.DGsynth = DeltaGsynth      #cell synthesis required energy
         self.st = steepness
-        self.metaboRates = degradation_pace
-        #self.Alt = [method from ISA?]
-        #self.time = [setTime method] -> plot arg 
-        #other needed args : pH = 7., S = None, Ct = 1., T = 298.15, phase = 'L'
-        
-        
+        self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
+        self.eD = eDonor                #(specComp), e.g. 'CH4' for metabolism = 'Mth'
+        self.fluidType = fluidType      #'ideal' or 'non-ideal'
+        self.method = actMethods
         self._callEnvP(envModel = envModel, envArgs = envArgs)
-        #self._runMSMM -> useless? plot as callable method
-        
-          
+        self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
+        #self.Bini = Bini                #initial biomass in each state (LIST) -> plot arg
+        #self.time = time                #[setTime method] -> plot arg 
+        #if plotMSMM == True:
+        #self.plotMSMM(Bini, time) -> required args must be given when instance is created
     
     def _callEnvP(self, envModel, envArgs):
         """
