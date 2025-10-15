@@ -155,22 +155,22 @@ class MSMM:
         
 
     def _ODEsystem_MSMM(self, y, t):
-        """ tooltip
+        """
         Function for the differential equations system of the model.
         
         Parameters
         ----------
         
-        Bini : LIST of INT
-            Initial biomass in each metabolic state [cell per cubic meter]
-        [...]
+        y : LIST of INT
+            Initial biomass in each metabolic state, e.g. [cell/m^3 air]
+        t : LIST or np.array
+            Time range over which biomass variation is computed
         
         Returns
         -------
         dB : LIST of FLOAT
-            Biomass variation in each metabolic state
+            Biomass variation in each metabolic state [cell/h].
         
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX definition
         """
         
         Bg = y[0]
@@ -179,38 +179,47 @@ class MSMM:
         Blist = [Bg, Bm, Bs]
         Btot = sum(Blist)
         
+        #import self.attributes
         mortality = self.mortality
         K = self.K
-        
-        """
-        typeMetabo = self.metaboType      #allow anaerobic types?
-        metabo = self.metabolism       #only one community at a time?
-        metaboRates = self.metaboRates
-        st = self.st
-        Cdict = {}                      #import dict from ISA.method?
-        """
-            
-        DGr, _ = ThSA.getDeltaGr(typeMetabo, rMetabo, 'L') #Ct ?
+        # Set requested arguments for ThSA.getDeltaGr & KR.getRs
+        DGr_args = {'typeRxn' : self.typeMtb,
+                    'input_' : self.metabolism,
+                    'phase' : 'L',
+                    'specComp' : self.specComp,
+                    'T' : self.temperature,
+                    'pH' : self.pH,
+                    'S' : self.salinity,
+                    'Ct' : self.Ct,
+                    'fluidType' : self.fluidType,
+                    'molality' : True,
+                    'methods' : None,
+                    'solvent' : 'H2O',
+                    'asm' : 'stoich', 
+                    'warnings' : False,
+                    'printDG0r' : False,
+                    'printDH0r' : False
+                    }       
+        Rs_args = {'typeKin' : self.typeKin,
+                   'paramDB' : self.db,
+                   'reactions' : self.metabolism,
+                   'T' : self.temperature,
+                   'pH' : self.pH,
+                   'Ct' : self.Ct, 
+                   'sample' : 'All'
+                   }
+        # Compute the cell growth yield and cell-specific uptake rate    
+        DGr = ThSA.getDeltaGr(**DGr_args)[0]
         Yx = DGr * 1000 * (0.5 / 1.04e-10)      # cell growth yield [cell/mol eD]
-        cRate = KR.getRs('MM-Arrhenius', ['MM_AtmMicr','ArrhCor_AtmMicr'], rMetabo, Cdict)   #cell-specific uptake rate [mol/cell.h]
-        
-        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist = Blist, metaboRates = self.metaboRates, st = st)
-        
-        """
-        eta value comes from metabolic shift rates dictionary where each key
-        corresponds to pace among 'slow', 'moderate' & 'fast'.
-        =>  create the dictionary in bioenergetics.py ?
-            or set as self attribute in MSMM.__init__?
-        => same goes for the steepness parameter
-        """
-
+        cRate = KR.getRs(**Rs_args)   #cell-specific uptake rate [mol/cell.h]
+        # Compute biomass transfer between metabolic states
+        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist = Blist)
+        # Compute biomass variation       
         dBg = Yx * cRate * Bg * (1 - (Bg/K)) + Rm_g - Rg_m - mortality * Bg    
         dBm =  Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
         dBs =  Rm_s - Rs_m - Rs_rip - mortality * Bs                          
         dBrip = mortality * Btot + Rs_rip  
-        
-        dB = [dBg, dBm, dBs, dBrip]     # should be in [cell/m^3 air.h]
-        
+        dB = [dBg, dBm, dBs, dBrip]
         return dB
 
     def _Bflux(self, Blist):
