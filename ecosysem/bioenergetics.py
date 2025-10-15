@@ -272,13 +272,21 @@ class CSP:
         return Ps   #[fW/cell]
     
         
-    def getAllCSP(typeMetabo, reaction, Ct, T = 298.15, phase = 'L', DGsynth = 9.54E-11): #!!!
+    def getAllCSP(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
+                T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
+                fluidType = 'ideal', molality = 'True', methods = 'None',
+                solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11):
         """
         Function to compute every cell-specific powers.
         
         Parameters
         ----------
-        
+        paramDB : STR or LIST
+            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+        typeKin : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         typeMetabo : STR
             Requested metabolism type, matching with csv name. E.g.:
                 - 'metabolisms' : aerobic metabolisms
@@ -287,46 +295,61 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
         T : FLOAT or LIST
             Set of temperature [K]. The default is 298.15 K (standard temperature).
-        phase : STR
-            Phase in which reaction(s) occur. 'G' - Gas, 'L' - Liquid. The default is 'L'.
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array, optional
+            Salinity [ppt]. The default is None.
+        phase : STR, optional
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid. The default is 'L'.
+        sample : STR or LIST, optional
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STR, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
         DGsynth : FLOAT
-            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11
+            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
         
         Returns
         -------
-        Pcat : FLOAT or LIST
-        	Catabolic cell-specific power: energy flux produced by the cell, using environmental resources
-            or internal reservoirs.
-        Pana : FLOAT or LIST
-        	Anabolic cell-specific power: energy flux associated with the synthesis of
-            cellular components.
-        Pmg : FLOAT or LIST
-        	Growth-based maintenance power: energy flux that microbes use that does not
-            result in growth while they are growing (Pirt et al., 1965).
-        Pm0 : FLOAT or LIST
-        	Basal maintenance power: energy flux associated with the minimal set of functions
-            required to sustain a basal functional state (Hoehler et al., 2013).
-        Ps : FLOAT or LIST
-        	Survival power: minimal energy flux for preservation of membrane integrity and
-            key macromolecules (e.g., enzymes), as well as other maintenance costs, such
-            as maintaining energized membranes or the conservation of catabolic energy.
-            
+        dfCSP : pandas.core.frame.DataFrame
+            Contains all cell specific power series :
+                - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
+                - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
+                - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
+                - 'Pm0' : Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
+                - 'Ps' : Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
         """
         
-        Pcat = CSP.getPcat(typeMetabo, reaction, T, Ct, phase)
-        Pana = CSP.getPana(typeMetabo, reaction, T, Ct, phase, DGsynth)
+        Pcat = CSP.getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
+                    T, pH, S, phase, sample, fluidType, molality, methods,
+                    solvent, asm, DGsynth)
+        Pana = CSP.getPana(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
+                    T, pH, S, phase, sample, fluidType, molality, methods,
+                    solvent, asm, DGsynth)
         Pmg = CSP.getPmg(T)
         Pm0 = CSP.getPm0(T)
         Ps = CSP.getPs(T)
         Pcell = Pana + Pmg
-        
-        
-        return Pcat, Pana, Pmg, Pm0, Ps, Pcell  # [fW/cell]
+        dfCSP = pd.concat([Pcat, Pana, Pmg, Pm0, Ps, Pcell], axis = 1)
+        dfCSP.columns = ['Pcat', 'Pana', 'Pmg', 'Pm0', 'Ps', 'Pcell']
+        return dfCSP  # [fW/cell]
 
 
  
