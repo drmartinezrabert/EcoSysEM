@@ -210,22 +210,20 @@ class CSP:
         
         Parameters
         ----------
-        
         T : FLOAT or LIST
             Set of temperature [K]. The default is 298.15 K (standard temperature).
         
         Returns
         -------
-        Pmg : FLOAT or LIST
+        Pmg : pandas.core.series.Series
         	Growth-based maintenance power: energy flux that microbes use that does not
             result in growth while they are growing (Pirt et al., 1965).
-            
         """
         # initialise variables
         R = CSP.Rj
         T0 = CSP.T0
         # compute Pmg
-        Pmg = 8.96 * np.exp((-6.40e4 / R) * ((1 / T) - (1 / T0)))
+        Pmg = pd.Series(8.96 * np.exp((-6.40e4 / R) * ((1 / T) - (1 / T0))))
         return Pmg      #[fW/cell]
     
     def getPm0(T = 298.15):
