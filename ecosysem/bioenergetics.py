@@ -232,22 +232,20 @@ class CSP:
         
         Parameters
         ----------
-        
         T : FLOAT or LIST
             Set of temperature [K]. The default is 298.15 K (standard temperature).
         
         Returns
         -------
-        Pm0 : FLOAT or LIST
+        Pm0 : pandas.core.series.Series
         	Basal maintenance power: energy flux associated with the minimal set of functions
             required to sustain a basal functional state (Hoehler et al., 2013).
-            
         """
         # initialise variables
         R = CSP.Rj
         T0 = CSP.T0
         # compute Pm0
-        Pm0 = 1.70e-3 * np.exp((-9.07e4/R) * ((1/T) - (1/T0)))
+        Pm0 = pd.Series(1.70e-3 * np.exp((-9.07e4/R) * ((1/T) - (1/T0))))
         return Pm0      #[fW/cell]
     
     def getPs(T = 298.15):
