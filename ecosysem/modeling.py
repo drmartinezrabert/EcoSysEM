@@ -263,46 +263,54 @@ class MSMM:
         
         return Rlist    #!!! change return format 
         
-        
-        
-    def _stShifts(self, itheta, typeMetabo, reaction,
-                  pH = 7., S = None, Ct = 1., T = 298.15, #!!! Ct, pH, S, T, phase
-                  phase = 'L', DGsynth = 9.54E-11, st = 0.2):
+    def _stShifts(self, itheta):
         """
-        Function to do blablabla [...].
+        Function to compute shift control between two metabolic states.
         
         Parameters
         ----------
         
-        input1 : TYPE(s)
-            {short description ; [unit] ; default or expected values ; error raise ; examples}
-        input2 : //
-        [...]
+        itheta : STR
+            'GxM' => shift from growth state to maintenance and conversely
+            'MxS' => shift from maintenance state to survival and conversely
+            'S-RIP' => shift from survival state to death
         
         Returns
         -------
-        output1 : TYPE
-            {short description ; [unit] ; error raise ; interpretation ; examples}
-        output2 : //
-        [...]
+        theta : TYPE
+            Metabolic shift control [-]
         """
+        # Set requested arguments for CSP.getAllCSP
+        CSPargs = {'paramDB': self.db,
+                   'typeKin': self.typeKin,
+                   'typeMetabo': self.typeMtb,
+                   'reaction': self.metabolism,
+                   'specComp': self.eD,
+                   'Ct': self.Ct,
+                   'T': self.temperature,
+                   'pH': self.pH,
+                   'S': self.salinity,
+                   'phase': 'L', 
+                   'sample': 'All',
+                   'fluidType': self.fluidType,
+                   'molality': True,
+                   'methods': None,
+                   'solvent': 'H2O',
+                   'asm': 'stoich',
+                   'DGsynth': self.DGsynth}
+        st = self.st
+        Pcat = CSP.getAllCSP(**CSPargs)['Pcat']
+        Pm = CSP.getAllCSP(**CSPargs)['Pm0']
+        Ps = CSP.getAllCSP(**CSPargs)['Ps']
+        Pcell = CSP.getAllCSP(**CSPargs)['Pcell']
         
-        # !!! errors for args type
-        
-        Pcat = CSP.getPcat(typeMetabo, reaction, pH, S, Ct, T, phase)
-        Pm = CSP.getPm0(T)
-        Ps = CSP.getPs(T)
-        Pcell = CSP.getAll(typeMetabo, reaction, Ct, T, phase, DGsynth)[-1]
-        
-        
-        if itheta == 1:
+        if itheta == 'GxM':
             theta = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        elif itheta == 2:
+        elif itheta == 'MxS':
             theta = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        elif itheta == 3:
+        elif itheta == 'S-RIP':
             theta = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
-        else: print('error in itheta value'), sys.exit()
-            
+        else: print('error in itheta value'), sys.exit() #!!!
         return theta
         
         
