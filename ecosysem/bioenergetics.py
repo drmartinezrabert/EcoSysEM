@@ -254,23 +254,21 @@ class CSP:
         
         Parameters
         ----------
-        
         T : FLOAT or LIST
             Set of temperature [K]. The default is 298.15 K (standard temperature).
         
         Returns
         -------
-        Ps : FLOAT or LIST
+        Ps : pandas.core.series.Series
         	Survival power: minimal energy flux for preservation of membrane integrity and
             key macromolecules (e.g., enzymes), as well as other maintenance costs, such
             as maintaining energized membranes or the conservation of catabolic energy. 
         """
-        
         # initialise variables
         R = CSP.Rj
         T0 = CSP.T0
         # compute Ps
-        Ps = 2.67e-6 * np.exp((-5.68e4 / R) * ((1 / T) - (1 / T0)))
+        Ps = pd.Series(2.67e-6 * np.exp((-5.68e4 / R) * ((1 / T) - (1 / T0))))
         return Ps   #[fW/cell]
     
         
