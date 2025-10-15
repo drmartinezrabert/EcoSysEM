@@ -213,55 +213,43 @@ class MSMM:
         
         return dB
 
-
-
-    def _Bflux(self, Blist, st = 0.2):
+    def _Bflux(self, Blist):
         """
-        Function to do blablabla [...].
+        Function to compute biomass transfer between metabolic states.
         
         Parameters
         ----------
         
-        input1 : TYPE(s)
-            {short description ; [unit] ; default or expected values ; error raise ; examples}
-        input2 : //
-        [...]
+        Blist : LIST
+            List of 3 floats corresponding to biomass (e.g. [cell/m^3 air])
+            in each state (growth, maintenance and survival) at time t.
+            First element of the list must be for growth,
+            second for maintenance and third for survival.
         
         Returns
         -------
-        output1 : TYPE
-            {short description ; [unit] ; error raise ; interpretation ; examples}
-        output2 : //
-        [...]
+        Rlist : LIST    #??? to be changed
+             List of computed biomass transfer [cell/h] for each kind of metabolic shift:
+                 - Rm_g : transfer from maintenance to growth
+                 - Rg_m : transfer from growth to maintenance
+                 - ...
+                 - Rs_rip : transfer from survival to dead cells
         """
-        
-        metabo = self.metaboType
-        rxn = self.metabolism
-        metaboRates = self.metaboRates
-        
+        #Biomass in each metabolic state
         Bg = Blist[0]
         Bm = Blist[1]
         Bs = Blist[2]
         
+        eta = self._specMtbShiftRates[self.mtbRates] 
+        Rm_g = Bm * eta * MSMM._stShifts(itheta = 'GxM')
+        Rg_m = Bg * eta * (1 - MSMM._stShifts(itheta = 'GxM'))
+        Rs_m = Bs * eta * MSMM._stShifts(itheta = 'MxS')
+        Rm_s = Bm * eta * (1 - MSMM._stShifts(itheta = 'MxS'))
+        Rs_rip = Bs * eta * (1 - MSMM._stShifts(itheta = 'S-RIP'))
         
-        _metabo_properties = {}
-        _metabo_properties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #!!! resp. [h] & [1/h]
-        _metabo_properties['moderate'] = {'protein turnover rate':5 ,'specific metabolic shift rates':0.2}
-        _metabo_properties['slow'] = {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}
-        #dMR = pd.DataFrame(data = _metabo_properties)
+        Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
         
-        eta = _metabo_properties[metaboRates]['specific metabolic shift rates']
-                
-        
-        Rm_g = Bm * eta * MSMM._stShifts(itheta = 1, typeMetabo = metabo, reaction = rxn)
-        Rg_m = Bg * eta * (1 - MSMM._stShifts(itheta = 1, typeMetabo = metabo, reaction = rxn))
-        Rs_m = Bs * eta * MSMM._stShifts(itheta = 2, typeMetabo = metabo, reaction = rxn)
-        Rm_s = Bm * eta * (1 - MSMM._stShifts(itheta = 2, typeMetabo = metabo, reaction = rxn))
-        Rs_rip = Bs * eta * (1 - MSMM._stShifts(itheta = 3, typeMetabo = metabo, reaction = rxn))
-        
-        Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]    # should be in [cell/m^3 air.h]
-        
-        return Rlist    #!!! change return format 
+        return Rlist    #??? change return format 
         
     def _stShifts(self, itheta):
         """
