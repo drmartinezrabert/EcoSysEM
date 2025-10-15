@@ -68,31 +68,32 @@ class MSMM:
         ----------
         
         envModel : STR
-            {short description ; [unit] ; default or expected values ; error raise ; examples}
+            Environment model from which data are extracted.
         envArgs : LIST or DICT
+            Required arguments for the environment model.
             E.g. for envModel = 'ISA' :
                 envArgs = {layers : 'All',      -> troposphere only ?
-                           phase : 'All',       -> 'L-FW' ?
+                           phase : 'All',       -> 'L-FW' / 'L_SW'
                            H2O : 0.0,           -> affects atmo composition
-                           pH : 7.0,            -> 
+                           pH : 7.0,            -> affects bioenergetics
                            selCompounds : None, -> metabolism related only ?
                            selAlt = None,       -> subset of attributes related to portion of selected layers
                            resolution = 1000}
                 or :
                 envArgs = ['All', 'All', 0., 7., None, None, 1000]
-        [...]
-        
+            or: enArgs = None for other models
+                
         Returns
         -------
         None (environment data set as MSMM attributes)
         """
-        
-        envModels = ['ISA', 'MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2'] #!!! other models?
-        
+        envModel = self.envModel
+        atmModels = self.atmModels
+        #!!! other models?
         if not isinstance(envModel, str):
             print(f'arg.error: environment model must be a string. current input: {envModel}')
             sys.exit()
-        if envModel in envModels :
+        if envModel in atmModels :
             if envModel == 'ISA':
                 if isinstance(envArgs, list):
                     ISAinst = ISA(*envArgs)
@@ -101,54 +102,30 @@ class MSMM:
                 else:
                     print('error in envArgs type')
                     sys.exit()
+                self.pH = ISAinst.pH
+                self.compositions = ISAinst.compositions
+                self.compounds = ISAinst.compounds
+                self.resolution = ISAinst.resolution
                 self.temperature = ISAinst.temperature
                 self.pressure = ISAinst.pressure
                 self.altitude = ISAinst.altitude
-                self.compounds = ISAinst.compounds
-                [...] #!!! other requested attributes
-                """
-                #ISA args : 
-                    self,
-                    layers, 
-                    phase = 'All', 
-                    H2O = 0.0, 
-                    pH = 7.0, 
-                    selCompounds = None, -> all
-                    selAlt = None, -> all
-                    resolution = 1000
-                    
-                #ISA attributes : 
-                    self.layers = layers
-                    !self.pH = pH
-                    self.resolution = resolution
-                    self._computeTandP_ISA(layers, dISA)
-                        !self.altitude = alt # [m]
-                        !self.temperature = t + 273.15 # [K]
-                        !self.pressure = p # [Pa]
-                    self.compounds = dDC['Compounds']
-                    self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
-                    self._computeWaterContent(H2O, dDC)
-                        if H2O != 0 :
-                            self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
-                            self.H2O = H2O
-                    if selAlt:
-                        self._selectAltitude(selAlt)
-                        self.altitude = prevAlt[imAlt:iMAlt]
-                        self.temperature = prevT[imAlt:iMAlt]
-                        self.pressure = prevP[imAlt:iMAlt]
-                    !self._getConcISA(phase, selCompounds)
-                        self.Pi = dict_Pi
-                        self.Ci_G = dict_Ci_G
-                        self.Ci_LFW = dict_Ci_LFW
-                        self.Ci_LSW = dict_Ci_LSW
-                """
-                
-                print('ISA attributes were set.')
+                self.H2O = ISAinst.H2O
+                self.Pi = ISAinst.Pi            #!!! could be useful for MSMMv2
+                self.Ci_G = ISAinst.Ci_G        #!!! //
+                if self.Wtype == 'L_FW':
+                    self.Ct = ISAinst.Ci_LFW
+                elif self.Wtype == 'L_SW':
+                    self.Ct = ISAinst.Ci_LSW
+                else: print('Liquid phase could not be recognized. Enter "L_FW" or "L_SW".')
+                self.salinity = 0.0 #!!! for models other than atm, can be !=0
+                self.typeKin = 'MM-Arrhenius'
+                self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+                #!!! print('ISA attributes were set.')
             else: 
                 if envArgs:
                     envArgs == None
                     print('arg.error: No arguments required for instances from other class than ISA.')
-                #import needed attributes from other models through existing methods
+                #!!! import needed attributes from other models
         else:
             print('arg.error: environment model not found, see envModels')
             sys.exit()
