@@ -9,31 +9,32 @@ Created on Mon Sep 22 11:11:07 2025
 import pandas as pd
 import numpy as np
 from scipy.integrate import odeint
-#from IPython.display import display, Math
+from IPython.display import display, Math
 import matplotlib.pyplot as plt
-#import importlib
 import sys
 
 # Import classes from modules (as abb.) or import with importlib
 from envdef import ISA
-from reactions import Reactions as Rxn, KinRates as KR
-#from bioenergetics import ...
-from thermodynamics import ThP, ThEq, ThSA
-#ThModule = importlib.import_module('thermodynamics')
-#ThEq = ThModule.ThEq
-#ThP = ThModule.ThP
-#ThSA = ThModule.ThSA
+from reactions import KinRates as KR
+from thermodynamics import ThSA
 from bioenergetics import CSP
- 
+
 
 class MSMM:
     """
     Class for Multi-State Metabolic Model
+    
+    
+    reminder for ISA args : #!!!
+        self,
+        'layers',   => troposphere index = 0
+        'phase' : 'All',
+        'H2O' : 0.0,
+        'pH' : 7.0, 
+        'selCompounds' : None, -> means all
+        'selAlt' : None, -> means all
+        'resolution' : 1000
     """
-# ODE function
-# plot function(s)
-# -> identify useful functions from other scripts and import them
-# -> respect presentation syntax
 
 
 
@@ -136,21 +137,22 @@ class MSMM:
                 #!!! import needed attributes from other models
         else:
             print('arg.error: environment model not found, see envModels')
-            sys.exit()
-        
+            sys.exit()     
 
-    def _ODEsystem_MSMM(self, y, t):
+    def _ODEsystem_MSMM(self, y, t, idP):
         """
         Function for the differential equations system of the model.
         
         Parameters
         ----------
         
+        idP : INT
+            Parameter index from the plot function (involved parameters depends on envModel)
         y : LIST of INT
             Initial biomass in each metabolic state, e.g. [cell/m^3 air]
         t : LIST or np.array
             Time range over which biomass variation is computed
-        
+            
         Returns
         -------
         dB : LIST of FLOAT
@@ -168,37 +170,39 @@ class MSMM:
         mortality = self.mortality
         K = self.K
         # Set requested arguments for ThSA.getDeltaGr & KR.getRs
-        DGr_args = {'typeRxn' : self.typeMtb,
-                    'input_' : self.metabolism,
-                    'phase' : 'L',
-                    'specComp' : self.specComp,
-                    'T' : self.temperature,
-                    'pH' : self.pH,
-                    'S' : self.salinity,
-                    'Ct' : self.Ct,
-                    'fluidType' : self.fluidType,
-                    'molality' : True,
-                    'methods' : None,
-                    'solvent' : 'H2O',
-                    'asm' : 'stoich', 
-                    'warnings' : False,
-                    'printDG0r' : False,
-                    'printDH0r' : False
-                    }       
-        Rs_args = {'typeKin' : self.typeKin,
-                   'paramDB' : self.db,
-                   'reactions' : self.metabolism,
-                   'T' : self.temperature,
-                   'pH' : self.pH,
-                   'Ct' : self.Ct, 
-                   'sample' : 'All'
-                   }
+        if self.envModel in self.atmModels:
+            DGr_args = {'typeRxn' : self.typeMtb,
+                        'input_' : self.metabolism,
+                        'phase' : 'L',
+                        'specComp' : self.eD,
+                        'T' : self.temperature,
+                        'pH' : self.pH,
+                        'S' : self.salinity,
+                        'Ct' : self.Ct,
+                        'fluidType' : self.fluidType,
+                        'molality' : True,
+                        'methods' : None,
+                        'solvent' : 'H2O',
+                        'asm' : 'stoich', 
+                        'warnings' : False,
+                        'printDG0r' : False,
+                        'printDH0r' : False
+                        }       
+            Rs_args = {'typeKin' : self.typeKin,
+                       'paramDB' : self.db,
+                       'reactions' : self.metabolism,
+                       'T' : self.temperature,
+                       'pH' : self.pH,
+                       'Ct' : self.Ct, 
+                       'sample' : 'All'
+                       }
+            #!!! set getDeltaGr and getRs args for other models
         # Compute the cell growth yield and cell-specific uptake rate    
-        DGr = ThSA.getDeltaGr(**DGr_args)[0]
-        Yx = DGr * 1000 * (0.5 / 1.04e-10)      # cell growth yield [cell/mol eD]
-        cRate = KR.getRs(**Rs_args)   #cell-specific uptake rate [mol/cell.h]
+        DGr = (ThSA.getDeltaGr(**DGr_args)[0])[idP] * 1000  #[J/moleD]
+        Yx = DGr * (0.5 / 1.04e-10)      # cell growth yield [cell/mol eD]
+        cRate = pd.DataFrame((KR.getRs(**Rs_args)[0])[self.metabolism]).mean(axis=1)[idP]   #cell-specific uptake rate [mol/cell.h]
         # Compute biomass transfer between metabolic states
-        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist = Blist)
+        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, idP, Blist = Blist)
         # Compute biomass variation       
         dBg = Yx * cRate * Bg * (1 - (Bg/K)) + Rm_g - Rg_m - mortality * Bg    
         dBm =  Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
@@ -207,13 +211,15 @@ class MSMM:
         dB = [dBg, dBm, dBs, dBrip]
         return dB
 
-    def _Bflux(self, Blist):
+    def _Bflux(self, idP,  Blist):
         """
         Function to compute biomass transfer between metabolic states.
         
         Parameters
         ----------
         
+        idP : INT
+            Parameter index from the plot function (involved parameters depends on envModel)
         Blist : LIST
             List of 3 floats corresponding to biomass (e.g. [cell/m^3 air])
             in each state (growth, maintenance and survival) at time t.
@@ -235,11 +241,11 @@ class MSMM:
         Bs = Blist[2]
         
         eta = self._specMtbShiftRates[self.mtbRates] 
-        Rm_g = Bm * eta * MSMM._stShifts(itheta = 'GxM')
-        Rg_m = Bg * eta * (1 - MSMM._stShifts(itheta = 'GxM'))
-        Rs_m = Bs * eta * MSMM._stShifts(itheta = 'MxS')
-        Rm_s = Bm * eta * (1 - MSMM._stShifts(itheta = 'MxS'))
-        Rs_rip = Bs * eta * (1 - MSMM._stShifts(itheta = 'S-RIP'))
+        Rm_g = Bm * eta * MSMM._stShifts(itheta = 'GxM')[idP]
+        Rg_m = Bg * eta * (1 - MSMM._stShifts(itheta = 'GxM')[idP])
+        Rs_m = Bs * eta * MSMM._stShifts(itheta = 'MxS')[idP]
+        Rm_s = Bm * eta * (1 - MSMM._stShifts(itheta = 'MxS')[idP])
+        Rs_rip = Bs * eta * (1 - MSMM._stShifts(itheta = 'S-RIP')[idP])
         
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
         
@@ -263,23 +269,25 @@ class MSMM:
             Metabolic shift control [-]
         """
         # Set requested arguments for CSP.getAllCSP
-        CSPargs = {'paramDB': self.db,
-                   'typeKin': self.typeKin,
-                   'typeMetabo': self.typeMtb,
-                   'reaction': self.metabolism,
-                   'specComp': self.eD,
-                   'Ct': self.Ct,
-                   'T': self.temperature,
-                   'pH': self.pH,
-                   'S': self.salinity,
-                   'phase': 'L', 
-                   'sample': 'All',
-                   'fluidType': self.fluidType,
-                   'molality': True,
-                   'methods': None,
-                   'solvent': 'H2O',
-                   'asm': 'stoich',
-                   'DGsynth': self.DGsynth}
+        if self.envModel in self.atmModels:
+            CSPargs = {'paramDB': self.db,
+                       'typeKin': self.typeKin,
+                       'typeMetabo': self.typeMtb,
+                       'reaction': self.metabolism,
+                       'specComp': self.eD,
+                       'Ct': self.Ct,
+                       'T': self.temperature,
+                       'pH': self.pH,
+                       'S': self.salinity,
+                       'phase': 'L', 
+                       'sample': 'All',
+                       'fluidType': self.fluidType,
+                       'molality': True,
+                       'methods': None,
+                       'solvent': 'H2O',
+                       'asm': 'stoich',
+                       'DGsynth': self.DGsynth}
+        #!!! set getAllCSP args for other models
         st = self.st
         Pcat = CSP.getAllCSP(**CSPargs)['Pcat']
         Pm = CSP.getAllCSP(**CSPargs)['Pm0']
