@@ -295,53 +295,45 @@ class MSMM:
         else: print('error in itheta value'), sys.exit() #!!!
         return theta
         
+    def plotMSMM(self, Bini, time):
         
-        
-    def plotMSMM(self, time):
-        
-        """
+        """ #!!! tooltip
         Function to plot solutions of the MSMM ODE system.
         
         Parameters
         ----------
+        Bini : LIST of INT
+            Initial biomass in each state (LIST)
         time : LIST or np.array
-        [...]
+            Time range over which the microbial dynamic is computed
+            
         
         Returns
         -------
-        None
+        None (microbial dynamic is plotted, one microbial community at a time)
         """
-        
-        
-        Bini = self.Bini
-        
-        
+
+        # set variables from self.attributes
+        if self.envModel in self.atmModels:
+            alt = self.altitude
+            datmMicr = {'CH4': 'Methanotrophs',
+                        'H2': 'Hydrogen-oxidizing bacteria',
+                        'CO': 'CO-oxidizing bacteria'}
+            Bunit = r'cell/m$^{3}$ air' #??? Math package applied?
+            communityName = datmMicr[self.eD]
+            nplot = len(alt)
+        else: print('envModel not found') #!!! set needed variables for other models
         if not isinstance(time, np.ndarray): time = np.array(time)
-        
-        plot_ = odeint(MSMM.ODEsystem_MSMM, Bini, time) 
-    
-    """    
-    def _runMSMM(self, envModel):
-        print(f'MSMM was run for {envModel}.')
-        #call plotMSMM ? useless ? non-systematical
-    """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
+        Bplot = [0] * nplot
+        for i in range(nplot):
+            Bplot[i] = odeint(self._ODEsystem_MSMM, Bini, time, args = (i,))
+            plt.plot(time, Bplot[i][:,0],'g-', linewidth=2.0)    #growth state curve
+            plt.plot(time, Bplot[i][:,1],'k-', linewidth=2.0)    #maintenance state curve
+            plt.plot(time, Bplot[i][:,2],'b-', linewidth=2.0)    #survival state curve
+            plt.plot(time, Bplot[i][:,3],'r--', linewidth=2.0)   #death state curve
+            plt.xlabel('time (hours)')
+            plt.ylabel(f'Cell concentration ({Bunit})')
+            plt.title(f'Dynamic of the {communityName} community at {(alt[i]/1000)} km')
+            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
+            plt.grid() 
+            plt.show()
