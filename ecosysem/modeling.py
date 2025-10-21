@@ -9,7 +9,6 @@ Created on Mon Sep 22 11:11:07 2025
 import pandas as pd
 import numpy as np
 from scipy.integrate import odeint
-from IPython.display import display, Math
 import matplotlib.pyplot as plt
 import sys
 
@@ -40,7 +39,7 @@ class MSMM:
 
     def __init__(self, typeMetabo, metabolism, eDonor, Wtype, K, mortality, envModel,
                  envArgs = None, DeltaGsynth = 9.54E-11, steepness = 0.2,
-                 degradPace = 'Moderate', fluidType = 'ideal', actMethods = None):
+                 degradPace = 'moderate', fluidType = 'ideal', actMethods = None):
         
         _metaboProperties = {}
         _metaboProperties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #resp. [h] & [1/h]
@@ -146,12 +145,12 @@ class MSMM:
         Parameters
         ----------
         
-        idP : INT
-            Parameter index from the plot function (involved parameters depends on envModel)
         y : LIST of INT
             Initial biomass in each metabolic state, e.g. [cell/m^3 air]
         t : LIST or np.array
             Time range over which biomass variation is computed
+        idP : INT
+            Parameter index from the plot function (involved parameters depends on envModel)
             
         Returns
         -------
@@ -199,7 +198,7 @@ class MSMM:
             #!!! set getDeltaGr and getRs args for other models
         # Compute the cell growth yield and cell-specific uptake rate    
         DGr = (ThSA.getDeltaGr(**DGr_args)[0])[idP] * 1000  #[J/moleD]
-        Yx = DGr * (0.5 / 1.04e-10)      # cell growth yield [cell/mol eD]
+        Yx = -(DGr * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
         cRate = pd.DataFrame((KR.getRs(**Rs_args)[0])[self.metabolism]).mean(axis=1)[idP]   #cell-specific uptake rate [mol/cell.h]
         # Compute biomass transfer between metabolic states
         Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, idP, Blist = Blist)
@@ -235,30 +234,33 @@ class MSMM:
                  - ...
                  - Rs_rip : transfer from survival to dead cells
         """
+        if len(Blist) != 4:
+            print('error in initial biomass, Blist must contain 4 elements') #!!!
+            sys.exit()
         #Biomass in each metabolic state
         Bg = Blist[0]
         Bm = Blist[1]
         Bs = Blist[2]
         
         eta = self._specMtbShiftRates[self.mtbRates] 
-        Rm_g = Bm * eta * MSMM._stShifts(itheta = 'GxM')[idP]
-        Rg_m = Bg * eta * (1 - MSMM._stShifts(itheta = 'GxM')[idP])
-        Rs_m = Bs * eta * MSMM._stShifts(itheta = 'MxS')[idP]
-        Rm_s = Bm * eta * (1 - MSMM._stShifts(itheta = 'MxS')[idP])
-        Rs_rip = Bs * eta * (1 - MSMM._stShifts(itheta = 'S-RIP')[idP])
+        Rm_g = Bm * eta * MSMM._stShifts(self, shift = 'GxM')[idP]
+        Rg_m = Bg * eta * (1 - MSMM._stShifts(self, shift = 'GxM')[idP])
+        Rs_m = Bs * eta * MSMM._stShifts(self, shift = 'MxS')[idP]
+        Rm_s = Bm * eta * (1 - MSMM._stShifts(self, shift = 'MxS')[idP])
+        Rs_rip = Bs * eta * (1 - MSMM._stShifts(self, shift = 'S-RIP')[idP])
         
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
         
         return Rlist    #??? change return format 
         
-    def _stShifts(self, itheta):
+    def _stShifts(self, shift):
         """
         Function to compute shift control between two metabolic states.
         
         Parameters
         ----------
         
-        itheta : STR
+        shift : STR
             'GxM' => shift from growth state to maintenance and conversely
             'MxS' => shift from maintenance state to survival and conversely
             'S-RIP' => shift from survival state to death
@@ -294,11 +296,11 @@ class MSMM:
         Ps = CSP.getAllCSP(**CSPargs)['Ps']
         Pcell = CSP.getAllCSP(**CSPargs)['Pcell']
         
-        if itheta == 'GxM':
+        if shift == 'GxM':
             theta = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        elif itheta == 'MxS':
+        elif shift == 'MxS':
             theta = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        elif itheta == 'S-RIP':
+        elif shift == 'S-RIP':
             theta = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
         else: print('error in itheta value'), sys.exit() #!!!
         return theta
@@ -327,21 +329,23 @@ class MSMM:
             datmMicr = {'CH4': 'Methanotrophs',
                         'H2': 'Hydrogen-oxidizing bacteria',
                         'CO': 'CO-oxidizing bacteria'}
-            Bunit = r'cell/m$^{3}$ air' #??? Math package applied?
             communityName = datmMicr[self.eD]
             nplot = len(alt)
         else: print('envModel not found') #!!! set needed variables for other models
         if not isinstance(time, np.ndarray): time = np.array(time)
         Bplot = [0] * nplot
         for i in range(nplot):
-            Bplot[i] = odeint(self._ODEsystem_MSMM, Bini, time, args = (i,))
+            Bplot[i] = odeint(self._ODEsystem_MSMM, y0 = Bini, t = time, args = (i,))
             plt.plot(time, Bplot[i][:,0],'g-', linewidth=2.0)    #growth state curve
             plt.plot(time, Bplot[i][:,1],'k-', linewidth=2.0)    #maintenance state curve
             plt.plot(time, Bplot[i][:,2],'b-', linewidth=2.0)    #survival state curve
             plt.plot(time, Bplot[i][:,3],'r--', linewidth=2.0)   #death state curve
-            plt.xlabel('time (hours)')
-            plt.ylabel(f'Cell concentration ({Bunit})')
-            plt.title(f'Dynamic of the {communityName} community at {(alt[i]/1000)} km')
+            if self.envModel in self.atmModels:
+                if self.envModel == 'ISA':
+                    plt.xlabel('time (hours)')
+                    plt.ylabel('Cell concentration (cell/m^3 air)')
+                    plt.title(f'Dynamic of the {communityName} community at {(alt[i]/1000)} km altitude')
+            else: sys.exit() #!!! labels for other models 
             plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
             plt.grid() 
             plt.show()
