@@ -8,7 +8,7 @@ Created on Mon Sep 22 11:11:07 2025
 # Import Python packages
 import pandas as pd
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import ode
 import matplotlib.pyplot as plt
 import sys
 
@@ -110,20 +110,20 @@ class MSMM:
                 else:
                     print('error in envArgs type')
                     sys.exit()
-                self.pH = ISAinst.pH
-                self.compositions = ISAinst.compositions
-                self.compounds = ISAinst.compounds
-                self.resolution = ISAinst.resolution
-                self.temperature = ISAinst.temperature
-                self.pressure = ISAinst.pressure
-                self.altitude = ISAinst.altitude
-                self.H2O = ISAinst.H2O
-                self.Pi = ISAinst.Pi            #!!! could be useful for MSMMv2
-                self.Ci_G = ISAinst.Ci_G        #!!! //
+                self.pH = ISAinst.pH.copy()
+                self.compositions = ISAinst.compositions.copy()
+                self.compounds = ISAinst.compounds.copy()
+                self.resolution = ISAinst.resolution.copy()
+                self.temperature = ISAinst.temperature.copy()
+                self.pressure = ISAinst.pressure.copy()
+                self.altitude = ISAinst.altitude.copy()
+                self.H2O = ISAinst.H2O.copy()
+                self.Pi = ISAinst.Pi.copy()           #!!! could be useful for MSMMv2
+                self.Ci_G = ISAinst.Ci_G.copy()        #!!! //
                 if self.Wtype == 'L_FW':
-                    self.Ct = ISAinst.Ci_LFW
+                    self.Ct = ISAinst.Ci_LFW.copy()
                 elif self.Wtype == 'L_SW':
-                    self.Ct = ISAinst.Ci_LSW
+                    self.Ct = ISAinst.Ci_LSW.copy()
                 else: print('Liquid phase could not be recognized. Enter "L_FW" or "L_SW".')
                 self.salinity = 0.0 #!!! for models other than atm, can be !=0
                 self.typeKin = 'MM-Arrhenius'
@@ -158,7 +158,6 @@ class MSMM:
             Biomass variation in each metabolic state [cell/h].
         
         """
-        
         Bg = y[0]
         Bm = y[1]
         Bs = y[2]
@@ -166,19 +165,29 @@ class MSMM:
         Btot = sum(Blist)
         
         #import self.attributes
-        mortality = self.mortality
-        K = self.K
+        mortality = self.mortality.copy()
+        K = self.K.copy()
+        typeKin = self.typeKin.copy()
+        paramDB = self.db.copy()
+        typeRxn = self.typeMtb.copy()
+        rxn = self.metabolism.copy()
+        specComp = self.eD.copy()
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        S = self.salinity.copy()
+        C = self.Ct.copy()
+        fluidType = self.fluidType.copy()
         # Set requested arguments for ThSA.getDeltaGr & KR.getRs
         if self.envModel in self.atmModels:
-            DGr_args = {'typeRxn' : self.typeMtb,
-                        'input_' : self.metabolism,
+            DGr_args = {'typeRxn' : typeRxn,
+                        'input_' : rxn,
                         'phase' : 'L',
-                        'specComp' : self.eD,
-                        'T' : self.temperature,
-                        'pH' : self.pH,
-                        'S' : self.salinity,
-                        'Ct' : self.Ct,
-                        'fluidType' : self.fluidType,
+                        'specComp' : specComp,
+                        'T' : T,
+                        'pH' : pH,
+                        'S' : S,
+                        'Ct' : C,
+                        'fluidType' : fluidType,
                         'molality' : True,
                         'methods' : None,
                         'solvent' : 'H2O',
@@ -187,12 +196,12 @@ class MSMM:
                         'printDG0r' : False,
                         'printDH0r' : False
                         }       
-            Rs_args = {'typeKin' : self.typeKin,
-                       'paramDB' : self.db,
-                       'reactions' : self.metabolism,
-                       'T' : self.temperature,
-                       'pH' : self.pH,
-                       'Ct' : self.Ct, 
+            Rs_args = {'typeKin' : typeKin,
+                       'paramDB' : paramDB,
+                       'reactions' : rxn,
+                       'T' : T,
+                       'pH' : pH,
+                       'Ct' : C, 
                        'sample' : 'All'
                        }
             #!!! set getDeltaGr and getRs args for other models
@@ -234,8 +243,8 @@ class MSMM:
                  - ...
                  - Rs_rip : transfer from survival to dead cells
         """
-        if len(Blist) != 4:
-            print('error in initial biomass, Blist must contain 4 elements') #!!!
+        if len(Blist) != 3:
+            print('error in initial biomass, Blist must contain 3 elements') #!!!
             sys.exit()
         #Biomass in each metabolic state
         Bg = Blist[0]
@@ -248,9 +257,7 @@ class MSMM:
         Rs_m = Bs * eta * MSMM._stShifts(self, shift = 'MxS')[idP]
         Rm_s = Bm * eta * (1 - MSMM._stShifts(self, shift = 'MxS')[idP])
         Rs_rip = Bs * eta * (1 - MSMM._stShifts(self, shift = 'S-RIP')[idP])
-        
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
-        
         return Rlist    #??? change return format 
         
     def _stShifts(self, shift):
@@ -272,25 +279,38 @@ class MSMM:
         """
         # Set requested arguments for CSP.getAllCSP
         if self.envModel in self.atmModels:
-            CSPargs = {'paramDB': self.db,
-                       'typeKin': self.typeKin,
-                       'typeMetabo': self.typeMtb,
-                       'reaction': self.metabolism,
-                       'specComp': self.eD,
-                       'Ct': self.Ct,
-                       'T': self.temperature,
-                       'pH': self.pH,
-                       'S': self.salinity,
-                       'phase': 'L', 
-                       'sample': 'All',
-                       'fluidType': self.fluidType,
-                       'molality': True,
-                       'methods': None,
-                       'solvent': 'H2O',
-                       'asm': 'stoich',
-                       'DGsynth': self.DGsynth}
+            paramDB = self.db.copy()
+            typeKin = self.typeKin.copy()
+            typeMetabo = self.typeMtb.copy()
+            rxn = self.metabolism.copy()
+            specComp = self.eD.copy()
+            C = self.Ct.copy()
+            T = self.temperature.copy()
+            pH = self.pH.copy()
+            S = self.salinity.copy()
+            fluidType = self.fluidType.copy()
+            DGsynth = self.DGsynth.copy()
+        else: print('error in CSPargs'), sys.exit() #!!!
+        
+        CSPargs = {'paramDB': paramDB,
+                   'typeKin': typeKin,
+                   'typeMetabo': typeMetabo,
+                   'reaction': rxn,
+                   'specComp': specComp,
+                   'Ct': C,
+                   'T': T,
+                   'pH': pH,
+                   'S': S,
+                   'phase': 'L', 
+                   'sample': 'All',
+                   'fluidType': fluidType,
+                   'molality': True,
+                   'methods': None,
+                   'solvent': 'H2O',
+                   'asm': 'stoich',
+                   'DGsynth': DGsynth}
         #!!! set getAllCSP args for other models
-        st = self.st
+        st = self.st.copy()
         Pcat = CSP.getAllCSP(**CSPargs)['Pcat']
         Pm = CSP.getAllCSP(**CSPargs)['Pm0']
         Ps = CSP.getAllCSP(**CSPargs)['Ps']
@@ -304,9 +324,8 @@ class MSMM:
             theta = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
         else: print('error in itheta value'), sys.exit() #!!!
         return theta
-        
-    def plotMSMM(self, Bini, time):
-        
+
+    def solveODE(self, time, Bini, exportBint = False):
         """ #!!! tooltip
         Function to plot solutions of the MSMM ODE system.
         
@@ -316,36 +335,70 @@ class MSMM:
             Initial biomass in each state (LIST)
         time : LIST or np.array
             Time range over which the microbial dynamic is computed
-            
+        exportBint : BOOL
+            Command to export integrated biomass values as Excel document.
+            Default is False.
+        
+        Returns
+        -------
+        db : LIST
+        [...]
+        
+        """
+        #ODEsol = ode(self._ODEsystem_MSMM)
+
+        if len(Bini) != 4:
+            print('error in initial biomass, Bini must contain 4 elements') #!!!
+            sys.exit()
+        # set variables from self.attributes
+        if self.envModel in self.atmModels:
+            alt = self.altitude.copy()
+            isolve = len(alt)
+        else: print('envModel not found') #!!! set needed variables for other models
+        if not isinstance(time, np.ndarray): time = np.array(time)
+        # Initialize Bint matrix
+        Bint = np.empty(Bini.shape)
+        Bint = Bint[..., np.newaxis]
+        Bint = np.repeat(Bint, len(time), axis = -1)
+        Bint = Bint[..., np.newaxis]
+        Bint = np.repeat(Bint, isolve, axis = -1)
+
+        for i in range(isolve):
+            ode.set_f_params(i)
+            Bint[..., i] = ode.integrate(time) #step = True ?
+        return Bint
+        
+    def plotMSMM(self, time, Bini):
+        
+        """ #!!! tooltip
+        Function to plot solutions of the MSMM ODE system.
+        
+        Parameters
+        ----------
+        [...]
         
         Returns
         -------
         None (microbial dynamic is plotted, one microbial community at a time)
         """
+        # call ODEsolve fct
+        # if self.envModel in self.atmModels:
+        #     datmMicr = {'CH4': 'Methanotrophs',
+        #                 'H2': 'Hydrogen-oxidizing bacteria',
+        #                 'CO': 'CO-oxidizing bacteria'}
+        #     communityName = datmMicr[self.eD]
+            # plt.plot(time, Bplot[i][:,0],'g-', linewidth=2.0)    #growth state curve
+            # plt.plot(time, Bplot[i][:,1],'k-', linewidth=2.0)    #maintenance state curve
+            # plt.plot(time, Bplot[i][:,2],'b-', linewidth=2.0)    #survival state curve
+            # plt.plot(time, Bplot[i][:,3],'r--', linewidth=2.0)   #death state curve
+            # if self.envModel in self.atmModels:
+            #     if self.envModel == 'ISA':
+            #         plt.xlabel('time (hours)')
+            #         plt.ylabel('Cell concentration (cell/m^3 air)')
+            #         plt.title(f'Dynamic of the {communityName} community at {(alt[i]/1000)} km altitude')
+            # else: sys.exit() #!!! labels for other models 
+            # plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
+            # plt.grid() 
+            # plt.show()
 
-        # set variables from self.attributes
-        if self.envModel in self.atmModels:
-            alt = self.altitude
-            datmMicr = {'CH4': 'Methanotrophs',
-                        'H2': 'Hydrogen-oxidizing bacteria',
-                        'CO': 'CO-oxidizing bacteria'}
-            communityName = datmMicr[self.eD]
-            nplot = len(alt)
-        else: print('envModel not found') #!!! set needed variables for other models
-        if not isinstance(time, np.ndarray): time = np.array(time)
-        Bplot = [0] * nplot
-        for i in range(nplot):
-            Bplot[i] = odeint(self._ODEsystem_MSMM, y0 = Bini, t = time, args = (i,))
-            plt.plot(time, Bplot[i][:,0],'g-', linewidth=2.0)    #growth state curve
-            plt.plot(time, Bplot[i][:,1],'k-', linewidth=2.0)    #maintenance state curve
-            plt.plot(time, Bplot[i][:,2],'b-', linewidth=2.0)    #survival state curve
-            plt.plot(time, Bplot[i][:,3],'r--', linewidth=2.0)   #death state curve
-            if self.envModel in self.atmModels:
-                if self.envModel == 'ISA':
-                    plt.xlabel('time (hours)')
-                    plt.ylabel('Cell concentration (cell/m^3 air)')
-                    plt.title(f'Dynamic of the {communityName} community at {(alt[i]/1000)} km altitude')
-            else: sys.exit() #!!! labels for other models 
-            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
-            plt.grid() 
-            plt.show()
+
