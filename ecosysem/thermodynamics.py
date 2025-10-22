@@ -1022,6 +1022,7 @@ class ThSA:
                             sys.exit()
                         if iComp == 'H+':
                             Ct[iComp] = 10**(-pH) * np.ones(T.shape)
+                        # Activity estimation
                         if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
                             iAct = 1.0 * np.ones(T.shape)
                         else:
