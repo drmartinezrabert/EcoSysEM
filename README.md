@@ -421,14 +421,14 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __SO<sub>2</sub>__ | 1.500·10<sup>-8</sup> | | |
 | __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
-To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance arguments `layers` are necessary. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
+To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance argument `layers` is required. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
 - `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
 - `phase`. Selection of phase of vertical profile composition (gas: 'G', liquid: 'L', liquid freshwater: 'L-FW', liquid seawater: 'L-SW', all: 'All'. The default is 'All'.
 - `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04. The default is 0.0.
 - `pH`. pH of atmosphere. This attribute must be a _float_. The default is 7.0.
 - `selCompounds`. Interested compounds. The default is None. (i.e., all compounds are considered).
-- `selAlt`. Selected altitude (in m). List [min Altitude, max Altitude].
-- `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_.
+- `selAlt`. Selected altitude (in m). List [min Altitude, max Altitude]. The default is None.
+- `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_. The default is 1000 (meters).
 
 The **ISA instance** has the following attributes:
 - Altitude (`.altitude`). List of atmospheric altitudes in meters. 
@@ -524,7 +524,23 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 > Enter your Earthdata password:
 > ```
 
-To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), no instance attributes are necessary. Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2`. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
+To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), the instance attributes `dataType` and `y` are required. Optional arguments are `m`, `d`, `bbox`, `keys`, `keysAsAttributes`, `altArray` `numAlt`.
+- `dataType`. Type of data. 
+- `y`.
+- `m`.
+- `d`.
+- `bbox`.
+- `keys`.
+- `keysAsAttributes`.
+- `altArray`.
+- `numAlt`. 
+
+The **MERRA2 instance** has the following attributes:
+- Altitude (`.altitude`). List of atmospheric altitudes in meters. 
+- Temperature (`.temperature`). List of temperatures in Kelvin.
+- Pressure (`.pressure`). List of pressures in Pascals.
+
+Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2`. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
 ```python
 from envdef import MERRA2
 
