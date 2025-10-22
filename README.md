@@ -330,7 +330,7 @@ ecosysem
   │      │    ├── .layers
   │      │    ├── .resolution
   │      │    ├── setComposition
-  │      │    ├── plotTandP_ISA
+  │      │    ├── plotTandP
   │      │    └── plotCompsProfilesISA
   │      ├── MERRA2
   │      │    ├── getDataMERRA2
@@ -482,9 +482,9 @@ Add (if _compound_ does not exist) or modify (if _compound_ does exist) composit
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _float_ or _list of float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of new or existing compound.<br>
 
-### ISA.plotTandP_ISA &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ISA.plotTandP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ISA.plotTandP_ISA()
+ISA.plotTandP()
 ```
 Plot temperature and pressure profiles of `ISA` instance.<p>
 **Parameters:** <br>
@@ -1801,7 +1801,7 @@ python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 ## Function Navigation
 #### · <ins>Ideal Earth's atmosphere (ISA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.setComposition](#isasetcomposition---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP_ISA](#isaplottandp_isa---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotTandP](#isaplottandp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfilesISA](#isaplotcompsprofilesisa---back-to-function-navigation)<br>
 
 #### · <ins>MERRA2</ins>
