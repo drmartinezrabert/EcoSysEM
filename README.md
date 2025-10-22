@@ -422,13 +422,13 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
 To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance argument `layers` is required. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
-- `layers`. Selection of atmosphere layers defined by ISA model[^1]. This attribute can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
-- `phase`. Selection of phase of vertical profile composition (gas: 'G', liquid: 'L', liquid freshwater: 'L-FW', liquid seawater: 'L-SW', all: 'All'. The default is 'All'.
-- `H2O`. Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04. The default is 0.0.
-- `pH`. pH of atmosphere. This attribute must be a _float_. The default is 7.0.
-- `selCompounds`. Interested compounds. The default is None. (i.e., all compounds are considered).
-- `selAlt`. Selected altitude (in m). List [min Altitude, max Altitude]. The default is None.
-- `resolution`. Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_. The default is 1000 (meters).
+- `layers`. Selection of atmosphere layers defined by ISA model[^1]. This argument can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
+- `phase` (_optional_). Selection of phase of vertical profile composition (gas: 'G', liquid: 'L', liquid freshwater: 'L-FW', liquid seawater: 'L-SW', all: 'All'. The default is 'All'.
+- `H2O` (_optional_). Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04. The default is 0.0.
+- `pH` (_optional_). pH of atmosphere. This attribute must be a _float_. The default is 7.0.
+- `selCompounds` (_optional_). Interested compounds. The default is None. (i.e., all compounds are considered).
+- `selAlt` (_optional_). Selected altitude (in m). List [min Altitude, max Altitude]. The default is None.
+- `resolution` (_optional_). Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_. The default is 1000 (meters).
 
 The **ISA instance** has the following attributes:
 - Altitude (`.altitude`). List of atmospheric altitudes in meters. 
@@ -525,20 +525,36 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 > ```
 
 To create a new _MERRA2_ object (_i.e.,_ instantiate the class `MERRA2`), the instance attributes `dataType` and `y` are required. Optional arguments are `m`, `d`, `bbox`, `keys`, `keysAsAttributes`, `altArray` `numAlt`.
-- `dataType`. Type of data. 
-- `y`.
-- `m`.
-- `d`.
-- `bbox`.
-- `keys`.
-- `keysAsAttributes`.
-- `altArray`.
-- `numAlt`. 
+- `dataType`. Type of data. This argument can be 'dly', 'mly', 'cmly', 'yly' or 'cyly' (_string_).
+- `y`. Year(s) of data. This argument can be an _integer_ or a _list of integers_ [start_year, end_year].
+- `m` (_optional_). Month(s) of data. This argument can be an _integer_ or a _list of integers_ [start_month, end_month]. The default is None.
+- `d` (_optional_). Day(s) of data. This argument can be an _integer_, _list of integers_, or 'All' (_string_). The default is None.
+- `bbox` (_optional_). Earth's region of data, the bounding box. This argument is a _tuple_ (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude). The default is (-180, -90, 180, 90).
+- `keys` (_optional_). List of requested variables. This argument is a _list of strings_. The default is 'All'.
+- `keysAsAttributes` (_optional_). _Boolean_ to save all keys as object attributes. The default is True.
+- `altArray` (_optional_). Requested altitudes. This argument can be a _list_ or _np.ndarray_. The default is None.
+- `numAlt` (_optional_). Number of altitude steps from 0.0 m to maximum tropopause altitude, if altitude is not given by the user by `altArray`. This argument is an _integer_. The default is 50.
 
 The **MERRA2 instance** has the following attributes:
 - Altitude (`.altitude`). List of atmospheric altitudes in meters. 
 - Temperature (`.temperature`). List of temperatures in Kelvin.
 - Pressure (`.pressure`). List of pressures in Pascals.
+- Dynamic attribes of variables from MERRA2 databases (see [MERRA-2 documentation](https://gmao.gsfc.nasa.gov/pubs/docs/Bosilovich785.pdf)). By default, the attributes are:
+    - Topography (`.H`). Numpy array (_np.ndarray_) of Earth's topography. Shape: (altitude, latitude, longitude).
+    - Lapse rate (`.LR`). Numpy array (_np.ndarray_) of lapse rate distribution. Shape: (latitude, longitude).
+    - Latitude (`.lat`). List of latitudes.
+    - Longitude (`.lon`). List of longitudes.
+    - Surface pressure (`.PS`). Numpy array (_np.ndarray_) of surface pressure. Shape: (latitude, longitude).
+    - 2-meter air temperature (`.T2M`). Numpy array (_np.ndarray_) of 2-meter air temperature, considered as surface temperature. Shape: (latitude, longitude).
+    - Tropopause altitude (`.TROPH`). Numpy array (_np.ndarray_) of tropopause altitude. Shape: (latitude, longitude).
+    - Tropopause pressure (`.TROPPB`). Numpy array (_np.ndarray_) of tropopause pressure. Shape: (latitude, longitude).
+    - Tropopause temperature (`.TROPT`). Numpy array (_np.ndarray_) of tropopause temperature. Shape: (latitude, longitude).
+    - Standard deviation of lapse rate (`.LR_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of lapse rate. Shape (latitude, longitude).
+    - Standard deviation of surface pressure (`.PS_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of lapse rate. Shape (latitude, longitude).
+    - Standard deviation of 2-meter air temperature (`.T2M_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of surface temperature. Shape (latitude, longitude).
+    - Standard deviation of tropopause altitude (`.TROPH_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of tropopause altitude. Shape (latitude, longitude).
+    - Standard deviation of tropopause pressure (`.TROPPB_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of tropopause pressure. Shape (latitude, longitude).
+    - Standard deviation of tropopause temperature (`.TROPT_std`). **Only if `dataType` is 'cmly' or 'cyly'**. Numpy array (_np.ndarray_) of standard deviation of tropopause temperature. Shape (latitude, longitude).
 
 Once a new _MERRA_ object is created, the available data can be downloaded and combined using `MERRA2.getDataMERR2`. The data wil be saved in the folder `data\MERRA2\`. The data is saved in .npz file format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html). Once the data is downladed, the user can obtain the data with `MERRA2.loadDataMERRA2` function, see the parameters of data with `MERRA2.keysMERRA2`, or delete existing keys with `MERRA2.deleteKeyMERRA2`. Here is an example:
 ```python
