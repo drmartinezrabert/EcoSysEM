@@ -1318,6 +1318,9 @@ A common error in Python Inheritance is `TypeError: got multiple values for keyw
 
 #### <ins>Ecosystem Analysis (EcoA)</ins>
 :construction: Coming soon...
+<!-- 
+DGr at range of T and pH (see MICROPRONY collaboration), sensitivity analyses based on substrate and product concentrations (see MICROPRONY collaboration), complete thermodynamic sensitivity analysis (see Development), and others.
+-->
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
