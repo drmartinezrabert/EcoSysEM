@@ -762,7 +762,7 @@ newMERRA2 = MERRA2()
 ## (Default arguments: product = 'M2I1NXASM', version = '5.12.4', var = ['PS', 'T2M', 'TROPT', 'TROPPB'])
 newMERRA2.getDataMERRA2(dataType = 'mly', years = 1995, months = 10, days = 'All')
 ```
-Once the data is downladed, the user can load the data creating a new _MERRA2_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data using the attributes defined before. Here is an example:
+Once the data is downladed, the user can load the data creating a new _MERRA2_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
 from envdef import MERRA2
 
@@ -779,7 +779,7 @@ newMERRA2 = MERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.
 [-90.  -89.5 -89.  -88.5]
 >>> print(newMERRA2.lon)
 [-180.    -179.375 -178.75  -178.125]
->>> print(newMERRA2.T2M)
+>>> print(newMERRA2.PS)
 [[68299.766 68299.766 68299.766 68299.766]
  [67556.914 67563.96  67571.164 67578.46 ]
  [66478.73  66489.18  66499.94  66510.99 ]
@@ -890,8 +890,11 @@ Create an instance of `MERRA2` class.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **showMessage : _bool_, _optional, default: True_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Conole.<p>
 **Attributes:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.altitude : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.altitude : _list_ or _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric altitudes in meters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = None, `.altitude` is a list of altitudes in meters from 0.0 to max tropopause altitude.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = 'surfase', `.altitude` is the Earth's topography in meters. Shape: (latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = 'tropopause', `.altitude` is the tropopause altitude in meters. Shape: (latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric temperatures in Kelvin.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
@@ -917,99 +920,92 @@ Create an instance of `MERRA2` class.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric dry composition of the atmospehre in %vol. `{'compound': [air composition]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<p>
 
-[We are here...]
-
-To create a new _ISAMERRA2_ object (_i.e.,_ instantiate the class `ISAMERRA2`), no instance attributes are necessary. The attributes of `ISA` class are by default: layers = 0, H2O = 0.0, pH = 8.0, resolution = 1000. These attributes can be modified when the instance of `ISAMERRA2` is created. Here is an example:
+If _MERRA2_ data has already been downloaded, the user can create a new _ISAMERRA2_ object with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
 from envdef import ISAMERRA2
 
-newISAMERRA2 = ISAMERRA2(layers=[0], resolution = 200)
+# Yearly data from 2020 was previously downloaded
+newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5), keysAsAttributes = True)
 
-# Get temperature profile from ISA model
->>> print(newISAMERRA2.ISAtemperature)
-[ 15.   13.7  12.4  11.1   9.8   8.5   7.2   5.9   4.6   3.3   2.    0.7
-  -0.6  -1.9  -3.2  -4.5  -5.8  -7.1  -8.4  -9.7 -11.  -12.3 -13.6 -14.9
- -16.2 -17.5 -18.8 -20.1 -21.4 -22.7 -24.  -25.3 -26.6 -27.9 -29.2 -30.5
- -31.8 -33.1 -34.4 -35.7 -37.  -38.3 -39.6 -40.9 -42.2 -43.5 -44.8 -46.1
- -47.4 -48.7 -50.  -51.3 -52.6 -53.9 -55.2 -56.5]
+>>> print(newISAMERRA2.getAttributeNames())
+['environment', 'compositions', 'compounds', 'model', 'temperature', 'pressure', 'altitude', 'Pi', 'Ci_G',
+'Ci_LFW', 'Ci_LSW', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
+'TROPH', 'TROPH_std', 'LR', 'LR_std', 'lat', 'lon']
 
-# Get atmospheric composition from ISA model
->>> print(newISAMERRA2.compositions)
-{'N2': 0.78084, 'O2': 0.20946, 'Ar': 0.00934, 'CO2': 0.000426, 'Ne': 1.8182e-05,
-'He': 5.24e-06, 'CH4': 1.92e-06, 'Kr': 1.14e-06, 'H2': 5.5e-07, 'N2O': 3.3e-07,
-'CO': 1e-07, 'Xe': 9e-08, 'O3': 7e-08, 'NO2': 2e-08, 'SO2': 1.5e-08, 'I2': 1e-08,
-'NH3': 6e-09, 'HNO2': 1e-09, 'HNO3': 1e-09, 'H2S': 3.3e-10}
+# Get data
+>>> print(newISAMERRA2.lat)
+[-90.  -89.5 -89.  -88.5]
+>>> print(newMERRA2.lon)
+[-180.    -179.375 -178.75  -178.125]
+>>> print(newISAMERRA2.T2M)
+[[224.31621 224.31621 224.31621 224.31621]
+ [223.43001 223.42714 223.4242  223.42134]
+ [223.60979 223.6157  223.62134 223.62642]
+ [225.37038 225.3871  225.40935 225.43036]]
+>>> print(newISAMERRA2.temperature) # newISAMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
+[[[         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]]
+ [[         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]]
+...
+ [[208.89917863 208.89917863 208.89917863 208.89917863]
+  [208.91566434 208.91529312 208.91491576 208.9145402 ]
+  [209.0320008  209.03220517 209.0325211  209.03274575]
+  [209.21578416 209.21842957 209.21895037 209.21945189]]
+ [[208.4474782  208.4474782  208.4474782  208.4474782 ]
+  [208.48575225 208.48551779 208.48527922 208.48503976]
+  [208.59335294 208.59345043 208.59367159 208.59381527]
+  [208.72229302 208.72450837 208.72443997 208.72438963]]]
+>>> print(newISAMERRA2.Ci_LFW['O2']) # newISAMERRA2.Ci_LFW['O2'] has NaN values because altitude < surface height ASL (topography).
+[[[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
 
-# See keys (_e.i._, variables names) of downloaded data
-keys = newISAMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
->>> print(key)
-['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
-'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
+ [[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+...
+ [[0.0005355  0.0005355  0.0005355  0.0005355 ]
+  [0.00053454 0.00053452 0.00053449 0.00053447]
+  [0.00053324 0.00053324 0.00053325 0.00053325]
+  [0.00053258 0.00053257 0.00053256 0.00053254]]
 
-# See data
-data = newISAMERRA2.loadDataMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
->>> print(data)
-{'lat': array([-90. , -89.5, -89. , -88.5]),
-'lon': array([-180.   , -179.375, -178.75 , -178.125]),
-'T2M': array([[244.29813, 244.29813, 244.29813, 244.29813],
-              [243.8813 , 243.88293, 243.88455, 243.88733],
-              [244.05316, 244.0517 , 244.04942, 244.04617],
-              [245.6959 , 245.69054, 245.68338, 245.67622]], dtype=float32)}
->>> print(data['T2M'])
-[[244.29813 244.29813 244.29813 244.29813]
- [243.8813  243.88293 243.88455 243.88733]
- [244.05316 244.0517  244.04942 244.04617]
- [245.6959  245.69054 245.68338 245.67622]]
+ [[0.00052614 0.00052614 0.00052614 0.00052614]
+  [0.00052481 0.00052478 0.00052475 0.00052472]
+  [0.00052368 0.00052369 0.00052369 0.0005237 ]
+  [0.00052402 0.00052402 0.00052402 0.00052401]]]
+>>> print(newISAMERRA2.Ci_LFW['CH4']) # newISAMERRA2.Ci_LFW['O2'] has NaN values because altitude < surface height ASL (topography).
+[[[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+
+ [[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+...
+ [[6.10068828e-09 6.10068828e-09 6.10068828e-09 6.10068828e-09]
+  [6.08954089e-09 6.08924764e-09 6.08896855e-09 6.08869882e-09]
+  [6.07306869e-09 6.07310833e-09 6.07314832e-09 6.07322615e-09]
+  [6.06301325e-09 6.06286162e-09 6.06269517e-09 6.06251621e-09]]
+
+ [[6.00027347e-09 6.00027347e-09 6.00027347e-09 6.00027347e-09]
+  [5.98451775e-09 5.98419948e-09 5.98389468e-09 5.98359967e-09]
+  [5.97024831e-09 5.97031069e-09 5.97037078e-09 5.97046504e-09]
+  [5.97235672e-09 5.97230126e-09 5.97226620e-09 5.97221065e-09]]]
 ```
-
-### ISAMERRA2.getConcISAMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-```python
-ISAMERRA2.getConcISAMERRA2(phase, dataType, y, m, d=None, compound=None, bbox=(-180, -90, 180, 90), altArray=None, num=50, surftrop=None)
-```
-Computation of vertical profiles of compounds (parcial pressure, Pi; gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW; and liquid concentration in sea water, Ci_L-SW). Gas concentrations (Ci_G) are calculated using Dalton's law and the ideal gas law, and liquid concentration (Ci_LFW and Ci_LSW) with Henry's law.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_ ('G', 'L-FW', 'L-SW', 'L' or 'All')**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Selection of phase of vertical profile.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G': Gas; 'L-FW': Liquid fresh water; 'L-SW': Liquid sea water; 'L': Both liquid phases (L-FW, L-SW); 'All': All phases (G, L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_ ('dly', 'mly', 'cmly', 'yly' 'cyly')**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daly data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly' - Monthly data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cmly' - Combined monthly data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'yly' - Annual data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cyly' - Combined annual data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_ or _list of str_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested compounds. If None, all compounds are calculated.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_, _optional, default: (-180, -90, 180, 90)_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested coordinates, the bounding box.<br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altArray : _list or np.ndarray_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested altitudes.<br> 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num : _int_, _optional, default: 50_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of altitude steps to generate if altitude is not given by the user.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; From 0.0 m to maximum tropopause altitude.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **surftrop : _str_ ('surface', 'tropopause'), _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (`surftrop='surface'`) or tropopause height (`surftrop='tropopause'`).<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G : _dict_** (if _phase='G'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW : _dict_** (if _phase='L-FW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LSW : _dict_** (if _phase='L-SW'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictCi_LFW, dictCi_LSW : _dict_** (if _phase='L'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dictPi, dictCi_G, dictCi_LFW, dictCi_LSW : _dict_** (if _phase='All'_)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictPi : Parcial pressure of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_G : Concentration in gas of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LFW : Concentration in liquid (fresh water) of desired compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dictCi_LSW : Concentration in liquid (sea water) of desired compounds.<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
+
 <a name="CAMS">**Copernicus Atmosphere Monitoring Service (CAMS)**</a><br>
 The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous data and information on atmospheric composition, supporting a wide range of applications from air quality monitoring and forecasting to climate change assessment. It combines observations from satellites and in-situ measurements with sophisticated numerical models to provide consistent and quality-controlled data records. CAMS data typically encompasses global and regional analyses and forecasts of reactive gases, greenhouse gases (GHGs), aerosols, and stratospheric ozone. The data records span from approximately 2003 onwards for analyses and reanalyses, with forecast data available on a rolling basis.
 
