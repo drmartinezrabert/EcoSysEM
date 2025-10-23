@@ -360,7 +360,7 @@ ecosysem
   │      │    ├── .Ci_LSW
   │      │    ├── .compounds
   │      │    ├── .compositions
-  │      │    └── Dynamic attributes from MERRA2 (if keysAsAttributes = True)
+  │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS
   │      │    ├── getDataCAMS
   │      │    ├── selectRegionCAMS
