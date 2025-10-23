@@ -1870,13 +1870,8 @@ python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA.plotCompsProfilesISA](#isaplotcompsprofilesisa---back-to-function-navigation)<br>
 
 #### · <ins>MERRA2</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2](#merra2---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.getDataMERRA2](#merra2getdatamerra2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.combDataMERRA2](#merra2combdatamerra2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.selectRegion](#merra2selectregion---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.loadDataMERRA2](#merra2loadDataMERRA2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.keysMERRA2](#merra2keysmerra2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.deleteKeyMERRA2](#merra2deletekeymerra2---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [MERRA2.getTPAlt](#merra2gettpalt---back-to-function-navigation)<br>
 
 #### · <ins>CAMS</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation)<br>
