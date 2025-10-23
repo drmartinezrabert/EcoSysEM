@@ -784,7 +784,8 @@ newMERRA2 = MERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.
  [67556.914 67563.96  67571.164 67578.46 ]
  [66478.73  66489.18  66499.94  66510.99 ]
  [65456.55  65458.25  65464.496 65470.754]]
->>> print(newMERRA2.temperature) # newMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
+>>> print(newMERRA2.temperature)
+# newMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
 [[[         nan          nan          nan          nan]
   [         nan          nan          nan          nan]
   [         nan          nan          nan          nan]
@@ -942,7 +943,8 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
  [223.43001 223.42714 223.4242  223.42134]
  [223.60979 223.6157  223.62134 223.62642]
  [225.37038 225.3871  225.40935 225.43036]]
->>> print(newISAMERRA2.temperature) # newISAMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
+>>> print(newISAMERRA2.temperature)
+# newISAMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
 [[[         nan          nan          nan          nan]
   [         nan          nan          nan          nan]
   [         nan          nan          nan          nan]
@@ -960,7 +962,8 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [208.48575225 208.48551779 208.48527922 208.48503976]
   [208.59335294 208.59345043 208.59367159 208.59381527]
   [208.72229302 208.72450837 208.72443997 208.72438963]]]
->>> print(newISAMERRA2.Ci_LFW['O2']) # newISAMERRA2.Ci_LFW['O2'] has NaN values because altitude < surface height ASL (topography).
+>>> print(newISAMERRA2.Ci_LFW['O2'])
+# newISAMERRA2.Ci_LFW['O2'] has NaN values because altitude < surface height ASL (topography).
 [[[       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
@@ -980,7 +983,8 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [0.00052481 0.00052478 0.00052475 0.00052472]
   [0.00052368 0.00052369 0.00052369 0.0005237 ]
   [0.00052402 0.00052402 0.00052402 0.00052401]]]
->>> print(newISAMERRA2.Ci_LFW['CH4']) # newISAMERRA2.Ci_LFW['CH4'] has NaN values because altitude < surface height ASL (topography).
+>>> print(newISAMERRA2.Ci_LFW['CH4'])
+# newISAMERRA2.Ci_LFW['CH4'] has NaN values because altitude < surface height ASL (topography).
 [[[       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
