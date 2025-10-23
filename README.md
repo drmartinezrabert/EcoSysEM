@@ -1318,9 +1318,6 @@ A common error in Python Inheritance is `TypeError: got multiple values for keyw
 
 #### <ins>Ecosystem Analysis (EcoA)</ins>
 :construction: Coming soon...
-<!-- 
-DGr at range of T and pH (see MICROPRONY collaboration), sensitivity analyses based on substrate and product concentrations (see MICROPRONY collaboration), complete thermodynamic sensitivity analysis (see Development), and others.
--->
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -1617,6 +1614,12 @@ Return a dictionary with activities of compound(s) in solution and their chemica
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **activity : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Activity values (`{'compounds': [activity]}`)<br>
 
+<!--
+· TO-DO list:
+- [ ] DGr at range of T and pH (see MICROPRONY collaboration).
+- [ ] Sensitivity analyses based on substrate and product concentrations (see MICROPRONY collaboration).
+- [ ] Complete thermodynamic sensitivity analysis (see Development), and others.
+-->
 
 #
 
