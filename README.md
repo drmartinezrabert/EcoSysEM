@@ -530,7 +530,7 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 ```python
 instance_ISA = ISA(layers='All', phase='All', H2O=0.0, pH=7.0, selCompounds=None, selAlt=None, resolution=1000, showMessage=True)
 ```
-Create an instance of `ISA` class.<p>
+Create an instance of `ISA` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **layers : _str_ ('All'), _int_ or _list of int_ (from 0 to 7), _optional, default: 'All'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of atmosphere layers defined by ISA model[^1].<br>
@@ -667,7 +667,7 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 ```python
 instance_MERRA2 = MERRA2(dataType=None, y=None, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', keysAsAttributes=True, altArray=None, numAlt=50, showMessage=True)
 ```
-Create an instance of `MERRA2` class.<p>
+Create an instance of `MERRA2` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
@@ -850,7 +850,7 @@ Combination of International Standard Atmosphere ([ISA](#ISA)) model and Modern-
 ```python
 instance_ISAMERRA2 = ISAMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), compound=None, phase='All', altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
 ```
-Create an instance of `MERRA2` class.<p>
+Create an instance of `ISAMERRA2` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
@@ -928,9 +928,9 @@ from envdef import ISAMERRA2
 newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5), keysAsAttributes = True)
 
 >>> print(newISAMERRA2.getAttributeNames())
-['environment', 'compositions', 'compounds', 'model', 'temperature', 'pressure', 'altitude', 'Pi', 'Ci_G',
-'Ci_LFW', 'Ci_LSW', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
-'TROPH', 'TROPH_std', 'LR', 'LR_std', 'lat', 'lon']
+['environment', 'compositions', 'compounds', 'model', 'temperature', 'pressure', 'altitude',
+'Pi', 'Ci_G', 'Ci_LFW', 'Ci_LSW', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std', 'T2M', 'T2M_std',
+'TROPT', 'TROPT_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std', 'lat', 'lon']
 
 # Get data
 >>> print(newISAMERRA2.lat)
