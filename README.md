@@ -350,14 +350,23 @@ ecosysem
   │      │    ├── .TROPPB
   │      │    ├── .TROPT
   │      │    └── getDataMERRA2
+  │      ├── ISAMERRA2
+  │      │    ├── .altitude
+  │      │    ├── .temperature
+  │      │    ├── .pressure
+  │      │    ├── .Pi
+  │      │    ├── .Ci_G
+  │      │    ├── .Ci_LFW
+  │      │    ├── .Ci_LSW
+  │      │    ├── .compounds
+  │      │    ├── .compositions
+  │      │    └── Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS
   │      │    ├── getDataCAMS
   │      │    ├── selectRegionCAMS
   │      │    ├── dictCAMS
   │      │    ├── keysCAMS
   │      │    └── deleteKeyCAMS
-  │      ├── ISAMERRA2 {subclass of ISA & MERRA2}
-  │      │    └── getConcISAMERRA2
   │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
   │           └── interpolateCAMS
   ├── reactions.py
@@ -424,8 +433,8 @@ Environment
   │      ├── ISA(Atmosphere)
   │      ├── MERRA2(Atmosphere)
   │      ├── CAMS(Atmosphere)
-  │      ├── ISAMERRA2(ISA, MERRA2)
-  │      └── CAMSMERRA2(CAMS, MERRA2)
+  │      ├── ISAMERRA2(Atmosphere)
+  │      └── CAMSMERRA2(Atmosphere)
   ├── Hydrosphere(Environment) # As example. Currently unavailable.
   │      ├── Ocean(Hydrosphere)
   │      ├── Sediments(Hydrosphere)
