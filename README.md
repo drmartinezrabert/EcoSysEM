@@ -1,4 +1,4 @@
-<img width="1448" height="552" alt="image" src="https://github.com/user-attachments/assets/27de7707-1b87-4068-9da2-a7df3e1fbc08" /># EcoSysEM platform
+# EcoSysEM platform
 Eco-System Evaluation &amp; Modelling
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
