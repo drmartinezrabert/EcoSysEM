@@ -1,4 +1,4 @@
-# EcoSysEM platform
+<img width="1448" height="552" alt="image" src="https://github.com/user-attachments/assets/27de7707-1b87-4068-9da2-a7df3e1fbc08" /># EcoSysEM platform
 Eco-System Evaluation &amp; Modelling
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
@@ -421,28 +421,58 @@ The International Standard Atmosphere (ISA) is a static atmospheric model of how
 | __CH<sub>4</sub>__ | 1.9200·10<sup>-6</sup> | __SO<sub>2</sub>__ | 1.500·10<sup>-8</sup> | | |
 | __Kr__             | 1.1400·10<sup>-6</sup> | __I<sub>2</sub>__  | 1.000·10<sup>-8</sup> | | |
 
-To create a new _ISA_ object (_i.e.,_ instantiate the class `ISA`), the instance argument `layers` is required. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
-- `layers`. Selection of atmosphere layers defined by ISA model[^1]. This argument can be 'All' (_string_), an _integer_ from 0 to 7 or a _list_ of integers.
-- `phase` (_optional_). Selection of phase of vertical profile composition (gas: 'G', liquid: 'L', liquid freshwater: 'L-FW', liquid seawater: 'L-SW', all: 'All'. The default is 'All'.
-- `H2O` (_optional_). Water content of atmosphere. This attribute must be a _float_ from 0.0 to 0.04. The default is 0.0.
-- `pH` (_optional_). pH of atmosphere. This attribute must be a _float_. The default is 7.0.
-- `selCompounds` (_optional_). Interested compounds. The default is None. (i.e., all compounds are considered).
-- `selAlt` (_optional_). Selected altitude (in m). List [min Altitude, max Altitude]. The default is None.
-- `resolution` (_optional_). Resolution of altitude array, that is, the size of altitude nodes per layer (in m). This attribute must be an _integer_. The default is 1000 (meters).
-
-The **ISA instance** has the following attributes:
-- Altitude (`.altitude`). List of atmospheric altitudes in meters. 
-- Temperature (`.temperature`). List of temperatures in Kelvin.
-- Pressure (`.pressure`). List of pressures in Pascals.
-- Partial pressure of compounds (`.Pi`). Dictionary of partial pressure of compounds throughout the atmosphere. `{'compound': [partial pressure]}`.
-- Gas concentration of compounds (`.Ci_G`). Dictionary of gas concentration of compounds throughout the atmosphere. `{'compound': [gas concentration]}`.
-- Freshwater concentration of compounds (`.Ci_LFW`). Dicitonary of concentration of compounds in freshwater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`
-- Seawater concentration of compounds (`.Ci_LSW`). Dictionary of concentration of compounds in seawater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`
-- Compounds (`.compounds`). List of atmospheric compounds.
-- Dry composition (`.compositions`). Dictionary of atmospheric dry composition of the atmospehre in %vol. `{'compound': [air composition]}`
-- pH (`.pH`). pH of aerosol.
-- Air water content (`.H2O`). Atmospheric water content.
-- Layers of atmosphere (`.layers`). Selected layers of the atmosphere. Layers from 0 to 7: 0 - 'Troposphere', 1 - 'Tropopause', 2 - 'Stratosphere I', 3 - 'Stratosphere II', 4 - Stratopause', 5 - 'Mesosphere I', 6 - 'Mesosphere II', 7 - 'Mesopause'. 
+To create a new _ISA_ instance (_i.e.,_ instantiate the class `ISA`), the instance argument `layers` is required. Optional arguments are `phase`, `H2O`, `pH`, `selCompounds`, `selAlt`, `resolution`.
+```python
+instance_ISA = ISA(layers='All', phase='All', H2O=0.0, pH=7.0, selCompounds=None, selAlt=None, resolution=1000)
+```
+Create an instance of `ISA` class.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **layers : _str_ ('All'), _int_ or _list of int_ (from 0 to 7), _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of atmosphere layers defined by ISA model[^1].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_, _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of phase of vertical profile composition.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Liquid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **H2O : _float_ (0.0 to 0.04), _optional, default: 0.0_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water content of atmosphere.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH of aerosols.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selCompounds : _str_ or _list of str_, _optional, default: None_ (i.e., all compounds are considered)**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interested compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selAlt : _float_ or _list of float_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected altitude region (in meters). When `selAlt` is a _float_, the region is [0.0, selAlt]. When it is a list (length = 2), the region is [min_selAlt, max_selAlt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **resolution : _int_ or _float_, _optional, default: 1000_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Resolution of altitude array, that is, the size of altitude nodes per layer (in meters).<p>
+**Attributes:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.altitude : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric altitudes in meters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric temperatures in Kelvin.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pressure : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric pressures in Pascals.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Pi : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Partial pressure of compounds throughout the atmosphere. `{'compound': [partial pressure]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_G : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas concentration of compounds throughout the atmosphere. `{'compound': [gas concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LFW : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in freshwater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LSW : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in seawater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compounds : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compositions : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric dry composition of the atmospehre in %vol. `{'compound': [air composition]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pH : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH of aerosols.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.H2O : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric water content in %vol.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.H2O : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric water content in %vol.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.layers : _str_, _int_ or _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected layers of the atmosphere.<br>
 
 Here is an example:
 ```python
