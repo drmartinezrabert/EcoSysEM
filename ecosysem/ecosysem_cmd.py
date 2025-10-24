@@ -5,10 +5,9 @@ Created on Tue Jul 30 12:23:23 2024
 @author: 2424069M
 """
 
-from envdef import MERRA2, CAMS, ISAMERRA2, CAMSMERRA2
+from envdef import MERRA2, CAMS
 import argparse
 import numpy as np
-import sys
 
 # Parse command line input
 
@@ -37,9 +36,7 @@ if function == 'getDataMERRA2':
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
-    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
-        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
-        sys.exit()
+    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])): raise ValueError(f"Unaccepted dataType ({dataType}). Accepted dataType: 'dly', 'mly', 'cmly', 'All'.")
     years = args.y; years = sorted(years)
     months = args.m; months = sorted(months)
     days = args.d
@@ -91,9 +88,7 @@ elif function == 'getDataCAMS':
     # Argument definition
     args = parser.parse_args()
     dataType = args.type
-    if not np.all(np.isin(dataType, ['dly', 'mly'])):
-        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", list of data types.')
-        sys.exit()
+    if not np.all(np.isin(dataType, ['dly', 'mly'])): raise ValueError(f"Unaccepted dataType ({dataType}). Accepted dataType: 'dly', 'mly', 'cmly', 'All'.")
     years = args.y; years.sort()
     months = args.m; months.sort()
     days = args.d

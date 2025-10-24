@@ -9,7 +9,6 @@ from reactions import Reactions as Rxn
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 import os.path
 
 def _rhoWater(T, S):
@@ -34,9 +33,7 @@ def _rhoWater(T, S):
     """
     if not isinstance(T, np.ndarray): T = np.array(T)
     if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S):
-        print('!EcoSysEM.Warning: T and S arguments must have the same shape.')
-        sys.exit()
+    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
     T = T - 273.15 # [°C]
     rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
            6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
@@ -66,9 +63,7 @@ def _rhoSCWater(T, S):
     """
     if not isinstance(T, np.ndarray): T = np.array(T)
     if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S):
-        print('!EcoSysEM.Warning: T and S arguments must have the same shape.')
-        sys.exit()
+    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
     rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
          (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
           1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
@@ -121,9 +116,7 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
-            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
-                print(f'!EcoSysEM.Error: {typeParam} for {phase} phase not found for: {compNaN}.')
-                sys.exit()
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f': raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -245,9 +238,7 @@ class ThP:
             Sum of concentration * (charge)^2.
 
         """
-        if not isinstance(composition, dict):
-            print('!EcosysEM.Error: Argument `composition` must be a dictionary.')
-            sys.exit()
+        if not isinstance(composition, dict): raise TypeError('Argument `composition` must be a dictionary.')
         # Initialize I
         I = 0
         for compound in composition:
@@ -628,9 +619,7 @@ class ThP:
         if selComp is not None:
             try:
                 composition[selComp]
-            except:
-                print(f'!EcosysEM.Error: Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
-                sys.exit()
+            except: raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
             else:
                 selCompounds = [selComp]
         else:
@@ -653,9 +642,7 @@ class ThP:
                     actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
                 elif methods[comp] == 'ideal':
                     actCoeff = {comp: 1.0 * np.ones(T.shape)}
-                else:
-                    print(f'!EcosysEM.Error: Method to estimate activity coefficient of {comp} not defined.')
-                    sys.exit()
+                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
                 act[comp] = c * actCoeff[comp]
         return act
     
@@ -795,9 +782,7 @@ class ThEq:
 
         """
         Ct = 1.0 # Total concentration [M]
-        if not isinstance(temperature, float):
-            print('!EcoSysEM.Warning: Temperature must be a FLOAT.')
-            sys.exit()
+        if not isinstance(temperature, float): raise ValueError('Argument `temperature` must be a float.')
         if isinstance(compounds, str): compounds = [compounds]
         for iCompound in compounds:
             Spec_ = [ThEq.pHSpeciation(iCompound, pH_, temperature, Ct, True) for pH_ in pH]
@@ -887,9 +872,7 @@ class ThSA:
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
-        if phase != 'G' and phase != 'L':
-            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
-            sys.exit()
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
         if isinstance(T, int): T = float(T)
         if isinstance(T, float): T = [T]
         if not isinstance(T, np.ndarray): T = np.array(T)
@@ -901,9 +884,7 @@ class ThSA:
             if shapeT != shapeC:
                 if shapeT[0] == 1:
                     T = T * np.ones(shapeC)
-                else:
-                    print(f'!EcoSysEM.Error: `T` shape {shapeT} and `Ct` keys shape {shapeC} doesn''t match.')
-                    sys.exit()
+                else: raise ValueError(f' Argument T ({T.shape}) and argument `Ct` keys ({shapeC}) must have the same shape.')
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
@@ -920,17 +901,13 @@ class ThSA:
                 specComp = input_
                 for iSpecComp in specComp:
                     c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
-                    if c_specComp.size == 0:
-                        print(f'!EcoSysEM.Error: {iSpecComp} was not found as a compound in {typeRxn}.csv file. ' 
-                              'Use the `specComp` argument to specify compounds or set it to False.')
-                        sys.exit()
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
             else:
                 tSpecComp = 'reactions'
                 if isinstance(specComp, str): specComp = [specComp]
                 n_specComp = len(specComp)
-                if nRxn != n_specComp:
-                    print(f'!EcoSysEM.Error: Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}')
-                    sys.exit()
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
         # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
         for idRxn, iRxn in enumerate(infoRxn):
             # iVariables definition
@@ -947,16 +924,12 @@ class ThSA:
                         if c_specComp.size > 0:
                             if vSelected == 0:
                                 i_specComp = specComp_aux
-                            else:
-                                print('!EcoSysEM.Error: More than one specific compound has been used. Only one by reaction.')
-                                sys.exit()
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
                 else:
                     i_specComp = specComp[idRxn]
                     # Check if i_specComp are in reaction
                     c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
-                    if c_specComp.size == 0:
-                        print(f'!EcoSysEM.Error: {i_specComp} was not found in reaction {iRxn}.')
-                        sys.exit()
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
                 # Stoichiometric parameter of selected compound
                 id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
                 vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
@@ -1000,9 +973,7 @@ class ThSA:
                                     if asm == 'stoich': # [P] is calculated based on stoichiometry.
                                         if specComp:
                                             iConc = (vi) * Ct[uComp[findSpecComp]]
-                                        else:
-                                            print(f'!EcoSysEM.Error: `specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
-                                            sys.exit()
+                                        else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
                                 else:
                                     rxn_iComp =  uComp[uIComp][0]
                                     # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
@@ -1017,9 +988,7 @@ class ThSA:
                                 iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
                         iAct = iConc
                     elif fluidType == 'non-ideal':
-                        if methods is None:
-                            print("!EcoSysEM.Error: `methods` must be defined to calculate activities of species.")
-                            sys.exit()
+                        if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
                         if iComp == 'H+':
                             Ct[iComp] = 10**(-pH) * np.ones(T.shape)
                         # Activity estimation
@@ -1032,9 +1001,7 @@ class ThSA:
                             elif phase == 'L':
                                 activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
                                 iAct = activity[iComp]
-                    else:
-                        print("!EcoSysEM.Error: `fluidType` argument must be 'ideal' {Qr = f(concentrations)} or 'non-ideal' {Qr = f(activities)}.")
-                        sys.exit()
+                    else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
                     # Calculation of reaction quotient (Qr)
                     Qr += vi * np.log(iAct)
                 # Activity/Concentration influence (Nernst equation)
@@ -1108,9 +1075,7 @@ class ThSA:
         if isinstance(pH, int): pH = float(pH)
         if isinstance(pH, float): pH = [pH]
         if isinstance(T, np.ndarray):
-            if np.ndim(T) > 1:
-                print('!EcoSysEM.Error: temperature (`T`) must be a list or 1D np.ndarray.')
-                sys.exit()
+            if np.ndim(T) > 1: raise TypeError('Temperature argument (`T`) must be a list or 1D np.ndarray.')
         ### If modeExport == 'plot', T must be a list or np.ndarray with ndim = 1
         # Initializate DGr matrix
         DGr = np.empty(T.shape)
@@ -1142,9 +1107,7 @@ class ThSA:
                     ThSA._contourfAlt(pH, altitude, DGr[:, idRxn, :], rxn, text_)
                 else:
                     ThSA._contourfT(pH, T, DGr[:, idRxn, :], rxn, text_)
-        else:
-            print("!EcoSysEM.Error: `modeExport` argument must be 'plot' (for plotting in Spyder) or 'Excel' (for writing in Excel document).")
-            sys.exit()
+        else: raise ValueError(f'Unknown modeExport ({modeExport}). Existing modeExport: \'plot\' (for plotting in Spyder) or \'Excel\' (for writing in Excel document).')
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """

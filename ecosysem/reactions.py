@@ -8,7 +8,6 @@ Created on Thu Aug 15 07:44:51 2024
 import importlib
 import pandas as pd
 import numpy as np
-import sys
 
 class KinP:
     """
@@ -41,9 +40,7 @@ class KinP:
         col = dParam.columns.values
         for iParam in params:
             if not iParam in KinP.assocParamComp:
-                if not iParam in col:
-                    print(f'!EcoSysEM.Error: Parameter `{iParam}` not found in `{typeParam}.csv`. Please, add a column with `{iParam}` values.')
-                    sys.exit()
+                if not iParam in col: raise ValueError(f'Parameter ({iParam}(`) not found in {typeParam}.csv. Please, add a column with {iParam} values.')
     
     def getKinP(paramDB, params, reaction, sample = 'All', compounds = None):
         """
@@ -90,12 +87,8 @@ class KinP:
                         else:
                             dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
                             cVal = np.all(f'{iParam}_{comp}' == 0.0)
-                            if cVal:
-                                print('!EcoSysEM.Error: Limiting substrate not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
-                                sys.exit()
-                else:
-                    print(f'!EcoSysEM.Error: You must to define the compounds for {iParam} with `comp` parameter.')
-                    sys.exit()
+                            if cVal: raise ValueError(f'Limiting substrate ({comp}) not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
+                else: raise ValueError(f'You must to define the compounds for {iParam} with `comp` parameter.')
         return dictR, sampleNames
     
 class KinRates:
@@ -145,30 +138,22 @@ class KinRates:
         # Check variables
         if not isinstance(T, np.ndarray): T = np.ndarray(T)
         if not isinstance(reactions, list): reactions = [reactions]
-        if not isinstance(Ct, dict):
-            print('!EcoSysEM.Error: `Ct` argument must be a dictionary.')
-            sys.exit()
+        if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:
             # Check shapes of Ct dictionary
             checkArray_compounds = []
             compounds = list(Ct.keys())
             for c in Ct:
-                if not isinstance(Ct[c], np.ndarray):
-                    print('!EcoSysEM.Error: All compounds must be a numpy array.')
-                    sys.exit()
+                if not isinstance(Ct[c], np.ndarray): raise TypeError('All concentrations in `Ct` argument must be np.ndarray.')
                 else:
                     checkArray_compounds += [Ct[c].shape]
             uShpConc = list(set(checkArray_compounds))
-            if not len(uShpConc) == 1:
-                print('!EcoSysEM.Error: All compounds must have same dimension.')
-                sys.exit()
+            if not len(uShpConc) == 1: raise ValueError('All compounds must have same shape.')
         if sample != 'All':
             if not isinstance(sample, list): sample = [sample]
         ## Concentrations (pH speciation)
         if pH:
-            if T is None:
-                print('!EcoSysEM.Error: temperature (`T`) not defined.')
-                sys.exit()
+            if T is None: raise ValueError('Temperature not defined (argument `T`).')
             for comp in compounds:
                 Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
         if typeKin == 'MM':
@@ -195,9 +180,7 @@ class KinRates:
             orderComb = 'MM'
             return Rs, combNames, orderComb
         elif typeKin == 'MM-Arrhenius':
-            if len(paramDB) != 2:
-                print('!EcoSysEM.Error: 2 databases must be given: paramDB = ["Michaelis-Menten DB", "Arrhenius DB"]')
-                sys.exit()
+            if len(paramDB) != 2: raise ValueError('For MM-Arrhenius equation, 2 databases must be given: paramDB = ["Michaelis-Menten DB", "Arrhenius DB"]')
             paramDB_MM = paramDB[0]
             paramDB_Arrh = paramDB[1]
             # Initialize results
@@ -238,9 +221,7 @@ class KinRates:
                 Rs[Rxn] = rs
             orderComb = 'MM - Arrhenius'
             return Rs, combNames, orderComb
-        else:
-            print(f'!EcoSysEM.Error: "{typeKin}"`" not defined. Available rate equation types: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
-            sys.exit()
+        else: raise ValueError(f'Unknown typeKin ({typeKin}). Existing typeKin: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
     
     def _rMM(qmax, Km, C):
         """
@@ -263,9 +244,7 @@ class KinRates:
         """
         if not isinstance(qmax, np.ndarray): qmax = np.array(qmax)
         if qmax.ndim == 0: qmax = np.array([qmax])
-        if not isinstance(Km, dict):
-            print('!EcoSysEM.Error: `Km` argument must be a dictionary. Km = {"Km_compound": [values]}')
-            sys.exit()
+        if not isinstance(Km, dict): raise TypeError('`Km` argument must be a dictionary. Km = {"Km_compound": [values]}')
         limCompds = [str(np.char.replace(k, 'Km_', '')) for k in Km if 'Km' in k]
         M = 1.0
         r = {}
@@ -304,9 +283,7 @@ class KinRates:
         """
         if not isinstance(rateBase, np.ndarray): rateBase = np.array(rateBase)
         if not isinstance(temp, np.ndarray): rateBase = np.array(temp)
-        if rateBase.shape != temp.shape:
-            print('!EcoSysEM.Error: rate base (`rateBase`) and temperature (`temp`) must have the same shape.}')
-            sys.exit()
+        if rateBase.shape != temp.shape: raise ValueError(f'Argument `rateBase` ({rateBase.shape}) and argument `temp` ({temp.shape}) must have the same shape.')
         rT = rateBase * O ** (temp - tempBase)
         return rT
 
@@ -348,7 +325,7 @@ class Reactions:
             gRbC_rComp, gRbC_mRxn, gRbC_infoRxn = Reactions.getRxnByComp(typeRxn, input_, warnings)
             gRbN_rComp, gRbN_mRxn, gRbN_infoRxn = Reactions.getRxnByName(typeRxn, input_, warnings)
             if (gRbC_rComp is None) and (gRbN_rComp is None):
-                print(f'!EcoSysEM.Error: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
+                print(f'!EcoSysEM.Warning: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
                 return None, None, None
             elif gRbC_rComp is None:
                 rComp = gRbN_rComp
@@ -359,7 +336,7 @@ class Reactions:
                 mRxn = gRbC_mRxn
                 infoRxn = gRbC_infoRxn
             elif (gRbC_rComp is not None) and (gRbN_rComp is not None):
-                print(f'!EcoSysEM.Error: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
+                print(f'!EcoSysEM.Warning: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
                       'All inputs must be the same type: compound or reaction. If a same name is used for a compound and a reaction, '
                       'use `getRxnByComp()` or `getRxnByName()` instead.')
                 return None, None, None
