@@ -873,7 +873,502 @@ class ISA(Atmosphere):
         plt.show()
 
 class MERRA2(Atmosphere):
-    pass
+    """
+    The Modern-Era Retrospective analysis for Research and Applications, 
+    Version 2 (MERRA-2) provides data beginning in 1980. It was introduced 
+    to replace the original MERRA dataset because of the advances made in 
+    the assimilation system that enable assimilation of modern hyperspectral 
+    radiance and microwave observations, along with GPS-Radio Occultation 
+    datasets. It also uses NASA's ozone profile observations that began in 
+    late 2004. Additional advances in both the GEOS model and the GSI 
+    assimilation system are included in MERRA-2. Spatial resolution remains 
+    about the same (about 50 km in the latitudinal direction) as in MERRA.
+    --------------------------------------------------------------------------
+    References: - Global Modeling and Assimilation Office (NASA)
+                    https://gmao.gsfc.nasa.gov/reanalysis/merra-2/
+                - Gelaro et al. (2017), doi: 10.1175/JCLI-D-16-0758.1
+    """
+    
+    def __init__(self, dataType = None, y = None, m = None, d = None, bbox = (-180, -90, 180, 90), keys = 'All', 
+                 keysAsAttributes = True, altArray = None, numAlt = 50, showMessage = True):
+        self.environment = 'Atmosphere'
+        self.model = 'MERRA2'
+        if dataType != None:
+            if showMessage:
+                print('  > Creating MERRA2 instance...')
+            self.mode = 'Loading'
+            self.dataType = dataType
+            self.bbox = bbox
+            # Check if requested data exists
+            Environment._checkData(self, dataType, y, m, d)
+            self.temperature, self.pressure, self.altitude = MERRA2._getTPAlt(self, dataType, y, m, d, bbox, altArray, numAlt)
+            # Load data & generate corresponding attributes
+            dictVal = Environment.loadData(self, dataType, y, m, d, keys)
+            dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
+            if keysAsAttributes:
+                for key in dictVal:
+                    setattr(self, key, dictVal[key])
+            if showMessage:
+                print('  > Done.')
+        else:
+            self.mode = 'Downloading/Combining'
+    
+    def _LR(self, T1, T2, H1, H2):
+        """
+        Estimate atmospheric lapse rate (K/km)
+
+        Parameters
+        ----------
+        T1 : FLOAT, LIST or ndarray
+            Temperature value(s) of minimum atmospheric altitude (H1). [K or °C]
+        T2 : FLOAT, LIST or ndarray
+            Temperature value(s) of maximum atmospheric altitude (H2). [K or °C]
+        H1 : FLOAT, LIST or ndarray
+            Minimum atmospheric altitude. [m]
+        H2 : FLOAT, LIST or ndarray
+            Maximum atmospheric altitude. [m]
+
+        Returns
+        -------
+        FLOAT, LIST or ndarray
+            Lapse rate value(s). (K/km)
+
+        """
+        return ((T2 - T1) / (H2 - H1) * 1000)
+    
+    def _getTPAlt(self, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50):
+        """
+        Compute the temperature and pressure of the Earth's atmosphere
+         over the range of altitudes. Equations from ISA (ISO 2533:1975).
+        
+        Parameters
+        ----------
+        dataType : STR ('dly', 'mly', 'cmly', 'yly', 'cyly')
+            Type of data.
+        year : INT or LIST of INT
+            Year(s) of data.
+        month : INT or LIST of INT, optional
+            Month of data. The default is None.
+        day : INT or LIST of INT, optional
+            Day(s) of data. The default is None.
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes. The default is None.
+        num : INT, optional
+            Number of altitude steps to generate. The default is 50.
+
+        Returns
+        -------
+        T : FLOAT, LIST or ndarray
+            Temperature in function of altitude. [K]
+        P : FLOAT, LIST or ndarray
+            Pressure in function of altitude. [Pa]
+        H : FLOAT, LIST or ndarray
+            Altitude. [m]
+        """
+        # Check argument format and dimension of data
+        d = Environment.loadData(self, dataType, year, month, day)
+        d = Atmosphere._selectRegion(self, d, bbox)
+        TS = np.array(d['T2M'])
+        LR = np.array(d['LR'])
+        PS = np.array(d['PS'])
+        TROPH = np.array(d['TROPH'])
+        HS = np.array(d['H'])
+        HS = np.where(HS < 0, 0, HS)
+        # Constants
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        # Altitude. Shape: (alt, lat, lon)
+        if not isinstance(altArray, (list, np.ndarray)):
+            HS_min = 0.0 * np.ones(HS.shape)
+            TROPH_max = np.nanmax(TROPH) * 0.99 * np.ones(TROPH.shape)
+            H = np.linspace(start = HS_min, stop = TROPH_max, num = num)        # [m]
+            altArray = np.linspace(start = 0.0, stop = 0.99 * np.nanmax(TROPH), num = num)
+        else:
+            max_TROPH = np.nanmax(TROPH) * 0.99
+            altChk = altArray
+            if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
+            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = altArray[~np.isnan(altArray)]
+            if np.any(altChk > max_TROPH):
+                altArray = np.append(altArray, max_TROPH)
+            y = TS.shape[0]
+            x = TS.shape[1]
+            z = len(altArray)
+            H = np.tile(altArray, y * x).reshape((z, y, x), order = 'F')
+        # User variables
+        # 3D matrix creation (TS, LR, HS)
+        TS = np.repeat(TS[np.newaxis, ...], H.shape[0], axis = 0)              # [K]
+        LR = np.repeat(LR[np.newaxis, ...], H.shape[0], axis = 0) / 1000       # [K/m]
+        HS = np.repeat(HS[np.newaxis, ...], H.shape[0], axis = 0)              # [m]
+        # Temperature profile
+        T = TS + LR * (H - HS)
+        # Pressure profile
+        P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
+        # Temperature
+        T = np.where(H < HS, np.NaN, T)
+        T = np.where(H > TROPH, np.NaN, T)
+        # Pressure
+        P = np.where(H < HS, np.NaN, P)
+        P = np.where(H > TROPH, np.NaN, P)
+        return T, P, altArray
+        
+    def getDataMERRA2(self, dataType, years, months,
+                      days = 'All',
+                      product = 'M2I1NXASM',
+                      version = '5.12.4',
+                      bbox = (-180, -90, 180, 90),
+                      var = ['PS', 'TROPPB', 'T2M', 'TROPT', 'TROPH', 'LR']):
+        """
+        Download data from MERRA2 database.
+        
+        Parameters
+        ----------
+        dataType: STR or LIST of STR ('dly', 'mly', 'cmly' or 'All')
+            Type of data.
+        years : INT or LIST of INT
+            Year(s) of data.
+        months : INT or LIST of INT
+            Month(s) of data.
+        days : INT, LIST of INT, or STR ('All'), optional
+            Day(s) of data. The default is 'All'.
+        product  : STR, optional
+            Product of data (section of MERRA2 database). The default is 'M2I1NXASM'.
+        version : STR, optional
+            Version of data. The default is '5.12.4'.
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        var : LIST of STR, optinal
+            List of requested variables. The default is ['PS', 'TROPPB', 'T2M', 'TROPT', 'TROPH', 'LR'].
+        
+        Returns
+        -------
+        None.
+        
+        """
+        # Initialize `dataDelete` for _combDataMERRA2()
+        dataDelete = False
+        # Data checking
+        if isinstance(dataType, str): dataType = [dataType]
+        if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])): raise ValueError('Unknown dataType ({dataType}). Existing dataType: \'dly\', \'mly\', \'cmly\', \'All\'.')
+        if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
+        if np.any(np.isin(dataType, 'cmly')) and not np.any(np.isin(dataType, 'mly')): 
+            dataType += ['mly']
+            dataDelete = True
+        if np.any(np.isin(dataType, 'All')): dataType = ['dly', 'mly', 'cmly']
+        # Coordinates (bbox)
+        if len(bbox) == 2:
+            bbox = bbox + bbox
+        elif len(bbox) == 4:
+            bbox = bbox
+        else: raise ValueError('Argument bbox requires 2 `(lon, lat)` or 4 `(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)` positional values.')
+        # Check arguments
+        if not isinstance(years, list): years = [years]
+        if not isinstance(months, (list, np.ndarray)): months = [months]
+        # Sort years and months
+        years = sorted(years)
+        months = sorted(months)
+        if np.any(np.isin(dataType, 'cmly')) and len(years) <= 1: raise ValueError('Argument \'y\' must be a list with length > 1.')
+        start_time = time.time()
+        # This will work if Earthdata prerequisite files have already been generated
+        earthaccess.login()
+        # Combinations [(year1, month1), (year1, month2), ...]
+        dateList = list(itertools.product(years, months))
+        # Initialize dictionaries
+        monthData = {}
+        for date in dateList:
+            y = date[0]
+            m = date[1]
+            if days == 'All':
+                last_day = calendar.monthrange(y, m)[1]
+                first_day = 1
+            else:
+                if not isinstance(days, list): days = [days]
+                days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
+                last_day = max(days)
+                if len(days) > 1:
+                    first_day = min(days)
+                else:
+                    first_day = 1
+            start_date = datetime.date(y, m, first_day)
+            end_date = datetime.date(y, m, last_day)
+            delta = datetime.timedelta(days=1)
+            date = start_date
+            # Initialize dictionaries
+            hourData = {}
+            av_dayData = {}
+            dayData = {}
+            ## Day matrices
+            while(date <= end_date):
+                print(f"> {date.strftime('%Y-%m-%d')}")
+                # Open granules to local path
+                results = earthaccess.search_data(
+                    short_name = product, 
+                    version = version,
+                    temporal = (date, date),
+                    bounding_box = bbox
+                )
+                # Open granules using Xarray
+                print(f'>> Product: {product}')
+                fs = earthaccess.open(results)
+                ds = xr.open_mfdataset(fs)
+                lonR = ds.lon.to_numpy()
+                latR = ds.lat.to_numpy()
+                # Get closest coordinates
+                bbox =  Atmosphere._closestCoord(self, lonR, latR, bbox)
+                lat_slice = slice(bbox[1], bbox[3])
+                lon_slice = slice(bbox[0], bbox[2])
+                ds = ds.sel(lat = lat_slice, lon = lon_slice)
+                # PHIS [Surface geopotential height] (local)
+                d_PHIS = np.load('data/Atmosphere/MERRA2/PHIS.npz')
+                d_PHIS = Atmosphere._selectRegion(self, d_PHIS, bbox)
+                H = d_PHIS['PHIS']
+                H = np.where(H < 0, 0, H)
+                H = np.repeat(H[np.newaxis, ...], 24, axis = 0)
+                hourData['H'] = H
+                lon = ds.lon.to_numpy()
+                lat = ds.lat.to_numpy()
+                # User variables
+                for key in var:
+                    try:
+                        ds[key]
+                    except:
+                        print(f'  {key} estimated.')
+                    else:
+                        hourData[key] = ds[key].values
+                        print(f'  {key} done.')
+                # Atmospheric altitudes
+                varH = ['TROPH']
+                varReqH = ['TROPPB', 'TROPPT', 'TROPPV']
+                if np.any([np.char.find(var, iVar) == 0 for iVar in varH]):
+                    c = 0
+                    for iV in var:
+                        if np.any(np.char.find(iV, varReqH) > -1):
+                            varNames = {'TROPPB': 'TROPH',
+                                        'TROPPT': 'TROPH',
+                                        'TROPPV': 'TROPH'}
+                            hourData[varNames[iV]] = MERRA2._HfromP(self, hourData[iV])
+                            c += 1
+                    if c == 0: raise ValueError('Argument var - missing required variable for atmospheric altitude(s) - \'TROPPB\', \'TROPPT\', or \'TROPPV\'.')
+                # Lapse rate
+                varReqLR = ['T2M', 'TROPT', 'TROPH']
+                if np.any(np.char.find(var, 'LR') > -1):
+                    if np.all([np.any(np.char.find(var, iVarReq) > -1) for iVarReq in varReqLR]):
+                        hourData['LR'] = MERRA2._LR(self, hourData['T2M'], hourData['TROPT'], hourData['H'], hourData['TROPH'])
+                    else: raise ValueError('Argument var - missing required variable for lapse rate - \'T2M\', \'TROPT\', or \'TROPH\'.')
+                # PHIS [Surface geopotential height]
+                av_dayData['H'] = np.round(np.nanmean(H, axis = 0))
+                if date == start_date:
+                    dayData['H'] = av_dayData['H']
+                else:
+                    dayData['H'] = np.dstack((dayData['H'], av_dayData['H'])) 
+                # User variables
+                for iV in var:
+                    # Daily averages and std
+                    av_dayData[iV] = np.nanmean(hourData[iV], axis = 0)
+                    av_dayData[f'{iV}_std'] = np.nanstd(hourData[iV], axis = 0)
+                    # Day matrices
+                    if date == start_date:
+                        dayData[iV] = av_dayData[iV]
+                    else:
+                        dayData[iV] = np.dstack((dayData[iV], av_dayData[iV]))
+                # Save daily data
+                if np.any(np.isin(dataType, 'dly')):
+                    av_dayData['lat'] = lat
+                    av_dayData['lon'] = lon
+                    Environment._saveNPZ(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
+                # Next date
+                date += delta
+            # Month matrices
+            monthData['lat'] = lat
+            monthData['lon'] = lon
+            # PHIS [Surface geopotential height]
+            if last_day != 1:
+                monthData['H'] = np.round(np.nanmean(dayData['H'], axis = -1))
+            else:
+                monthData['H'] = dayData['H']
+            # User variables
+            for iV in var:
+                if last_day != 1:
+                    monthData[iV] = np.nanmean(dayData[iV], axis = -1)
+                    monthData[f'{iV}_std'] = np.nanstd(dayData[iV], axis = -1)
+                else:
+                    monthData[iV] = dayData[iV]
+                    monthData[f'{iV}_std'] = 0.0 * np.ones(dayData[iV].shape)
+            # Save numpy matrices in .npz format
+            if np.any(np.isin(dataType, 'mly')):
+                Environment._saveNPZ(self, data = monthData, dataType = 'mly', y = y, m = m)
+        # Combine monthly data if user required ('cmly')
+        if np.any(np.isin(dataType, 'cmly')):
+            var += ['H']
+            for m in months:
+                Environment.combData(self, dataType = 'mly',
+                                     year = years,
+                                     month = m,
+                                     days = days,
+                                     keys = var, 
+                                     dataDelete = dataDelete)
+        print("--- %s seconds ---" % (time.time() - start_time))
+
+class ISAMERRA2(Atmosphere):
+    """
+    Combination of International Standard Atmosphere (ISA) model and Modern-Era 
+    Retrospective analysis for Research and Applications Version 2 (MERRA-2).
+    
+    """
+    def __init__(self, dataType, y, m = None, d = None, bbox = (-180, -90, 180, 90), compound = None, 
+                 phase = 'All', altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False,
+                 showMessage = True):
+        if showMessage:
+            print('  > Creating ISAMERRA2 instance...')
+        self.environment = 'Atmosphere'
+        # Data from ISA
+        ISAinst = ISA(showMessage = False)
+        self.compositions = ISAinst.compositions
+        self.compounds = ISAinst.compounds
+        # Data from MERRA2
+        self.model = 'MERRA2'
+        self._getConcISAMERRA2(phase = phase, dataType = dataType, y = y, m = m, d = d, compound = compound, bbox = bbox,
+                               altArray = altArray, num = numAlt, surftrop = surftrop)
+        dictVal = Environment.loadData(self, dataType, y, m, d, keys = 'All')
+        dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
+        self.lat = dictVal['lat']
+        self.lon = dictVal['lon']
+        if keysAsAttributes:
+            for key in dictVal:
+                setattr(self, key, dictVal[key])
+        self.model = 'ISAMERRA2'
+        if showMessage:
+            print('  > Done.')
+    
+    def _getConcISAMERRA2(self, phase, dataType, y, m = None, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
+        """
+        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
+        and liquid concentration in sea water, Ci_L-SW).
+        Gas concentrations (Ci_G) are calculated using Dalton's law and the 
+        ideal gas law, and liquid concentration (Ci_LFW and Ci_LSW) with 
+        Henry's law.
+
+        Parameters
+        ----------
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
+        dataType : STR ('dly','mly', 'cmly', 'yly', 'cyly')
+            Type of data
+        y : INT or LIST of INT
+            Year(s) of data
+        m : INT or LIST of INT, optional
+            Month of data. The default is None.
+        d : INT or LIST of INT
+            Day(s) of data
+        compound : STR or LIST, optional
+            Interested compounds. The default is None (all compounds of ISA).
+        bbox : TUPLE, optional
+            Earths region of data, the bounding box.
+            (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
+        altArray : LIST or np.ndarray, optional
+            List of altitudes
+        num : INT, optional
+            Number of altitude steps to generate.
+        surftrop : STR ('surface', 'tropopause'), optional
+            Get concentration from 2-meters air following topography (surftrop='surface') or tropopause height (surftrop='tropopause').
+
+        """
+        # Selection of compound and composition
+        compounds = self.compounds
+        compositions = np.array(list(self.compositions.values()))
+        if compound:
+            if type(compound) is str: compound = [compound]
+            findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
+            compositions = compositions[findC]
+            compounds = compounds[findC]
+        # Temperature [K], pressure [Pa], altitude [m]
+        if not surftrop:
+            t, p, alt = MERRA2._getTPAlt(self, dataType, y, m, d, bbox, altArray, num)
+            self.temperature = t
+            self.pressure = p
+            self.altitude = alt
+        else:
+            data = Environment.loadData(self, dataType, y, m, d)
+            data = Atmosphere._selectRegion(self, data, bbox)
+            if surftrop == 'surface':
+                t = np.array(data['T2M'])
+                p = np.array(data['PS'])
+                alt = np.array(data['H'])
+            elif surftrop == 'tropopause':
+                t = np.array(data['TROPT'])
+                p = np.array(data['TROPPB'])
+                alt = np.array(data['TROPH'])
+            else: raise ValueError('Argument \'surftrop\' must be \'surface\' or \'tropopause\'.')
+            self.temperature = t
+            self.pressure = p
+            self.altitude = alt
+        # Constants
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
+        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        compounds = compounds.values
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = p * composition # [Pa]
+            # Gas phase - Gas concentration (Ci_G)
+            Ci_G = (Pi / (R_g * t))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[compounds[id_]] = Pi
+            dict_Ci_G[compounds[id_]] = Ci_G
+            dict_Ci_LFW[compounds[id_]] = Ci_LFW
+            dict_Ci_LSW[compounds[id_]] = Ci_LSW
+        if phase == 'G':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = None
+            self.Ci_LSW = None
+        elif phase == 'L-FW':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = None
+        elif phase == 'L-SW':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = None
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'L':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'All':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        else: raise ValueError(f'Unknown phase ({phase}). Existing phase: \'G\' (gas), \'L-FW\' (Liquid fresh water), \'L-SW\' (Liquid sea water), \'L\' (L-FW, L-SW), \'All\'- All phases.')
 
 class CAMS(Atmosphere):
     pass
