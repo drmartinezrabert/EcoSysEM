@@ -566,7 +566,311 @@ class Atmosphere(Environment):
         return bbox
 
 class ISA(Atmosphere):
-    pass
+    """
+    International Standard Atmosphere (ISA). Static atmospheric model of how
+    pressure, temperature, density and viscosity of the Earth's atmosphere
+    change over a wide range of altitudes.
+    --------------------------------------------------------------------------
+    References: - ISO 2533:1975
+                - National Oceanic and Atmospheric Administration (NOAA)
+                - Goody & Yung (1989), doi: 10.1093/oso/9780195051346.001.0001
+    
+    """
+    def __init__(self, layers = 'All', phase = 'All', H2O = 0.0, pH = 7.0, selCompounds = None, 
+                 selAlt = None, resolution = 1000, showMessage = True):
+        if showMessage:
+            print('  > Creating ISA instance...')
+        # Layers of the Earth's atmosphere (ISA)
+        _ISAproperties = {
+                        'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
+                        'Layer name': ['Troposphere', 'Tropopuse', 'Stratosphere', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesosphere', 'Mesopause'],
+                        'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
+                        'End altitude': [11000, 20000, 32000, 47000, 51000, 71000, 84852, 85852],       # [m (above MSL)]
+                        'Lapse rate': [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0, 0.0],                      # [C/km)]
+                        'Base temperature': [15.0, -56.5, -56.5, -44.5, -2.5, -2.5, -58.5, -86.204],      # [C]
+                        'Base pressure': [101325, 22632, 5474.9, 868.02, 110.91, 66.939, 3.9564, 0],    # [Pa]
+                        }
+        dISA = pd.DataFrame(data = _ISAproperties)
+        # Dry composition
+        dryComposition = {
+                         'Compounds': ['N2', 'O2', 'Ar', 'CO2', 'Ne', 
+                                       'He', 'CH4', 'Kr', 'H2', 'N2O', 
+                                       'CO', 'Xe', 'O3', 'NO2', 'SO2', 
+                                       'I2','NH3', 'HNO2', 'HNO3', 'H2S'], # Formula
+                         'Compositions': [7.8084e-1, 2.0946e-1, 9.34e-3, 4.26e-4, 1.8182e-5, 
+                                          5.24e-6, 1.92e-6, 1.14e-6, 5.5e-7, 3.3e-7, 
+                                          1e-7, 9e-8, 7e-8, 2e-8, 1.5e-8, 
+                                          1e-8, 6e-9, 1e-9, 1e-9, 3.3e-10] # [%vol]
+                          }
+        dDC = pd.DataFrame(data = dryComposition)
+        self.layers = layers
+        self.pH = pH
+        self.resolution = resolution
+        self._computeTandP_ISA(layers, dISA)
+        self.compounds = dDC['Compounds']
+        self.compositions = pd.Series(dDC.Compositions.values, index = dDC.Compounds).to_dict()
+        self._computeWaterContent(H2O, dDC)
+        self.environment = 'Atmosphere'
+        self.model = 'ISA'
+        if selAlt:
+            self._selectAltitude(selAlt)
+        self._getConcISA(phase, selCompounds)
+        if showMessage:
+            print('  > Done.')
+    
+    def _computeTandP_ISA(self, layers, dISA):
+        """
+        Compute the change of temperature and pressure of the Earth's
+        atmosphere over the range of altitudes. Based on ISA (ISO 2533:1975).
+        
+        """
+        # Constants
+        R = 8.3144598                   # Universal gas constant [J/mol/K]
+        g0 = 9.80665                    # Gravitational acceleration [m/s^2]
+        M0 = 0.0289644                  # Molar mass of Earth's air
+        resolution = self.resolution    # Resolution (size of altitude nodes per layer) [m]
+        # Data from ISA to compute temperature
+        if isinstance(layers, str):
+            if layers == 'All':
+                layers = range(8)
+        elif isinstance(layers, int):
+            layers = range(layers, layers+1)
+        lapse_rate = (dISA.loc[layers]['Lapse rate']).to_numpy()
+        base_T = (dISA.loc[layers]['Base temperature']).to_numpy()
+        base_P = (dISA.loc[layers]['Base pressure']).to_numpy()
+        start_alt = (dISA.loc[layers]['Start altitude']).to_numpy()
+        end_alt = (dISA.loc[layers]['End altitude']).to_numpy()
+        # Temperature calculation (ISA)
+        alt = t = p = []
+        for i in range(lapse_rate.size):
+            # alt_aux = np.array(range(int(start_alt[i]), int(end_alt[i]), resolution))
+            alt_aux = np.arange(start_alt[i], end_alt[i], resolution)
+            # Temperature
+            t_aux = base_T[i] + lapse_rate[i] * ((alt_aux - start_alt[i]) / 1000)
+            # Pressure
+            if lapse_rate[i] != 0:
+                p_aux = base_P[i] * (1 + ((lapse_rate[i]/1000) / (base_T[i]+273.15)) * (alt_aux - start_alt[i])) ** (-(g0 * M0) / (R * lapse_rate[i]/1000))
+            else:
+                p_aux = base_P[i] * np.exp((-(g0 * M0) / (R * (base_T[i]+273.15))) * (alt_aux - start_alt[i]))
+            # Appending...
+            alt = np.append(alt, alt_aux)
+            t = np.append(t, t_aux)
+            p = np.append(p, p_aux)
+        # Last value of arrays (Altitude, Temperature and Pressure)
+        alt_end = min(alt_aux[-1] + resolution, end_alt[i])
+        alt = np.append(alt, alt_end)
+        t = np.append(t, base_T[-1] + lapse_rate[-1] * ((alt_end - start_alt[-1]) / 1000)) # Last T value
+        if lapse_rate[-1] != 0:
+            p = np.append(p,  base_P[-1] * (1 + ((lapse_rate[-1]/1000) / (base_T[-1]+273.15)) * (alt_end - start_alt[-1])) ** (-(g0 * M0) / (R * lapse_rate[-1]/1000)))
+        else:
+            p = np.append(p, base_P[-1] * np.exp((-(g0 * M0) / (R * (base_T[-1]+273.15))) * (alt_end - start_alt[-1])))
+        # Safe Altitude, Temperature and Pressure
+        self.altitude = alt # [m]
+        self.temperature = t + 273.15 # [K]
+        self.pressure = p # [Pa]
+    
+    def _computeWaterContent(self, H2O, dDC):
+        """
+        It is assumed that atmospheric compositon of minor components (<0.9%, 
+        such as CO2) does not change significantly when including water vapor 
+        (i.e., wet composition). Therefore, compositions of N2, O2 and Ar are
+        recalculated (%vol).
+        
+        """
+        self.H2O = H2O
+        newComp = np.array(dDC['Compositions'])
+        # self.composition = dryComposition
+        if H2O > 0:
+            newComp[0] -= 0.78100 * H2O # N2_wet
+            newComp[1] -= 0.20925 * H2O # O2_wet
+            newComp[2] -= 0.01100 * H2O # Ar_wet
+            self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
+    
+    def _getConcISA(self, phase, compound = None):
+        """
+        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
+        and liquid concentration in sea water, Ci_L-SW).
+        Gas concentrations (Ci_G) are calculated using Dalton's law and the 
+        ideal gas law, and liquid concentration (Ci_LFW and Ci_LSW) with 
+        Henry's law.
+        
+        Parameters
+        ----------
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            Selection of phase of vertical profile.
+                        'G' - Gas.
+                        'L-FW' - Liquid fresh water.
+                        'L-SW' - Liquid sea water.
+                        'L' - Both liquid phases (L-FW, L-SW).
+                        'All' - All phaes (G, L-FW, L-SW).
+        compound : STR or LIST, optional
+                Interested compounds. The default is None. (i.e., all compounds are considered).
+        """
+        # Data
+        p = self.pressure
+        t = self.temperature   # [K]
+        compounds = self.compounds
+        compositions = np.array(list(self.compositions.values()))
+        if compound:
+            if type(compound) is str: compound = [compound]
+            findC = compounds.reset_index().set_index('Compounds').loc[compound].reset_index().set_index('index').index
+            compositions = compositions[findC]
+            compounds = compounds[findC]
+        # Constants
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        Hs_FW, notNaN_HsFW = eQ.solubilityHenry(compounds, 'FW', t)
+        Hs_SW, notNaN_HsSW = eQ.solubilityHenry(compounds, 'SW', t)
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        compounds = compounds.values
+        for id_, composition in enumerate(compositions):
+            # Gas phase - Partial pressure (Pi)
+            Pi = p * composition # [Pa]
+            # Gas phase - Gas concentration (Ci_G)
+            Ci_G = (Pi / (R_g * t))
+            # Liquid phase - Freshwater (Ci_LFW)
+            if notNaN_HsFW[id_]:
+                Ci_LFW = Pi * Hs_FW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LFW = None
+            # Liquid phase - Seawater (Ci_LSW)
+            if notNaN_HsSW[id_]:
+                Ci_LSW = Pi * Hs_SW[..., id_] * (1/1000) # [mol/L]
+            else:
+                Ci_LSW = None
+            # Save data in dictionary
+            dict_Pi[compounds[id_]] = Pi
+            dict_Ci_G[compounds[id_]] = Ci_G
+            dict_Ci_LFW[compounds[id_]] = Ci_LFW
+            dict_Ci_LSW[compounds[id_]] = Ci_LSW
+        if phase == 'G':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = None
+            self.Ci_LSW = None
+        elif phase == 'L-FW':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = None
+        elif phase == 'L-SW':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = None
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'L':
+            self.Pi = None
+            self.Ci_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'All':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        else: raise ValueError(f'Unknown phase ({phase}). Existing phase: \'G\' (gas), \'L-FW\' (Liquid fresh water), \'L-SW\' (Liquid sea water), \'L\' (L-FW, L-SW), \'All\'- All phases.')
+    
+    def _selectAltitude(self, selAlt):
+        """
+        Select a specific region of atmosphere based on a minimum and maximum 
+        altitud value.
+        
+        """
+        if isinstance(selAlt, list):
+            if len(selAlt) > 2: raise ValueError('Argument \'selAlt\' must be an integer, float or list [min_alt, max_alt].')
+            elif len(selAlt) == 1:
+                selAlt = [0, selAlt[0]]
+            minAlt = selAlt[0]
+            maxAlt = selAlt[1]
+        elif isinstance(selAlt, (int, float)):
+            minAlt = 0
+            maxAlt = selAlt
+        # Previous altitude, temperature and pressure
+        prevAlt = self.altitude
+        prevT = self.temperature
+        prevP = self.pressure
+        # Correct min and max altitude, if out of previous range
+        minAlt = max(minAlt, min(prevAlt))
+        maxAlt = min(maxAlt, max(prevAlt))
+        # Indexes of min and max altitudes
+        imAlt = int(np.argwhere(prevAlt <= minAlt)[-1])
+        iMAlt = int(np.argwhere(prevAlt >= maxAlt)[0]) + 1
+        # New altitude, temperature and pressure
+        self.altitude = prevAlt[imAlt:iMAlt]
+        self.temperature = prevT[imAlt:iMAlt]
+        self.pressure = prevP[imAlt:iMAlt]
+    
+    def setComposition(self, compound, composition):
+        """
+        Modify composition of existing compounds or add new components with
+        their respective compositions.
+
+        Parameters
+        ----------
+        compound : STR or LIST
+            Set of new and/or existing compounds.
+        composition : FLOAT or LIST
+            Composition(s) of new and/or existing compound(s).
+        
+        """
+        if not isinstance(compound, list): compound = [compound]
+        if not isinstance(composition, list): composition = [composition]
+        pre_comp = self.compositions
+        new_comp = dict(zip(compound, composition))
+        pre_comp.update(new_comp)
+        self.compositions = pre_comp
+        
+    ## Plotting functions 
+    def plotTandP(self):
+        """
+        Plotting of pressure (in atm) and temperature (in Kelvin) along the
+        atmosphere (altitude in km).
+        
+        """
+        # Variables
+        alt = self.altitude / 1000      # [km]
+        t = self.temperature            # [K]
+        p = self.pressure / 101325      # [atm]
+        # Temperature
+        fig, ax1 = plt.subplots(figsize = (4.2, 2))
+        ax1.set_xlabel('Altitude (km)')
+        ax1.set_ylabel('Temperature (K)', color = 'tab:red')
+        ax1.set_ylim([150, 300])
+        ax1.set_xlim([0, alt[-1]])
+        ax1.plot(alt, t, color = 'tab:red')
+        # Pressure
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Pressure (atm)', color = 'tab:blue')
+        ax2.set_ylim([0, 1])
+        ax2.plot(alt, p, color = 'tab:blue')
+        # Plot properties and showing
+        fig.tight_layout()
+        plt.show()
+    
+    def plotCompsProfilesISA(self, C, xLabel, logCLabel = False, compounds = None):
+        """
+        Plotting of composition profiles along the atmosphere (altitude in km).
+        
+        """
+        # Variables
+        alt = self.altitude / 1000     # [km]
+        # Plotting
+        fig, ax = plt.subplots(figsize = (5,10))
+        ax.set_ylabel('Altitude (km)')
+        ax.set_xlabel(xLabel)
+        ax.plot(C, alt)
+        if logCLabel == True:
+            ax.set_xscale('log')
+        if not compounds:
+            compoundsName = self.compounds
+        else:
+            compoundsName = compounds
+        plt.legend(compoundsName, loc = 'center left', bbox_to_anchor = (1, 0.5))
+        plt.show()
 
 class MERRA2(Atmosphere):
     pass
