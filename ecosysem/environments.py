@@ -26,11 +26,9 @@ Functions
 from thermodynamics import ThEq as eQ
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 import earthaccess
 import itertools
 import xarray as xr
@@ -2212,10 +2210,10 @@ class CAMS(Atmosphere):
                     except Exception as e: raise ValueError(f'Failed for {date_range}: {e}')
         print("\nAll downloads completed.")
 
+class CAMSMERRA2(Atmosphere):
     pass
 
 # Hydrosphere -----------------------------------------------------------------
-
 class Hydrosphere(Environment):
     pass
 
@@ -2229,7 +2227,6 @@ class River(Hydrosphere):
     pass
 
 # Cryosphere ------------------------------------------------------------------
-
 class Cryosphere(Environment):
     pass
 
@@ -2237,7 +2234,6 @@ class Glacier(Cryosphere):
     pass
 
 # Lithosphere -----------------------------------------------------------------
-
 class Lithosphere(Environment):
     pass
 
