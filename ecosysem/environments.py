@@ -1371,7 +1371,57 @@ class ISAMERRA2(Atmosphere):
         else: raise ValueError(f'Unknown phase ({phase}). Existing phase: \'G\' (gas), \'L-FW\' (Liquid fresh water), \'L-SW\' (Liquid sea water), \'L\' (L-FW, L-SW), \'All\'- All phases.')
 
 class CAMS(Atmosphere):
-    pass
+    """
+    The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous 
+    data and information on atmospheric composition, supporting a wide range 
+    of applications from air quality monitoring and forecasting to climate 
+    change assessment. It combines observations from satellites and in-situ 
+    measurements with sophisticated numerical models to provide consistent 
+    and quality-controlled data records. CAMS data typically encompasses 
+    global and regional analyses and forecasts of reactive gases, greenhouse 
+    gases (GHGs), aerosols, and stratospheric ozone. The data records span 
+    from approximately 2003 onwards for analyses and reanalyses, with 
+    forecast data available on a rolling basis.
+    --------------------------------------------------------------------------
+    Reference: Copernicus CAMS Website - https://atmosphere.copernicus.eu/
+    
+    """
+    def __init__(self, dataType = None, y = None, m = None, d = None, bbox = (-180, -90, 180, 90), keys = 'All', 
+                 keys_to_reshape = ['lat', 'lon', 'CH4', 'CH4_std', 'CO', 'CO_std', 'CO2', 'CO2_std'], 
+                 keysAsAttributes = True, showMessage = True):
+        self.base_path = 'data/CAMS/'
+        self.environment = 'Atmosphere'
+        self.model = 'CAMS'
+        if dataType != None:
+            if showMessage:
+                print('  > Creating CAMS instance...')
+                self.mode = 'Loading'
+                self.dataType = dataType
+                self.bbox = bbox
+                # Check if requested data exists
+                Environment._checkData(self, dataType, y, m, d)
+                # Load data
+                dictVal = Environment.loadData(self, dataType, y, m, d, keys)
+                # Reshape and select region keys from `keys_to_reshape`
+                dictTBR = {key: dictVal[key] for key in keys_to_reshape}
+                dictTBR = Environment._reshapeData(self, dictTBR)
+                dictTBR = Atmosphere._selectRegion(self, dictTBR, bbox)
+                dictVal.update(dictTBR)
+                # Generate dynamic attributes
+                if keysAsAttributes:
+                    for key in dictVal:
+                        keyName = key
+                        if keyName == 'alt': keyName = 'altitude'
+                        setattr(self, keyName, dictVal[key])
+                if showMessage:
+                    print('  > Done.')
+        else:
+            self.mode = 'Downloading/Combining'
+    
+    def _combDataCAMS(self, dataType, years, months, method = 'linear',
+                      target_lats = None, target_lons = None):
+        """
+        Combine data as 'cmly', 'yly' or 'cyly'.
 
 class ISAMERRA2(ISA, MERRA2):
     pass
