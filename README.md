@@ -932,12 +932,16 @@ If _MERRA2_ data has already been downloaded, the user can create a new _ISAMERR
 from envdef import ISAMERRA2
 
 # Yearly data from 2020 was previously downloaded
-newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5), keysAsAttributes = True)
-
+newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5))
 >>> print(newISAMERRA2.getAttributeNames())
 ['environment', 'compositions', 'compounds', 'model', 'temperature', 'pressure', 'altitude',
-'Pi', 'Ci_G', 'Ci_LFW', 'Ci_LSW', 'lat', 'lon', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std', 'T2M', 'T2M_std',
-'TROPT', 'TROPT_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std', 'lat', 'lon']
+'Pi', 'Ci_G', 'Ci_LFW', 'Ci_LSW', 'lat', 'lon']
+
+newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5), keysAsAttributes = True)
+>>> print(newISAMERRA2.getAttributeNames())
+['environment', 'compositions', 'compounds', 'model', 'temperature', 'pressure', 'altitude',
+'Pi', 'Ci_G', 'Ci_LFW', 'Ci_LSW', 'lat', 'lon', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std',
+'T2M', 'T2M_std', 'TROPT', 'TROPT_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std', 'lat', 'lon']
 
 # Get data
 >>> print(newISAMERRA2.lat)
