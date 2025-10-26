@@ -43,7 +43,7 @@ import warnings
 warnings.simplefilter(action = 'ignore')
 
 class Environment:
-    def _checkData(self, dataType, y, m = None, d = None):
+    def _checkData(self, model, dataType, y, m = None, d = None):
         """
         Check data.
 
@@ -63,7 +63,7 @@ class Environment:
         None.
 
         """
-        path = f'data/{self.model}/{dataType}/'
+        path = f'data/{model}/{dataType}/'
         if dataType == 'dly':
             if not isinstance(y, int): raise ValueError('Argument \'y\' must be an integer.')
             if not isinstance(m, int): raise ValueError('Argument \'m\' must be an integer.')
@@ -90,7 +90,7 @@ class Environment:
         if not os.path.isfile(path):
             raise OSError(f"File {path} not found. Please check dataType or download requested data (see README document).")
 
-    def _openNPZ(self, dataType, y, m = None, d = None):
+    def _openNPZ(self, model, dataType, y, m = None, d = None):
         """
         Open .npz file with downladed data.
 
@@ -110,7 +110,7 @@ class Environment:
         None.
         
         """
-        path = f'data/{self.model}/{dataType}/'
+        path = f'data/{model}/{dataType}/'
         if dataType == 'dly':
             file = f'{y}_{m}_{d}_day.npz'
         elif dataType == 'mly':
@@ -125,7 +125,7 @@ class Environment:
             raise ValueError('Unknown dataType ({dataType}). Existing dataType: \'dly\', \'mly\', \'yly\', \'cmly\', \'cyly\'.')
         return np.load(path + file)
     
-    def _saveNPZ(self, data, dataType, y, m = None, d = None):
+    def _saveNPZ(self, data, model, dataType, y, m = None, d = None):
         """
         Create .npz file with downladed data.
 
@@ -148,7 +148,7 @@ class Environment:
         
         """
         # Path check and folder creation if this does not exist
-        path = f'data/{self.environment}/{self.model}/{dataType}/'
+        path = f'data/{model}/{dataType}/'
         if not os.path.isdir(path):
             os.makedirs(path)
         # File name (based on dataType)
@@ -236,12 +236,14 @@ class Environment:
         """
         return list(self.__dict__.keys())
     
-    def loadData(self, dataType, y, m = None, d = None, keys = 'All'):
+    def loadData(self, model, dataType, y, m = None, d = None, keys = 'All'):
         """
         Get data in dictionary form.
 
         Parameters
         ----------
+        model : STR
+            Environmental model.
         dataType : STR ('dly', 'mly', 'cmly', 'yly', 'cyly')
             Type of data.
         y : INT or LIST of INT
@@ -259,11 +261,11 @@ class Environment:
             Dictionary with requested variables.
 
         """
-        npz = Environment._openNPZ(self, dataType, y, m, d)
+        npz = Environment._openNPZ(self, model, dataType, y, m, d)
         latlon_models = ['MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2']
-        if (self.environment == 'Atmosphere') and (self.model in latlon_models): must_have_lat, must_have_lon = True, True
+        if model in latlon_models: must_have_lat, must_have_lon = True, True
         if keys == 'All':
-            keys = Environment.keys(self, dataType, y, m, d)
+            keys = Environment.keys(self, model, dataType, y, m, d)
             dictVar = {key: npz[key] for key in keys}
         else:
             coor = []
@@ -276,7 +278,7 @@ class Environment:
         npz.close()
         return dictVar    
     
-    def combData(self, dataType, year, month, days = None, keys = 'All', dataDelete = False, method = 'linear', target_lats = None, target_lons = None):
+    def combData(self, model, dataType, year, month, days = None, keys = 'All', dataDelete = False, method = 'linear', target_lats = None, target_lons = None):
         """
         Get average and standard deviation from a group of data.
         
@@ -300,8 +302,9 @@ class Environment:
         None
         
         """
-        if self.model == 'CAMS':
-            CAMS._combDataCAMS(self, dataType=dataType, 
+        if model == 'CAMS':
+            CAMS._combDataCAMS(self, model = model, 
+                               dataType = dataType, 
                                years = year, 
                                months = month, 
                                method = method,
@@ -398,20 +401,20 @@ class Environment:
                     resultData[key] = np.squeeze(resultData[key])
             # Save numpy matrices in .npz format (v2)
             if dataType == 'cmly':
-                Environment._saveNPZ(self, data = resultData, dataType = 'cmly', y = [year[0], year[-1]], m = month)
+                Environment._saveNPZ(self, data = resultData, model = model, dataType = 'cmly', y = [year[0], year[-1]], m = month)
             elif dataType == 'mly':
-                Environment._saveNPZ(self, data = resultData, dataType = 'mly', y = y, m = m)
+                Environment._saveNPZ(self, data = resultData, model = model, dataType = 'mly', y = y, m = m)
             elif dataType == 'yly':
-                Environment._saveNPZ(self, data = resultData, dataType = 'yly', y = y, m = None)
+                Environment._saveNPZ(self, data = resultData, model = model, dataType = 'yly', y = y, m = None)
             elif dataType == 'cyly':
-                Environment._saveNPZ(self, data = resultData, dataType = 'cyly', y = [year[0], year[-1]], m = None)
+                Environment._saveNPZ(self, data = resultData, model = model, dataType = 'cyly', y = [year[0], year[-1]], m = None)
             # Delete the data used (if necessary)
             if dataDelete:
                 for file in selFiles:
                     path = folder + file
                     os.remove(path)
     
-    def keys(self, dataType, y, m = None, d = None):
+    def keys(self, model, dataType, y, m = None, d = None):
         """
         Get variable list of data.
 
@@ -432,7 +435,7 @@ class Environment:
             Variable list of data.
 
         """
-        npz = Environment._openNPZ(self, dataType, y, m, d)
+        npz = Environment._openNPZ(self, model, dataType, y, m, d)
         keys = npz.files
         npz.close()
         return keys
@@ -898,10 +901,10 @@ class MERRA2(Atmosphere):
             self.dataType = dataType
             self.bbox = bbox
             # Check if requested data exists
-            Environment._checkData(self, dataType, y, m, d)
+            Environment._checkData(self, self.model, dataType, y, m, d)
             self.temperature, self.pressure, self.altitude = MERRA2._getTPAlt(self, dataType, y, m, d, bbox, altArray, numAlt)
             # Load data & generate corresponding attributes
-            dictVal = Environment.loadData(self, dataType, y, m, d, keys)
+            dictVal = Environment.loadData(self, self.model, dataType, y, m, d, keys)
             dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
             if keysAsAttributes:
                 for key in dictVal:
@@ -967,7 +970,7 @@ class MERRA2(Atmosphere):
             Altitude. [m]
         """
         # Check argument format and dimension of data
-        d = Environment.loadData(self, dataType, year, month, day)
+        d = Environment.loadData(self, 'MERRA2', dataType, year, month, day)
         d = Atmosphere._selectRegion(self, d, bbox)
         TS = np.array(d['T2M'])
         LR = np.array(d['LR'])
@@ -1122,7 +1125,7 @@ class MERRA2(Atmosphere):
                 lon_slice = slice(bbox[0], bbox[2])
                 ds = ds.sel(lat = lat_slice, lon = lon_slice)
                 # PHIS [Surface geopotential height] (local)
-                d_PHIS = np.load('data/Atmosphere/MERRA2/PHIS.npz')
+                d_PHIS = np.load('data/MERRA2/PHIS.npz')
                 d_PHIS = Atmosphere._selectRegion(self, d_PHIS, bbox)
                 H = d_PHIS['PHIS']
                 H = np.where(H < 0, 0, H)
@@ -1178,7 +1181,7 @@ class MERRA2(Atmosphere):
                 if np.any(np.isin(dataType, 'dly')):
                     av_dayData['lat'] = lat
                     av_dayData['lon'] = lon
-                    Environment._saveNPZ(self, data = av_dayData, dataType = 'dly', y = y, m = m, d = int(date.day))
+                    Environment._saveNPZ(self, data = av_dayData, model = 'MERRA2', dataType = 'dly', y = y, m = m, d = int(date.day))
                 # Next date
                 date += delta
             # Month matrices
@@ -1199,12 +1202,13 @@ class MERRA2(Atmosphere):
                     monthData[f'{iV}_std'] = 0.0 * np.ones(dayData[iV].shape)
             # Save numpy matrices in .npz format
             if np.any(np.isin(dataType, 'mly')):
-                Environment._saveNPZ(self, data = monthData, dataType = 'mly', y = y, m = m)
+                Environment._saveNPZ(self, data = monthData, model = 'MERRA2', dataType = 'mly', y = y, m = m)
         # Combine monthly data if user required ('cmly')
         if np.any(np.isin(dataType, 'cmly')):
             var += ['H']
             for m in months:
-                Environment.combData(self, dataType = 'mly',
+                Environment.combData(self, model = 'MERRA2',
+                                     dataType = 'mly',
                                      year = years,
                                      month = m,
                                      days = days,
@@ -1224,22 +1228,21 @@ class ISAMERRA2(Atmosphere):
         if showMessage:
             print('  > Creating ISAMERRA2 instance...')
         self.environment = 'Atmosphere'
+        self.model = 'ISAMERRA2'
         # Data from ISA
         ISAinst = ISA(showMessage = False)
         self.compositions = ISAinst.compositions
         self.compounds = ISAinst.compounds
         # Data from MERRA2
-        self.model = 'MERRA2'
         self._getConcISAMERRA2(phase = phase, dataType = dataType, y = y, m = m, d = d, compound = compound, bbox = bbox,
                                altArray = altArray, num = numAlt, surftrop = surftrop)
-        dictVal = Environment.loadData(self, dataType, y, m, d, keys = 'All')
+        dictVal = Environment.loadData(self, 'MERRA2', dataType, y, m, d, keys = 'All')
         dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
         self.lat = dictVal['lat']
         self.lon = dictVal['lon']
         if keysAsAttributes:
             for key in dictVal:
                 setattr(self, key, dictVal[key])
-        self.model = 'ISAMERRA2'
         if showMessage:
             print('  > Done.')
     
@@ -1297,7 +1300,7 @@ class ISAMERRA2(Atmosphere):
             self.pressure = p
             self.altitude = alt
         else:
-            data = Environment.loadData(self, dataType, y, m, d)
+            data = Environment.loadData(self, 'MERRA2', dataType, y, m, d)
             data = Atmosphere._selectRegion(self, data, bbox)
             if surftrop == 'surface':
                 t = np.array(data['T2M'])
@@ -1397,9 +1400,9 @@ class CAMS(Atmosphere):
                 self.dataType = dataType
                 self.bbox = bbox
                 # Check if requested data exists
-                Environment._checkData(self, dataType, y, m, d)
+                Environment._checkData(self, self.model, dataType, y, m, d)
                 # Load data
-                dictVal = Environment.loadData(self, dataType, y, m, d, keys)
+                dictVal = Environment.loadData(self, self.model, dataType, y, m, d, keys)
                 # Reshape and select region keys from `keys_to_reshape`
                 dictTBR = {key: dictVal[key] for key in keys_to_reshape}
                 dictTBR = Environment._reshapeData(self, dictTBR)
@@ -1416,7 +1419,7 @@ class CAMS(Atmosphere):
         else:
             self.mode = 'Downloading/Combining'
     
-    def _combDataCAMS(self, dataType, years, months, method = 'linear',
+    def _combDataCAMS(self, model, dataType, years, months, method = 'linear',
                       target_lats = None, target_lons = None):
         """
         Combine data as 'cmly', 'yly' or 'cyly'.
@@ -1449,7 +1452,7 @@ class CAMS(Atmosphere):
                 opened[m] = {}
                 for y in years:
                     try:
-                        npz = Environment._openNPZ(self, source_type, y, m)
+                        npz = Environment._openNPZ(self, model, source_type, y, m)
                         opened[m][y] = npz
                         print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
                     except FileNotFoundError:
@@ -1530,14 +1533,14 @@ class CAMS(Atmosphere):
                     missing = [y for y in years_used if var not in yrs[y]]
                     if missing:
                         print(f"[INFO] month {m}: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
-                Environment._saveNPZ(self, data=output_data, dataType='cmly', y=years, m=m)
+                Environment._saveNPZ(self, data=output_data, model = model, dataType='cmly', y=years, m=m)
         elif dataType == 'yly':
             opened = {}
             for y in years:
                 opened[y] = {}
                 for m in months:
                     try:
-                        npz = Environment._openNPZ(self, source_type, y, m)
+                        npz = Environment._openNPZ(self, model, source_type, y, m)
                         opened[y][m] = npz
                         print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
                     except FileNotFoundError:
@@ -1616,14 +1619,14 @@ class CAMS(Atmosphere):
                     missing = [mm for mm in months_used if var not in mhs[mm]]
                     if missing:
                         print(f"[INFO] year {y}: '{var}' averaged over {stack.shape[0]}/{len(months_used)} months; missing: {missing}")
-                Environment._saveNPZ(self, data=output_data, dataType='yly', y=y)
+                Environment._saveNPZ(self, data=output_data, model = model, dataType='yly', y=y)
         elif dataType == 'cyly':
             opened = {}
             for y in years:
                 opened[y] = {}
                 for m in months:
                     try:
-                        npz = Environment._openNPZ(self, source_type, y, m)
+                        npz = Environment._openNPZ(self, model, source_type, y, m)
                         opened[y][m] = npz
                         print(f"[OK] opened: data/CAMS/{source_type}/{y}_{m}_month.npz")
                     except FileNotFoundError:
@@ -1723,7 +1726,7 @@ class CAMS(Atmosphere):
                 missing = [yy for yy in years_used if var not in annual_map[yy]]
                 if missing:
                     print(f"[INFO] cyly: '{var}' averaged over {stack.shape[0]}/{len(years_used)} years; missing: {missing}")
-            Environment._saveNPZ(self, data=output_data, dataType='cyly', y=years)
+            Environment._saveNPZ(self, data=output_data, model = model, dataType='cyly', y=years)
         print("The data is combined.")
     
     def _deleteTempDataCAMS(self, filename):
@@ -1881,7 +1884,7 @@ class CAMS(Atmosphere):
                                     arr = arr.mean(axis=0)
                                 data_dict[key_out] = arr
                         if mode == 'add':
-                            NPZ = Environment._openNPZ(self, dataType, year_int, month_int, (i_day+1))
+                            NPZ = Environment._openNPZ(self, 'CAMS', dataType, year_int, month_int, (i_day+1))
                             existing = {k: NPZ[k] for k in NPZ.files}
                             targ_lats = existing['lat']
                             targ_lons = existing['lon']
@@ -1913,10 +1916,10 @@ class CAMS(Atmosphere):
                                     )
                                     out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
                                 existing[var] = out
-                            Environment._saveNPZ(self, existing, "dly", year_int, month_int, (i_day+1))
+                            Environment._saveNPZ(self, existing, 'CAMS', "dly", year_int, month_int, (i_day+1))
                             print(f"{mols_to_process} is added to the file.")
                         else:
-                            Environment._saveNPZ(self, data_dict, "dly", year_int, month_int, (i_day+1))
+                            Environment._saveNPZ(self, data_dict, 'CAMS', "dly", year_int, month_int, (i_day+1))
                     ds.close()
                 except Exception as e:
                     try:
@@ -2006,7 +2009,7 @@ class CAMS(Atmosphere):
                     parts = os.path.basename(nc_file).split('_')
                     year_int = int(parts[1]); month_int = int(parts[2].split('.')[0])
                     if mode == 'add':
-                        NPZ = Environment._openNPZ(self, dataType, year_int, month_int)
+                        NPZ = Environment._openNPZ(self, 'CAMS', dataType, year_int, month_int)
                         existing = {k: NPZ[k] for k in NPZ.files}
                         targ_lats = existing['lat']
                         targ_lons = existing['lon']
@@ -2038,10 +2041,10 @@ class CAMS(Atmosphere):
                                 )
                                 out[k] = interp(points).reshape(targ_lats.size, targ_lons.size)
                             existing[var] = out
-                        Environment._saveNPZ(self, existing, dataType, year_int, month_int)
+                        Environment._saveNPZ(self, existing, 'CAMS', dataType, year_int, month_int)
                         print(f"{mols_to_process} is added to the file.")
                     else:
-                        Environment._saveNPZ(self, data_dict, dataType, year_int, month_int)
+                        Environment._saveNPZ(self, data_dict, 'CAMS', dataType, year_int, month_int)
                     ds.close()
                 except Exception as e:
                     try:
@@ -2211,8 +2214,278 @@ class CAMS(Atmosphere):
         print("\nAll downloads completed.")
 
 class CAMSMERRA2(Atmosphere):
-    pass
+    """
+    Combination of Modern-Era Retrospective analysis for Research and 
+    Applications Version 2 (MERRA-2) and Copernicus Atmosphere Monitoring
+    Service (CAMS) database.
+    
+    """
+    def __init__(self, showMessage = True):
+        if showMessage:
+            print('  > Creating ISAMERRA2 instance...')
+        self.environment = 'Atmosphere'
+        self.model = 'CAMSMERRA2'
+        
+        if showMessage:
+            print('  > Done.')
+    
+    def _interpolateCAMS(self, dataType, year, month=None, day=None,
+                         molecules = ('CO', 'CO2', 'CH4'), 
+                         target_lats = np.arange(-90, 90.1, 0.5),
+                         target_lons = np.arange(-180,  179.375 + 1e-3, 0.625),
+                         method='linear'):
+        """
+        Interpolate CAMS .npz files onto target MERRA2 grid.
+    
+        Parameters
+        ----------
+        dataType : STR
+            Name of the subfolder under `data/CAMS/` containing .npz files.
+        year : INT
+            Year of the desired dataset.
+        month : INT
+            Month of the desired dataset.
+        day : INT, optional
+            Day of the desired dataset.
+        molecules : TUPLE of STR, optional
+            Variable names to process (default: ('CO', 'CO2', 'CH4')).
+        target_lats : 1D array, optional
+            Desired latitudes for the CAMS grid.
+            (default: np.arange(-90, 90.1, 0.5)).
+        target_lons : 1D array, optional.
+            Desired longitudes for the CAMS grid
+            (default: np.arange(-180, 179.375+0.001, 0.625)).
+        method : STR, optional
+            Method of interpolation (default: 'linear').
+    
+        Returns
+        -------
+        result: DICT
+            Interpolated data.
+        
+        """
+        npz = Environment._openNPZ(self, model = 'CAMS', dataType = dataType, y = year, m = month, d = day)
+        orig_lats = npz['lat']
+        orig_lons = npz['lon']
+        orig_alt  = npz['alt']
+        orig_plev = npz['P_level']
+        # Ensure ascending latitude order
+        if orig_lats[0] > orig_lats[-1]:
+            orig_lats = orig_lats[::-1]
+            flip_lat = True
+        else:
+            flip_lat = False
+        mesh_lat, mesh_lon = np.meshgrid(target_lats, target_lons, indexing='ij')
+        points = np.stack([mesh_lat.ravel(), mesh_lon.ravel()], axis=-1)
+        result = {}
+        for var in list(molecules) + [f"{m}_std" for m in molecules]:
+            if var not in npz:
+                continue
+            data3d = npz[var]
+            if flip_lat:
+                data3d = data3d[:, ::-1, :]
+            n_alt = data3d.shape[0]
+            out = np.empty((n_alt, target_lats.size, target_lons.size), dtype=data3d.dtype)
+            for k in range(n_alt):
+                interp = RegularGridInterpolator(
+                    (orig_lats, orig_lons),
+                    data3d[k],
+                    method=method,
+                    bounds_error=False,
+                    fill_value=np.nan
+                )
+                out[k] = interp(points).reshape(target_lats.size, target_lons.size)
+            result[var] = out
+        result['lat'] = target_lats
+        result['lon'] = target_lons
+        result['alt'] = orig_alt
+        result['P_level'] = orig_plev
+        return result
+    
+    def _reshapeAltCAMS(self, orig_data, targ_data, plev):
+        """
+        Reshape altitude levels.
 
+        Parameters
+        ----------
+        orig_data : 3D array
+            CAMS concentration data.
+        targ_data : 3D array
+            MERRA2 pressure data.
+        plev : 1D array
+            CAMS pressure levels.
+
+        Returns
+        -------
+        new_data : 3D array
+            Concentration data in the shape of target data.
+
+        """
+        if orig_data.ndim == 2:
+            orig_data = orig_data[np.newaxis, ...]
+        if targ_data.ndim == 2:
+            n_lat, n_lon = targ_data.shape
+            new_data = np.full((n_lat, n_lon), np.nan, dtype=np.float64)
+            tp = targ_data
+            diffs = np.abs(plev[:, None, None] - tp[None, :, :])
+            diffs[:, np.isnan(tp)] = np.inf
+            idx_cell = diffs.argmin(axis=0)
+            idx_cell = np.clip(idx_cell, 0, orig_data.shape[0] - 1)
+            for i in range(n_lat):
+                for j in range(n_lon):
+                    if np.isnan(tp[i, j]):
+                        continue
+                    val = orig_data[idx_cell[i, j], i, j]
+                    if not np.isnan(val):
+                        new_data[i, j] = val
+        elif targ_data.ndim == 3:
+            n_target, n_lat, n_lon = targ_data.shape
+            new_data = np.full((n_target, n_lat, n_lon), np.nan, dtype=np.float64)  # float64 for safe NaN handling
+            for k in range(n_target):
+                tp = targ_data[k]
+                # Compute absolute pressure difference between each CAMS level and target pressure
+                diffs = np.abs(plev[:, None, None] - tp[None, :, :])  # shape: (n_plev, n_lat, n_lon)
+                # Prevent NaNs in targ_data from biasing argmin — set their diffs to infinity
+                diffs[:, np.isnan(tp)] = np.inf
+                # For each (i,j), take CAMS level index closest to target pressure
+                idx_cell = diffs.argmin(axis=0)  # shape (n_lat, n_lon)
+                idx_cell = np.clip(idx_cell, 0, orig_data.shape[0] - 1)
+                # Assign concentration values only for valid target pressure points
+                for i in range(n_lat):
+                    for j in range(n_lon):
+                        if np.isnan(tp[i, j]):
+                            continue
+                        val = orig_data[idx_cell[i, j], i, j]
+                        if not np.isnan(val):
+                            new_data[k, i, j] = val
+        return new_data
+    
+    def _getConcCAMS(self, phase, data, dataType, year, month=None, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=50):
+        """
+        Converts the mass ratio (kg/kg) to concentration (mol/L).
+
+        Parameters
+        ----------
+        phase : STR ('G', 'L-FW', 'L-SW', 'L' or 'All')
+            Selection of phase of vertical profile.
+                'G' - Gas.
+                'L-FW' - Liquid fresh water.
+                'L-SW' - Liquid sea water.
+                'L' - Both liquid phases (L-FW, L-SW).
+                'All' - All phases (G, L-FW, L-SW).
+        data : DICT
+            Data in dictionary.
+        dataType : STR
+            Name of the subfolder under `data/CAMS/` containing .npz files.
+        year : INT
+            Year of the desired dataset.
+        month : INT
+            Month of the desired dataset.
+        day : INT, optional
+            Day of the desired dataset.
+        altArray : LIST or np.ndarray, optional
+            List of altitudes in m.
+        loc : STR
+            Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').
+        num : INT, optional
+            Number of altitude steps to generate.
+        
+        """
+        from pyatmos import coesa76
+        
+        cams_molecules = ('CO', 'CO2', 'CH4')
+        molecule_data = {}
+        for mol in cams_molecules:
+            if mol in data:
+                molecule_data[mol] = data[mol]
+        if not molecule_data:
+            raise ValueError("No valid molecule keys found. Expected one of: CO, CO2, CH4")
+        cams_plev = np.asarray(data['P_level'], dtype=float)  # (L_cams,)
+        cams_alt  = np.asarray(data['alt'], dtype=float)      # (L_cams,)
+        # MERRA2
+        merra2 = Environment.loadData(self, 'MERRA2', dataType, year, month, day)
+        PS = np.array(merra2['PS'])
+        TS = np.array(merra2['T2M'])
+        TROPPB = np.array(merra2['TROPPB'])
+        TROPT = np.array(merra2['TROPT'])
+        # Target T/P by loc
+        if loc == 'surface':
+            t_target, p_target = TS, PS
+        elif loc == 'tropopause':
+            t_target, p_target = TROPT, TROPPB
+        else:
+            t_target, p_target, z_m = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, altArray, num)
+        h_km = cams_alt * 1e-3 # km
+        rho_kg_m3 = coesa76(h_km).rho # kg/m3
+        rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        rho = rho_kg_L[:, None, None]
+        # Constants
+        R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
+        # Dictionaries initialization
+        dict_Pi = {}
+        dict_Ci_G = {}
+        dict_comp_G = {}
+        dict_Ci_LFW = {}
+        dict_Ci_LSW = {}
+        for molecule, cams_array in molecule_data.items():
+            cams_array = np.array(cams_array)
+            M_kg_per_mol = Formula(molecule).mass * 1e-3    # g/mol to kg/mol
+            AirM_kg_per_mol = 28.96 * 1e-3                  # g/mol to kg/mol
+            comp_cams = cams_array * (AirM_kg_per_mol / M_kg_per_mol)
+            comp = self._reshapeAltCAMS(comp_cams, p_target, cams_plev)
+            conc_cams = (cams_array * rho) / M_kg_per_mol
+            conc = self._reshapeAltCAMS(conc_cams, p_target, cams_plev)
+            Pi = conc * (R_g * t_target)
+            Hs_FW, notNaN_HsFW = eQ.solubilityHenry(molecule, 'FW', t_target)
+            Hs_SW, notNaN_HsSW = eQ.solubilityHenry(molecule, 'SW', t_target)
+            if Hs_FW.ndim >= 3 and Hs_FW.shape[-1] == 1: 
+                Hs_FW = Hs_FW[..., 0]
+            if Hs_SW.ndim >= 3 and Hs_SW.shape[-1] == 1: 
+                Hs_SW = Hs_SW[..., 0]
+            if notNaN_HsFW.ndim >= 3 and notNaN_HsFW.shape[-1] == 1: 
+                notNaN_HsFW = notNaN_HsFW[..., 0]
+            if notNaN_HsSW.ndim >= 3 and notNaN_HsSW.shape[-1] == 1: 
+                notNaN_HsSW = notNaN_HsSW[..., 0]
+            Ci_LFW = np.where(notNaN_HsFW, Pi * Hs_FW / 1000.0, np.nan)  # mol/L
+            Ci_LSW = np.where(notNaN_HsSW, Pi * Hs_SW / 1000.0, np.nan)  # mol/L
+            # Save data in dictionary
+            dict_Pi[molecule]     = Pi
+            dict_Ci_G[molecule]   = conc
+            dict_comp_G[molecule] = comp
+            dict_Ci_LFW[molecule] = Ci_LFW
+            dict_Ci_LSW[molecule] = Ci_LSW
+        if phase == 'G':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.MolPct_G = dict_comp_G
+            self.Ci_LFW = None
+            self.Ci_LSW = None
+        elif phase == 'L-FW':
+            self.Pi = None
+            self.Ci_G = None
+            self.MolPct_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = None
+        elif phase == 'L-SW':
+            self.Pi = None
+            self.Ci_G = None
+            self.MolPct_G = None
+            self.Ci_LFW = None
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'L':
+            self.Pi = None
+            self.Ci_G = None
+            self.MolPct_G = None
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        elif phase == 'All':
+            self.Pi = dict_Pi
+            self.Ci_G = dict_Ci_G
+            self.MolPct_G = dict_comp_G
+            self.Ci_LFW = dict_Ci_LFW
+            self.Ci_LSW = dict_Ci_LSW
+        else: raise ValueError(f'Unknown phase ({phase}). Existing phase: \'G\' (gas), \'L-FW\' (Liquid fresh water), \'L-SW\' (Liquid sea water), \'L\' (L-FW, L-SW), \'All\'- All phases.')
+    
 # Hydrosphere -----------------------------------------------------------------
 class Hydrosphere(Environment):
     pass
