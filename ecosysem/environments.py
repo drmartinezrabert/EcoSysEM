@@ -2220,10 +2220,8 @@ class CAMSMERRA2(Atmosphere):
     Service (CAMS) database.
     
     """
-    def __init__(self, dataType, y, m = None, d = None, bbox = (-180, -90, 180, 90), keys = 'All',
-                 keys_to_reshape = ['lat', 'lon', 'CH4', 'CH4_std', 'CO', 'CO_std', 'CO2', 'CO2_std'], 
-                 phase = 'All', altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, 
-                 showMessage = True):
+    def __init__(self, dataType, y, m = None, d = None, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
+                 altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
         if showMessage:
             print('  > Creating CAMSMERRA2 instance...')
         # Get data from ISAMERRA2
@@ -2237,9 +2235,17 @@ class CAMSMERRA2(Atmosphere):
                                   numAlt = numAlt, 
                                   surftrop = surftrop,
                                   showMessage = False)
+        self.compounds = ISAMERRA2inst.compounds
+        comp_G = ISAMERRA2inst.compositions
+        checkNanVar = ISAMERRA2inst.temperature 
+        varShape = checkNanVar.shape
+        dict_comp_G = {}
+        for composition in comp_G:
+            array_comp_G = comp_G[composition] * np.ones(varShape)
+            dict_comp_G[composition] =  np.where(np.isnan(checkNanVar), np.nan, array_comp_G)  # mol/L
         dict_ISAMERRA2 = {'Pi': ISAMERRA2inst.Pi,
                           'Ci_G': ISAMERRA2inst.Ci_G,
-                          'comp_G': None,
+                          'MolPct_G': dict_comp_G,
                           'Ci_LFW': ISAMERRA2inst.Ci_LFW,
                           'Ci_LSW': ISAMERRA2inst.Ci_LSW}
         # Get data from CAMSMERRA2
@@ -2255,17 +2261,17 @@ class CAMSMERRA2(Atmosphere):
                                                         loc = surftrop, 
                                                         num = numAlt)
         for var in dict_ISAMERRA2:
-            if var == 'comp_G':
-                dict_compos_result = dict_CAMSMERRA2[var]
-            else:
-                dict_compos_result = dict_ISAMERRA2[var]
-                dict_compos_CAMSMERRA2 = dict_CAMSMERRA2[var]
+            dict_compos_result = dict_ISAMERRA2[var]
+            dict_compos_CAMSMERRA2 = dict_CAMSMERRA2[var]
+            if dict_compos_result:
                 dict_compos_result.update(dict_compos_CAMSMERRA2)
             setattr(self, var, dict_compos_result)
         # Data from MERRA2
+        dictVal = Environment.loadData(self, 'MERRA2', dataType, y, m, d, keys = keys)
+        dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
+        self.lat = dictVal['lat']
+        self.lon = dictVal['lon']
         if keysAsAttributes:
-            dictVal = Environment.loadData(self, 'MERRA2', dataType, y, m, d, keys = 'All')
-            dictVal = Atmosphere._selectRegion(self, dictVal, bbox)
             for key in dictVal:
                 setattr(self, key, dictVal[key])
         self.environment = 'Atmosphere'
@@ -2448,6 +2454,7 @@ class CAMSMERRA2(Atmosphere):
         cams_alt  = np.asarray(data['alt'], dtype=float)      # (L_cams,)
         # MERRA2
         merra2 = Environment.loadData(self, 'MERRA2', dataType, year, month, day)
+        merra2 = Atmosphere._selectRegion(self, merra2, bbox)
         PS = np.array(merra2['PS'])
         TS = np.array(merra2['T2M'])
         TROPPB = np.array(merra2['TROPPB'])
@@ -2506,61 +2513,35 @@ class CAMSMERRA2(Atmosphere):
         if phase == 'G':
             dict_CAMSMERRA2 = {'Pi': dict_Pi,
                                'Ci_G': dict_Ci_G,
-                               'comp_G': dict_comp_G,
+                               'MolPct_G': dict_comp_G,
                                'Ci_LFW': None,
                                'Ci_LSW': None}
         elif phase == 'L-FW':
             dict_CAMSMERRA2 = {'Pi': None,
                                'Ci_G': None,
-                               'comp_G': None,
+                               'MolPct_G': None,
                                'Ci_LFW': dict_Ci_LFW,
                                'Ci_LSW': None}
         elif phase == 'L-SW':
             dict_CAMSMERRA2 = {'Pi': None,
                                'Ci_G': None,
-                               'comp_G': None,
+                               'MolPct_G': None,
                                'Ci_LFW': None,
                                'Ci_LSW': dict_Ci_LSW}
         elif phase == 'L':
             dict_CAMSMERRA2 = {'Pi': None,
                                'Ci_G': None,
-                               'comp_G': None,
+                               'MolPct_G': None,
                                'Ci_LFW': dict_Ci_LFW,
                                'Ci_LSW': dict_Ci_LSW}
         elif phase == 'All':
             dict_CAMSMERRA2 = {'Pi': dict_Pi,
                                'Ci_G': dict_Ci_G,
-                               'comp_G': dict_comp_G,
+                               'MolPct_G': dict_comp_G,
                                'Ci_LFW': dict_Ci_LFW,
                                'Ci_LSW': dict_Ci_LSW}
         else: raise ValueError(f'Unknown phase ({phase}). Existing phase: \'G\' (gas), \'L-FW\' (Liquid fresh water), \'L-SW\' (Liquid sea water), \'L\' (L-FW, L-SW), \'All\'- All phases.')
         return dict_CAMSMERRA2
-    
-    def _missingCAMS(dict_CAMSMERRA2, dict_ISAMERRA2):
-        """
-        Lorem ipsum...
-
-        Parameters
-        ----------
-        dict_ : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        new_dict : TYPE
-            DESCRIPTION.
-
-        """
-        
-        
-        # dict_CAMS = {'Pi': dict_Pi,
-        #              'Ci_G': dict_Ci_G,
-        #              'comp_G': dict_comp_G,
-        #              'Ci_LFW': dict_Ci_LFW,
-        #              'Ci_LSW': dict_Ci_LSW}
-        
-        new_dict = 0
-        return new_dict
     
 # Hydrosphere -----------------------------------------------------------------
 class Hydrosphere(Environment):
