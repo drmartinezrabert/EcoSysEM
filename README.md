@@ -371,9 +371,19 @@ ecosysem
   │      │    ├── .CH4
   │      │    ├── .CO
   │      │    ├── .CO2
-  │      │    └── getDataCAMS
+  │      │    ── getDataCAMS
   │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
-  │           └── interpolateCAMS
+  │      │    ├── .altitude
+  │      │    ├── .temperature
+  │      │    ├── .pressure
+  │      │    ├── .Pi
+  │      │    ├── .Ci_G
+  │      │    ├── .MolPct_G
+  │      │    ├── .Ci_LFW
+  │      │    ├── .Ci_LSW
+  │      │    ├── .lat
+  │      │    ├── .lon
+  │      │    └── .compounds
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
@@ -912,16 +922,16 @@ Create an instance of `ISAMERRA2` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric pressures in Pascals.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Pi : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Partial pressure of compounds throughout the atmosphere. `{'compound': [partial pressure]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Partial pressure of compounds throughout the atmosphere in Pascals. `{'compound': [partial pressure]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_G : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas concentration of compounds throughout the atmosphere. `{'compound': [gas concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas concentration of compounds throughout the atmosphere in mol/L. `{'compound': [gas concentration]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LFW : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in freshwater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in freshwater aerosol throughout the atmosphere in mol/L. `{'compound': [liquid concentration]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LSW : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in seawater aerosol throughout the atmosphere. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in seawater aerosol throughout the atmosphere in mol/L. `{'compound': [liquid concentration]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.lat : _list_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of latitudes.<br>
@@ -953,7 +963,7 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
 # Get data
 >>> print(newISAMERRA2.lat)
 [-90.  -89.5 -89.  -88.5]
->>> print(newMERRA2.lon)
+>>> print(newISAMERRA2.lon)
 [-180.    -179.375 -178.75  -178.125]
 >>> print(newISAMERRA2.T2M)
 [[224.31621 224.31621 224.31621 224.31621]
@@ -985,7 +995,6 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]]
-
  [[       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
@@ -995,7 +1004,6 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [0.00053454 0.00053452 0.00053449 0.00053447]
   [0.00053324 0.00053324 0.00053325 0.00053325]
   [0.00053258 0.00053257 0.00053256 0.00053254]]
-
  [[0.00052614 0.00052614 0.00052614 0.00052614]
   [0.00052481 0.00052478 0.00052475 0.00052472]
   [0.00052368 0.00052369 0.00052369 0.0005237 ]
@@ -1006,7 +1014,6 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]]
-
  [[       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
   [       nan        nan        nan        nan]
@@ -1016,7 +1023,6 @@ newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125
   [6.08954089e-09 6.08924764e-09 6.08896855e-09 6.08869882e-09]
   [6.07306869e-09 6.07310833e-09 6.07314832e-09 6.07322615e-09]
   [6.06301325e-09 6.06286162e-09 6.06269517e-09 6.06251621e-09]]
-
  [[6.00027347e-09 6.00027347e-09 6.00027347e-09 6.00027347e-09]
   [5.98451775e-09 5.98419948e-09 5.98389468e-09 5.98359967e-09]
   [5.97024831e-09 5.97031069e-09 5.97037078e-09 5.97046504e-09]
@@ -1182,7 +1188,7 @@ newCAMS = CAMS(dataType = 'yly', y = 2020, bbox = (-180, -90, -175, -85))
 > With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days = 'All',, hours = [0, 12], dataset = None, pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = None, bbox = [90, -180, -90, 180], mode = None, method = 'linear')
+CAMS.getDataCAMS(dataType, years, months, days='All', hours=[0, 12], dataset=None, pressure_levels=[50, 100, 200, 400, 600, 800, 900, 1000], variables=None, bbox=[90, -180, -90, 180], mode=None, method='linear')
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -1219,105 +1225,168 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 <a name="CAMSMERRA2">**CAMS-MERRA2 atmospheric model**</a><br>
 Combination of Copernicus Atmosphere Monitoring Service ([CAMS](#CAMS)) model and Modern-Era Retrospective analysis for Research and Applications Version 2 ([MERRA2](#MERRA2)).
 
-Because `CAMSMERRA2` sublcass is a multiple-inhereted class of `CAMS` and `MERRA2` classes, this has all attributes and methods of parent classes (_i.e._, `CAMS` and `MERRA2`). All functions of `CAMS` and `MERRA2` classes are summarized in [EcoSysEM package layout](#ecosysem-package-layout).
+### CAMSMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', phase='All', altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
+```
+Create an instance of `CAMSMERRA2` object.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daily data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly' - Monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'yly' - Yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cmly' - Combined monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cyly' - Combined yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **y : _int_ or _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y : _int_ for dataType 'dly', 'mly' and 'yly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y : _list of int_ [start_year, end_year] for dataType 'cmly' and 'cyly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **m : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_, _optional_, default: (-180, -90, 180, 90)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keys : _str_ or _list of str_, _optional_, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested variables.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_, _optional, default: 'All'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of phase of vertical profile composition.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'G' - Gas phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L' - Liquid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altArray : _list of float_ or _np.ndarray of floats_, _optional_, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested altitudes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numAlt : int_, _optional_, default: 50_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of altitude steps from 0.0 m to maximum tropopause altitude, if list of altitude is not given by the user with `altArray`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **surftrop : _str_ ('surface', 'tropopause'), _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (`surftrop='surface'`) or tropopause height (`surftrop='tropopause'`).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **keysAsAttributes : _bool_, _optional_, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set if keys from MERRA2 database are saved as object attributes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **showMessage : _bool_, _optional, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Console.<p>
+**Attributes:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.altitude : _list_ or _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric altitudes in meters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = None, `.altitude` is a list of altitudes in meters from 0.0 to max tropopause altitude.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = 'surfase', `.altitude` is the Earth's topography in meters. Shape: (latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If surftrop = 'tropopause', `.altitude` is the tropopause altitude in meters. Shape: (latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric temperatures in Kelvin.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pressure : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric pressures in Pascals.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Pi : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Partial pressure of compounds throughout the atmosphere in Pascals. `{'compound': [partial pressure]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_G : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas concentration of compounds throughout the atmosphere in mol/L. `{'compound': [gas concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MolPct_G : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas molar percentage of compounds throughout the atmosphere in %mol. `{'compound': [molar percentage]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LFW : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in freshwater aerosol throughout the atmosphere in mol/L. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_LSW : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in seawater aerosol throughout the atmosphere in mol/L. `{'compound': [liquid concentration]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.lat : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of latitudes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.lon : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of longitudes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compounds : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Atmospheric compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (altitude, latitude, longitude).<p>
 
-To create a new _CAMSMERRA2_ object (_i.e.,_ instantiate the class `CAMSMERRA2`), no instance attributes are necessary. Here is an example:
+If _MERRA2_ data has already been downloaded, the user can create a new _CAMSMERRA2_ object with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
 from envdef import CAMSMERRA2
 
-newCAMSMERRA2 = CAMSMERRA2()
+# Yearly data from 2020 was previously downloaded
+newCAMSMERRA2 = CAMSMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5))
+>>> print(newCAMSMERRA2.getAttributeNames())
+['compounds', 'temperature', 'pressure', 'altitude', 'Pi', 'Ci_G', 'MolPct_G', 'Ci_LFW',
+'Ci_LSW', 'lat', 'lon', 'environment', 'model']
 
-# Get interpolated data from CAMS model
->>> print(newCAMSMERRA2.interpolateCAMS(dataType = 'mly', year = 2024, month = 4))
-{'CO': array([[[2.1469465e-10, 2.1469465e-10, 2.1469465e-10, ...,
-                   1.1986655e-10, 1.1986655e-10, 1.1986655e-10]]], dtype=float32),
- 'CO2': array([[[4.6834889e-06, 4.6834889e-06, 4.6834889e-06, ...,
-                   2.4685271e-06, 2.4685271e-06, 2.4685271e-06]]], dtype=float32),
- 'CH4': array([[[2.0142485e-08, 2.0142485e-08, 2.0142485e-08, ...,
-                   8.7634273e-09, 8.7634273e-09, 8.7634273e-09]]], dtype=float32),
- 'lat': array([-90. , -89.5, -89. , ...,  89. ,  89.5, 90. ]),
- 'lon': array([-180.   , -179.375, -178.75, ...,  178.125,  178.75 ,  179.375]),
- 'alt': array([11769.86595602, 15790.46205054])
- 'P_level': array([20000.,  10000.])}
+newCAMSMERRA2 = CAMSMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5), keysAsAttributes = True)
+>>> print(newCAMSMERRA2.getAttributeNames())
+['compounds', 'temperature', 'pressure', 'altitude', 'Pi', 'Ci_G', 'MolPct_G', 'Ci_LFW',
+'Ci_LSW', 'lat', 'lon', 'H', 'PS', 'PS_std', 'TROPPB', 'TROPPB_std', 'T2M', 'T2M_std',
+'TROPT', 'TROPT_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std', 'environment', 'model']
 
-# See keys (_e.i._, variables names) of downloaded data
-keys = newCAMSMERRA2.keysMERRA2(dataType = 'mly', y = 1995, m = 1)
-
->>> print(key)
-['lat', 'lon', 'PS', 'PS_std', 'T2M', 'T2M_std', 'TROPT', 'TROPT_std',
-'TROPPB', 'TROPPB_std', 'H', 'H_std', 'TROPH', 'TROPH_std', 'LR', 'LR_std']
-
-# See data
-data = newCAMSMERRA2.dictMERRA2(dataType = 'mly', y = 1995, m = 1, keys = ['lat', 'lon', 'T2M'])
-
->>> print(data)
-{'lat': array([-90. , -89.5, -89. , -88.5]),
-'lon': array([-180.   , -179.375, -178.75 , -178.125]),
-'T2M': array([[244.29813, 244.29813, 244.29813, 244.29813],
-              [243.8813 , 243.88293, 243.88455, 243.88733],
-              [244.05316, 244.0517 , 244.04942, 244.04617],
-              [245.6959 , 245.69054, 245.68338, 245.67622]], dtype=float32)}
->>> print(data['T2M'])
-[[244.29813 244.29813 244.29813 244.29813]
- [243.8813  243.88293 243.88455 243.88733]
- [244.05316 244.0517  244.04942 244.04617]
- [245.6959  245.69054 245.68338 245.67622]]
+# Get data
+>>> print(newCAMSMERRA2.lat)
+[-90.  -89.5 -89.  -88.5]
+>>> print(newCAMSMERRA2.lon)
+[-180.    -179.375 -178.75  -178.125]
+>>> print(newCAMSMERRA2.T2M)
+[[224.31621 224.31621 224.31621 224.31621]
+ [223.43001 223.42714 223.4242  223.42134]
+ [223.60979 223.6157  223.62134 223.62642]
+ [225.37038 225.3871  225.40935 225.43036]]
+>>> print(newCAMSMERRA2.temperature)
+# newCAMSMERRA2.temperature has NaN values because altitude < surface height ASL (topography).
+[[[         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]]
+ [[         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]
+  [         nan          nan          nan          nan]]
+...
+[[208.89917863 208.89917863 208.89917863 208.89917863]
+  [208.91566434 208.91529312 208.91491576 208.9145402 ]
+  [209.0320008  209.03220517 209.0325211  209.03274575]
+  [209.21578416 209.21842957 209.21895037 209.21945189]]
+ [[208.4474782  208.4474782  208.4474782  208.4474782 ]
+  [208.48575225 208.48551779 208.48527922 208.48503976]
+  [208.59335294 208.59345043 208.59367159 208.59381527]
+  [208.72229302 208.72450837 208.72443997 208.72438963]]]
+>>> print(newCAMSMERRA2.Ci_LFW['O2'])
+# newCAMSMERRA2.Ci_LFW['O2'] has NaN values because altitude < surface height ASL (topography).
+[[[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+ [[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+...
+ [[0.0005355  0.0005355  0.0005355  0.0005355 ]
+  [0.00053454 0.00053452 0.00053449 0.00053447]
+  [0.00053324 0.00053324 0.00053325 0.00053325]
+  [0.00053258 0.00053257 0.00053256 0.00053254]]
+ [[0.00052614 0.00052614 0.00052614 0.00052614]
+  [0.00052481 0.00052478 0.00052475 0.00052472]
+  [0.00052368 0.00052369 0.00052369 0.0005237 ]
+  [0.00052402 0.00052402 0.00052402 0.00052401]]]
+>>> print(newCAMSMERRA2.Ci_LFW['CH4'])
+# newCAMSMERRA2.Ci_LFW['CH4'] has NaN values because altitude < surface height ASL (topography).
+[[[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+ [[       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]
+  [       nan        nan        nan        nan]]
+...
+ [[4.61909908e-09 4.61909908e-09 4.61909908e-09 4.61909908e-09]
+  [4.61689825e-09 4.61696664e-09 4.61703609e-09 4.61710529e-09]
+  [4.59911048e-09 4.59910210e-09 4.59907746e-09 4.59906631e-09]
+  [4.57145217e-09 4.57108076e-09 4.57101823e-09 4.57095888e-09]]
+ [[4.68624836e-09 4.68624836e-09 4.68624836e-09 4.68624836e-09]
+  [4.68073763e-09 4.68078671e-09 4.68083658e-09 4.68088658e-09]
+  [4.66392987e-09 4.66393717e-09 4.66392611e-09 4.66392672e-09]
+  [4.64388328e-09 4.64356777e-09 4.64359123e-09 4.64361240e-09]]]
 ```
-
-### CAMSMERRA2.interpolateCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-
-```python
-CAMSMERRA2.interpolateCAMS(dataType, year, month, day=None, loc=None, molecules = ('CO', 'CO2', 'CH4'), target_lats = np.arange(-90, 90.1, 0.5), target_lons = np.arange(-180,  179.375 + 1e-3, 0.625), method='linear')
-```
-Interpolate CAMS .npz files onto target MERRA2 grid.<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the subfolder under `data/CAMS/` containing .npz files.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **year : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **day : _int_, _optional_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molecules : _Tuple of str_, _optional, default: ('CO', 'CO2', 'CH4')_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable names to process.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lats : _1D array_, _optional, default: np.arange(-90, 90.1, 0.5)_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired latitudes for the CAMS grid.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **target_lons : _1D array_, _optional, default: np.arange(-180, 179.375+0.001, 0.625)_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Desired longitudes for the CAMS grid.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **method : _str_, _optional, default: 'linear'_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation.<p>
-**Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **result : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interpolated data.<br>
-
-### CAMSMERRA2.getConcCAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-
-```python
-CAMSMERRA2.getConcCAMS(phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=None)
-```
-Converts the mass ratio (kg/kg) to concentration (mol/L).<p>
-**Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of phase of vertical profile. 'G' - Gas. 'L-FW' - Liquid fresh water. 'L-SW' - Liquid sea water. 'L' - Both liquid phases (L-FW, L-SW). 'All' - All phases (G, L-FW, L-SW).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data in dictionary.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of the subfolder under `data/CAMS/` containing .npz files.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **year : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **day : _int_, _optional_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the desired dataset.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altArray : _list_ or _nD array_, _optional_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of altitudes in m.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Get concentration from 2-meters air following topography (loc='surface') or tropopause height (loc='tropopause').<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num : _int_, _optional_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Number of altitude steps to generate.<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -1992,8 +2061,7 @@ python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation)<br>
 
 #### · <ins>CAMSMERRA2</ins>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2.interpolateCAMS](#camsmerra2interpolatecams---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2.getConcCAMS](#camsmerra2getconccams---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2](#camsmerra2---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
