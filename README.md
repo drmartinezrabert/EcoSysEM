@@ -383,7 +383,8 @@ ecosysem
   │      │    ├── .Ci_LSW
   │      │    ├── .lat
   │      │    ├── .lon
-  │      │    └── .compounds
+  │      │    ├── .compounds
+  │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
