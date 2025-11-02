@@ -1111,7 +1111,7 @@ from envdef import CAMS
 ## (Default arguments: pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
 newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
 ```
-Once teh data is downladed, the user can load the data creating a new _CAMS_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
+Once the data is downladed, the user can load the data creating a new _CAMS_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
 from envdef import CAMS
 
