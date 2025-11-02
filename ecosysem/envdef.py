@@ -154,7 +154,7 @@ class ISA:
             newComp[2] -= 0.01100 * H2O # Ar_wet
             self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
-    def _getConcISA(self, phase, compound = None): # !!! Call in __init__ and create attributes for each return. If they are not used, self.attribute = None.
+    def _getConcISA(self, phase, compound = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -300,7 +300,7 @@ class ISA:
         new_comp = dict(zip(compound, composition))
         pre_comp.update(new_comp)
         self.compositions = pre_comp
-        
+    
     ## Plotting functions 
     def plotTandP_ISA(self):
         """
@@ -394,11 +394,6 @@ class MERRA2:
                 latR[np.abs(np.array(latR) - np.array(Coor[1])).argmin()],
                 lonR[np.abs(np.array(lonR) - np.array(Coor[2])).argmin()],
                 latR[np.abs(np.array(latR) - np.array(Coor[3])).argmin()])
-        
-        # bbox = (lonR[np.abs(lonR - Coor[0]).argmin()],
-        #         latR[np.abs(latR - Coor[1]).argmin()],
-        #         lonR[np.abs(lonR - Coor[2]).argmin()],
-        #         latR[np.abs(latR - Coor[3]).argmin()])
         return bbox
     
     def _HfromP(self, P):
@@ -722,7 +717,7 @@ class MERRA2:
             for file in selFiles:
                 path = folder + file
                 os.remove(path)
-            
+    
     def getDataMERRA2(self, dataType, years, months,
                       days = 'All',
                       product = 'M2I1NXASM',
@@ -923,15 +918,15 @@ class MERRA2:
         if np.any(np.isin(dataType, 'cmly')):
             var += ['H']
             for m in months:
-                MERRA2._combDataMERRA2(self, dataType = 'mly',
-                                       year = years,
-                                       month = m,
-                                       days = days,
-                                       keys = var, 
-                                       dataDelete = dataDelete)
+                MERRA2.combDataMERRA2(self, dataType = 'mly',
+                                      year = years,
+                                      month = m,
+                                      days = days,
+                                      keys = var, 
+                                      dataDelete = dataDelete)
         print("--- %s seconds ---" % (time.time() - start_time))
     
-    def loadDataMERRA2(self, dataType, y, m = None, d = None, keys = 'All'):
+    def loadDataMERRA2(self, dataType, y, m = None, d = None, keys = 'All'):  # !!! Include this in constructor __init__.
         """
         Get data in dictionary form.
 
@@ -2613,18 +2608,9 @@ class CAMSMERRA2(CAMS, MERRA2):
         -------
         result: DICT
             Interpolated data.
+        
         """
-        folder = f'data/CAMS/{dataType}/'
-        if day is None:
-            fname = f"{year}_{month}_month.npz"
-        else:
-            fname = f"{year}_{month}_{day}_day.npz"
-
-        path = os.path.join(folder, fname)
-        if not os.path.isfile(path):
-            raise FileNotFoundError(f"CAMS file not found: {path}")
-
-        npz = np.load(path)
+        npz = CAMS._openNPZCAMS(self, dataType = dataType, y = year, m = month, d = day)
         orig_lats = npz['lat']
         orig_lons = npz['lon']
         orig_alt  = npz['alt']
@@ -2670,7 +2656,7 @@ class CAMSMERRA2(CAMS, MERRA2):
     
         return result
     
-    def getConcCAMS(self, phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=None):
+    def getConcCAMS(self, phase, data, dataType, year, month, day=None, bbox = (-180, -90, 180, 90), altArray=None, loc=None, num=50):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
@@ -2719,7 +2705,6 @@ class CAMSMERRA2(CAMS, MERRA2):
         TS = np.array(merra2['T2M'])
         TROPPB = np.array(merra2['TROPPB'])
         TROPT = np.array(merra2['TROPT'])
-    
         # Target T/P by loc
         if loc == 'surface':
             t_target, p_target = TS, PS
@@ -2727,7 +2712,7 @@ class CAMSMERRA2(CAMS, MERRA2):
             t_target, p_target = TROPT, TROPPB
         else:
             t_target, p_target, z_m = CAMSMERRA2.getTPAlt(self, dataType, year, month, day, bbox, altArray, num)
-    
+
 
         h_km = cams_alt * 1e-3 # km
         rho_kg_m3 = coesa76(h_km).rho # kg/m3
@@ -2740,13 +2725,17 @@ class CAMSMERRA2(CAMS, MERRA2):
         # Dictionaries initialization
         dict_Pi = {}
         dict_Ci_G = {}
+        dict_comp_G = {}
         dict_Ci_LFW = {}
         dict_Ci_LSW = {}
     
         for molecule, cams_array in molecule_data.items():
             cams_array = np.array(cams_array)
             M_kg_per_mol = Formula(molecule).mass * 1e-3    # g/mol to kg/mol
-
+            AirM_kg_per_mol = 28.96 * 1e-3                  # g/mol to kg/mol
+            
+            comp_cams = cams_array * (AirM_kg_per_mol / M_kg_per_mol)
+            comp = self._reshapeAltCAMS(comp_cams, p_target, cams_plev)
             conc_cams = (cams_array * rho) / M_kg_per_mol
             conc = self._reshapeAltCAMS(conc_cams, p_target, cams_plev)
             
@@ -2769,11 +2758,12 @@ class CAMSMERRA2(CAMS, MERRA2):
             # Save data in dictionary
             dict_Pi[molecule]     = Pi
             dict_Ci_G[molecule]   = conc
+            dict_comp_G[molecule] = comp
             dict_Ci_LFW[molecule] = Ci_LFW
             dict_Ci_LSW[molecule] = Ci_LSW
     
         if phase == 'G':
-            return dict_Pi, dict_Ci_G
+            return dict_Pi, dict_Ci_G, dict_comp_G
         elif phase == 'L-FW':
             return dict_Ci_LFW
         elif phase == 'L-SW':
