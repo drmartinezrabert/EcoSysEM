@@ -2010,7 +2010,7 @@ python ecosysem_cmd.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -9
 #### <ins>getDataCAMS</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> _type </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
+   <tr><td> _dataType </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
    <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
    <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
    <tr><td> _d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
@@ -2030,10 +2030,10 @@ For example: <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py _type mly _y 2024 _m 4
-python ecosysem_cmd.py _type mly _y 2024 _m 4 _d 1 15
-python ecosysem_cmd.py _type mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
-python ecosysem_cmd.py _type mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
+python ecosysem_cmd.py _dataType mly _y 2024 _m 4
+python ecosysem_cmd.py _dataType mly _y 2024 _m 4 _d 1 15
+python ecosysem_cmd.py _dataType mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
+python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
