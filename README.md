@@ -423,9 +423,11 @@ This section clarifies concepts, design decisions and technical details of this 
   - Copernicus Atmosphere Monitoring Service (CAMS) | [GO](#CAMS)
   - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
-- Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
+<!--
 - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
+- Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
+-->
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
@@ -1795,13 +1797,6 @@ Return a dictionary with activities of compound(s) in solution and their chemica
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **activity : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Activity values (`{'compounds': [activity]}`)<br>
 
-<!--
-· TO-DO list:
-- [ ] DGr at range of T and pH (see MICROPRONY collaboration).
-- [ ] Sensitivity analyses based on substrate and product concentrations (see MICROPRONY collaboration).
-- [ ] Complete thermodynamic sensitivity analysis (see Development), and others.
--->
-
 #
 
 The functions to obtain the required information from reaction databases are found in `reaction.py` module. The main function is `Reactions.getRxn`.
@@ -1872,21 +1867,9 @@ Return a list with involving compounds, a n-dimension array with stoichiometric 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user. The function always returns the abbreviation.<br>
 
-[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-#
-
-#### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
-:construction: Coming soon...
-
-[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-#### <ins>Ecosystem modelling</ins>
-:construction: Coming soon...
-
 **·** _<ins>Kinetics</ins>_
 
-The main and auxiliary functions to calculate kinetic rates are located in `reactions.py` module, and organized in two classes:
+The he main and auxiliary functions to calculate kinetic rates are located in `reactions.py` module as well. These are organized in two classes:
 - `KinP`. Class with the functions to get the kinetic parameters from local databases.
 - `KinRates`. Class with the functions to calculate the kinetic rates (biotic and abiotic transformations).
 
@@ -1962,6 +1945,22 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Order of samples (rows of `typeParam.csv`) in `combNames` (e.g., 'MM - Arrhenius').<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+<!--
+#### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
+:construction: Coming soon...
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+-->
+#### <ins>Ecosystem modelling</ins>
+:construction: Coming soon...
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 1. Download .zip code. Last version: `v0.1` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.1.zip).
