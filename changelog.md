@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
   - Estimation of thermodynamic activity coefficients.
     - Activity coefficients of electrolytes. Debye-Hückel theory (extended version).
     - Activity coefficients of non-electrolyte in electrolyte solutions. Setschenow-Schumpe equation.
-- Run **EcoSysEM platform** via Command Line Interface (CLI) to download data: getDataMERRA2() and getDataCAMS().
+- Module to run **EcoSysEM platform** via Command Line Interface (CLI) to download data: getDataMERRA2() and getDataCAMS().
 ### Changed
 - README file.
 
