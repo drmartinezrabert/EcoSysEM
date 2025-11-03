@@ -373,7 +373,7 @@ ecosysem
   │      │    ├── .CH4
   │      │    ├── .CO
   │      │    ├── .CO2
-  │      │    ── getDataCAMS
+  │      │    └─ getDataCAMS
   │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
   │      │    ├── .altitude
   │      │    ├── .temperature
