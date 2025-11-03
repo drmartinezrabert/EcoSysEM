@@ -31,9 +31,11 @@ ____________________________
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
-        - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
+        <!--
         - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
+        - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa)
+        -->
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
