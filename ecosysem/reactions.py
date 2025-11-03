@@ -4,10 +4,10 @@ Created on Thu Aug 15 07:44:51 2024
 
 @author: 2424069M
 """
-
+# from thermodynamics import ThEq
+import importlib
 import pandas as pd
 import numpy as np
-import sys
 
 class KinP:
     """
@@ -40,17 +40,15 @@ class KinP:
         col = dParam.columns.values
         for iParam in params:
             if not iParam in KinP.assocParamComp:
-                if not iParam in col:
-                    print(f'!EcoSysEM.Error: Parameter `{iParam}` not found in `{typeParam}.csv`. Please, add a column with `{iParam}` values.')
-                    sys.exit()
+                if not iParam in col: raise ValueError(f'Parameter ({iParam}(`) not found in {typeParam}.csv. Please, add a column with {iParam} values.')
     
-    def getKinP(typeParam, params, reaction, sample = 'All', comp = None):
+    def getKinP(paramDB, params, reaction, sample = 'All', compounds = None):
         """
         Function to get kinetic parameters from csv file. 
 
         Parameters
         ----------
-        typeParam : STR
+        paramDB : STR
             Name of parameter database, matching with csv name.
         params : STR or LIST
             Requested parameters.
@@ -69,8 +67,8 @@ class KinP:
             Names of samples (rows of `typeParam.csv`.
         """
         if not isinstance(params, list): params = [params]
-        dParam = pd.read_csv(KinP.path + typeParam + '.csv')
-        KinP.checkKinP(typeParam, dParam, params)
+        dParam = pd.read_csv(KinP.path + paramDB + '.csv', encoding_errors='ignore')
+        KinP.checkKinP(paramDB, dParam, params)
         dParam = dParam.loc[dParam['Reaction'] == reaction]
         if sample != 'All':
             dParam = dParam.loc[dParam['Sample'].isin(sample)]
@@ -80,15 +78,17 @@ class KinP:
             if not iParam in KinP.assocParamComp:
                 dictR[iParam] = dParam[iParam].values
             else:
-                if comp:
-                    dictR[iParam] = np.squeeze(dParam[comp].fillna(0).values)
-                    cVal = np.all(dictR[iParam] == 0.0)
-                    if cVal:
-                        print('!EcoSysEM.Error: Limiting substrate not found. Check `Ct` parameter in `getRs()` or `exportRs()`, and Km values in csv file.')
-                        sys.exit()
-                else:
-                    print(f'!EcoSysEM.Error: You must to define the compounds for {iParam} with `comp` parameter.')
-                    sys.exit()
+                if compounds:
+                    for comp in compounds:
+                        try:
+                            dParam[comp]
+                        except:
+                            pass
+                        else:
+                            dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
+                            cVal = np.all(f'{iParam}_{comp}' == 0.0)
+                            if cVal: raise ValueError(f'Limiting substrate ({comp}) not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
+                else: raise ValueError(f'You must to define the compounds for {iParam} with `comp` parameter.')
         return dictR, sampleNames
     
 class KinRates:
@@ -99,203 +99,193 @@ class KinRates:
     # Direction of kinetic parameters
     path = 'kinetics\\'
     
-    def getRs(typeKin, typeParam, Rxn, Ct, sample = 'All', T = None, Tcorr = None):
+    def getRs(typeKin, paramDB, reactions, Ct, sample = 'All', pH = None, T = None):
         """
-        Lorem ipsum...
+        Function to compute reaction rates.
 
         Parameters
         ----------
-        typeKin : STR
-            Type of kinetic equations (e.g., rMM - 'Michaelis-Menten equation').
-        typeParam : STR
+        paramDB : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenihus - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR
             Name of parameter database, matching with csv name.
-        Rxn : STR
+        reactions : STR
             Requested reaction.
-        Ct : FLOAT, LIST or DICT
+        Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
-            Requested samples (rows of `typeParam.csv`). The default is 'All'.
-        T : FLOAT or LIST, optional
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
+        pH : FLOAT, optional
+            pH values. The default is None.
+        T : FLOAT, LIST or np.ndarray, optional
             Temperatures. The default is None.
-        Tcorr : STR, optional
-            Type of temperature correlation (e.g., Arrhenius - 'Arrhenius correlation'). The default is None.
-
+        
         Returns
         -------
-        rs : np.ndarray
-            Resultant rates.
-        sampleNames : STR or LIST
-            Names of samples (rows of `typeParam.csv`).
+        Rs : DICT
+            Resultant rates. Shape: (Z)x(Y)x(X)x(reactions).
+        combNames : DICT
+            Combination of samples (rows of `typeParam.csv`).
+        orderComb : STR
+            Order of samples in `combNames`.
 
         """
-        if not isinstance(typeKin, str): typeKin = str(typeKin)
-        if not isinstance(typeParam, str): typeParam = str(typeParam)
-        if not isinstance(Rxn, str): Rxn = str(Rxn)
-        if not isinstance(Ct, dict): 
-            print('!EcoSysEM.Error: `Ct` parameter must be a dictionary.')
-            sys.exit()
+        # Dynamic import of ThEq
+        MyModule = importlib.import_module('thermodynamics')
+        ThEq = MyModule.ThEq
+        # Check variables
+        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(reactions, list): reactions = [reactions]
+        if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:
-            npCt = np.array(list(Ct.items()), dtype = object).T
-            lenCt = [len(i) for i in npCt[1, :]]
-            nCt = list(set(lenCt))
-            cLen = len(nCt) == 1
-            if not cLen:
-                print('!EcoSysEM.Error: All compounds must have same number of concentrations.')
-                sys.exit()
-            nCt = nCt[0]
+            # Check shapes of Ct dictionary
+            checkArray_compounds = []
+            compounds = list(Ct.keys())
+            for c in Ct:
+                if not isinstance(Ct[c], np.ndarray): raise TypeError('All concentrations in `Ct` argument must be np.ndarray.')
+                else:
+                    checkArray_compounds += [Ct[c].shape]
+            uShpConc = list(set(checkArray_compounds))
+            if not len(uShpConc) == 1: raise ValueError('All compounds must have same shape.')
         if sample != 'All':
             if not isinstance(sample, list): sample = [sample]
-        if T:
-            if isinstance(T, int): T = float(T)
-            if isinstance(T, float): T = [T]
-            if not Tcorr:
-                print('!EcoSysEM.Error: You must to define the temperature correlation with `Tcorr` parameter.')
-                sys.exit()
-            else:
-                if not isinstance(Tcorr, str): Tcorr = str(Tcorr)
-        # Type Kinetics (Equation to calculate rs)   
-        if typeKin == 'rMM':
+        ## Concentrations (pH speciation)
+        if pH:
+            if T is None: raise ValueError('Temperature not defined (argument `T`).')
+            for comp in compounds:
+                Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
+        if typeKin == 'MM':
             params = ['qmax', 'Km']
-            comp = list(Ct.keys())
-            Cs = pd.DataFrame(Ct).values
-            p, sampleNames = KinP.getKinP(typeParam, params, Rxn, sample, comp)
-            qmax = p['qmax']
-            Km = p['Km']
-            rs = KinRates.rMM(qmax, Km, Cs)
-            if T:
-                if Tcorr == 'Arrhenius':
-                    p, _ = KinP.getKinP('ArrhCor', 'Coeff', Rxn)
-                    O = p['Coeff']
-                    # If more than one Arrhenius parameter, average value is taken.
-                    if len(O) > 1:
-                        O = np.mean(O)
-                    p, _ = KinP.getKinP(typeParam, 'Texp', Rxn, sample)
-                    Texp = p['Texp']
-                    rs = KinRates.arrhCorr(rs, O, Texp, T)
-                else:
-                    print(f'!EcoSysEM.Error: {Tcorr} correlation not found. Available temperature correlations: "Arrhenius".')
-                    sys.exit()
-        else:
-            print(f'!EcoSysEM.Error: {typeKin} equation not found. Available reaction equations: "rMM" (Michaelis-Menten eq.).')
-            sys.exit()
-        return np.squeeze(rs), sampleNames
+            # Initialize results
+            Rs = {}
+            combNames = {}
+            for idRxn, Rxn in enumerate(reactions):
+                # Initialize combNames[Rxn]
+                combNames[Rxn] = []
+                p, sampleNames = KinP.getKinP(paramDB, params, Rxn, sample, compounds)
+                qmax = p['qmax']
+                # Select Km
+                Km = {k : p[k] for k in p if 'Km' in k}
+                rs = {}
+                for idMM, sample_MM in enumerate(sampleNames):
+                    # Rates
+                    qmax_ = qmax[idMM]
+                    Km_ = {k : Km[k][idMM] for k in Km}
+                    rs[f'comb_{idMM+1}'] = KinRates._rMM(qmax_, Km_, Ct)
+                    # CombNames
+                    combNames[Rxn].append(sample_MM)
+                Rs[Rxn] = rs
+            orderComb = 'MM'
+            return Rs, combNames, orderComb
+        elif typeKin == 'MM-Arrhenius':
+            if len(paramDB) != 2: raise ValueError('For MM-Arrhenius equation, 2 databases must be given: paramDB = ["Michaelis-Menten DB", "Arrhenius DB"]')
+            paramDB_MM = paramDB[0]
+            paramDB_Arrh = paramDB[1]
+            # Initialize results
+            Rs = {}
+            combNames = {}
+            for idRxn, Rxn in enumerate(reactions):
+                # Initialize combNames[Rxn]
+                combNames[Rxn] = []
+                ## Michaelis-Menten parameters
+                p, sampleNames_MM = KinP.getKinP(paramDB_MM, ['qmax', 'Km'], Rxn, sample, compounds)
+                qmax = p['qmax']
+                # Select Km
+                Km = {k : p[k] for k in p if 'Km' in k}
+                ## Arrhenius parameters
+                p, sampleNames_Arrh = KinP.getKinP(paramDB_Arrh, 'Coeff', Rxn)
+                O = p['Coeff']
+                p, _ = KinP.getKinP(paramDB_MM, 'Texp', Rxn, sample)
+                Texp = p['Texp']
+                ## Rate calculation (combinations of MM and Arrhenius)
+                c = 1
+                rs = {}
+                for idMM, sample_MM in enumerate(sampleNames_MM):
+                    for idArrh, sample_Arrh in enumerate(sampleNames_Arrh):
+                        #-DEBUGGING-#
+                        sampleComb = f'{sample_MM} - {sample_Arrh}'
+                        #-----------#
+                        ## Michaelis-Menten
+                        qmax_ = qmax[idMM]
+                        Km_ = {k : Km[k][idMM] for k in Km}
+                        rs_ = KinRates._rMM(qmax_, Km_, Ct)
+                        ## Arrhenius
+                        O_ = O[idArrh]
+                        Texp_ = Texp[idMM]
+                        rs[f'comb_{c}'] = KinRates._arrhCorr(rs_, O_, Texp_, T)
+                        c += 1
+                        # CombNames
+                        combNames[Rxn].append(sampleComb)
+                Rs[Rxn] = rs
+            orderComb = 'MM - Arrhenius'
+            return Rs, combNames, orderComb
+        else: raise ValueError(f'Unknown typeKin ({typeKin}). Existing typeKin: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
     
-    def rMM(qmax, Km, C):
+    def _rMM(qmax, Km, C):
         """
         Function to compute Michaelis-Menten equation.
 
         Parameters
         ----------
-        qmax : FLOAT, LIST, np.ndarray
-            Values of maximum uptake rate.
-        Km : FLOAT, LIST, np.ndarray
+        qmax : FLOAT
+            Value of maximum uptake rate.
+        Km : DICT
             Values of half-saturation constants (or Michaelis constants).
-        C : FLOAT, LIST, np.ndarray, DICT
+        C : DICT
             Concentrations of limiting substrates.
 
         Returns
         -------
-        r : np.ndarray
+        r : DICT
             Resultant substrate uptake rates.
 
         """
         if not isinstance(qmax, np.ndarray): qmax = np.array(qmax)
         if qmax.ndim == 0: qmax = np.array([qmax])
-        if not isinstance(Km, np.ndarray): Km = np.array(Km)
-        if Km.ndim == 0: Km = np.array([Km])
-        if isinstance(C, dict): 
-            C = np.array(pd.DataFrame(C))
-        else:
-            if not isinstance(C, np.ndarray): C = np.array(C)
-            if C.ndim == 0: C = np.array([C])
-        # qmax
-        nqmax = len(qmax)
-        # Km
-        if Km.ndim == 1:
-            Km = np.array([Km])
-            if Km.shape[0] == 1 and nqmax > 1:
-                Km = Km.T
-        nKm = Km.shape[0]
-        # Checking number of qmax and Km values
-        cN = nqmax == nKm
-        if not cN:
-            print('!EcoSysEM.Error: Same number of qmax and Km must be given.')
-            sys.exit()
-        else:
-            nParam = nKm
-        # C
-        if C.ndim == 1:
-            C = np.array([C])
-            if C.shape[0] == 1 and Km.shape[1] == 1:
-                C = C.T
-        nConc = C.shape[0]
-        # Checking number of limiting substrates
-        nLS_Km = Km.shape[1]
-        nLS_C = C.shape[1]
-        cN = nLS_Km == nLS_C
-        if not cN:
-            print('!EcoSysEM.Error: Number of limiting substrates is not consistent. Km and C must have the same number of columns.')
-            sys.exit()
-        # Initializing result variable
-        r = np.empty([nParam, nConc])
-        # Calculation of rate(s)
-        for iP in range(nParam):
-            for iC in range(nConc):
-                K = Km[iP,:]
-                c = C[iC,:]
-                M = np.prod((c) / (K + c + 1e-25)) # + 1e-25 to prevent NaN when conc == 0 and Ks == 0
-                r[iP, iC] = qmax[iP] * M
-        return np.squeeze(r) # (samples)x(concs), (samples) = (qmax) and (Km)
+        if not isinstance(Km, dict): raise TypeError('`Km` argument must be a dictionary. Km = {"Km_compound": [values]}')
+        limCompds = [str(np.char.replace(k, 'Km_', '')) for k in Km if 'Km' in k]
+        M = 1.0
+        r = {}
+        for limComp in limCompds:
+            c = C[limComp]
+            k = Km[f'Km_{limComp}']
+            if not isinstance(k, (list, np.ndarray)): k = np.array(k)
+            if isinstance(k, np.ndarray):
+                if k.ndim != 1:
+                    k = np.array([k])
+            K = k * np.ones(c.shape)
+            M *= (c) / (K + c + 1e-25)
+        r = qmax * M
+        return r
     
-    def arrhCorr(rateBase, O, tempBase, temp):
+    def _arrhCorr(rateBase, O, tempBase, temp):
         """
         Function to compute Arrhenius correlation.
 
         Parameters
         ----------
-        rateBase : FLOAT or LIST or np.ndarray
+        rateBase : FLOAT, LIST or np.ndarray
             Reaction rate at base (measured) temparature (tempBase).
         O : FLOAT
             Arrhenius coefficient.
-        tempBase : FLOAT or LIST
+        tempBase : FLOAT
             Temperature base, that is, the original temperature of substrate rate.
-        temp : FLOAT or LIST
+        temp : FLOAT, LIST or np.ndarray
             Set of temperatures.
 
         Returns
         -------
-        rT : np.ndarray
+        rT : DICT
             Resultant substrate uptake rates as function of temperature.
 
         """
-        rBaslist = False
         if not isinstance(rateBase, np.ndarray): rateBase = np.array(rateBase)
-        if rateBase.ndim == 0: rateBase = np.array([rateBase])
-        if rateBase.ndim == 1: nRateBase = len(rateBase); rateBase = np.array([rateBase]); rBaslist = True
-        if not isinstance(tempBase, np.ndarray): tempBase = np.array(tempBase)
-        if tempBase.ndim == 0: tempBase = np.array([tempBase])
-        if not isinstance(temp, list): temp = [temp]
-        # Check number of rates and base temperatures
-        if not rBaslist:
-            nRateBase = rateBase.shape[0]
-        nTempBase = len(tempBase)
-        cN = nRateBase == nTempBase
-        if not cN:
-            print('!EcoSysEM.Error: Same number of rateBase and tempBase must be given.')
-            sys.exit()
-        else:
-            nSamples = rateBase.shape[0]
-        # Number of concentrations
-        nConc = rateBase.shape[1]
-        # Number of temperatures
-        nT = len(temp)
-        # Initializing result variable
-        rT = np.empty([nSamples, nConc, nT])
-        for iS in range(nSamples):
-            for iC in range(nConc):
-                for iT in range(nT):
-                    rT[iS, iC, iT] = rateBase[iS, iC] * O ** (temp[iT] - tempBase[iS])
-        return np.squeeze(rT) # (samples)x(concs)x(temp)
+        if not isinstance(temp, np.ndarray): rateBase = np.array(temp)
+        if rateBase.shape != temp.shape: raise ValueError(f'Argument `rateBase` ({rateBase.shape}) and argument `temp` ({temp.shape}) must have the same shape.')
+        rT = rateBase * O ** (temp - tempBase)
+        return rT
 
 class Reactions:
     # Directory of reactions
@@ -313,8 +303,8 @@ class Reactions:
                 - 'metabolisms': metabolic activities
         input_ : STR or LIST
             Name(s) of requested compound(s) or reaction(s).
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
         
         Returns
         -------
@@ -335,7 +325,7 @@ class Reactions:
             gRbC_rComp, gRbC_mRxn, gRbC_infoRxn = Reactions.getRxnByComp(typeRxn, input_, warnings)
             gRbN_rComp, gRbN_mRxn, gRbN_infoRxn = Reactions.getRxnByName(typeRxn, input_, warnings)
             if (gRbC_rComp is None) and (gRbN_rComp is None):
-                print(f'!EcoSysEM.Error: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
+                print(f'!EcoSysEM.Warning: Requested reaction(s) or compound(s) not found in {typeRxn}.csv file.')
                 return None, None, None
             elif gRbC_rComp is None:
                 rComp = gRbN_rComp
@@ -346,7 +336,7 @@ class Reactions:
                 mRxn = gRbC_mRxn
                 infoRxn = gRbC_infoRxn
             elif (gRbC_rComp is not None) and (gRbN_rComp is not None):
-                print(f'!EcoSysEM.Error: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
+                print(f'!EcoSysEM.Warning: Requested input(s) found as a reaction and compound in {typeRxn}.csv file. '
                       'All inputs must be the same type: compound or reaction. If a same name is used for a compound and a reaction, '
                       'use `getRxnByComp()` or `getRxnByName()` instead.')
                 return None, None, None
@@ -362,11 +352,10 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name.
-            Default: 'pHSpeciation'.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'pHSpeciation'.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
             
         Returns
         -------
@@ -444,8 +433,8 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
             
         Returns
         -------
@@ -514,8 +503,8 @@ class Reactions:
         compounds : STR or LIST
             Name(s) of requested compound(s).
             STR - one compound; LIST - multiple compounds.
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
         
         Returns
         -------
@@ -583,8 +572,8 @@ class Reactions:
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'pHSpeciation': pH equilibrium
                 - 'metabolisms': metabolic activities
-        warnings : BOOL
-            Display function warnings. Default: False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
 
         Returns
         -------
