@@ -3,24 +3,6 @@
 Created on Fri Aug 29 12:00:06 2025
 
 @author: emartinez
-
-envdef - define and create environment(s)
-=========================================
-
-Summary
--------
-
-Lorem ipsum...
-
-Classes
--------
-    
-    :py:class:`ISA` - International Standard Atmosphere (ISA).
-
-Functions
---------
-
-    :py:fun:`lorem_ipsum` - Lorem ipsum.
 """
 
 from thermodynamics import ThEq as eQ
