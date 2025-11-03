@@ -1,4 +1,4 @@
-﻿IUPAC,Formula,Phase,Value,REF
+IUPAC,Formula,Phase,Value,REF
 Carbon monoxide,CO,G,-137.15,Thauer1997
 Carbon monoxide,CO,L,-119,Beber2022
 Carbon dioxide,CO2,G,-394.359,Thauer1997
@@ -8,9 +8,9 @@ Oxygen,O2,L,16.4,Thauer1997
 Water,H2O,G,-228.61,Speight2005
 Water,H2O,L,-237.18,Thauer1997
 Methane,CH4,G,-50.75,Thauer1997
-Methane,CH4,L,-50.79,Thauer1997
+Methane,CH4,L,-34.46,Amend2001
 Hydrogen,H2,G,0,Thauer1997
-Hydrogen,H2,L,0,Asm.
+Hydrogen,H2,L,17.72,Amend2001
 Nitrous oxide,N2O,G,104.18,Thauer1997
 Nitrous oxide,N2O,L,104.2,Beber2022
 Ammonia,NH3,G,-16.4,Kleerebezem2010
@@ -28,13 +28,13 @@ Sulfite,SO3-2,L,-486.6,Thauer1997
 Sulfuric acid,H2SO4,L,-690,Zumdahl2012
 Hydrogen sulfate,HSO4-,L,-756.01,Thauer1997
 Sulfate,SO4-2,L,-744.67,Thauer1997
-Acetic acid, CH3COOH,L,-389,Zumdahl2012
-Acetate,CH3COO-,L,-369.41,Thauer1997
 Carbonic acid,H2CO3,L,-623.16,Thauer1997
 Bicarbonate,HCO3-,L,-586.85,Thauer1997
 Carbonate,CO3-2,L,-527.9,Thauer1997
+Nitrous acid,HNO2,G,-46,Speight2005
 Nitrous acid,HNO2,L,-50.6,Alberty2004
 Nitrite,NO2-,L,-32.2,Alberty2004
+Nitric acid,HNO3,G,-73.54,Speight2005
 Nitric acid,HNO3,L,-111.25,Alberty2004
 Nitrate,NO3-,L,-108.74,Alberty2004
 Hydroxide,OH-,L,-157.293,Thauer1997
@@ -44,3 +44,10 @@ Sulfur dioxide,SO2,L,-300.708,Thauer1997
 Sulfur (rhombic),S0,G,0,Kleerebezem2010
 Sulfur (rhombic),S0,L,0,Kleerebezem2010
 Sulfur (rhombic),S0,S,0,Kleerebezem2010
+Formic acid,HCOOH,L,-361.4,Speight2005
+Formate,HCOO-,L,-351,Kleerebezem2010
+Glycine,NH2CH2COOH,L,-372.59,Gucker1940
+Glycine anion,NH2CH2COO-,L,-315,Speight2005
+Acetic acid,CH3COOH,L,-396.48,Amend2001
+Acetate,CH3COO-,L,-369.41,Thauer1997
+Dinitrogen,N2,L,18.8,Amend2001
