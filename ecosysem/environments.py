@@ -313,9 +313,9 @@ class Environment:
         else:
             # Get all files from `data\`
             if dataType == 'cmly' or dataType == 'yly' or dataType == 'cyly':
-                folder = 'data/{self.model}/mly/'
+                folder = f'data/{model}/mly/'
             elif dataType == 'mly':
-                folder = 'data/{self.model}/dly/'
+                folder = f'data/{model}/dly/'
             allFiles = np.array(os.listdir(folder))
             # Test elements
             tEl = np.empty((0))
