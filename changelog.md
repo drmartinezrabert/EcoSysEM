@@ -31,6 +31,11 @@ All notable changes to this project will be documented in this file.
 - Module to run **EcoSysEM platform** via Command Line Interface (CLI) to download data: getDataMERRA2() and getDataCAMS().
 ### Changed
 - README file.
+- Update thermodynamic, equilibrium and rate functions for 3D data.
+  - pH speciation.
+  - Solubility (Henry's law).
+  - Gibbs free energy calculations.
+  - Kinetics.
 
 ## [0.1] - 2024/10/16
 First pre-release of EcoSysEM platform (v0.1). 
