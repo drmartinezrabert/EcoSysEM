@@ -427,7 +427,7 @@ class Environment:
     def getDGr(self, typeRxn, input_, specComp):
         """
         Compute (non-)stadard Gibbs free energy using information from
-        atmospheric models.
+        environmental models.
 
         Parameters
         ----------
