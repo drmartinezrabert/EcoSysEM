@@ -6,6 +6,7 @@ Created on Fri Aug 29 12:00:06 2025
 """
 
 from thermodynamics import ThEq as eQ
+from thermodynamics import ThSA
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
 import pandas as pd
@@ -423,6 +424,38 @@ class Environment:
         npz.close()
         return keys
 
+    def getDGr(self, typeRxn, input_, specComp):
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature
+        pH = self.pH
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        S = self.salinity
+        if self.model == 'GWB':
+            Ct = self.Ci_L
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW
+                phase = 'L'
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW
+                phase = 'L'
+            else:
+                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        fluidType = self.fluidType
+        methods = self.methods
+        DGr_dict = {}
+        for pH_ in pH:
+            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
+                                           fluidType = fluidType, methods = methods)
+            for idRxn, rxn in enumerate(infoRxn):
+                DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        self.DGr = DGr_dict
+        
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _plotAtmosphere():
@@ -589,6 +622,7 @@ class ISA(Atmosphere):
         dDC = pd.DataFrame(data = dryComposition)
         self.layers = layers
         self.pH = pH
+        self.phase = phase
         self.resolution = resolution
         self._computeTandP_ISA(layers, dISA)
         self.compounds = dDC['Compounds']
@@ -596,6 +630,9 @@ class ISA(Atmosphere):
         self._computeWaterContent(H2O, dDC)
         self.environment = 'Atmosphere'
         self.model = 'ISA'
+        self.fluidType = 'ideal'
+        self.salinity = None
+        self.methods = None
         if selAlt:
             self._selectAltitude(selAlt)
         self._getConcISA(phase, selCompounds)
@@ -1205,17 +1242,22 @@ class ISAMERRA2(Atmosphere):
     Retrospective analysis for Research and Applications Version 2 (MERRA-2).
     
     """
-    def __init__(self, dataType, y, m = None, d = None, bbox = (-180, -90, 180, 90), compound = None, 
+    def __init__(self, dataType, y, m = None, d = None, pH = 7.0, bbox = (-180, -90, 180, 90), compound = None, 
                  phase = 'All', altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False,
                  showMessage = True):
         if showMessage:
             print('  > Creating ISAMERRA2 instance...')
         self.environment = 'Atmosphere'
         self.model = 'ISAMERRA2'
+        self.fluidType = 'ideal'
+        self.salinity = None
+        self.methods = None
+        self.pH = pH
         # Data from ISA
         ISAinst = ISA(showMessage = False)
         self.compositions = ISAinst.compositions
         self.compounds = ISAinst.compounds
+        self.phase = phase
         # Data from MERRA2
         self._getConcISAMERRA2(phase = phase, dataType = dataType, y = y, m = m, d = d, compound = compound, bbox = bbox,
                                altArray = altArray, num = numAlt, surftrop = surftrop)
@@ -2203,7 +2245,7 @@ class CAMSMERRA2(Atmosphere):
     Service (CAMS) database.
     
     """
-    def __init__(self, dataType, y, m = None, d = None, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
+    def __init__(self, dataType, y, m = None, d = None, pH = 7.0, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
                  altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
         if showMessage:
             print('  > Creating CAMSMERRA2 instance...')
@@ -2219,6 +2261,11 @@ class CAMSMERRA2(Atmosphere):
                                   surftrop = surftrop,
                                   showMessage = False)
         self.compounds = ISAMERRA2inst.compounds
+        self.phase = phase
+        self.fluidType = 'ideal'
+        self.salinity = None
+        self.pH = pH
+        self.methods = None
         comp_G = ISAMERRA2inst.compositions
         checkNanVar = ISAMERRA2inst.temperature 
         varShape = checkNanVar.shape
