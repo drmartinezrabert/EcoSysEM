@@ -332,7 +332,7 @@ ecosysem
   │      │    ├── .H2O
   │      │    ├── .layers
   │      │    ├── .resolution
-  │      │    ├── .DGr (if .getDGr() is called)
+  │      │    ├── .DGr (if ISA.getDGr() is called)
   │      │    ├── setComposition
   │      │    ├── plotTandP
   │      │    └── plotCompsProfilesISA
@@ -362,7 +362,7 @@ ecosysem
   │      │    ├── .lon
   │      │    ├── .compounds
   │      │    ├── .compositions
-  │      │    ├── .DGr (if .getDGr() is called)
+  │      │    ├── ISAMERRA2.DGr (if .getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
   │      │    ├── .altitude
@@ -385,7 +385,7 @@ ecosysem
   │      │    ├── .lat
   │      │    ├── .lon
   │      │    ├── .compounds
-  │      │    ├── .DGr (if .getDGr() is called)
+  │      │    ├── CAMSMERRA2.DGr (if .getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      └── GWB
   │           ├── .temperature
@@ -395,7 +395,7 @@ ecosysem
   │           ├── .methods
   │           ├── .fluidType
   │           ├── .compounds
-  │           └── .DGr (if .getDGr() is called)
+  │           └── GWB.DGr (if .getDGr() is called)
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
