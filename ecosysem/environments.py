@@ -243,6 +243,7 @@ class Environment:
             Dictionary with requested variables.
 
         """
+        Environment._checkData(self, model, dataType, y, m, d)
         npz = Environment._openNPZ(self, model, dataType, y, m, d)
         latlon_models = ['MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2']
         if model in latlon_models: must_have_lat, must_have_lon = True, True
