@@ -2530,6 +2530,53 @@ class CAMSMERRA2(Atmosphere):
 class Hydrosphere(Environment):
     pass
 
+class GWB(Hydrosphere):
+    """
+    Definition of a general (or non-specific) water body (abbreviated as GWB).
+    A general (or non-specific) water body refers to any generic, unnamed, or 
+    unspecific natural or artificial collection of water, such as a puddle, 
+    pool, pond, or stream.
+    
+    """
+    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', methods = None):
+        self.environment = 'Hydrosphere'
+        self.model = 'GWB'
+        self.phase = 'L'
+        if not isinstance(Ct, dict):
+            raise TypeError('Argument \'Ct\' must be a dictionary.')
+        for compound in Ct:
+            if isinstance(Ct[compound], (float, int)): Ct[compound] = [Ct[compound]]
+            if not isinstance(Ct[compound], np.ndarray): Ct[compound] = np.array(Ct[compound])
+        if isinstance(T, (float, int)): T = [T]
+        if isinstance(T, list): T = np.array(T)
+        shapeT = T.shape
+        ndimT = T.ndim
+        shapeC = Ct[list(Ct.keys())[0]].shape
+        ndimC = Ct[list(Ct.keys())[0]].ndim
+        if shapeT != shapeC:
+            if ndimT == 1 and shapeT[0] == 1:
+                T = T * np.ones(shapeC)
+            elif ndimC == 1 and shapeC[0] == 1:
+                for comp in Ct:
+                    Ct[comp] = Ct[comp] * np.ones(shapeT)
+            else: raise ValueError(f' Argument T ({T.shape}) and argument `Ct` keys ({shapeC}) must have the same shape.')
+        self.Ci_L = Ct
+        self.compounds = list(Ct.keys())
+        self.temperature = T
+        self.pH = pH
+        self.salinity = salinity
+        if fluidType != 'ideal' and fluidType != 'non-ideal':
+            raise ValueError(f'Unknown fluid type ({fluidType}). Existing types: \'ideal\' and \'non-ideal\'')
+        self.fluidType = fluidType
+        if fluidType == 'non-ideal':
+            if not methods:
+                methods = {}
+                for compound in Ct:
+                    methods[compound] = 'DH-ext'
+            self.methods = methods
+        else:
+            self.methods = None
+
 class Ocean(Hydrosphere):
     pass
 
