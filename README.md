@@ -448,10 +448,8 @@ Environment
   │      ├── CAMS(Atmosphere)
   │      ├── ISAMERRA2(Atmosphere)
   │      └── CAMSMERRA2(Atmosphere)
-  ├── Hydrosphere(Environment) # As example. Currently unavailable.
-  │      ├── Ocean(Hydrosphere)
-  │      ├── Sediments(Hydrosphere)
-  │      └── River(Hydrosphere)
+  ├── Hydrosphere(Environment)
+  │      └── gWB(Hydrosphere)
   ├── Cryosphere(Environment) # As example. Currently unavailable.
   │      └── Glacier(Cryosphere)
   └── Lithosphere(Environment) # As example. Currently unavailable.
