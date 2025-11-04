@@ -428,12 +428,14 @@ ecosysem
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - General functions (for all environmental models) | [GO](#Environment)
-  - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
-  - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
-  - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
-  - Copernicus Atmosphere Monitoring Service (CAMS) | [GO](#CAMS)
-  - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
-  - General (or non-specific) Water Body (GWB) | [GO](#GWB)
+  - Atmosphere
+    - Ideal Earth's atmosphere (International Standard Atmosphere, ISA) | [GO](#ISA)
+    - Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) | [GO](#MERRA2)
+    - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
+    - Copernicus Atmosphere Monitoring Service (CAMS) | [GO](#CAMS)
+    - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
+  - Hydrosphere
+    - General (or non-specific) Water Body (GWB) | [GO](#GWB)
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
