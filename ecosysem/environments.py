@@ -2562,7 +2562,7 @@ class GWB(Hydrosphere):
                 for comp in Ct:
                     Ct[comp] = Ct[comp] * np.ones(shapeT)
             else: raise ValueError(f' Argument T ({T.shape}) and argument `Ct` keys ({shapeC}) must have the same shape.')
-        self.Ci_L = Ct
+        self.Ci_L = Ct.copy()
         self.compounds = list(Ct.keys())
         self.temperature = T
         self.pH = pH
