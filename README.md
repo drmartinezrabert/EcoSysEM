@@ -316,7 +316,8 @@ ecosysem
   │      ├── Environment
   │      │    ├── loadData
   │      │    ├── getAttributeNames
-  │      │    └── combData
+  │      │    ├── combData
+  │      │    └── getDGr
   │      ├── ISA
   │      │    ├── .altitude
   │      │    ├── .temperature
@@ -331,6 +332,7 @@ ecosysem
   │      │    ├── .H2O
   │      │    ├── .layers
   │      │    ├── .resolution
+  │      │    ├── .DGr (if .getDGr() is called)
   │      │    ├── setComposition
   │      │    ├── plotTandP
   │      │    └── plotCompsProfilesISA
@@ -360,6 +362,7 @@ ecosysem
   │      │    ├── .lon
   │      │    ├── .compounds
   │      │    ├── .compositions
+  │      │    ├── .DGr (if .getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
   │      │    ├── .altitude
@@ -370,7 +373,7 @@ ecosysem
   │      │    ├── .CO
   │      │    ├── .CO2
   │      │    └─ getDataCAMS
-  │      └── CAMSMERRA2 {subclass of CAMS & MERRA2}
+  │      │── CAMSMERRA2
   │      │    ├── .altitude
   │      │    ├── .temperature
   │      │    ├── .pressure
@@ -382,7 +385,17 @@ ecosysem
   │      │    ├── .lat
   │      │    ├── .lon
   │      │    ├── .compounds
+  │      │    ├── .DGr (if .getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
+  │      └── GWB
+  │           ├── .temperature
+  │           ├── .pH
+  │           ├── .salinity
+  │           ├── .Ci_L
+  │           ├── .methods
+  │           ├── .fluidType
+  │           ├── .compounds
+  │           └── .DGr (if .getDGr() is called)
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
@@ -420,6 +433,7 @@ This section clarifies concepts, design decisions and technical details of this 
   - ISA-MERRA2 atmospheric model | [GO](#ISAMERRA2)
   - Copernicus Atmosphere Monitoring Service (CAMS) | [GO](#CAMS)
   - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
+  - General (or non-specific) Water Body (GWB) | [GO](#GWB)
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
@@ -449,7 +463,7 @@ Environment
   │      ├── ISAMERRA2(Atmosphere)
   │      └── CAMSMERRA2(Atmosphere)
   ├── Hydrosphere(Environment)
-  │      └── gWB(Hydrosphere)
+  │      └── GWB(Hydrosphere)
   ├── Cryosphere(Environment) # As example. Currently unavailable.
   │      └── Glacier(Cryosphere)
   └── Lithosphere(Environment) # As example. Currently unavailable.
@@ -1388,6 +1402,78 @@ newCAMSMERRA2 = CAMSMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.1
 
 #
 
+<a name="GWB">**General (or non-specific) Water Body (GWB)**</a><br>
+Definition of a general (or non-specific) water body (abbreviated as GWB). A general (or non-specific) water body refers to any generic, unnamed, or unspecific natural or artificial collection of water, such as a lake, river, puddle, pool, pond, or stream.
+
+### GWB &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+instance_GWB = GWB(Ct, T=[298.15], pH=[7.0], salinity=[0.0], fluidType='ideal', methods=None, showMessage=True)
+```
+Create an instance of `GWB` object.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_ or _list of floats_, _optional, default: 298.15_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_ or _list of floats_, _optional, default: 7.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _float_ or _list of floats_, _optional, default: 0.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water body.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **showMessage : _bool_, _optional, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Console.<p>
+**Attributes:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _float_ or _list of floats_, _optional, default: 298.15_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pH : _float_ or _list of floats_, _optional, default: 7.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.salinity : _float_ or _list of floats_, _optional, default: 0.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water body.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_L : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *.*methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compounds : _list of str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of considered compounds.<p>
+
+The `GWB` does not need data to be download. The user can create a new _GWB_ object with, at least, `Ct` argument. The user can get the data calling the attributes defined above. Here is an example:
+```python
+from envdef import GWB
+from thermodynamics import ThSA
+
+new_GWB = GWB(Ct = {'CO2': [6.007e-4], 'Mg+2': [2.325e-2], 'Ca+2': [4.596e-3], 'Na+': [1.833e-1], 'K+': [4.032e-3],
+                    'Cl-': [2.555e-1], 'Ba+2': [4.545e-9], 'Sr+2': [3.432e-6], 'SO4-2': [1.244e-2], 'NO3-': [5.432e-6],
+                    'O2': [6.250e-6], 'H2': [7.213e-4], 'CH4': [3.472e-4], 'HCOOH': [4.000e-6], 'CH3COOH': [7.000e-5],
+                    'NH2CH2COOH': [5.400e-9], 'H2S': [2.000e-12], 'NH3': [3.600e-7], 'NO2-': [1.000e-8], 'N2': [1.000e-3]},
+              fluidType = 'ideal',
+              methods = {'CO2': 'SS', 'Mg+2': 'DH-ext', 'Ca+2': 'DH-ext', 'Na+': 'DH-ext', 'K+': 'DH-ext',
+                         'F-': 'DH-ext', 'Cl-': 'DH-ext', 'Ba+2': 'DH-ext', 'Sr+2': 'DH-ext', 'SO4-2': 'DH-ext',
+                         'NO3-': 'DH-ext', 'O2': 'SS', 'H2': 'SS', 'CH4': 'SS', 'HCOOH': 'DH-ext', 'CH3COOH': 'DH-ext',
+                         'NH2CH2COOH': 'DH-ext', 'H2S': 'SS', 'NH3': 'SS', 'NO2-': 'DH-ext', 'N2': 'SS'},
+              T = np.arange(32.0 + 273.15, 46 + 273.15, 2.0),
+              pH = [3.0, 4.0])
+
+# Compute and show non-standard Gibbs free energy of formate generation (ForGen) and acetate Gen (AcGen)
+new_GWB.getDGr('microprony', ['ForGen', 'AcGen'], ['H2', 'H2'])
+>>> print(newGWB.DGr)
+{'ForGen_pH:3.0': array([5.69677612, 5.74490896, 5.79296237, 5.84094139, 5.88885094, 5.93669582, 5.98448072]),
+ 'AcGen_pH:3.0': array([-20.38694508, -20.14563383, -19.90438742, -19.66320868, -19.42210047, -19.18106572, -18.94010739]),
+ 'ForGen_pH:4.0': array([0.00188635, 0.0106277 , 0.01950309, 0.02852364, 0.03770105, 0.04704761, 0.05657621]),
+ 'AcGen_pH:4.0': array([-20.49800783, -20.26430799, -20.03102153, -19.79815343, -19.56570758, -19.3336868 , -19.10209272])}
+```
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+#
+
 <a name="create-new-environment">**How to create a new environment (class or subclass)**</a><br>
 New environment classes (_Parent environment_) or subclasses (_child environment_) can be created in `envdef.py` module. Remember that a _child environment_ has all attributes and methods of _parent environments_ (_i.e._, `Environment01` and `Environment02` of example below). The _child environment_ can have its own attributes and methods in addition to those of the _parent environments_.
 
@@ -2058,6 +2144,9 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 
 #### · <ins>CAMSMERRA2</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CAMSMERRA2](#camsmerra2---back-to-function-navigation)<br>
+
+#### · <ins>GWB</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [GWB](#GWB---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
