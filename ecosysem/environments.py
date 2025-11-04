@@ -2246,7 +2246,7 @@ class CAMSMERRA2(Atmosphere):
         for var in dict_ISAMERRA2:
             dict_compos_result = dict_ISAMERRA2[var]
             dict_compos_CAMSMERRA2 = dict_CAMSMERRA2[var]
-            if dict_compos_result:
+            if dict_compos_CAMSMERRA2:
                 dict_compos_result.update(dict_compos_CAMSMERRA2)
             setattr(self, var, dict_compos_result)
         # Data from MERRA2
