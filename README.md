@@ -313,7 +313,7 @@ ecosysem
   │           ├── ecoysDirEdges
   │           └── ecoysDiHypergraph
   ├── environments.py
-  │      ├── Environment
+  │      ├── Environment (this behaviours can also be called by model classes. E.g., ISA.getDGr(...))
   │      │    ├── loadData
   │      │    ├── getAttributeNames
   │      │    ├── combData
@@ -455,7 +455,7 @@ The benefits of OOP are _i_) organization, _ii_) state definition and tracking, 
 #
 
 <a name="Environment">**General functions for all environmental models**</a><br>
-Each environment has their own models in object form, with the corresponding attributes and behaviours (i.e., functions). Some behaviours are shared between the distinct environmental classes, which they are gathered in _Environment_ object. _Environment_ object (parent class) has a set of inherited classes (child class), where the latters inherits all attributes and behaviours of parent class. The child classes of _Environment_ are the distinct regions of Earth: _Atmosphere_, _Hydrosphere_, _Cryosphere_ or _Lithosphere_. For now, only _Atmosphere_ is available. At the same time, region objects (like _Atmosphere_) have their own inheritance, the distinct environmental models. For example, _Atmosphere_ object has _ISA_, _MERRA2_, _CAMS_, _ISAMERRA2_ and _CAMSMERRA2_. Inheritance is represented as `Child(Parent)`:
+Each environment has their own models in object form, with the corresponding attributes and behaviours (i.e., functions). Some behaviours are shared between the distinct environmental classes, which they are gathered in _Environment_ object. _Environment_ object (parent class) has a set of inherited classes (child class), where the latters inherits all attributes and behaviours of parent class. The child classes of _Environment_ are the distinct regions of Earth: _Atmosphere_, _Hydrosphere_, _Cryosphere_ or _Lithosphere_. For now, only _Atmosphere_ and _Hydrosphere_ are available. At the same time, region objects (like _Atmosphere_) have their own inheritance, the distinct environmental models. For example, _Atmosphere_ object has _ISA_, _MERRA2_, _CAMS_, _ISAMERRA2_ and _CAMSMERRA2_. Inheritance is represented as `Child(Parent)`:
 ```python
 Environment
   ├── Atmosphere(Environment)
@@ -472,11 +472,15 @@ Environment
          └── Crust(Lithosphere)
 ```
 
+> [!NOTE]
+> The following behaviours can be called from any of the defind environmental environments.
+> For example: `MERRA2.loadData(...)`, `CAMS.loadData(...)`, `ISA.getDGr(...)`,  `ISAMERRA2.getDGr(...)`, `CAMSMERRA2.getDGr(...)` or `GWB.getDGr(...)`.
+
 ### Environment.loadData &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 Environment.loadData(model, dataType, y, m=None, d=None, keys='All')
 ```
-Get data in dictionary form.<p>
+Get data in dictionary form. This behaviour is available for `MERRA2` and `CAMS` objects.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **model : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environmental model.<br>
@@ -503,7 +507,7 @@ Get data in dictionary form.<p>
 ```python
 Environment.combData(model, dataType, year, month, days=None, keys='All', dataDelete=False)
 ```
-Get average and standard deviation from a group of data.<p>
+Get average and standard deviation from a group of data. This behaviour is available for `MERRA2` and `CAMS` objects.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **model : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environmental model.<br>
@@ -530,12 +534,32 @@ Get average and standard deviation from a group of data.<p>
 ```python
 Environment.getAttributeNmes()
 ```
-Return attribute names of an Environment object as a list.<p>
+Return attribute names of an Environment object as a list. This behaviour is available for all environmental models.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **None** <br>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **attributes : _list of str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Attribute names of Environment object.<br>
+
+### Environment.getDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+Environment.getDGr(typeRxn, input_, specComp)
+```
+Compute (non-)stadard Gibbs free energy using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2` and `GWB` objects.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<p>
+**Returns:** <br>
+**New attribute (`.DGr`) is created in object instance.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': [DGr]}`<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -2126,6 +2150,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.loadData](#environmentloaddata---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.combData](#environmentcombdata---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getAttributeNames](#environmentgetattributenames---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDGr](#environmentgetdgr---back-to-function-navigation)<br>
 
 #### · <ins>ISA (Atmosphere)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA](#isa---back-to-function-navigation)<br>
