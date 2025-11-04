@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - yyyy-mm-dd
+## [Unreleased] - yyyy/mm/dd
 ### Added
 - Bioenergetic calculations
   - Catabolic cell-specific power.
