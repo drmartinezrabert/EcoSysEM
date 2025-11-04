@@ -441,7 +441,7 @@ class Environment:
 
         Returns
         -------
-        Results are saved as attributes of model instances (modelName.DGr)
+        Results are saved as an attribute of model instances (modelName.DGr) as a dictionary.
 
         """
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
