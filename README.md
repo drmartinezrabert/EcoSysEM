@@ -473,7 +473,7 @@ Environment
 ```
 
 > [!NOTE]
-> The following behaviours can be called from any of the defind environmental environments.
+> The following behaviours can be called from any of the defind environmental models.
 > For example: `MERRA2.loadData(...)`, `CAMS.loadData(...)`, `ISA.getDGr(...)`,  `ISAMERRA2.getDGr(...)`, `CAMSMERRA2.getDGr(...)` or `GWB.getDGr(...)`.
 
 ### Environment.loadData &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
