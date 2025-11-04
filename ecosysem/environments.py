@@ -425,6 +425,25 @@ class Environment:
         return keys
 
     def getDGr(self, typeRxn, input_, specComp):
+        """
+        Compute (non-)stadard Gibbs free energy using information from
+        atmospheric models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+
+        Returns
+        -------
+        Results are saved as attributes of model instances (modelName.DGr)
+
+        """
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
