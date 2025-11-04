@@ -9,8 +9,15 @@ All notable changes to this project will be documented in this file.
 - Bioenergetic calculations
   - Catabolic cell-specific power.
   - Empirical requirement cell-specific power.
+- New environment in `Hydrosphere`.
+  - General (or non-specific) Water Body: `GWB()`. 
+- Thermodynamic State Analysis (ThSA) is incorporated in `Environment class`.
+  - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `gWB()`.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
+### Fixed
+- Bug in `Environment.loadData()`: data existence wasn't check before loading.
+- Bug in `CAMSMERRA2()`: error came out when phase was defined.
 ### Changed
 - README file.
 
