@@ -585,7 +585,7 @@ class Environment:
         figsize : (FLOAT, FLOAT), optional
             Figure size. (Width, Height) in inches. The default is (9.0, 6.0).
         fontsize_label : FLOAT, optional
-            Font size label. The default is 12.
+            Font size of labels. The default is 12.
         savePlot : BOOL, optional
             Save resultant plot in `results/` folder. The default is False.
         printDG0r : BOOL, optional
