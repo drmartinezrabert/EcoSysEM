@@ -567,7 +567,8 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 
 ### Environment.smmryDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.smmryDGr(typeRxn, input_, specComp, molality=True, renameRxn=None, write_results_csv=False, logScaleX=True, vmin=None, vmax=None, printDG0r=False, printDH0r=False, showMessage=True)
+Environment.smmryDGr(typeRxn, input_, specComp, molality=True, renameRxn=None, write_results_csv=False, logScaleX=True,
+                     vmin=None, vmax=None, printDG0r=False, printDH0r=False, showMessage=True)
 ```
 Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific range of T and pH. This behaviour is available `GWB` object.<p>
 **Parameters:**<br>
@@ -603,7 +604,9 @@ Create a summary plot with the range of Gibbs free energy of a set of reactions 
 
 ### Environment.saConcDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.saConcDGr(typeRxn, input_, specComp, range_val, num=50, molality=True, marker='o', mec='k', mew=1, mfc='w', ms=8, figsize=(9.0, 6.0), fontsize_label=12, savePlot=False, printDG0r=False, printDH0r=False, showMessage=True)
+Environment.saConcDGr(typeRxn, input_, specComp, range_val, num=50, molality=True, marker='o', mec='k', mew=1, mfc='w',
+                      ms=8, figsize=(9.0, 6.0), fontsize_label=12, savePlot=False, printDG0r=False, printDH0r=False,
+                      showMessage=True)
 ```
 Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder. This behaviour is available `GWB` object.<p>
 **Parameters:**<br>
@@ -806,7 +809,8 @@ Along with the enhancements in the meteorological assimilation, MERRA-2 takes so
 
 ### MERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_MERRA2 = MERRA2(dataType=None, y=None, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', keysAsAttributes=True, altArray=None, numAlt=50, showMessage=True)
+instance_MERRA2 = MERRA2(dataType=None, y=None, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', keysAsAttributes=True,
+                         altArray=None, numAlt=50, showMessage=True)
 ```
 Create an instance of `MERRA2` object.<p>
 **Parameters:**<br>
@@ -953,7 +957,8 @@ newMERRA2 = MERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.
 > With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
 
 ```python
-MERRA2.getDataMERRA2(dataType, years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90), var=['PS', 'T2M', 'TROPT', 'TROPPB'])
+MERRA2.getDataMERRA2(dataType, years, months, days='All', product='M2I1NXASM', version='5.12.4', bbox=(-180, -90, 180, 90),
+                     var=['PS', 'T2M', 'TROPT', 'TROPPB'])
 ```
 Download data from MERRA2 database.<p>
 **Parameters:**<br>
@@ -990,7 +995,8 @@ Combination of International Standard Atmosphere ([ISA](#ISA)) model and Modern-
 
 ### ISAMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_ISAMERRA2 = ISAMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), compound=None, phase='All', altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
+instance_ISAMERRA2 = ISAMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), compound=None, phase='All',
+                               altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
 ```
 Create an instance of `ISAMERRA2` object.<p>
 **Parameters:**<br>
@@ -1166,7 +1172,9 @@ The Copernicus Atmosphere Monitoring Service (CAMS) provides continuous data and
 
 ### CAMS &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_CAMS = CAMS(dataType=None, y=None, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', keys_to_reshape=['lat', 'lon', 'CH4', 'CH4_std', 'CO', 'CO_std', 'CO2', 'CO2_std'], keysAsAttributes=True, showMessage=True)
+instance_CAMS = CAMS(dataType=None, y=None, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All',
+                     keys_to_reshape=['lat', 'lon', 'CH4', 'CH4_std', 'CO', 'CO_std', 'CO2', 'CO2_std'],
+                     keysAsAttributes=True, showMessage=True)
 ```
 Create an instance of `MERRA2` object.<p>
 **Parameters:**<br>
@@ -1310,7 +1318,9 @@ newCAMS = CAMS(dataType = 'yly', y = 2020, bbox = (-180, -90, -175, -85))
 > With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
 
 ```python
-CAMS.getDataCAMS(dataType, years, months, days='All', hours=[0, 12], dataset=None, pressure_levels=[50, 100, 200, 400, 600, 800, 900, 1000], variables=None, bbox=[90, -180, -90, 180], mode=None, method='linear')
+CAMS.getDataCAMS(dataType, years, months, days='All', hours=[0, 12], dataset=None,
+                 pressure_levels=[50, 100, 200, 400, 600, 800, 900, 1000], variables=None,
+                 bbox=[90, -180, -90, 180], mode=None, method='linear')
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -1349,7 +1359,8 @@ Combination of Copernicus Atmosphere Monitoring Service ([CAMS](#CAMS)) model an
 
 ### CAMSMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', phase='All', altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
+instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', phase='All',
+                                 altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
 ```
 Create an instance of `CAMSMERRA2` object.<p>
 **Parameters:**<br>
@@ -1707,9 +1718,8 @@ The main and auxiliary functions to perform the ThSA are located in `thermodynam
 
 ### ThSA.exportDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH=7.0, S=None, Ct=1.0, specComp=False,
-                   altitude=False, fluidType='ideal', molality=True, methods=None, solvent='H2O',
-                   asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
+ThSA.exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH=7.0, S=None, Ct=1.0, specComp=False, altitude=False, fluidType='ideal',
+                   molality=True, methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
@@ -1762,9 +1772,8 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 
 ### ThSA.getDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.getDeltaGr(typeRxn, input_, phase, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0,
-                fluidType='ideal', molality=True, methods=None, solvent='H2O', asm='stoich',
-                warnings=False, printDG0r=False, printDH0r=False)
+ThSA.getDeltaGr(typeRxn, input_, phase, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal', molality=True,
+                methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Return a n-dimension array with ΔG<sub>r</sub> values.<p>
@@ -1815,9 +1824,8 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 
 ### ThSA.smmryDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.smmryDeltaGr(typeRxn, input_, specComp, phase, T, pH, S, Ct, fluidType='ideal', molality=True, 
-                  methods=None, renameRxn=None, write_results_csv=False, logScaleX=True, vmin=None,
-                  vmax=None, printDG0r=False, printDH0r=False, showMessage=True)
+ThSA.smmryDeltaGr(typeRxn, input_, specComp, phase, T, pH, S, Ct, fluidType='ideal', molality=True, methods=None, renameRxn=None,
+                  write_results_csv=False, logScaleX=True, vmin=None, vmax=None, printDG0r=False, printDH0r=False, showMessage=True)
 ```
 Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific range of T and pH.<p>
 **Parameters:**<br>
@@ -1868,10 +1876,9 @@ Create a summary plot with the range of Gibbs free energy of a set of reactions 
 
 ### ThSA.saConcDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
-                   phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
-                   mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
-                   savePlot = False, printDG0r = False, printDH0r = False, showMessage = True)
+ThSA.saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T=298.15, pH=7.0, S=0.0, num=50, phase='L', fluidType='ideal',
+                   molality=True, methods=None, marker='o', mec='k', mew=1, mfc='w', ms=8, figsize=(9.0, 6.0), fontsize_label=12,
+                   savePlot=False, printDG0r=False, printDH0r=False, showMessage=True)
 ```
 Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder.<p>
 **Parameters:**<br>
