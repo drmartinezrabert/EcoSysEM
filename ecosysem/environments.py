@@ -474,7 +474,81 @@ class Environment:
             for idRxn, rxn in enumerate(infoRxn):
                 DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
-        
+    
+    def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
+                 logScaleX = True, vmin = None, vmax = None, printDG0r = False, printDH0r = False, 
+                 showMessage = True):
+        """
+        Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific
+        range of T and pH.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'NewName'}
+            The default is None.
+        write_results_csv : BOOL, optional
+            Write DGr values in a .csv file. The default is False.
+        logScaleX : BOOL, optional
+            If True, DGr is plotted using symmetrical log coordinate. The default is True.
+        vmin : None or FLOAT, optional
+            Set minimum value (left) of coordinate-X. The default is None.
+        vmax : None or FLOAT, optional
+                Set maximum value (right) of coordinate-X. The default is None.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        None.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T = self.temperature
+        pH = self.pH
+        S = self.salinity
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        ThSA.smmryDeltaGr(typeRxn = typeRxn, 
+                          input_ = input_, 
+                          specComp = specComp, 
+                          phase = phase,
+                          T = T, 
+                          pH = pH, 
+                          S = S, 
+                          Ct = Ct, 
+                          fluidType = fluidType, 
+                          methods = methods, 
+                          molality = molality,
+                          renameRxn = renameRxn,
+                          write_results_csv = write_results_csv, 
+                          logScaleX = logScaleX, 
+                          vmin = vmin,
+                          vmax = vmax,
+                          printDG0r = printDG0r, 
+                          printDH0r = printDH0r,
+                          showMessage = showMessage)
+
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _plotAtmosphere():
