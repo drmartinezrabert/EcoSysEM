@@ -2779,10 +2779,14 @@ class GWB(Hydrosphere):
             if not isinstance(Ct[compound], np.ndarray): Ct[compound] = np.array(Ct[compound])
         if isinstance(T, (float, int)): T = [T]
         if isinstance(T, list): T = np.array(T)
+        if isinstance(salinity, (float, int)): salinity = [salinity]
+        if isinstance(salinity, list): salinity = np.array(salinity)
         shapeT = T.shape
         ndimT = T.ndim
         shapeC = Ct[list(Ct.keys())[0]].shape
         ndimC = Ct[list(Ct.keys())[0]].ndim
+        shapeS = salinity.shape
+        ndimS = salinity.ndim
         if shapeT != shapeC:
             if ndimT == 1 and shapeT[0] == 1:
                 T = T * np.ones(shapeC)
@@ -2794,7 +2798,14 @@ class GWB(Hydrosphere):
         self.compounds = list(Ct.keys())
         self.temperature = T
         self.pH = pH
-        self.salinity = salinity
+        if 'Cl-' in self.compounds:
+            S = 0.0018066 * Ct['Cl-'] * (35.45/1) * (1000/1) # [ppt]
+            S = S * np.ones(np.shape(T))
+        else:
+            if ndimS == 1 and shapeS[0] == 1:
+                S = salinity * np.ones(shapeT)
+            else: raise ValueError(f' Argument T ({T.shape}) and argument `salinity` ({shapeS}) must have the same shape.')
+        self.salinity = S
         if fluidType != 'ideal' and fluidType != 'non-ideal':
             raise ValueError(f'Unknown fluid type ({fluidType}). Existing types: \'ideal\' and \'non-ideal\'')
         self.fluidType = fluidType
