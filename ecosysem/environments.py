@@ -453,15 +453,15 @@ class Environment:
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         S = self.salinity
         if self.model == 'GWB':
-            Ct = self.Ci_L
+            Ct = self.Ci_L.copy()
         elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
             if phase == 'G':
-                Ct = self.Ci_G
+                Ct = self.Ci_G.copy()
             elif phase == 'L-FW':
-                Ct = self.Ci_LFW
+                Ct = self.Ci_LFW.copy()
                 phase = 'L'
             elif phase == 'L-SW':
-                Ct = self.Ci_LSW
+                Ct = self.Ci_LSW.copy()
                 phase = 'L'
             else:
                 raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
