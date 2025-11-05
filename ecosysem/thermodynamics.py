@@ -1343,6 +1343,250 @@ class ThSA:
         if showMessage:
             print('  > Done.')
     
+    def saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
+                      phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
+                      mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
+                      savePlot = False, printDG0r = False, printDH0r = False, showMessage = True): # !!!
+        """
+        Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
+        range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
+        `results/` folder in `/#. rxnName` folder.
+        
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        range_val : (min_value, max_value)
+            Set minimum and maximum concentration values.
+        T : FLOAT, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT
+            Salinity [ppt]. The default is None.
+        num : INT, optional
+            Number of concentration to generate between min_value and max_value. The default is 50.
+        phase : TYPE, optional
+            DESCRIPTION. The default is 'L'.
+        fluidType : TYPE, optional
+            DESCRIPTION. The default is 'ideal'.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : TYPE, optional
+            DESCRIPTION. The default is None.
+        marker : STR, optional
+            Set the line marker. The default is 'o'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 1.0.
+        mfc : STR, optional
+            Set the marker face color. The default is 'w'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.0.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (9.0, 6.0).
+        fontsize_label : FLOAT, optional
+            Font size label. The default is 12.
+        savePlot : BOOL, optional
+            Save resultant plot in `results/` folder. The default is False.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        Plot in Spyder or in `results/` folder.
+
+        """
+        if showMessage:
+            print('  > Creating sensitivity analysis of Gibbs free energy...')
+        savePath = 'results/'  
+        if range_val[0] > range_val[1]:
+            raise ValueError(f'Invalid \'range_val\' ({range_val}). It must be (min_val, max_val).')
+        min_val = range_val[0]
+        max_val = range_val[1]
+        log_min_val = int(np.ceil(np.log10(min_val)))
+        log_max_val = int(np.ceil(np.log10(max_val)))
+        gShape = np.ones((num, num))
+        list_val = {}
+        for comp in Ct:
+            list_val[comp] = np.logspace(log_min_val, log_max_val, num = num)
+        if not isinstance(T, (int, float)) and (isinstance(T, (list, np.ndarray)) and len(T) != 1):
+            raise TypeError(f'Temperature (argument `T`) must be an integer or float ({type(T)})')
+        if not isinstance(S, (int, float)) and (isinstance(S, (list, np.ndarray)) and len(T) != 1):
+            raise TypeError(f'Salinity (argument `S`) must be an integer or float ({type(S)})')
+        T = T * gShape
+        S = S * gShape
+        for c in Ct:
+            Ct[c] = Ct[c] * gShape
+        remove_comp = ['H2O', 'H+']
+        iC = 0
+        for idRxn, rxn in enumerate(input_):
+            iC += 1
+            specCp_ = specComp[idRxn]
+            sa_comp, _, _ = Rxn.getRxn(typeRxn, rxn)
+            for r in remove_comp:
+                try:
+                    sa_comp.remove(r)
+                except:
+                    continue
+            comb_comp = combinations(sa_comp, 2)
+            for comb in comb_comp:
+                fix_comp = sa_comp[:]
+                C = Ct.copy()
+                # Analyzed compounds
+                for idc, c in enumerate(comb):
+                    c_prev = c
+                    try:
+                        list_val[c]
+                    except:
+                        # pH speciation
+                        pH_comp, _, _ = Rxn.getRxnpH(c)
+                        if 'H2CO3' in pH_comp:
+                            pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                        u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                        c = u[counts > 1][0]
+                    if idc == 0:
+                        C[c] = np.transpose(np.tile(list_val[c], (num, 1)))
+                    elif idc == 1:
+                        C[c] = np.tile(list_val[c], (num, 1))
+                    fix_comp.remove(c_prev)
+                # Fixed compounds
+                for f in fix_comp:
+                    try:
+                        Ct[f]
+                    except:
+                        # pH speciation
+                        pH_comp, _, _ = Rxn.getRxnpH(f)
+                        if 'H2CO3' in pH_comp:
+                            pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                        u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                        f = u[counts > 1][0]
+                    C[f] = np.tile(Ct[f][0, 0], (num, num))
+                # DGr calculation
+                DGr, _ = ThSA.getDeltaGr(typeRxn = 'microprony',
+                                         input_ = rxn, 
+                                         phase = phase, 
+                                         specComp = specCp_,
+                                         T = T,
+                                         pH = pH,
+                                         S = S, 
+                                         Ct = C,
+                                         fluidType = fluidType,
+                                         molality = molality,
+                                         methods = methods,
+                                         printDG0r = printDG0r,
+                                         printDH0r = printDH0r)
+                # Plotting
+                try:
+                    list_val[comb[1]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[1])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                    x = list_val[c]
+                else:
+                    x = list_val[comb[1]]
+                try:
+                    list_val[comb[0]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[0])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                    y = list_val[c]
+                else:
+                    y = list_val[comb[0]]
+                fig, ax = plt.subplots(figsize = figsize)
+                F = ax.contourf(x, y, DGr, num, norm=clr.CenteredNorm(), cmap = 'coolwarm_r')
+                clb = fig.colorbar(F, format=tkr.FormatStrFormatter('%.2f'))
+                eq_line = (np.max(DGr)-np.min(DGr)) * 1e-3
+                levels = [-eq_line, eq_line]
+                plt.contourf(x, y, DGr, levels=levels, colors='k')
+                # yLabel
+                try:
+                    Ct[comb[0]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[0])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                else:
+                    c = comb[0]
+                try:
+                    Ct[c]
+                except:
+                    print(f'Warning: ∆Gr of {rxn} cannot be estimated. Missing concentration of {c}.')
+                    continue
+                else:
+                    y = Ct[c]
+                    yLabel = c
+                try:
+                    Ct[comb[1]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[1])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                else:
+                    c = comb[1]
+                try:
+                    Ct[c]
+                except:
+                    print(f'Warning: ∆Gr of {rxn} cannot be estimated. Missing concentration of {c}.')
+                    continue
+                else:
+                    x = Ct[c]
+                    xLabel = c
+                plt.plot(x, y, marker = marker, mec = mec, mew = mew,
+                         mfc = mfc, ms = ms, alpha = 0.8)
+                clb.set_label('∆Gr (kJ/mol)', fontsize = fontsize_label)
+                clb.ax.axhline(0.0, c='k')
+                ax.set_xscale('log')
+                ax.set_yscale('log')
+                ax.set_xlabel(f'{xLabel} (M)')
+                ax.set_ylabel(f'{yLabel} (M)')
+                ticks = np.logspace(log_min_val, log_max_val, int(abs(log_max_val-log_min_val))+1)
+                ax.set_xticks(ticks)
+                ax.set_yticks(ticks)
+                xaxis = plt.gca().xaxis
+                xaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+                yaxis = plt.gca().yaxis
+                yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+                plt.title(f'{rxn} | x: {xLabel}; y: {yLabel}')
+                if savePlot:
+                    path = savePath + str(iC) + '.' + rxn + '/'
+                    if not os.path.isdir(path):
+                        os.makedirs(path)
+                    plt.savefig(f'{path}{rxn}_{xLabel}_{yLabel}', bbox_inches='tight')
+                else:
+                    plt.show()
+                plt.close()
+            print(f'    > {iC}. {rxn} done.')
+        if showMessage:
+            print('  > Done.')
+                
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
         Write calculated DeltaGr in Excel document.
