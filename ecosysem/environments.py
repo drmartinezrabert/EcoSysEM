@@ -799,6 +799,7 @@ class ISA(Atmosphere):
                           }
         dDC = pd.DataFrame(data = dryComposition)
         self.layers = layers
+        if isinstance(pH, (int, float)): pH = [pH]
         self.pH = pH
         self.phase = phase
         self.resolution = resolution
@@ -1430,6 +1431,7 @@ class ISAMERRA2(Atmosphere):
         self.fluidType = 'ideal'
         self.salinity = None
         self.methods = None
+        if isinstance(pH, (int, float)): pH = [pH]
         self.pH = pH
         # Data from ISA
         ISAinst = ISA(showMessage = False)
@@ -2442,6 +2444,7 @@ class CAMSMERRA2(Atmosphere):
         self.phase = phase
         self.fluidType = 'ideal'
         self.salinity = None
+        if isinstance(pH, (int, float)): pH = [pH]
         self.pH = pH
         self.methods = None
         comp_G = ISAMERRA2inst.compositions
