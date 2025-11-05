@@ -1346,7 +1346,7 @@ class ThSA:
     def saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
                       phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
                       mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
-                      savePlot = False, printDG0r = False, printDH0r = False, showMessage = True): # !!!
+                      savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
         """
         Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
         range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
