@@ -364,7 +364,7 @@ ecosysem
   │      │    ├── .lon
   │      │    ├── .compounds
   │      │    ├── .compositions
-  │      │    ├── ISAMERRA2.DGr (if .getDGr() is called)
+  │      │    ├── .DGr (if ISAMERRA2.getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
   │      │    ├── .altitude
@@ -387,7 +387,7 @@ ecosysem
   │      │    ├── .lat
   │      │    ├── .lon
   │      │    ├── .compounds
-  │      │    ├── CAMSMERRA2.DGr (if .getDGr() is called)
+  │      │    ├── .DGr (if CAMSMERRA2.getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      └── GWB
   │           ├── .temperature
@@ -397,7 +397,7 @@ ecosysem
   │           ├── .methods
   │           ├── .fluidType
   │           ├── .compounds
-  │           └── GWB.DGr (if .getDGr() is called)
+  │           └── .DGr (if GWB.getDGr() is called)
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
