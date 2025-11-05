@@ -549,6 +549,91 @@ class Environment:
                           printDH0r = printDH0r,
                           showMessage = showMessage)
 
+    def saConcDGr(self, typeRxn, input_, specComp, range_val, num = 50, molality = True, marker = 'o', 
+                  mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12, 
+                  savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
+        """
+        Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
+        range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
+        `results/` folder in `/#. rxnName` folder.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        range_val : (min_value, max_value)
+            Set minimum and maximum concentration values.
+        num : INT, optional
+            Number of concentration to generate between min_value and max_value. The default is 50.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        marker : STR, optional
+            Set the line marker. The default is 'o'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 1.0.
+        mfc : STR, optional
+            Set the marker face color. The default is 'w'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.0.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (9.0, 6.0).
+        fontsize_label : FLOAT, optional
+            Font size label. The default is 12.
+        savePlot : BOOL, optional
+            Save resultant plot in `results/` folder. The default is False.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        Plot in Spyder or in `results/` folder.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T = self.temperature
+        pH = self.pH
+        S = self.salinity
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        ThSA.saConcDeltaGr(typeRxn = typeRxn, 
+                           input_ = input_, 
+                           specComp = specComp, 
+                           Ct = Ct, 
+                           range_val = range_val, 
+                           T = T, 
+                           pH = pH, 
+                           S = S,
+                           phase = phase,
+                           num = num, 
+                           fluidType = fluidType, 
+                           molality = molality, 
+                           methods = methods, 
+                           marker = marker, 
+                           mec = mec, mew = mew,
+                           mfc = mfc, ms = ms, 
+                           figsize = figsize, 
+                           fontsize_label = fontsize_label, 
+                           savePlot = savePlot,
+                           printDG0r = printDG0r, 
+                           printDH0r = printDH0r, 
+                           showMessage = showMessage)
+
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _plotAtmosphere():
