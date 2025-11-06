@@ -602,9 +602,9 @@ Create a summary plot with the range of Gibbs free energy of a set of reactions 
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
 
-### Environment.saConcDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### Environment.conc_sa_DGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.saConcDGr(typeRxn, input_, specComp, range_val, num=50, molality=True, marker='o', mec='k', mew=1, mfc='w',
+Environment.conc_sa_DGr(typeRxn, input_, specComp, range_val, num=50, molality=True, marker='o', mec='k', mew=1, mfc='w',
                       ms=8, figsize=(9.0, 6.0), fontsize_label=12, savePlot=False, printDG0r=False, printDH0r=False,
                       showMessage=True)
 ```
@@ -1874,9 +1874,9 @@ Create a summary plot with the range of Gibbs free energy of a set of reactions 
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** <br>
 
-### ThSA.saConcDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ThSA.conc_sa_DeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T=298.15, pH=7.0, S=0.0, num=50, phase='L', fluidType='ideal',
+ThSA.conc_sa_DeltaGr(typeRxn, input_, specComp, Ct, range_val, T=298.15, pH=7.0, S=0.0, num=50, phase='L', fluidType='ideal',
                    molality=True, methods=None, marker='o', mec='k', mew=1, mfc='w', ms=8, figsize=(9.0, 6.0), fontsize_label=12,
                    savePlot=False, printDG0r=False, printDH0r=False, showMessage=True)
 ```
@@ -2362,7 +2362,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getAttributeNames](#environmentgetattributenames---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDGr](#environmentgetdgr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.smmryDGr](#environmentsmmrydgr---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.saConcDGr](#environmentsaconcdgr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.conc_sa_DGr](#environmentconcsadgr---back-to-function-navigation)<br>
 
 #### · <ins>ISA (Atmosphere)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ISA](#isa---back-to-function-navigation)<br>
@@ -2404,7 +2404,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.exportDeltaGr](#thsaexportdeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaGr](#thsagetdeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.smmryDeltaGr](#thsasmmrydeltagr---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.saConcDeltaGr](#thsasaconcdeltagr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.conc_sa_DeltaGr](#thsaconcsadeltagr---back-to-function-navigation)<br>
 
 #### · <ins>Reactions (Reactions)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Reactions.getRxn](#reactionsgetrxn---back-to-function-navigation)<br>
