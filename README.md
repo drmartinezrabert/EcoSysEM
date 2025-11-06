@@ -570,7 +570,7 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 Environment.smmryDGr(typeRxn, input_, specComp, molality=True, renameRxn=None, write_results_csv=False, logScaleX=True,
                      vmin=None, vmax=None, printDG0r=False, printDH0r=False, showMessage=True)
 ```
-Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific range of T and pH. This behaviour is available `GWB` object.<p>
+Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific range of T and pH. This behaviour is available for `GWB` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
@@ -608,7 +608,7 @@ Environment.conc_sa_DGr(typeRxn, input_, specComp, range_val, num=50, molality=T
                       ms=8, figsize=(9.0, 6.0), fontsize_label=12, savePlot=False, printDG0r=False, printDH0r=False,
                       showMessage=True)
 ```
-Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder. This behaviour is available `GWB` object.<p>
+Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder. This behaviour is available for `GWB` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
