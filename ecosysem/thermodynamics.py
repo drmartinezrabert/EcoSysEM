@@ -1169,12 +1169,12 @@ class ThSA:
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
-        T : FLOAT or LIST, optional
-            Set of temperature [K]. The default is 298.15 K (standard temperature).
-        pH : INT or FLOAT, optional
-            Set of pH. The default is 7.0 (neutral pH).
-        S : FLOAT, LIST or np.array
-            Salinity [ppt]. The default is None.
+        T : LIST
+            Set of temperatures [K].
+        pH : LIST, optional
+            Set of pHs.
+        S : LIST or np.array
+            Salinity [ppt].
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
@@ -1343,10 +1343,10 @@ class ThSA:
         if showMessage:
             print('  > Done.')
     
-    def saConcDeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
-                      phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
-                      mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
-                      savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
+    def conc_sa_DeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
+                        phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
+                        mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
+                        savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
         """
         Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
         range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
@@ -1374,14 +1374,16 @@ class ThSA:
             Salinity [ppt]. The default is None.
         num : INT, optional
             Number of concentration to generate between min_value and max_value. The default is 50.
-        phase : TYPE, optional
-            DESCRIPTION. The default is 'L'.
-        fluidType : TYPE, optional
-            DESCRIPTION. The default is 'ideal'.
+        phase : STR, optional
+            Phase of fluid. The default is 'L'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
         molality : BOOL, optional
             Select if activity units are in molality (True) or molarity (False). The default is True.
-        methods : TYPE, optional
-            DESCRIPTION. The default is None.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
         marker : STR, optional
             Set the line marker. The default is 'o'.
         mec : STR, optional
@@ -1411,7 +1413,7 @@ class ThSA:
 
         """
         if showMessage:
-            print('  > Creating sensitivity analysis of Gibbs free energy...')
+            print('  > Running concentration sensitivity analysis of Gibbs free energy...')
         savePath = 'results/'  
         if range_val[0] > range_val[1]:
             raise ValueError(f'Invalid \'range_val\' ({range_val}). It must be (min_val, max_val).')
@@ -1586,7 +1588,6 @@ class ThSA:
             print(f'    > {iC}. {rxn} done.')
         if showMessage:
             print('  > Done.')
-                
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
         Write calculated DeltaGr in Excel document.
