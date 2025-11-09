@@ -116,7 +116,7 @@ class KinRates:
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
-                MM-Arrhenihus - 'Michaelis-Menten-Arrhenius equation'
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR
             Name of parameter database, matching with csv name.
         reactions : STR
