@@ -107,7 +107,7 @@ class CSP:
         DGr = ThSA.getDeltaGr(**DGr_args)[0] * 1000  #[J/moleD]
         Rs = pd.DataFrame((KR.getRs(**Rs_args)[0])[reaction]).mean(axis=1) / 3600   #[moleD/(cell.s)]
         # Compute Pcat
-        Pcat = abs(Rs * DGr) * 1e15
+        Pcat = -(Rs * DGr * 1e15)
         return Pcat      #[fW/cell]
 
     def getPana(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
@@ -200,7 +200,7 @@ class CSP:
         DGr = ThSA.getDeltaGr(**DGr_args)[0] * 1000 #[J/moleD]
         Rs = pd.DataFrame((KR.getRs(**Rs_args)[0])[reaction]).mean(axis=1) / 3600   #[moleD/cell/s]      
         # compute cell-growth yield and Pana
-        Yx = DGr * (0.5/1.04e-10)   # [cell/moleD]
+        Yx = -(DGr * (0.5/1.04e-10))   # [cell/moleD]
         Pana = Yx * Rs * DGsynth * 1e15
         return Pana     #[fW/cell]
     
@@ -350,6 +350,7 @@ class CSP:
         dfCSP = pd.concat([Pcat, Pana, Pmg, Pm0, Ps, Pcell], axis = 1)
         dfCSP.columns = ['Pcat', 'Pana', 'Pmg', 'Pm0', 'Ps', 'Pcell']
         return dfCSP  # [fW/cell]
+
 
 
  
