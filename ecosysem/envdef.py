@@ -154,7 +154,7 @@ class ISA:
             newComp[2] -= 0.01100 * H2O # Ar_wet
             self.compositions = pd.Series(newComp, index = dDC.Compounds).to_dict()
     
-    def _getConcISA(self, phase, compound = None): # !!! Call in __init__ and create attributes for each return. If they are not used, self.attribute = None.
+    def _getConcISA(self, phase, compound = None):
         """
         Computation of vertical profiles of compounds (parcial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
@@ -171,7 +171,7 @@ class ISA:
                         'L-FW' - Liquid fresh water.
                         'L-SW' - Liquid sea water.
                         'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phaes (G, L-FW, L-SW).
+                        'All' - All phases (G, L-FW, L-SW).
         compound : STR or LIST, optional
                 Interested compounds. The default is None. (i.e., all compounds are considered).
         """
