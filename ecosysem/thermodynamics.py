@@ -930,10 +930,10 @@ class ThSA:
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
-        # Initialise variables
+        # Initialize variables
         Ts = 298.15                                                             # Standard temperature [K]
         R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
-        # Initializate DGr matrix
+        # Initialize DGr matrix
         DGr = np.empty(T.shape)
         DGr = DGr[..., np.newaxis]
         DGr = np.repeat(DGr, len(input_), axis = -1)
