@@ -9,8 +9,49 @@ from reactions import Reactions as Rxn
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
+from matplotlib.ticker import Locator
+from matplotlib.patches import Rectangle
+from matplotlib import colors as clr
+import matplotlib.ticker as tkr
 import os.path
+from itertools import combinations
+
+class MinorSymLogLocator(Locator):
+    """
+    Dynamically find minor tick positions based on the positions of
+    major ticks for a symlog scaling.
+    """
+    def __init__(self, linthresh):
+        """
+        Ticks will be placed between the major ticks.
+        The placement is linear for x between -linthresh and linthresh,
+        otherwise its logarithmically
+        """
+        self.linthresh = linthresh
+
+    def __call__(self):
+        'Return the locations of the ticks'
+        majorlocs = self.axis.get_majorticklocs()
+
+        # iterate through minor locs
+        minorlocs = []
+
+        # handle the lowest part
+        for i in range(1, len(majorlocs)):
+            majorstep = majorlocs[i] - majorlocs[i-1]
+            if abs(majorlocs[i-1] + majorstep/2) < self.linthresh:
+                ndivs = 10
+            else:
+                ndivs = 9
+            minorstep = majorstep / ndivs
+            locs = np.arange(majorlocs[i-1], majorlocs[i], minorstep)[1:]
+            minorlocs.extend(locs)
+
+        return self.raise_if_exceeds(np.array(minorlocs))
+
+    def tick_values(self, vmin, vmax):
+        raise NotImplementedError('Cannot get tick locations for a '
+                                  '%s type.' % type(self))
 
 def _rhoWater(T, S):
     """
@@ -34,9 +75,7 @@ def _rhoWater(T, S):
     """
     if not isinstance(T, np.ndarray): T = np.array(T)
     if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S):
-        print('!EcoSysEM.Warning: T and S arguments must have the same shape.')
-        sys.exit()
+    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
     T = T - 273.15 # [°C]
     rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
            6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
@@ -66,9 +105,7 @@ def _rhoSCWater(T, S):
     """
     if not isinstance(T, np.ndarray): T = np.array(T)
     if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S):
-        print('!EcoSysEM.Warning: T and S arguments must have the same shape.')
-        sys.exit()
+    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
     rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
          (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
           1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
@@ -121,9 +158,7 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
-            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
-                print(f'!EcoSysEM.Error: {typeParam} for {phase} phase not found for: {compNaN}.')
-                sys.exit()
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f': raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -245,9 +280,7 @@ class ThP:
             Sum of concentration * (charge)^2.
 
         """
-        if not isinstance(composition, dict):
-            print('!EcosysEM.Error: Argument `composition` must be a dictionary.')
-            sys.exit()
+        if not isinstance(composition, dict): raise TypeError('Argument `composition` must be a dictionary.')
         # Initialize I
         I = 0
         for compound in composition:
@@ -628,9 +661,7 @@ class ThP:
         if selComp is not None:
             try:
                 composition[selComp]
-            except:
-                print(f'!EcosysEM.Error: Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
-                sys.exit()
+            except: raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
             else:
                 selCompounds = [selComp]
         else:
@@ -653,9 +684,7 @@ class ThP:
                     actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
                 elif methods[comp] == 'ideal':
                     actCoeff = {comp: 1.0 * np.ones(T.shape)}
-                else:
-                    print(f'!EcosysEM.Error: Method to estimate activity coefficient of {comp} not defined.')
-                    sys.exit()
+                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
                 act[comp] = c * actCoeff[comp]
         return act
     
@@ -795,9 +824,7 @@ class ThEq:
 
         """
         Ct = 1.0 # Total concentration [M]
-        if not isinstance(temperature, float):
-            print('!EcoSysEM.Warning: Temperature must be a FLOAT.')
-            sys.exit()
+        if not isinstance(temperature, float): raise ValueError('Argument `temperature` must be a float.')
         if isinstance(compounds, str): compounds = [compounds]
         for iCompound in compounds:
             Spec_ = [ThEq.pHSpeciation(iCompound, pH_, temperature, Ct, True) for pH_ in pH]
@@ -887,9 +914,7 @@ class ThSA:
         """
         if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
         if not isinstance(input_, list): input_ = [input_]
-        if phase != 'G' and phase != 'L':
-            print('!EcoSysEM.Error: `phase` argument must be "G" (gas) or "L" (liquid)')
-            sys.exit()
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
         if isinstance(T, int): T = float(T)
         if isinstance(T, float): T = [T]
         if not isinstance(T, np.ndarray): T = np.array(T)
@@ -901,9 +926,7 @@ class ThSA:
             if shapeT != shapeC:
                 if shapeT[0] == 1:
                     T = T * np.ones(shapeC)
-                else:
-                    print(f'!EcoSysEM.Error: `T` shape {shapeT} and `Ct` keys shape {shapeC} doesn''t match.')
-                    sys.exit()
+                else: raise ValueError(f' Argument T ({T.shape}) and argument `Ct` keys ({shapeC}) must have the same shape.')
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
@@ -920,17 +943,13 @@ class ThSA:
                 specComp = input_
                 for iSpecComp in specComp:
                     c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
-                    if c_specComp.size == 0:
-                        print(f'!EcoSysEM.Error: {iSpecComp} was not found as a compound in {typeRxn}.csv file. ' 
-                              'Use the `specComp` argument to specify compounds or set it to False.')
-                        sys.exit()
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
             else:
                 tSpecComp = 'reactions'
                 if isinstance(specComp, str): specComp = [specComp]
                 n_specComp = len(specComp)
-                if nRxn != n_specComp:
-                    print(f'!EcoSysEM.Error: Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}')
-                    sys.exit()
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
         # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
         for idRxn, iRxn in enumerate(infoRxn):
             # iVariables definition
@@ -947,16 +966,12 @@ class ThSA:
                         if c_specComp.size > 0:
                             if vSelected == 0:
                                 i_specComp = specComp_aux
-                            else:
-                                print('!EcoSysEM.Error: More than one specific compound has been used. Only one by reaction.')
-                                sys.exit()
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
                 else:
                     i_specComp = specComp[idRxn]
                     # Check if i_specComp are in reaction
                     c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
-                    if c_specComp.size == 0:
-                        print(f'!EcoSysEM.Error: {i_specComp} was not found in reaction {iRxn}.')
-                        sys.exit()
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
                 # Stoichiometric parameter of selected compound
                 id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
                 vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
@@ -1000,12 +1015,10 @@ class ThSA:
                                     if asm == 'stoich': # [P] is calculated based on stoichiometry.
                                         if specComp:
                                             iConc = (vi) * Ct[uComp[findSpecComp]]
-                                        else:
-                                            print(f'!EcoSysEM.Error: `specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
-                                            sys.exit()
+                                        else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
                                 else:
                                     rxn_iComp =  uComp[uIComp][0]
-                                    # uComp = np.char.replace(uComp, rxn_iComp, iComp) # ???
+                                    # uComp = np.char.replace(uComp, rxn_iComp, iComp)
                                     iConc = Ct[rxn_iComp]
                         else:
                             iConc = Ct[iComp]
@@ -1017,11 +1030,10 @@ class ThSA:
                                 iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
                         iAct = iConc
                     elif fluidType == 'non-ideal':
-                        if methods is None:
-                            print("!EcoSysEM.Error: `methods` must be defined to calculate activities of species.")
-                            sys.exit()
+                        if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
                         if iComp == 'H+':
                             Ct[iComp] = 10**(-pH) * np.ones(T.shape)
+                        # Activity estimation
                         if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
                             iAct = 1.0 * np.ones(T.shape)
                         else:
@@ -1031,9 +1043,7 @@ class ThSA:
                             elif phase == 'L':
                                 activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
                                 iAct = activity[iComp]
-                    else:
-                        print("!EcoSysEM.Error: `fluidType` argument must be 'ideal' {Qr = f(concentrations)} or 'non-ideal' {Qr = f(activities)}.")
-                        sys.exit()
+                    else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
                     # Calculation of reaction quotient (Qr)
                     Qr += vi * np.log(iAct)
                 # Activity/Concentration influence (Nernst equation)
@@ -1107,9 +1117,7 @@ class ThSA:
         if isinstance(pH, int): pH = float(pH)
         if isinstance(pH, float): pH = [pH]
         if isinstance(T, np.ndarray):
-            if np.ndim(T) > 1:
-                print('!EcoSysEM.Error: temperature (`T`) must be a list or 1D np.ndarray.')
-                sys.exit()
+            if np.ndim(T) > 1: raise TypeError('Temperature argument (`T`) must be a list or 1D np.ndarray.')
         ### If modeExport == 'plot', T must be a list or np.ndarray with ndim = 1
         # Initializate DGr matrix
         DGr = np.empty(T.shape)
@@ -1141,10 +1149,445 @@ class ThSA:
                     ThSA._contourfAlt(pH, altitude, DGr[:, idRxn, :], rxn, text_)
                 else:
                     ThSA._contourfT(pH, T, DGr[:, idRxn, :], rxn, text_)
-        else:
-            print("!EcoSysEM.Error: `modeExport` argument must be 'plot' (for plotting in Spyder) or 'Excel' (for writing in Excel document).")
-            sys.exit()
+        else: raise ValueError(f'Unknown modeExport ({modeExport}). Existing modeExport: \'plot\' (for plotting in Spyder) or \'Excel\' (for writing in Excel document).')
     
+    def smmryDeltaGr(typeRxn, input_, specComp, phase, T, pH, S, Ct, fluidType = 'ideal', molality = True, 
+                     methods = None, renameRxn = None, write_results_csv = False, logScaleX = True, vmin = None,
+                     vmax = None, printDG0r = False, printDH0r = False, showMessage = True):
+        """
+        Create a summary plot with the range of Gibbs free energy of a set of reactions at a specific
+        range of T and pH. 
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : LIST
+            Set of temperatures [K].
+        pH : LIST, optional
+            Set of pHs.
+        S : LIST or np.array
+            Salinity [ppt].
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'NewName'}
+            The default is None.
+        write_results_csv : BOOL, optional
+            Write DGr values in a .csv file. The default is False.
+        logScaleX : BOOL, optional
+            If True, DGr is plotted using symmetrical log coordinate. The default is True.
+        vmin : None or FLOAT, optional
+            Set minimum value (left) of coordinate-X. The default is None.
+        vmax : None or FLOAT, optional
+                Set maximum value (right) of coordinate-X. The default is None.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        None.
+
+        """
+        if showMessage:
+            print('  > Creating summary of thermodynamic state analysis...')
+        if renameRxn:
+            if not isinstance(renameRxn, dict):
+                raise TypeError(f'Argument \'renameRxn\' must be a dictionary ({type(renameRxn)}).')
+        # Variable initialization    
+        DGr = np.empty((len(pH), len(T), 1))
+        DGr_m = np.empty((len(input_), len(pH), len(T)))    
+        iC = 0
+        for id_, i_ in enumerate(input_):
+            iC += 1
+            specCp_ = specComp[id_]
+            for idpH, pH_ in enumerate(pH):
+                if idpH == 0:
+                    if printDG0r: 
+                        pDG0r = True
+                    else:
+                        pDG0r = False
+                    if printDH0r: 
+                        pDH0r = True
+                    else:
+                        pDH0r = False
+                else:
+                    pDG0r = False
+                    pDH0r = False
+                try:
+                    DGr_, infoRxn = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                                    input_ = i_, 
+                                                    phase = phase, 
+                                                    specComp = specCp_,
+                                                    T = T,
+                                                    pH = pH_,
+                                                    S = S, 
+                                                    Ct = Ct,
+                                                    fluidType = fluidType,
+                                                    molality = molality,
+                                                    methods = methods,
+                                                    printDG0r = pDG0r,
+                                                    printDH0r = pDH0r)
+                except:
+                    DGr[idpH, ...] = np.nan
+                    infoRxn = i_
+                    if idpH == 0:
+                        print(f'Error calculating DGr of {i_}.')
+                else:
+                    if np.ndim(DGr_) == 1: DGr_ = np.expand_dims(DGr_, axis = 1)
+                    DGr[idpH, ...] = DGr_
+            DGr_m[id_, ...] = np.squeeze(DGr)
+        if not vmin:
+            vmin = np.sign(np.nanmin(DGr_m)) * 1.1 * abs(np.nanmin(DGr_m))
+        if not vmax:
+            vmax = np.sign(np.nanmax(DGr_m)) * 0.95 * abs(np.nanmax(DGr_m))
+        # Numpy to csv
+        if write_results_csv:
+            header = pd.DataFrame(np.array([infoRxn]))
+            df = pd.DataFrame(np.squeeze(DGr), index = pH_)
+            header.to_csv('DGr.csv', mode='a', header=False, index=False)
+            df.to_csv('DGr.csv', mode='a', header=False)
+        # Plotting Summary of DGr
+        fig, ax = plt.subplots(figsize = (5.0, 11.0))
+        for idRxn, rxn in enumerate(input_):
+            DGr_rxn = DGr_m[idRxn, ...]
+            if np.all(np.isnan(DGr_rxn)):
+                ax.axhline(y = idRxn+1, color = 'darkgrey', linewidth = 0.5, linestyle = '--')
+                continue
+            min_DGr = np.min(DGr_rxn)
+            max_DGr = np.max(DGr_rxn)
+            if min_DGr > 0 and max_DGr > 0:
+                c_ = 'dodgerblue'
+            elif min_DGr < 0 and max_DGr > 0:
+                c_ = ['tomato', 'dodgerblue']
+            else:
+                c_ = 'tomato'
+            ax.axhline(y = idRxn+1, color = 'darkgrey', linewidth = 0.5, linestyle = '--')
+            h = 0.5
+            if isinstance(c_, str):
+                ax.add_patch(Rectangle((min_DGr, idRxn+1-(h/2)),
+                                       width = max_DGr - min_DGr,
+                                       height = h,
+                                       fc = c_,
+                                       ec = c_,
+                                       lw = 1.0,
+                                       zorder = 2.5))
+            else:
+                ax.add_patch(Rectangle((min_DGr, idRxn+1-(h/2)),
+                                       width = abs(min_DGr),
+                                       height = h,
+                                       fc = c_[0],
+                                       ec = c_[0],
+                                       lw = 1.0,
+                                       zorder = 2.5))
+                ax.add_patch(Rectangle((0.0, idRxn+1-(h/2)),
+                                       width = max_DGr,
+                                       height = h,
+                                       fc = c_[1],
+                                       ec = c_[1],
+                                       lw = 1.0,
+                                       zorder = 2.5))
+        ax.vlines(0.0, ymin = 0.0, ymax = len(input_), color = 'k', linewidth = 0.8, zorder = 2.6)
+        # x-label
+        ax.set_xlabel('∆Gr (kJ/mol)', labelpad = 7.0)
+        ax.set_xlim(left = vmin, right = vmax)
+        ax.xaxis.set_ticks_position('top')
+        ax.xaxis.set_label_position('top')
+        # y-label
+        positionsY = np.arange(1, len(input_)+1)
+        if renameRxn:
+            for rxn_rename in renameRxn:
+                try:
+                    ind = input_.index(rxn_rename)
+                except:
+                    continue
+                else:
+                    input_[ind] = renameRxn[rxn_rename] 
+        labelsY = input_
+        ax.yaxis.set_major_locator(tkr.FixedLocator(positionsY))
+        ax.yaxis.set_major_formatter(tkr.FixedFormatter(labelsY))
+        ax.set_ylim(top = len(input_)+2, bottom = 0)
+        ax.invert_yaxis()
+        ax.margins(y = 0)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        if logScaleX:
+            plt.xscale('symlog')
+            xaxis = plt.gca().xaxis
+            xaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+        else:
+            # plt.minorticks_on()
+            ax.xaxis.set_minor_locator(tkr.AutoMinorLocator())
+        plt.show()
+        if showMessage:
+            print('  > Done.')
+    
+    def conc_sa_DeltaGr(typeRxn, input_, specComp, Ct, range_val, T = 298.15, pH = 7.0, S = 0.0, num = 50, 
+                        phase = 'L', fluidType = 'ideal', molality = True, methods = None, marker = 'o', 
+                        mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12,
+                        savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
+        """
+        Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
+        range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
+        `results/` folder in `/#. rxnName` folder.
+        
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        range_val : (min_value, max_value)
+            Set minimum and maximum concentration values.
+        T : FLOAT, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT
+            Salinity [ppt]. The default is None.
+        num : INT, optional
+            Number of concentration to generate between min_value and max_value. The default is 50.
+        phase : STR, optional
+            Phase of fluid. The default is 'L'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        marker : STR, optional
+            Set the line marker. The default is 'o'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 1.0.
+        mfc : STR, optional
+            Set the marker face color. The default is 'w'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.0.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (9.0, 6.0).
+        fontsize_label : FLOAT, optional
+            Font size label. The default is 12.
+        savePlot : BOOL, optional
+            Save resultant plot in `results/` folder. The default is False.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        Plot in Spyder or in `results/` folder.
+
+        """
+        if showMessage:
+            print('  > Running concentration sensitivity analysis of Gibbs free energy...')
+        savePath = 'results/'  
+        if range_val[0] > range_val[1]:
+            raise ValueError(f'Invalid \'range_val\' ({range_val}). It must be (min_val, max_val).')
+        min_val = range_val[0]
+        max_val = range_val[1]
+        log_min_val = int(np.ceil(np.log10(min_val)))
+        log_max_val = int(np.ceil(np.log10(max_val)))
+        gShape = np.ones((num, num))
+        list_val = {}
+        for comp in Ct:
+            list_val[comp] = np.logspace(log_min_val, log_max_val, num = num)
+        if not isinstance(T, (int, float)) and (isinstance(T, (list, np.ndarray)) and len(T) != 1):
+            raise TypeError(f'Temperature (argument `T`) must be an integer or float ({type(T)})')
+        if not isinstance(S, (int, float)) and (isinstance(S, (list, np.ndarray)) and len(T) != 1):
+            raise TypeError(f'Salinity (argument `S`) must be an integer or float ({type(S)})')
+        T = T * gShape
+        S = S * gShape
+        for c in Ct:
+            Ct[c] = Ct[c] * gShape
+        remove_comp = ['H2O', 'H+']
+        iC = 0
+        for idRxn, rxn in enumerate(input_):
+            iC += 1
+            specCp_ = specComp[idRxn]
+            sa_comp, _, _ = Rxn.getRxn(typeRxn, rxn)
+            for r in remove_comp:
+                try:
+                    sa_comp.remove(r)
+                except:
+                    continue
+            comb_comp = combinations(sa_comp, 2)
+            for comb in comb_comp:
+                fix_comp = sa_comp[:]
+                C = Ct.copy()
+                # Analyzed compounds
+                for idc, c in enumerate(comb):
+                    c_prev = c
+                    try:
+                        list_val[c]
+                    except:
+                        # pH speciation
+                        pH_comp, _, _ = Rxn.getRxnpH(c)
+                        if 'H2CO3' in pH_comp:
+                            pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                        u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                        c = u[counts > 1][0]
+                    if idc == 0:
+                        C[c] = np.transpose(np.tile(list_val[c], (num, 1)))
+                    elif idc == 1:
+                        C[c] = np.tile(list_val[c], (num, 1))
+                    fix_comp.remove(c_prev)
+                # Fixed compounds
+                for f in fix_comp:
+                    try:
+                        Ct[f]
+                    except:
+                        # pH speciation
+                        pH_comp, _, _ = Rxn.getRxnpH(f)
+                        if 'H2CO3' in pH_comp:
+                            pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                        u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                        f = u[counts > 1][0]
+                    C[f] = np.tile(Ct[f][0, 0], (num, num))
+                # DGr calculation
+                DGr, _ = ThSA.getDeltaGr(typeRxn = 'microprony',
+                                         input_ = rxn, 
+                                         phase = phase, 
+                                         specComp = specCp_,
+                                         T = T,
+                                         pH = pH,
+                                         S = S, 
+                                         Ct = C,
+                                         fluidType = fluidType,
+                                         molality = molality,
+                                         methods = methods,
+                                         printDG0r = printDG0r,
+                                         printDH0r = printDH0r)
+                # Plotting
+                try:
+                    list_val[comb[1]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[1])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                    x = list_val[c]
+                else:
+                    x = list_val[comb[1]]
+                try:
+                    list_val[comb[0]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[0])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                    y = list_val[c]
+                else:
+                    y = list_val[comb[0]]
+                fig, ax = plt.subplots(figsize = figsize)
+                F = ax.contourf(x, y, DGr, num, norm=clr.CenteredNorm(), cmap = 'coolwarm_r')
+                clb = fig.colorbar(F, format=tkr.FormatStrFormatter('%.2f'))
+                eq_line = (np.max(DGr)-np.min(DGr)) * 1e-3
+                levels = [-eq_line, eq_line]
+                plt.contourf(x, y, DGr, levels=levels, colors='k')
+                # yLabel
+                try:
+                    Ct[comb[0]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[0])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                else:
+                    c = comb[0]
+                try:
+                    Ct[c]
+                except:
+                    print(f'Warning: ∆Gr of {rxn} cannot be estimated. Missing concentration of {c}.')
+                    continue
+                else:
+                    y = Ct[c]
+                    yLabel = c
+                try:
+                    Ct[comb[1]]
+                except:
+                    # pH speciation
+                    pH_comp, _, _ = Rxn.getRxnpH(comb[1])
+                    if 'H2CO3' in pH_comp:
+                        pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                    u, counts = np.unique(np.hstack((pH_comp, list(Ct.keys()))), return_counts=True)
+                    c = u[counts > 1][0]
+                else:
+                    c = comb[1]
+                try:
+                    Ct[c]
+                except:
+                    print(f'Warning: ∆Gr of {rxn} cannot be estimated. Missing concentration of {c}.')
+                    continue
+                else:
+                    x = Ct[c]
+                    xLabel = c
+                plt.plot(x, y, marker = marker, mec = mec, mew = mew,
+                         mfc = mfc, ms = ms, alpha = 0.8)
+                clb.set_label('∆Gr (kJ/mol)', fontsize = fontsize_label)
+                clb.ax.axhline(0.0, c='k')
+                ax.set_xscale('log')
+                ax.set_yscale('log')
+                ax.set_xlabel(f'{xLabel} (M)')
+                ax.set_ylabel(f'{yLabel} (M)')
+                ticks = np.logspace(log_min_val, log_max_val, int(abs(log_max_val-log_min_val))+1)
+                ax.set_xticks(ticks)
+                ax.set_yticks(ticks)
+                xaxis = plt.gca().xaxis
+                xaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+                yaxis = plt.gca().yaxis
+                yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+                plt.title(f'{rxn} | x: {xLabel}; y: {yLabel}')
+                if savePlot:
+                    path = savePath + str(iC) + '.' + rxn + '/'
+                    if not os.path.isdir(path):
+                        os.makedirs(path)
+                    plt.savefig(f'{path}{rxn}_{xLabel}_{yLabel}', bbox_inches='tight')
+                else:
+                    plt.show()
+                plt.close()
+            print(f'    > {iC}. {rxn} done.')
+        if showMessage:
+            print('  > Done.')
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
         Write calculated DeltaGr in Excel document.

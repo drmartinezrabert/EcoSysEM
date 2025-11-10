@@ -5,13 +5,11 @@ Created on Tue Jul 30 12:23:23 2024
 @author: 2424069M
 """
 
-from envdef import MERRA2, CAMS, ISAMERRA2, CAMSMERRA2
+from environments import MERRA2, CAMS
 import argparse
 import numpy as np
-import sys
 
 # Parse command line input
-
 print('> Available functions: getDataMERRA2, getDataCAMS')
 function = input('>> Enter the function: ')
 
@@ -37,9 +35,7 @@ if function == 'getDataMERRA2':
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
-    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])):
-        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", "cmly", list of data types or "All".')
-        sys.exit()
+    if not np.all(np.isin(dataType, ['dly', 'mly', 'cmly', 'All'])): raise ValueError(f"Unaccepted dataType ({dataType}). Accepted dataType: 'dly', 'mly', 'cmly', 'All'.")
     years = args.y; years = sorted(years)
     months = args.m; months = sorted(months)
     days = args.d
@@ -67,16 +63,16 @@ if function == 'getDataMERRA2':
 elif function == 'getDataCAMS':
     parser = argparse.ArgumentParser(prefix_chars='_',
         description="Execute getDataCAMS() via Command Line Interface (CLI).")
-    parser.add_argument('_type', nargs = '+', type = str,
+    parser.add_argument('_dataType', nargs = '+', type = str,
                         help="[str] Type(s) of data ('mly', 'dly').")
     parser.add_argument('_y', nargs = '+', type = int,
                         help="[int or list of int] Year(s) of requested data.")
     parser.add_argument('_m', nargs = '+', type = int,
                         help="[int or list of int] Month(s) of requested data.")
-    parser.add_argument('_d', default='All', nargs = '+',
+    parser.add_argument('_d', default='All', nargs = '+', type = int,
                         help="[int or list of int or str ('All'))] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.")
-    parser.add_argument('_h', nargs = '+', type = int,
-                        help="[int or list of int] Hour(s) of requested data.")
+    parser.add_argument('_hr', nargs = '+', default = [0, 12],
+                        help="[int or list of int] (Default: '0 12') Hour(s) of requested data.")
     parser.add_argument('_dset', type = str,
                         help="[str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').")
     parser.add_argument('_pressure', default=[50, 100, 200, 400, 600, 800, 900, 1000], nargs = '+', type = int,
@@ -86,18 +82,15 @@ elif function == 'getDataCAMS':
     parser.add_argument('_mode', nargs = '+', type = str,
                         help="[str] Mode of download ('add').")
     parser.add_argument('_method', default='linear', nargs = '+', type = str,
-                        help="[str] Method of interpolation in 'add' mode.")
-    
+                        help="[str] (Default: 'linear') Method of interpolation in 'add' mode.")
     # Argument definition
     args = parser.parse_args()
-    dataType = args.type
-    if not np.all(np.isin(dataType, ['dly', 'mly'])):
-        print('\n!EcoSysEM.Error: dataType not found. Data type must be "dly", "mly", list of data types.')
-        sys.exit()
+    dataType = args.dataType
+    if not np.all(np.isin(dataType, ['dly', 'mly'])): raise ValueError(f"Unaccepted dataType ({dataType}). Accepted dataType: 'dly', 'mly', 'cmly', 'All'.")
     years = args.y; years.sort()
     months = args.m; months.sort()
     days = args.d
-    hours = args.h
+    hours = args.hr
     dataset = args.dset
     pressure_levels = args.pressure; pressure_levels.sort()
     bbox = list(args.bbox)
