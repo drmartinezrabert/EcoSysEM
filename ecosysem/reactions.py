@@ -388,9 +388,10 @@ class Reactions:
         headers = np.empty(0)
         infoRxn = np.empty(0)
         for iCompound in compounds:
+            if iCompound == 'CO2': iCompound = 'H2CO3'
             dRxnAux1 = dRxn.filter(regex = f'^{iCompound}/')
             dRxnAux2 = dRxn.filter(regex = f'/{iCompound}/')
-            dRxnAux3 = dRxn.filter(regex = f'/{iCompound} *')
+            dRxnAux3 = dRxn.filter(regex = f'/{iCompound}\s')
             dRxnSizes = [dRxnAux1.shape[1], dRxnAux2.shape[1], dRxnAux3.shape[1]]
             ind_dRxnMax = dRxnSizes.index(max(dRxnSizes))
             if ind_dRxnMax == 0:
