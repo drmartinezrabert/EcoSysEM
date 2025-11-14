@@ -2293,7 +2293,7 @@ plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevel
              fix_aspect=False, fontsize=12, drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None, mlw=0.5,
              drawMeridians=True, mlw=0.5, cml='k', colorbar=True, meridiansLabels=[0,0,0,1], meridians=[0., 60., 120., 180., 240., 300.], 
              parallelsLabels=[1,0,0,0], parallels=[-90, -60, -30, 0, 30, 60, 90], continentColor='darkgrey', lakeColor='darkgrey', 
-             colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlots=False)
+             colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlot=False)
 ```
 Plot two dimensional data on a world map.<br>
 **Parameters:**<br>
@@ -2306,7 +2306,7 @@ _Lorem ipsum..._
 plotZonalMean(altitude, data, color, varName, varUnits, zone, pH=None, T=None, compSpec=None, fillBetween=True, semiLog=False, title=None,
               figsize=(5.0, 3.6), lw=2.0, fontsize=12, alpha=0.4, nticks=10, legend=True, ncol=1, legendOrientation=None, latitude=None,
               longitude=None, vmin=None, vmax=None, colorbar=None, cbFontSize=12, xTicks=None, colorbarSize=None, cbOrientation='horizontal',
-              formatColorbar='{:0.1f}', savePlots=False)
+              formatColorbar='{:0.1f}', savePlot=False)
 ```
 Plot zonal mean of data.<br> 
 **Parameters:**<br>
@@ -2318,7 +2318,7 @@ _Lorem ipsum..._
 ```python
 plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
-                  fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlots=False)
+                  fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
 **Parameters:**<br>
