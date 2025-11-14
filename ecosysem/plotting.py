@@ -48,7 +48,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     cmap : STR or LIST
         Set color-mapping.
     bbox : TUPLE
-        Earths region of data, the bounding box.
+        Earth's region of data, the bounding box.
         (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)
     title : STR
         Set title of plot. The default is None.
@@ -91,7 +91,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     meridians : LIST, optional
         Set where meridians are drawn. The default is [0., 60., 120., 180., 240., 300.].
     meridiansLabels : LIST, optional
-        Set whether meridians are labelled where they intersect as a list [left, right, top, bottom].. The default is [0,0,0,1].
+        Set whether meridians are labelled where they intersect as a list [left, right, top, bottom]. The default is [0,0,0,1].
     continentColor : STR, optional
         Color of continents. The default is 'darkgrey'.
     lakeColor : STR, optional
@@ -187,7 +187,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
     varName : STR
         Name of variable.
     varUnits : STR
-        Units of variables.
+        Units of variable.
     zone : STR
         Selection of zone where mean is computed.
             'lat': Zonal mean on latitude.
@@ -228,7 +228,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
     vmin : FLOAT, optional
         Set minimum value that the plot covers. The default is None.
     vmax : FLOAT, optional
-        Set maximum value that the plot covers.. The default is None.
+        Set maximum value that the plot covers. The default is None.
     colorbar : BOOL, optional
         Set whether the colorbar is displayed (only for zone = 'lat' and 'lon'). The default is None.
     cbFontSize : FLOAT, optional
@@ -401,7 +401,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                 _savePlot(file, cPlots)
             plt.show()
     
-def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
+def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
                       sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
                       colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
                       fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
@@ -411,8 +411,8 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
 
     Parameters
     ----------
-    dataSurf : np.ndarray
-        Surface data to be plotted. (latitude and longitude).
+    data2D : np.ndarray
+        Two-dimensional data to be plotted. (latitude and longitude).
     data3D : np.ndarray
         Three-dimensional data to be plotted (altitude, latitude and longitude).
     varName : STR
@@ -517,9 +517,9 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
                 labels[section] = None
     # Get vmin and vmax if not given
     if not vmin:
-        vmin = min(np.nanmin(dataSurf), np.nanmin(data3D))
+        vmin = min(np.nanmin(data2D), np.nanmin(data3D))
     if not vmax:
-        vmax = max(np.nanmax(dataSurf), np.nanmax(data3D))
+        vmax = max(np.nanmax(data2D), np.nanmax(data3D))
     backgroundColor = ['black', 'lightgrey']
     split_points = [np.min(depthArray)/1000, np.nanmax(H)/1000, np.max(altitude)/1000]
     # Plotting colour
@@ -644,7 +644,7 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
                 _savePlot(file, cPlots)
             plt.show()
     #-Main plot (global map)
-    ny, nx = dataSurf.shape
+    ny, nx = data2D.shape
     fig, ax = plt.subplots(figsize = mapsize)
     m = Basemap(projection='cyl', resolution='c',
                 llcrnrlon=bbox[0], llcrnrlat=bbox[1],
@@ -659,7 +659,7 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
         ax.set_ylabel('Latitude (°)', size = 10)
         ax.yaxis.set_label_coords(-0.010, 0.12)
     m.drawmapboundary(fill_color='darkgrey')
-    m.contourf(x, y, dataSurf, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+    m.contourf(x, y, data2D, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
     if title:
         plt.title(title)
     if sections:
