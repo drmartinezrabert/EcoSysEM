@@ -33,6 +33,7 @@ ____________________________
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
+        - Data visualization | [GO](#data-visualization)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Error List | [GO](#error-list)
@@ -407,23 +408,27 @@ ecosysem
   │           ├── getRxn
   │           ├── getRxnByComp
   │           └── getRxnByName
-  └── thermodynamics.py 
-         ├── ThP
-         │    ├── getThP
-         │    ├── getDeltaG0r
-         │    ├── getDeltaH0r
-         │    ├── ionicStrength
-         │    ├── activity
-         │    └── getKeq
-         ├── ThEq
-         │    ├── solubilityHenry
-         │    ├── pHSpeciation
-         │    └── plotpHSpeciation
-         └── ThSA
-              ├── exportDeltaGr
-              ├── getDeltaGr
-              ├── smmryDeltaGr
-              └── saConcDeltaGr
+  ├── thermodynamics.py 
+  │      ├── ThP
+  │      │    ├── getThP
+  │      │    ├── getDeltaG0r
+  │      │    ├── getDeltaH0r
+  │      │    ├── ionicStrength
+  │      │    ├── activity
+  │      │    └── getKeq
+  │      ├── ThEq
+  │      │    ├── solubilityHenry
+  │      │    ├── pHSpeciation
+  │      │    └── plotpHSpeciation
+  │      └── ThSA
+  │           ├── exportDeltaGr
+  │           ├── getDeltaGr
+  │           ├── smmryDeltaGr
+  │           └── saConcDeltaGr
+  └── plotting.py
+         ├── plotVarMap2D
+         ├── plotZonalMean
+         └── plotCrossSections
 ```
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
@@ -443,6 +448,7 @@ This section clarifies concepts, design decisions and technical details of this 
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
+- Data visualization | [GO](#data-visualization)
 <!-- - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa) -->
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
@@ -1701,13 +1707,6 @@ A common error in Python Inheritance is `TypeError: got multiple values for keyw
 
 #
 
-#### <ins>Ecosystem Analysis (EcoA)</ins>
-:construction: Coming soon...
-
-[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-#
-
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 With the <ins>Thermodynamic State Analysis module (ThSA)</ins>, the user can identify which rections are feasible (_i.e.,_ exergonic) considering the environmental conditions (nonstandard conditions). It is important to take into account that because a given reaction is exergonic under a particular environmental conditions (ΔG<sub>r</sub><0), it does not necessary mean that organisms will be able to catalyze it and, if they can, they have enough energy for growth and/or maintenance. Remember that Gibbs energy quantifies the tendency of a chemical reaction to proceed in a particular direction. To determine the actual energy that organisms can take from a particular transformation and if these can growth and/or satisfy maintenance requirements, the [Biological Thermodynamic State Analysis (BioThSA)](#bio-thermodynamic-state-analysis-biothsa) should be used. To calculate the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>), the Gibbs-Helmholtz-Nernst relationship is used. The Gibbs-Helmholtz-Nernst relationship considers the influnce of temperature, pH and concentrations of substrates and products on ΔG<sub>r</sub>.
 
@@ -2265,6 +2264,14 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 
 #
 <!--
+
+#### <ins>Ecosystem Analysis (EcoA)</ins>
+:construction: Coming soon...
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
@@ -2278,6 +2285,223 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
+
+#### <ins>Data visualization</ins>
+### plotVarMap2D &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevels=100, figsize=(5.0, 3.6), formatColorbar='{:0.1f}',
+             fix_aspect=False, fontsize=12, drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None, mlw=0.5,
+             drawMeridians=True, cml='k', colorbar=True, meridiansLabels=[0,0,0,1], meridians=[0., 60., 120., 180., 240., 300.], 
+             parallelsLabels=[1,0,0,0], parallels=[-90, -60, -30, 0, 30, 60, 90], continentColor='darkgrey', lakeColor='darkgrey', 
+             colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlot=False)
+```
+Plot two dimensional data on a world map.<br>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data to be plotted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varName : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varUnits : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Units of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cmap : _str_ or _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color-mapping.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title of plot.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float__, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float__, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numlevels : _int_, _optional, default: 100_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **figsize : _(float, float)_, _optional, default: (5.0, 3.6)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Figure size. (Width, Height) in inches.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set format of tick labels of colorbar.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fix_aspect : _bool_, _optional, defualt: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional, default: 12_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drawCoastLines : _bool_, _optional, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether drawing coast lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of coast lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drawParallels : _bool_, _optional, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether drawing parallel lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **plw : _float_, _optional, default: 0.5_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of parallel lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cpl : _str_, _optional, default: 'k'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color of parallel lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drawMeridians : _bool_, _optional, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether drawing meridian lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mlw : _float_, _optional, default: 0.5_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of meridian lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cml : _str_, _optional, default: 'k'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color of meridian lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbar : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether colorbar is displayed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **parallelsLabels : _list_, _optional, default: [1,0,0,0]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether parallels are labelled where they intersect as a list [left, right, top, bottom].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **parallels : _list_, _optional, default: [-90, -60, -30, 0, 30, 60, 90]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set where parallel lines are drawn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **meridiansLabels : _bool_, _optional, default: [0,0,0,1]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether meridians are labelled where they intersect as a list [left, right, top, bottom].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **meridians : _list_, _optional, default: [0., 60., 120., 180., 240., 300.]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Set where meridian lines are drawn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **continentColor : _str_, _optional, default: 'darkgrey'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: (10, 4)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar size. (Width, Height) in inches.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar orientation: 'horizontal' or 'vertical'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbFontSize : _float_, _optional, default: 12_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of colorbar.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s)** or **Plot in `results/` folder**<br>
+
+### plotZonalMean &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotZonalMean(altitude, data, color, varName, varUnits, zone, pH=None, T=None, compSpec=None, fillBetween=True, semiLog=False, title=None,
+              figsize=(5.0, 3.6), lw=2.0, fontsize=12, alpha=0.4, nticks=10, legend=True, ncol=1, legendOrientation=None, latitude=None,
+              longitude=None, vmin=None, vmax=None, colorbar=None, cbFontSize=12, xTicks=None, colorbarSize=None, cbOrientation='horizontal',
+              formatColorbar='{:0.1f}', savePlot=False)
+```
+Plot zonal mean of data.<br> 
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altitude : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of altitude values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Data to be plotted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **color : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color-mapping.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varName : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varUnits : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Units of variables.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **zone : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of zone where mean is computed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'lat' - Zonal mean on latitude.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'lon' - Zonal mean on longitude.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'latlon' - Zonal mean on latitude and longitude.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set pH to calculate pH speciation (if necessary).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set temperature to calculate pH speciation (if necessary).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compSpec : _list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selection of chemical species for pH speciation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fillBetween : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Plot maximum and minimum range as shaded region (only for zone = 'latlon') <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **semiLog : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether plotting variable in logarithmic scale (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set plot title.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **figsize : _(float, float)_, _optional, default: (5.0, 3.6)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Figure size. (Width, Height) in inches.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lw : _float_, _optional, default: 2.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set line width of plot (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional, default: 12_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of plot. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **alpha : _float_, _optional, default: 0.4_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set alpha blending value, between 0 (transparent) and 1 (opaque).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **nticks : _int_, _optional, default: 10_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set number of ticks for x-coordinate (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether plot legend is displayed (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ncol : _int_, _optional, default: 1_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set number of legend columns (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legendOrientation : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set legend orientation: 'horizontal' or 'vertical' (only for zone = 'latlon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **latitude : _list or ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set list of latitude values (only for zone = 'lon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **longitude : _list or ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set list of longitude values (only for zone = 'lat').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbar : _bool_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the colorbar is displayed (only for zone = 'lat' and 'lon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbFontSize : _float_, _optional, default: 12_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of colorbar.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xTicks : _list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set latitude and longitude tick values (only for zone = 'lat' and 'lon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set size of colorbar (width, height). Only for zone = 'lat' and 'lon'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar orientation: 'horizontal' or 'vertical' (only for zone = 'lat' and 'lon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set format of tick values of colorbar.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s)** or **Plot in `results/` folder**<br>
+
+### plotCrossSections &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
+                  vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
+                  fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
+```
+Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data2D : _ndarray_**  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Two-dimensional data to be plotted. (latitude and longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data3D : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Three-dimensional data to be plotted (altitude, latitude and longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varName : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varUnits : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Units of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cmap : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color-mapping.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altitude : _list or ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of altitude values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tupple_, _optional, default: (-180, -90, 180, 90)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earths region of data, the bounding box: (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sections : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of sections (meridians and parallels. E.g., {'A-B': (-180, 32, 180, 32), 'C-D': (90.0, -90, 90.0, 90)}).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **depthArray : _list or ndarray_, _optional, default: [0]_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of depth values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional: default: 8_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set plot title.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbar : _bool_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the colorbar is displayed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xylabels : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether section labels are displayed in world map (2D data plotting).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **levels : _int_, _optional, default: 100_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sectionFigSize : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section map sizes (3D data plotting; {'A-B': (7.2, 2.5)})<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mapsize : _(float, float)_, _optional, default: (5.8, 4.5)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; World map size (2D data plotting).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of coast lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fix_aspect : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numTicks : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set latitude and longitude tick values of section plots. {'A-B': 9}. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **continentColor : _str_, _optional, default: 'darkgrey'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s)** or **Plot in `results/` folder**<br>
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 1. Download .zip code. Last version: `v0.3` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.3.zip).
@@ -2416,6 +2640,11 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 
 #### · <ins>Kinetic rates (KinRates)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.getRs](#kinratesgetrs---back-to-function-navigation)<br>
+
+#### · <ins>Data visualization</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotVarMap2D](#plotVarMap2D---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotZonalMean](#plotZonalMean---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotCrossSections](#plotCrossSections---back-to-function-navigation)<br>
 
 [🔼 Back to **Contents**](#readme-contents)
 

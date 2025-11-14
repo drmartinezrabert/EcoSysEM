@@ -1052,7 +1052,7 @@ class ThSA:
             else:
                 rDGr = deltaGTr
             DGr[..., idRxn] = rDGr
-        return np.squeeze(DGr), infoRxn
+        return DGr, infoRxn # np.squeeze(DGr), infoRxn
     
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
