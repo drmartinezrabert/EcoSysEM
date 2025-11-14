@@ -17,6 +17,15 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.colors import ListedColormap
 import matplotlib.ticker as tkr
+import os
+
+def _savePlot(file, cPlots):
+    if os.path.isfile(f'{file}.tiff'):
+        while os.path.isfile(f'{file}_{cPlots}.tiff'):
+            cPlots += 1
+        plt.savefig(f'{file}_{cPlots}.tiff', bbox_inches='tight')
+    else:
+        plt.savefig(f'{file}.tiff', bbox_inches='tight')
 
 def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, 
                  figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, 
@@ -24,7 +33,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                  drawMeridians = True, mlw = 0.5, cml = 'k', colorbar = True, parallelsLabels = [1,0,0,0], 
                  parallels = [-90, -60, -30, 0, 30, 60, 90], meridians = [0., 60., 120., 180., 240., 300.], 
                  meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', 
-                 colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12):
+                 colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
     """
     Plot variable on world map.
 
@@ -93,12 +102,15 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         Colorbar orientation. The default is 'horizontal'.
     cbFontSize : FLOAT, optional
         Set font size of colorbar. The default is 12.
+    savePlot : BOOL, optional
+        Set whether the plot is saved in `/results` folder. The default is False.
 
     Returns
     -------
     Spyder plot.
 
     """
+    savePath = 'results/' 
     # Plotting colour
     if isinstance(cmap, (list, np.ndarray)):
         cmap = ListedColormap(cmap, name = 'plot_cmap')
@@ -131,6 +143,10 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     ax.set_facecolor(lakeColor)
     if title:
         plt.title(title, fontweight = 'bold')
+    if savePlot:
+        cPlots = 1
+        file = f'{savePath}{varName}_varMap2D'
+        _savePlot(file, cPlots)
     plt.show()
     # Standalone colorbar
     if colorbar:
@@ -145,13 +161,18 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         clb.set_ticklabels(labels_colorbar)
         clb.set_label(f'{varName} ({varUnits})', fontsize = cbFontSize)
         clb.ax.tick_params(labelsize = cbFontSize)
+        if savePlot:
+            cPlots = 1
+            file = f'{savePath}{varName}_varMap2D_cbar'
+            _savePlot(file, cPlots)
         plt.show()
-
+    
 def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, 
                   fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, 
                   fontsize = 12, alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, 
                   latitude = None, longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12,
-                  xTicks = None, colorbarSize = None, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
+                  xTicks = None, colorbarSize = None, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}',
+                  savePlot = False):
     """
     Plot zonal mean of data.
 
@@ -220,12 +241,15 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
         Set colorbar orientation: 'horizontal' or 'vertical' (only for zone = 'lat' and 'lon'). The default is 'horizontal'.
     formatColorbar : STR, optional
         Set format of tick values of colorbar. The default is '{:0.1f}'.
+    savePlot : BOOL, optional
+        Set whether the plot is saved in `/results` folder. The default is False.
 
     Returns
     -------
     Spyder plot.
 
     """
+    savePath = 'results/' 
     font = {'size': fontsize}
     plt.rc('font', **font)
     if zone == 'latlon':
@@ -335,6 +359,10 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             plt.minorticks_on()
             for i in range(len(split_points) - 1):
                 plt.axhspan(split_points[i], split_points[i+1], facecolor = backgroundColor[i], zorder = 0)
+        if savePlot:
+            cPlots = 1
+            file = f'{savePath}{varName}_{zone}Mean'
+            _savePlot(file, cPlots)
     plt.show()
     if zone == 'latlon':
         # Standalone legend
@@ -348,6 +376,10 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                 ax.legend(handles = legend_elements, loc='center', ncol = ncol)
             ax.set_axis_off()
             fig.tight_layout()
+            if savePlot:
+                cPlots = 1
+                file = f'{savePath}{varName}_{zone}Mean_legend'
+                _savePlot(file, cPlots)
             plt.show()
     elif zone == 'lon' or zone == 'lat':
         # Standalone colorbar
@@ -363,15 +395,19 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             clb.set_ticklabels(labels_colorbar)
             clb.set_label(f'{varName} ({varUnits})', fontsize = cbFontSize)
             clb.ax.tick_params(labelsize = cbFontSize)
+            if savePlot:
+                cPlots = 1
+                file = f'{savePath}{varName}_{zone}Mean_cbar'
+                _savePlot(file, cPlots)
             plt.show()
     
 def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
                       sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
                       colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
                       fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
-                      lakeColor = 'darkgrey'):
+                      lakeColor = 'darkgrey', savePlot = False):
     """
-    Plot 3 dimensional data of variables with world map (2D) and different sections (meridians and parallels)
+    Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D)
 
     Parameters
     ----------
@@ -422,13 +458,15 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
         Color of continents. The default is 'darkgrey'.
     lakeColor : STR, optional
         Color of water bodies (lakes and seas). The default is 'darkgrey'.
+    savePlot : BOOL, optional
+        Set whether the plot is saved in `/results` folder. The default is False.
 
     Returns
     -------
     Spyder plot.
 
     """
-
+    savePath = 'results/'
     font = {'size': fontsize}
     plt.rc('font', **font)
     # Ocean depth
@@ -600,6 +638,11 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
             plt.minorticks_on()
             for i in range(len(split_points) - 1):
                 plt.axhspan(split_points[i], split_points[i+1], facecolor = backgroundColor[i], zorder = 0)
+            if savePlot:
+                cPlots = 1
+                file = f'{savePath}{varName}_{section}Section'
+                _savePlot(file, cPlots)
+            plt.show()
     #-Main plot (global map)
     ny, nx = dataSurf.shape
     fig, ax = plt.subplots(figsize = mapsize)
@@ -610,6 +653,15 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
     x, y = m(lons, lats)
     m.drawcoastlines(linewidth=clw)
     m.fillcontinents(color = continentColor, lake_color = lakeColor)
+    if xylabels:
+        ax.set_xlabel('Longitude (°)', size = 10)
+        ax.xaxis.set_label_coords(0.10, 1.05)
+        ax.set_ylabel('Latitude (°)', size = 10)
+        ax.yaxis.set_label_coords(-0.010, 0.12)
+    m.drawmapboundary(fill_color='darkgrey')
+    m.contourf(x, y, dataSurf, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+    if title:
+        plt.title(title)
     if sections:
         for section in sections:
             locus = locusType[section]
@@ -641,15 +693,10 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
                 plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5, linestyle = '-')
                 ax.text(x1 - 5, y1 + 6, letterLabel1, size = 12, weight = 'bold')
                 ax.text(x2 - 5, y1 + 6, letterLabel2, size = 12, weight = 'bold')
-    if xylabels:
-        ax.set_xlabel('Longitude (°)', size = 10)
-        ax.xaxis.set_label_coords(0.10, 1.05)
-        ax.set_ylabel('Latitude (°)', size = 10)
-        ax.yaxis.set_label_coords(-0.010, 0.12)
-    m.drawmapboundary(fill_color='darkgrey')
-    m.contourf(x, y, dataSurf, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
-    if title:
-        plt.title(title)
+    if savePlot:
+        cPlots = 1
+        file = f'{savePath}{varName}_worldMap2D'
+        _savePlot(file, cPlots)
     plt.show()
     if colorbar:
         # Standalone colorbar
@@ -662,3 +709,7 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
         clb.set_label(f'{varName} ({varUnits})')
         clb.set_ticks(ticks_colorbar)
         clb.set_ticklabels(labels_colorbar)
+        if savePlot:
+            cPlots = 1
+            file = f'{savePath}{varName}_worldMap2D_cbar'
+            _savePlot(file, cPlots)
