@@ -2444,13 +2444,60 @@ Plot zonal mean of data.<br>
 
 ### plotCrossSections &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
+plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
                   fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
 **Parameters:**<br>
-_Lorem ipsum..._
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data2D : _ndarray_**  <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Two-dimensional data to be plotted. (latitude and longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **data3D : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Three-dimensional data to be plotted (altitude, latitude and longitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varName : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varUnits : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Units of variable.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cmap : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color-mapping.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altitude : _list or ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of altitude values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tupple_, _optional, default: (-180, -90, 180, 90)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earths region of data, the bounding box: (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sections : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of sections (meridians and parallels. E.g., {'A-B': (-180, 32, 180, 32), 'C-D': (90.0, -90, 90.0, 90)}).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **depthArray : _list or ndarray_, _optional, default: [0]_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of depth values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional: default: 8_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set plot title.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbar : _bool_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the colorbar is displayed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xylabels : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether section labels are displayed in world map (2D data plotting).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **levels : _int_, _optional, default: 100_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sectionFigSize : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section map sizes (3D data plotting; {'A-B': (7.2, 2.5)})<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mapsize : _(float, float)_, _optional, default: (5.8, 4.5)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; World map size (2D data plotting).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of coast lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fix_aspect : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numTicks : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set latitude and longitude tick values of section plots. {'A-B': 9}. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **continentColor : _str_, _optional, default: 'darkgrey'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s)** or **Plot in `results/` folder**<br>
 
