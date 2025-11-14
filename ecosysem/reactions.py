@@ -125,7 +125,7 @@ class KinRates:
         Returns
         -------
         Rs : DICT
-            Resultant rates. Shape: (Z)x(Y)x(X)x(reactions).
+            Resultant rates. Shape: (Z)x(Y)x(X).
         combNames : DICT
             Combination of samples (rows of `typeParam.csv`).
         orderComb : STR
