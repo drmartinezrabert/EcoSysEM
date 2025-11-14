@@ -451,7 +451,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     fix_aspect : BOOL, optional
         Fix aspect ratio of plot to match aspect ratio of map projection region. The default is False.
     numTicks : DICT, optional
-        DESCRIPTION. The default is None.
+        Set latitude and longitude tick values of section plots. {'A-B': 9}. The default is None.
     clw : FLOAT, optional
         Coast line width. The default is 0.5.
     continentColor : STR, optional
