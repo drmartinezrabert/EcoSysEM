@@ -376,9 +376,9 @@ def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox 
     Parameters
     ----------
     dataSurf : np.ndarray
-        Surface data to be plotted. Two 2D: latitude and longitude).
+        Surface data to be plotted. (latitude and longitude).
     data3D : np.ndarray
-        DESCRIPTION.
+        Three-dimensional data to be plotted (altitude, latitude and longitude).
     varName : STR
         Name of variable.
     varUnits : STR
