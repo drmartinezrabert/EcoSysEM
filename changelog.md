@@ -8,7 +8,11 @@ All notable changes to this project will be documented in this file.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Complete thermodynamic sensitivity analysis. 
+- Complete thermodynamic sensitivity analysis.
+- Creation of plotting script
+  - New function: plotVarMap2D()
+  - New function: plotZonalMean()
+  - New function: plotCrossSections()
 ### Changed
 - README file.
 
