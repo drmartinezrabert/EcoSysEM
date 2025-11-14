@@ -365,3 +365,300 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             clb.ax.tick_params(labelsize = cbFontSize)
             plt.show()
     
+def plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
+                      sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
+                      colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
+                      fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
+                      lakeColor = 'darkgrey'):
+    """
+    Plot 3 dimensional data of variables with world map (2D) and different sections (meridians and parallels)
+
+    Parameters
+    ----------
+    dataSurf : np.ndarray
+        Surface data to be plotted. Two 2D: latitude and longitude).
+    data3D : np.ndarray
+        DESCRIPTION.
+    varName : STR
+        Name of variable.
+    varUnits : STR
+        Units of variable.
+    cmap : STR or LIST
+        Set color-mapping.
+    altitude : LIST or np.ndarray
+        List of altitude values.
+    bbox : TUPLE, optional
+        Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
+        (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude). 
+    sections : DICT, optional
+        Set of sections (meridians and parallels; {'A-B': (-180, 32, 180, 32), 'C-D': (90.0, -90, 90.0, 90)}). The default is None.
+    depthArray : LIST or np.ndarray, optional
+        List of depth values. The default is [0].
+    fontsize : FLOAT, optional
+        Set font size. The default is 8.
+    vmin : FLOAT, optional
+        Set minimum value that the plot covers. The default is None.
+    vmax : FLOAT, optional
+        Set maximum value that the plot covers. The default is None.
+    title : STR
+        Set title of world map plot. The default is None.
+    colorbar : BOOL, optional
+        Set whether colorbar is displayed.. The default is True.
+    xylabels : BOOL, optional
+        Set whether section labels are displayed in world map (2D data plotting). The default is True.
+    levels : INT, optional
+        Set the number and positions of the contour lines / regions. The default is 100.
+    sectionFigSize : DICT, optional
+        Section map sizes (3D data plotting; {'A-B': (7.2, 2.5)}). The default is None.
+    mapsize : (FLOAT, FLOAT), optional
+        World map size (2D data plotting). The default is (5.8, 4.5).
+    fix_aspect : BOOL, optional
+        Fix aspect ratio of plot to match aspect ratio of map projection region. The default is False.
+    numTicks : DICT, optional
+        DESCRIPTION. The default is None.
+    clw : FLOAT, optional
+        Coast line width. The default is 0.5.
+    continentColor : STR, optional
+        Color of continents. The default is 'darkgrey'.
+    lakeColor : STR, optional
+        Color of water bodies (lakes and seas). The default is 'darkgrey'.
+
+    Returns
+    -------
+    Spyder plot.
+
+    """
+
+    font = {'size': fontsize}
+    plt.rc('font', **font)
+    # Ocean depth
+    npzDepth = np.load('data/GEBCO_LR.npz')
+    keys = npzDepth.keys()
+    dictDepth = {key: npzDepth[key] for key in keys}
+    globalDepth = dictDepth['elevation']
+    x = np.shape(globalDepth)[1]
+    y = np.shape(globalDepth)[0]
+    depth3D = np.repeat(globalDepth[np.newaxis, :, :], len(depthArray), axis = 0)
+    # Aerosol concentration
+    npzPHIS = np.load('data/MERRA2/PHIS.npz')
+    lonR = npzPHIS['lon']
+    latR = npzPHIS['lat']
+    H = npzPHIS['PHIS']
+    H3D = np.repeat(H[np.newaxis, :, :], len(altitude), axis = 0)
+    # Closest coordinates
+    for section in sections:
+        section_coor = sections[section]
+        ATM = Atmosphere()
+        new_coor = ATM._closestCoord(lonR, latR, section_coor)
+        sections[section] = new_coor
+    labels = {}
+    locusType = {}
+    if sections:
+        for section in sections:
+            section_coor = sections[section]
+            if section_coor[0] == -180 and section_coor[2] == 179.375 and section_coor[1] == section_coor[3]:
+                # Parallel
+                locusType[section] = 'parallel'
+                if section_coor[1] > 0:
+                    labels[section] = f'{"{:.1f}".format(section_coor[1])}°N'
+                elif section_coor[1] == 0:
+                    labels[section] = f'{"{:.1f}".format(section_coor[1])}°'
+                else:
+                    labels[section] = f'{"{:.1f}".format(section_coor[1])}°S'
+            elif section_coor[1] == -90 and section_coor[2] == 90 and section_coor[0] == section_coor[2]:
+                # Meridian
+                locusType[section] = 'meridian'
+                if section_coor[0] > 0:
+                    labels[section] = f'{"{:.1f}".format(section_coor[0])}°E'
+                elif section_coor[0] == 0:
+                    labels[section] = f'{"{:.1f}".format(section_coor[0])}°'
+                else:
+                    labels[section] = f'{"{:.1f}".format(section_coor[0])}°W'
+            else:
+                locusType[section] = None
+                labels[section] = None
+    # Get vmin and vmax if not given
+    if not vmin:
+        vmin = min(np.nanmin(dataSurf), np.nanmin(data3D))
+    if not vmax:
+        vmax = max(np.nanmax(dataSurf), np.nanmax(data3D))
+    backgroundColor = ['black', 'lightgrey']
+    split_points = [np.min(depthArray)/1000, np.nanmax(H)/1000, np.max(altitude)/1000]
+    # Plotting colour
+    if isinstance(cmap, (list, np.ndarray)):
+        plot_cmap = ListedColormap(cmap, name = 'plot_cmap')
+        levels = len(cmap)
+    else:
+        plot_cmap = cmap
+        levels = levels
+    #-Section plots
+    if sections:
+        for section in sections:
+            if numTicks:
+                numTick = numTicks[section]
+            else:
+                if locusType[section] == 'parallel':
+                    numTick = 9
+                else:
+                    numTick = 5
+            coor = sections[section]
+            locus = locusType[section]
+            idx = (int(np.argwhere(lonR == coor[0])),
+                   int(np.argwhere(latR == coor[1])),
+                   int(np.argwhere(lonR == coor[2])),
+                   int(np.argwhere(latR == coor[3])))
+            if locus:
+                if locus == 'parallel':
+                    sectionData = data3D[:, idx[1], :]
+                    matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                    matrixAltArray = np.repeat(altitude[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                    depth = depth3D[:, idx[1], :]
+                    depth = np.where(depth < matrixDepthArray, 9.99e99, -9.99e99)
+                    topog = H3D[:, idx[1], :]
+                    topog = np.where(topog >= matrixAltArray, 9.99e99, np.nan)
+                    nanDepth = np.empty(depth.shape)
+                    nanDepth.fill(np.nan)
+                    xCoor = np.hstack((lonR[:], 180))
+                    xLabel = 'Longitude (°)'
+                    tickLoc = np.linspace(bbox[0], bbox[2], numTick)
+                    tickLabels = []
+                    for loc in tickLoc:
+                        if loc > 0:
+                            tickLabels += [f'{int(loc)}°E']
+                        elif loc == 0:
+                            tickLabels += [f'{int(loc)}°']
+                        else:
+                            tickLabels += [f'{int(abs(loc))}°W']
+                elif locus == 'meridian':
+                    sectionData = data3D[:, :, idx[0]]
+                    matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                    matrixAltArray = np.repeat(altitude[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                    depth = depth3D[:, :, idx[0]]
+                    depth = np.where(depth < matrixDepthArray, 9.99e99, -9.99e99)
+                    topog = H3D[:, :, idx[0]]
+                    topog = np.where(topog >= matrixAltArray, 9.99e99, np.nan)
+                    nanDepth = np.empty(depth.shape)
+                    nanDepth.fill(np.nan)
+                    xCoor = latR[:]
+                    xLabel = 'Latitude (°)'
+                    tickLoc = np.linspace(bbox[1], bbox[3], numTick)
+                    tickLabels = []
+                    for loc in tickLoc:
+                        if loc > 0:
+                            tickLabels += [f'{int(loc)}°N']
+                        elif loc == 0:
+                            tickLabels += [f'{int(loc)}°']
+                        else:
+                            tickLabels += [f'{int(abs(loc))}°S']
+            else:
+                sectionData = data3D[:, idx[1], idx[0]:idx[2]+1]
+                matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                matrixAltArray = np.repeat(altitude[:, np.newaxis], sectionData.shape[-1], axis = -1)
+                depth = depth3D[:, idx[1], idx[0]:idx[2]+1]
+                depth = np.where(depth < matrixDepthArray, 9.99e99, -9.99e99)
+                topog = H3D[:, idx[1], idx[0]:idx[2]+1]
+                topog = np.where(topog >= matrixAltArray, 9.99e99, np.nan)
+                nanDepth = np.empty(depth.shape)
+                nanDepth.fill(np.nan)
+                xCoor = lonR[idx[0]:idx[2]+1]
+                xLabel = 'Longitude (°)'
+                if coor[1] == coor[3]:
+                    # Parallel section
+                    tickLoc = np.linspace(coor[0], coor[2], numTick)
+                    tickLabels = []
+                    for loc in tickLoc:
+                        if loc > 0:
+                            tickLabels += [f'{int(loc)}°E']
+                        elif loc == 0:
+                            tickLabels += [f'{int(loc)}°']
+                        else:
+                            tickLabels += [f'{int(abs(loc))}°W']
+                elif coor[0] == coor[2]:
+                    # Meridian section
+                    tickLoc = np.linspace(coor[1], coor[3], numTick)
+                    for loc in tickLoc:
+                        if loc > 0:
+                            tickLabels += [f'{loc}°N']
+                        elif loc == 0:
+                            tickLabels += [f'{loc}°']
+                        else:
+                            tickLabels += [f'{abs(loc)}°S']
+            sectionData = np.vstack((sectionData, nanDepth))
+            if locus == 'parallel':
+                sectionData = np.column_stack((sectionData, sectionData[:,0]))
+                depth = np.column_stack((depth, depth[:,0]))
+            yCoor = np.hstack((altitude, depthArray))
+            fig, ax = plt.subplots(figsize=sectionFigSize[section])
+            ax.contourf(xCoor, yCoor/1000, sectionData, levels = 78, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+            ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'dodgerblue'))
+            ax.set_ylabel('Altitude (km)', fontsize = 10)
+            ax.set_xlabel(xLabel, fontsize = 10)
+            ax.tick_params(labelsize = 10)
+            ax.xaxis.set_major_locator(tkr.FixedLocator(tickLoc))
+            ax.xaxis.set_major_formatter(tkr.FixedFormatter(tickLabels))
+            ax.set_xlim(left = tickLoc[0], right = tickLoc[-1])
+            plt.minorticks_on()
+            for i in range(len(split_points) - 1):
+                plt.axhspan(split_points[i], split_points[i+1], facecolor = backgroundColor[i], zorder = 0)
+    #-Main plot (global map)
+    ny, nx = dataSurf.shape
+    fig, ax = plt.subplots(figsize = mapsize)
+    m = Basemap(projection='cyl', resolution='c',
+                llcrnrlon=bbox[0], llcrnrlat=bbox[1],
+                urcrnrlon=bbox[2], urcrnrlat=bbox[3], fix_aspect = fix_aspect)
+    lons, lats = m.makegrid(nx, ny)
+    x, y = m(lons, lats)
+    m.drawcoastlines(linewidth=clw)
+    m.fillcontinents(color = continentColor, lake_color = lakeColor)
+    if sections:
+        for section in sections:
+            locus = locusType[section]
+            coor = sections[section]
+            x1 = coor[0]
+            x2 = coor[2]
+            y1 = coor[1]
+            y2 = coor[3]
+            letterLabel1 = section[0]
+            letterLabel2 = section[-1]
+            if locus == 'parallel':
+                parallelLabel = labels[section]
+                parallel = coor[1]
+                m.drawparallels([parallel], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
+                ax.text(-235, parallel - 2.0, parallelLabel, size = 10)
+                ax.text(-195, parallel - 3.0, letterLabel1, size = 12, weight = 'bold')
+                ax.text(185, parallel - 3.0, letterLabel2, size = 12, weight = 'bold')
+                        # bbox = dict(boxstyle=f"circle,pad={0.25}", fc = 'w'))
+            elif locus == 'meridian':
+                meridianLabel = labels[section]
+                meridian = coor[0]
+                m.drawmeridians([meridian], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                plt.plot(x1, y1, x2, y2, marker = '_', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
+                ax.text(meridian - 15, 102, meridianLabel, size = 10)
+                ax.text(meridian - 5, 92, letterLabel1, size = 12, weight = 'bold')
+                ax.text(meridian - 5, -100, letterLabel2, size = 12, weight = 'bold')
+            else:
+                plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5, linestyle = '-')
+                ax.text(x1 - 5, y1 + 6, letterLabel1, size = 12, weight = 'bold')
+                ax.text(x2 - 5, y1 + 6, letterLabel2, size = 12, weight = 'bold')
+    if xylabels:
+        ax.set_xlabel('Longitude (°)', size = 10)
+        ax.xaxis.set_label_coords(0.10, 1.05)
+        ax.set_ylabel('Latitude (°)', size = 10)
+        ax.yaxis.set_label_coords(-0.010, 0.12)
+    m.drawmapboundary(fill_color='darkgrey')
+    m.contourf(x, y, dataSurf, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+    if title:
+        plt.title(title)
+    plt.show()
+    if colorbar:
+        # Standalone colorbar
+        limitData = np.array([[vmin, vmax]])
+        pl.imshow(limitData, cmap = plot_cmap)
+        pl.gca().set_visible(False)
+        ticks_colorbar = np.linspace(np.squeeze(limitData)[0], np.squeeze(limitData)[1], 8)
+        labels_colorbar = ["{:0.1f}".format(x) for x in ticks_colorbar]
+        clb = pl.colorbar(orientation = 'horizontal')
+        clb.set_label(f'{varName} ({varUnits})')
+        clb.set_ticks(ticks_colorbar)
+        clb.set_ticklabels(labels_colorbar)
