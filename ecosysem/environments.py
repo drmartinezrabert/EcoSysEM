@@ -637,9 +637,6 @@ class Environment:
 
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
-    def _plotAtmosphere():
-        pass
-    
     def _HfromP(self, P):
         """
         Get atmospheric altitude from pressure altitude (from NOAA).
@@ -1429,6 +1426,7 @@ class ISAMERRA2(Atmosphere):
             print('  > Creating ISAMERRA2 instance...')
         self.environment = 'Atmosphere'
         self.model = 'ISAMERRA2'
+        self.bbox = bbox
         self.fluidType = 'ideal'
         self.salinity = None
         self.methods = None
@@ -2441,6 +2439,7 @@ class CAMSMERRA2(Atmosphere):
                                   numAlt = numAlt, 
                                   surftrop = surftrop,
                                   showMessage = False)
+        self.bbox = bbox
         self.compounds = ISAMERRA2inst.compounds
         self.phase = phase
         self.fluidType = 'ideal'
