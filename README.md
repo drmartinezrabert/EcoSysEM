@@ -33,6 +33,7 @@ ____________________________
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
         - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
+        - Data visualization | [GO](#data-visualization)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Error List | [GO](#error-list)
@@ -407,23 +408,27 @@ ecosysem
   │           ├── getRxn
   │           ├── getRxnByComp
   │           └── getRxnByName
-  └── thermodynamics.py 
-         ├── ThP
-         │    ├── getThP
-         │    ├── getDeltaG0r
-         │    ├── getDeltaH0r
-         │    ├── ionicStrength
-         │    ├── activity
-         │    └── getKeq
-         ├── ThEq
-         │    ├── solubilityHenry
-         │    ├── pHSpeciation
-         │    └── plotpHSpeciation
-         └── ThSA
-              ├── exportDeltaGr
-              ├── getDeltaGr
-              ├── smmryDeltaGr
-              └── saConcDeltaGr
+  ├── thermodynamics.py 
+  │      ├── ThP
+  │      │    ├── getThP
+  │      │    ├── getDeltaG0r
+  │      │    ├── getDeltaH0r
+  │      │    ├── ionicStrength
+  │      │    ├── activity
+  │      │    └── getKeq
+  │      ├── ThEq
+  │      │    ├── solubilityHenry
+  │      │    ├── pHSpeciation
+  │      │    └── plotpHSpeciation
+  │      └── ThSA
+  │           ├── exportDeltaGr
+  │           ├── getDeltaGr
+  │           ├── smmryDeltaGr
+  │           └── saConcDeltaGr
+  └── plotting.py
+         ├── plotVarMap2D
+         ├── plotZonalMean
+         └── plotCrossSections
 ```
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
@@ -443,6 +448,7 @@ This section clarifies concepts, design decisions and technical details of this 
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
+- Data visualization | [GO](#data-visualization)
 <!-- - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa) -->
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
@@ -1701,13 +1707,6 @@ A common error in Python Inheritance is `TypeError: got multiple values for keyw
 
 #
 
-#### <ins>Ecosystem Analysis (EcoA)</ins>
-:construction: Coming soon...
-
-[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-#
-
 #### <ins>Thermodynamic State Analysis (ThSA)</ins>
 With the <ins>Thermodynamic State Analysis module (ThSA)</ins>, the user can identify which rections are feasible (_i.e.,_ exergonic) considering the environmental conditions (nonstandard conditions). It is important to take into account that because a given reaction is exergonic under a particular environmental conditions (ΔG<sub>r</sub><0), it does not necessary mean that organisms will be able to catalyze it and, if they can, they have enough energy for growth and/or maintenance. Remember that Gibbs energy quantifies the tendency of a chemical reaction to proceed in a particular direction. To determine the actual energy that organisms can take from a particular transformation and if these can growth and/or satisfy maintenance requirements, the [Biological Thermodynamic State Analysis (BioThSA)](#bio-thermodynamic-state-analysis-biothsa) should be used. To calculate the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>), the Gibbs-Helmholtz-Nernst relationship is used. The Gibbs-Helmholtz-Nernst relationship considers the influnce of temperature, pH and concentrations of substrates and products on ΔG<sub>r</sub>.
 
@@ -2265,6 +2264,14 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 
 #
 <!--
+
+#### <ins>Ecosystem Analysis (EcoA)</ins>
+:construction: Coming soon...
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+
+#
+
 #### <ins>Bio-Thermodynamic State Analysis (BioThSA)</ins>
 :construction: Coming soon...
 
@@ -2278,6 +2285,48 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #
+
+#### <ins>Data visualization</ins>
+### plotVarMap2D &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevels=100, figsize=(5.0, 3.6), formatColorbar='{:0.1f}',
+             fix_aspect=False, fontsize=12, drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None, mlw=0.5,
+             drawMeridians=True, mlw=0.5, cml='k', colorbar=True, meridiansLabels=[0,0,0,1], meridians=[0., 60., 120., 180., 240., 300.], 
+             parallelsLabels=[1,0,0,0], parallels=[-90, -60, -30, 0, 30, 60, 90], continentColor='darkgrey', lakeColor='darkgrey', 
+             colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlots=False)
+```
+Plot two dimensional data on a world map.<br>
+**Parameters:**<br>
+_Lorem ipsum..._
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s) or image(s) on `/results` folder** <br>
+
+### plotZonalMean &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotZonalMean(altitude, data, color, varName, varUnits, zone, pH=None, T=None, compSpec=None, fillBetween=True, semiLog=False, title=None,
+              figsize=(5.0, 3.6), lw=2.0, fontsize=12, alpha=0.4, nticks=10, legend=True, ncol=1, legendOrientation=None, latitude=None,
+              longitude=None, vmin=None, vmax=None, colorbar=None, cbFontSize=12, xTicks=None, colorbarSize=None, cbOrientation='horizontal',
+              formatColorbar='{:0.1f}', savePlots=False)
+```
+Plot zonal mean of data.<br> 
+**Parameters:**<br>
+_Lorem ipsum..._
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s) or image(s) on `/results` folder** <br>
+
+### plotCrossSections &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+plotCrossSections(dataSurf, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
+                  vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
+                  fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlots=False)
+```
+Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
+**Parameters:**<br>
+_Lorem ipsum..._
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s) or image(s) on `/results` folder** <br>
+
+[🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
 1. Download .zip code. Last version: `v0.3` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.3.zip).
@@ -2416,6 +2465,11 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 
 #### · <ins>Kinetic rates (KinRates)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [KinRates.getRs](#kinratesgetrs---back-to-function-navigation)<br>
+
+#### · <ins>Data visualization</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotVarMap2D](#plotVarMap2D---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotZonalMean](#plotZonalMean---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [plotCrossSections](#plotCrossSections---back-to-function-navigation)<br>
 
 [🔼 Back to **Contents**](#readme-contents)
 
