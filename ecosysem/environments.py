@@ -428,7 +428,7 @@ class Environment:
 
     def getDGr(self, typeRxn, input_, specComp):
         """
-        Compute (non-)stadard Gibbs free energy using information from
+        Compute (non-)standard Gibbs free energy using information from
         environmental models.
 
         Parameters
@@ -450,8 +450,8 @@ class Environment:
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
-        T = self.temperature
-        pH = self.pH
+        T = self.temperature.copy()
+        pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         S = self.salinity
         if self.model == 'GWB':
@@ -478,7 +478,7 @@ class Environment:
         self.DGr = DGr_dict
     
     def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None):
-        """#!!!
+        """
         Compute reaction rates using information from environmental models.
         
         Parameters
@@ -490,24 +490,27 @@ class Environment:
         paramDB : STR
             Name of parameter database, matching with csv name.
         reactions : STR or LIST
-            Requested reaction.
+            Requested reaction names.
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        
+        pH : INT or FLOAT, optional
+             pH value (None by default)
+                
         Returns
         -------
         Results are saved as an attribute of model instances (modelName.Rs) as a dictionary.
 
         """
-        if pH != None:
-            if not isinstance(pH, list): pH = [pH]
-            if not len(pH) == 1:
-                raise ValueError(f'pH ({type(pH)}) must be None or a single float or int.')
+        if pH is not None:
+            if not isinstance(pH, (float, int)):
+                if isinstance(pH, list) and len(pH) == 1:
+                    pH = float(pH[0])
+                else: raise ValueError(f'pH ({type(pH)}) must be a single float or int.')
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
-        T = self.temperature
+        T = self.temperature.copy()
         # check attributes type
         if self.model == 'GWB':
             Ct = self.Ci_L.copy()
@@ -555,6 +558,10 @@ class Environment:
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         DGsynth : FLOAT
             Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
+        EnvAttributes : BOOL
+            Command to take non-standard Gibbs free energy (DGr) and cell-specific uptake rates
+            from already existing environment attributes (or create them) in order to calculate
+            the corresponding cell specific powers. Default : True (uses self.DGr and self.Rs)
 
         Returns
         -------
@@ -565,8 +572,8 @@ class Environment:
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
-        T = self.temperature
-        pH = self.pH
+        T = self.temperature.copy()
+        pH = self.pH.copy()
         S = self.salinity
         # check attributes type
         if self.model == 'GWB':
@@ -601,47 +608,48 @@ class Environment:
         CSPargs['DGsynth'] = DGsynth
         CSPargs['Rs'] = None
         CSPargs['DGr'] = None
+        #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
+        CSP_dict = {}
+        if not isinstance(reactions, list): reactions = [reactions]
+        if not isinstance(pH, (list, np.ndarray)):
+            pH = [pH]
         # Assign Rs and DGr if already computed as environment attributes or create them
         if EnvAttributes is True:
-            if not isinstance(reactions, list): reactions = [reactions]
-            if not isinstance(pH, (list, np.ndarray)):
-                pH = [pH]
-                self.pH = pH
-            #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
-            CSP_dict = {}
             #check DGr
             _DGr = getattr(self,'DGr', None)#???
             if _DGr is None:
                 self.getDGr(typeMetabo, reactions, specComp)
                 _DGr = self.DGr.copy()
             for pH_ in pH:
+                CSPargs['pH'] = pH_
                 #get Rs
-                self.getRs(typeKin, paramDB, reactions, pH_)
+                self.getRs(typeKin, paramDB, reactions, sample, pH_)
                 _Rs = self.Rs.copy()
-                #extract current pH keys in _DGr
+                #extract from _DGr, DGr keys for current pH (into DGr_aux)
                 DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
-                #assign needed CSP arguments
+                #assign needed arguments for CSP.getAllCSP()
                 for comp, rxn in enumerate(reactions):
                     CSPargs['reaction'] = rxn
                     if not isinstance(specComp, list): specComp = [specComp]
                     CSPargs['specComp'] = specComp[comp]
+                    CSPargs['Rs'] = _Rs[rxn] #dict
+                    #extract from DGr_aux, DGr values of current reaction (assigned as argument for CSP)
                     for r in DGr_aux: 
                         if f'{rxn}' in r:
                             CSPargs['DGr'] = DGr_aux[r] #np.ndarray
-                    CSPargs['Rs'] = _Rs[rxn] #dict
                     #compute CSP values for current pH and reaction
                     CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
         # Compute CSP without Rs and DGr environment's attributes
         elif EnvAttributes is False:
-            if not isinstance(pH, (float, int)): 
-                raise ValueError(f'pH ({type(pH)}) must be a single float or int.')
-            CSPargs['pH'] = pH
-            for comp, rxn in enumerate(reactions):
-                CSPargs['reaction'] = rxn
-                if not isinstance(specComp, list): specComp = [specComp]
-                CSPargs['specComp'] = specComp[comp]
-                #compute CSP values
-                CSP_dict[f'{rxn}_pH:{pH}'] = CSP.getAllCSP(**CSPargs)
+            #assign needed arguments for CSP.getAllCSP()
+            for pH_ in pH:
+                CSPargs['pH'] = pH_
+                for comp, rxn in enumerate(reactions):
+                    CSPargs['reaction'] = rxn
+                    if not isinstance(specComp, list): specComp = [specComp]
+                    CSPargs['specComp'] = specComp[comp]
+                    #compute CSP values
+                    CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
         else: raise ValueError(f'EnvAttributes ({EnvAttributes}) should be a Bool.')
         self.CSP = CSP_dict
     
