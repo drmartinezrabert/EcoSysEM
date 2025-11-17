@@ -8,6 +8,7 @@ Created on Fri Aug 29 12:00:06 2025
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
 from reactions import KinRates
+from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
 import pandas as pd
@@ -521,6 +522,129 @@ class Environment:
                 raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
         Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
         self.Rs = Rs_dict
+        
+    def getCSP(self, paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
+        """#!!!             
+        Compute cell specific powers using information from environmental models :
+                - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
+                - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
+                - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
+                - 'Pm0' : Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
+                - 'Ps' : Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
+                - 'Pcell' : Growth power: energy flux of a growing cell (sum of Pana & Pmg).
+                
+        Parameters
+        ----------
+        paramDB : STR or LIST
+            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+        typeKin : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
+        typeMetabo : STR
+            Requested metabolism type, matching with csv name. E.g.:
+                - 'metabolisms' : aerobic metabolisms
+                - 'AnMetabolisms' : anaerobic metabolisms
+        reactions : STR or LIST
+            Requested reactions names. E.g.:
+                -'COOB' : carbon monoxide oxidation
+                -'HOB' : hydrogen oxidation
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        sample : STR or LIST, optional
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
+        DGsynth : FLOAT
+            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
+
+        Returns
+        -------
+        CSP dict saved as attribute of the model instance (modelName.CSP).
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature
+        pH = self.pH
+        S = self.salinity
+        # check attributes type
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+            else:
+                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        # Initialize parameters for CSP computing
+        CSPargs = {}
+        CSPargs['paramDB'] = paramDB
+        CSPargs['typeKin'] = typeKin
+        CSPargs['typeMetabo'] = typeMetabo
+        CSPargs['reaction'] = None
+        CSPargs['specComp'] = None
+        CSPargs['Ct'] = Ct
+        CSPargs['T'] = T
+        CSPargs['pH'] = None
+        CSPargs['S'] = S
+        CSPargs['phase'] = 'L'
+        CSPargs['sample'] = 'All'
+        CSPargs['fluidType'] = 'ideal'
+        CSPargs['molality'] = 'True'
+        CSPargs['methods'] = 'None'
+        CSPargs['solvent'] = 'H2O'
+        CSPargs['asm'] = 'stoich'
+        CSPargs['DGsynth'] = DGsynth
+        CSPargs['Rs'] = None
+        CSPargs['DGr'] = None
+        # Assign Rs and DGr if already computed as environment attributes or create them
+        if EnvAttributes is True:
+            if not isinstance(reactions, list): reactions = [reactions]
+            if not isinstance(pH, (list, np.ndarray)):
+                pH = [pH]
+                self.pH = pH
+            #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
+            CSP_dict = {}
+            #check DGr
+            _DGr = getattr(self,'DGr', None)#???
+            if _DGr is None:
+                self.getDGr(typeMetabo, reactions, specComp)
+                _DGr = self.DGr.copy()
+            for pH_ in pH:
+                #get Rs
+                self.getRs(typeKin, paramDB, reactions, pH_)
+                _Rs = self.Rs.copy()
+                #extract current pH keys in _DGr
+                DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
+                #assign needed CSP arguments
+                for comp, rxn in enumerate(reactions):
+                    CSPargs['reaction'] = rxn
+                    if not isinstance(specComp, list): specComp = [specComp]
+                    CSPargs['specComp'] = specComp[comp]
+                    for r in DGr_aux: 
+                        if f'{rxn}' in r:
+                            CSPargs['DGr'] = DGr_aux[r] #np.ndarray
+                    CSPargs['Rs'] = _Rs[rxn] #dict
+                    #compute CSP values for current pH and reaction
+                    CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
+        # Compute CSP without Rs and DGr environment's attributes
+        elif EnvAttributes is False:
+            if not isinstance(pH, (float, int)): 
+                raise ValueError(f'pH ({type(pH)}) must be a single float or int.')
+            CSPargs['pH'] = pH
+            for comp, rxn in enumerate(reactions):
+                CSPargs['reaction'] = rxn
+                if not isinstance(specComp, list): specComp = [specComp]
+                CSPargs['specComp'] = specComp[comp]
+                #compute CSP values
+                CSP_dict[f'{rxn}_pH:{pH}'] = CSP.getAllCSP(**CSPargs)
+        else: raise ValueError(f'EnvAttributes ({EnvAttributes}) should be a Bool.')
+        self.CSP = CSP_dict
+    
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
                  logScaleX = True, vmin = None, vmax = None, printDG0r = False, printDH0r = False, 
                  showMessage = True):
