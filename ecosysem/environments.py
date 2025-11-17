@@ -7,6 +7,7 @@ Created on Fri Aug 29 12:00:06 2025
 
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
+from reactions import KinRates
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
 import pandas as pd
@@ -475,6 +476,51 @@ class Environment:
                 DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
+    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None):
+        """#!!!
+        Compute reaction rates using information from environmental models.
+        
+        Parameters
+        ----------
+        typeKin : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR
+            Name of parameter database, matching with csv name.
+        reactions : STR or LIST
+            Requested reaction.
+        sample : STR or LIST, optional
+            Requested samples (rows of `paramDB.csv`). The default is 'All'.
+        
+        Returns
+        -------
+        Results are saved as an attribute of model instances (modelName.Rs) as a dictionary.
+
+        """
+        if pH != None:
+            if not isinstance(pH, list): pH = [pH]
+            if not len(pH) == 1:
+                raise ValueError(f'pH ({type(pH)}) must be None or a single float or int.')
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature
+        # check attributes type
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+            else:
+                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
+        Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
+        self.Rs = Rs_dict
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
                  logScaleX = True, vmin = None, vmax = None, printDG0r = False, printDH0r = False, 
                  showMessage = True):
