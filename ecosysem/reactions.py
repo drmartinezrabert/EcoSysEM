@@ -112,8 +112,8 @@ class KinRates:
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR
             Name of parameter database, matching with csv name.
-        reactions : STR
-            Requested reaction.
+        reactions : STR or LIST
+            Requested reaction(s).
         Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
