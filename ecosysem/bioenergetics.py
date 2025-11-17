@@ -78,7 +78,7 @@ class CSP:
         Returns
         -------
         Pcat : numpy.ndarray
-        	Catabolic cell-specific power: energy flux produced by the cell,
+        	Catabolic cell-specific power [fW/cell]: energy flux produced by the cell,
             using environmental resources or internal reservoirs.
             
         """
@@ -208,7 +208,7 @@ class CSP:
         Returns
         -------
         Pana : numpy.ndarray
-        	Anabolic cell-specific power: energy flux associated with the synthesis of
+        	Anabolic cell-specific power [fW/cell]: energy flux associated with the synthesis of
             cellular components.
         """
         # Get cell-specific uptake rate (Rs)
@@ -284,7 +284,7 @@ class CSP:
         Returns
         -------
         Pmg : numpy.ndarray
-        	Growth-based maintenance power: energy flux that microbes use that does not
+        	Growth-based maintenance power [fW/cell]: energy flux that microbes use that does not
             result in growth while they are growing (Pirt et al., 1965).
         """
         # initialise variables
@@ -306,7 +306,7 @@ class CSP:
         Returns
         -------
         Pm0 : numpy.ndarray
-        	Basal maintenance power: energy flux associated with the minimal set of functions
+        	Basal maintenance power [fW/cell]: energy flux associated with the minimal set of functions
             required to sustain a basal functional state (Hoehler et al., 2013).
         """
         # initialise variables
@@ -328,7 +328,7 @@ class CSP:
         Returns
         -------
         Ps : numpy.ndarray
-        	Survival power: minimal energy flux for preservation of membrane integrity and
+        	Survival power [fW/cell]: minimal energy flux for preservation of membrane integrity and
             key macromolecules (e.g., enzymes), as well as other maintenance costs, such
             as maintaining energized membranes or the conservation of catabolic energy. 
         """
@@ -345,7 +345,7 @@ class CSP:
                   fluidType  = 'ideal', molality = 'True', methods = 'None',
                   solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11,
                   Rs = None, DGr = None):
-        """#!!! tooltip
+        """
         Function to compute every cell-specific powers.
         
         Parameters
@@ -405,7 +405,7 @@ class CSP:
         Returns
         -------
         CSP_dict : DICT of numpy.ndarray
-            Contains all cell specific power series + Pcell:
+            Contains all cell specific power series + Pcell in fW/cell:
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
                 - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
                 - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
@@ -427,8 +427,3 @@ class CSP:
         # Create DataFrame of CSP results
         CSP_dict = {'Pcat': Pcat, 'Pana': Pana, 'Pmg': Pmg, 'Pm0': Pm0, 'Ps': Ps, 'Pcell': Pcell}
         return CSP_dict  # [fW/cell]
-
-
-
- 
-    
