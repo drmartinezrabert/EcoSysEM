@@ -38,11 +38,10 @@ class MSMM:
         'resolution' : 1000
     """
 
-
-
-    def __init__(self, typeMetabo, metabolism, eDonor, Wtype, K, mortality, envModel,
-                 envArgs = None, DeltaGsynth = 9.54E-11, steepness = 0.2,
-                 degradPace = 'moderate', fluidType = 'ideal', actMethods = None):
+    def __init__(self, envModel, coord, typeMetabo, metabolism, eDonor, K, mortality, 
+                 Wtype = 'L-FW', pH = 7.0, dataType = 'cyly', dataRange = [2020, 2024],
+                 DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate',
+                 salinity = None, fluidType = 'ideal', actMethods = None):
         
         _metaboProperties = {}
         _metaboProperties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #resp. [h] & [1/h]
@@ -51,12 +50,37 @@ class MSMM:
         dMtbRates = pd.DataFrame(data = _metaboProperties)
         
         self.envModel = envModel
-        self.atmModels = ['ISA', 'MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2']
+        self.atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
         #!!! other models?
+        if not isinstance(coord, (list, np.ndarray)): coord = [coord]
+        self.coord = coord
         self.typeMtb = typeMetabo    #metabolism type (STR), e.g. 'AnMetabolisms'
+        if not isinstance(metabolism, list): metabolism = [metabolism]
+        if not len(metabolism) == 1:
+            raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
         self.metabolism = metabolism    #reaction (STR), e.g. 'Mth' #??? only one community at a time?
-        #self.phase = phase             #'L' as default
+        if not isinstance(Wtype, str):
+            raise TypeError(f'Wtype must be a string, current type:{type(Wtype)}.')
+        if not Wtype == 'L-FW' and not Wtype == 'L-SW':
+            raise NameError(f'Given Wtype invalid ({Wtype}). Did you mean "L-FW" or "L-SW"?')
         self.Wtype = Wtype              # 'L_SW' or 'L_FW'
+        if Wtype == 'L-SW':
+            if not isinstance(salinity, list): salinity = [salinity]
+            if not len(salinity) == 1:
+                raise AttributeError(f'A single salinity value must be given, current salinity: {salinity}.')
+            if not isinstance(salinity[0], (float, int)):
+                raise TypeError(f'Given salinity value must be float or int, current type: {salinity[0]}.')
+            self.salinity = salinity
+        else: self.salinity = [0.0]
+        if isinstance(pH, list):
+            if not len(pH) == 1:
+                raise AttributeError(f'A single pH value must be given, current pH: {pH}.')
+            else: pH = pH[0]
+        if not isinstance(pH, (float, int)):
+            raise TypeError(f'Given pH value must be float or int, current type: {pH}.')
+        self.pH = pH
+        self.dataType = dataType
+        self.dataRange = dataRange
         self.K = K                      #carrying capacity (FLOAT)
         self.mortality = mortality      #(FLOAT) [1/h] #!!! and not 1/d
         self.DGsynth = DeltaGsynth      #cell synthesis required energy
@@ -65,17 +89,11 @@ class MSMM:
         self.eD = eDonor                #(specComp), e.g. 'CH4' for metabolism = 'Mth'
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
         self.method = actMethods
-        self._callEnvP(envModel = envModel, envArgs = envArgs)
+        self.typeKin = 'MM-Arrhenius'
+        self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+        self._callEnvP(envModel)
         self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
-        #self.Bini = Bini                #initial biomass in each state (LIST) -> plot arg
-        #self.time = time                #[setTime method] -> plot arg 
-        #if plotMSMM == True:
-        #self.plotMSMM(Bini, time) -> required args must be given when instance is created
-        #AJOUT ALEXIS
-        self._ODE_template = ode(f = self._ODEsystem_MSMM)
-        self._ODE_template.set_integrator('vode', method='adams')
-        
-
+        self.Bsol = {}
     
     def _callEnvP(self, envModel, envArgs):
         """
