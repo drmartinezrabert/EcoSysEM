@@ -1847,7 +1847,7 @@ class ThSA:
                     sa_method = 'Reference-normalized Derivative'
                     m_diff[idRxn, idVar] = (ref_val / DGr_ref) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
                 elif sensitivity_method == 'var-based':
-                    sa_method = 'Variance-based SA'
+                    sa_method = 'Variance-normalized Derivative'
                     N = len(DGr)
                     varEDGr_X = np.sum(abs(DGr - DGr_ref)**2) / N
                     varEX = np.sum(abs(list_val - ref_val)**2) / N
