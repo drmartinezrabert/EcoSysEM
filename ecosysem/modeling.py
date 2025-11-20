@@ -377,39 +377,31 @@ class MSMM:
              Bint[:,time] = sol
         self.Bsol = Bint
         
-    def plotMSMM(self, Bini, idP, time, dt = 1):
+    def plotMSMM(self):
         
         """ #!!! tooltip
-        Function to plot solutions of the MSMM ODE system.
+        Function to plot MSMM microbial dynamic of a single point in the environment space.
         
-        Parameters
-        ----------
-        [...]
-        
-        Returns
-        -------
-        None (microbial dynamic is plotted, one microbial community at a time)
         """
-        # call ODE solving function
-        Bplot = self.solveODE(Bini, time, dt)
-
+        Bplot = getattr(self, 'Bsol', None)
+        if Bplot is None:
+            raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
+        t_array = self.t_plot.copy()
         if self.envModel in self.atmModels:
             datmMicr = {'CH4': 'Methanotrophs',
                         'H2': 'Hydrogen-oxidizing bacteria',
                         'CO': 'CO-oxidizing bacteria'}
             communityName = datmMicr[self.eD]
-            plt.plot(time, Bplot[0,:,idP],'g-', linewidth=2.0)    #growth state curve
-            plt.plot(time, Bplot[1,:,idP],'k-', linewidth=2.0)    #maintenance state curve
-            plt.plot(time, Bplot[2,:,idP],'b-', linewidth=2.0)    #survival state curve
-            plt.plot(time, Bplot[3,:,idP],'r--', linewidth=2.0)   #death state curve
+            plt.plot(t_array, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
+            plt.plot(t_array, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
+            plt.plot(t_array, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
+            plt.plot(t_array, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
             if self.envModel in self.atmModels:
-                if self.envModel == 'ISA':
-                    plt.xlabel('time (hours)')
-                    plt.ylabel('Cell concentration (cell/m^3 air)')
-                    plt.title(f'Dynamic of the {communityName} community at {idP} km altitude')
-            else: sys.exit() #!!! labels for other models 
-            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
+                plt.xlabel('time (hours)')
+                plt.ylabel('Cell concentration (cell/m^3 air)')
+                plt.title(f"{communityName}'s dynamic at {self.coord[0]}m altitude ({self.envModel})")
+            # elif: !!! labels for other models 
+            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
             plt.grid() 
             plt.show()
         return
-
