@@ -6,36 +6,18 @@ Created on Mon Sep 22 11:11:07 2025
 """
 
 # Import Python packages
+import copy
 import pandas as pd
 import numpy as np
-from scipy.integrate import ode
 import matplotlib.pyplot as plt
-import sys
-from time import process_time
+from scipy.integrate import ode
 
-# Import classes from modules (as abb.) or import with importlib
-from envdef import ISA
-from reactions import KinRates as KR
-from thermodynamics import ThSA
-from bioenergetics import CSP
-
-import copy
-
+# Import environment classes
+from environments import ISA, ISAMERRA2, CAMSMERRA2
 
 class MSMM:
     """
     Class for Multi-State Metabolic Model
-    
-    
-    reminder for ISA args : #!!!
-        self,
-        'layers',   => troposphere index = 0
-        'phase' : 'All',
-        'H2O' : 0.0,
-        'pH' : 7.0, 
-        'selCompounds' : None, -> means all
-        'selAlt' : None, -> means all
-        'resolution' : 1000
     """
 
     def __init__(self, envModel, coord, typeMetabo, metabolism, eDonor, K, mortality, 
