@@ -2887,7 +2887,8 @@ class GWB(Hydrosphere):
     pool, pond, or stream.
     
     """
-    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', methods = None, showMessage = True):
+    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', 
+                 methods = None, showMessage = True):
         if showMessage:
             print('  > Creating GWB instance...')
         self.environment = 'Hydrosphere'
