@@ -100,16 +100,10 @@ class CSP:
             _Rs = np.nanmean(_rs, axis = 0) / 3600      #[moleD/(cell.s)]
         else:
             #use Rs argument
-            if isinstance(Rs, (int, float, list)): 
-                _Rs = np.array(Rs) / 3600    #[moleD/(cell.s)]
-            if isinstance(Rs,dict):
-                #extract Rs values and compute mean of sample combinations
-                _rs = np.array(list(val for val in Rs.values()))
-                _Rs = np.nanmean(_rs, axis = 0) / 3600      #[moleD/(cell.s)]
-            else:
-                raise ValueError(f'Rs must be a dict, int or float other than zero (current: {type(Rs)})')
-        
-
+            if not isinstance(Rs,np.ndarray): 
+                if isinstance(Rs, (int, float, list)): Rs = np.array(Rs)
+                else: raise TypeError(f'Rs must be a non-zero float, int, list or array. current type: {type(Rs)})')
+            _Rs = Rs / 3600  #[moleD/(cell.s)]
         # Get non-standard Gibbs free energy (DGr)
         if DGr is None or np.all(DGr == 0):
             # Set requested arguments for ThSA.getDeltaGr (no DGr given in arguments)
@@ -135,11 +129,11 @@ class CSP:
             #use DGr argument
             if not isinstance(DGr, np.ndarray):
                 if isinstance(DGr,(float, int, list)): DGr = np.array(DGr)
-                else: raise ValueError(f'DGr must be a non-zero float, int, list or array. current type: {type(DGr)}')
+                else: raise TypeError(f'DGr must be a non-zero float, int, list or array. current type: {type(DGr)}')
             _DGr = DGr * 1000  #[J/moleD]
         #check shape of _DGr and _Rs arrays
         if not _DGr.shape == _Rs.shape :
-            raise ValueError(f'Arrays of different shape cannot be used as operands (_Rs:{_Rs.shape} ; _DGr:{_DGr.shape}).')
+            raise IndexError(f'Arrays of different shape cannot be used as operands (_Rs:{_Rs.shape} ; _DGr:{_DGr.shape}).')
         # Compute Pcat
         Pcat = -(_Rs * _DGr * 1e15)
         return Pcat      #[fW/cell]
@@ -229,14 +223,10 @@ class CSP:
             _Rs = np.nanmean(_rs, axis = 0) / 3600      #[moleD/(cell.s)]
         else:
             #use Rs argument
-            if isinstance(Rs, (int, float, list)): 
-                _Rs = np.array(Rs) / 3600    #[moleD/(cell.s)]
-            if isinstance(Rs,dict):
-                #extract Rs values and compute mean of sample combinations
-                _rs = np.array(list(val for val in Rs.values()))
-                _Rs = np.nanmean(_rs, axis = 0) / 3600      #[moleD/(cell.s)]
-            else:
-                raise ValueError(f'Rs must be a dict, int or float other than zero (current: {type(Rs)})')
+            if not isinstance(Rs,np.ndarray): 
+                if isinstance(Rs, (int, float, list)): Rs = np.array(Rs)
+                else: raise TypeError(f'Rs must be a non-zero float, int, list or array. current type: {type(Rs)})')
+            _Rs = Rs / 3600  #[moleD/(cell.s)]
         # Get non-standard Gibbs free energy (DGr)
         if DGr is None or np.all(DGr == 0):
             # Set requested arguments for ThSA.getDeltaGr (no DGr given in arguments)
@@ -262,11 +252,11 @@ class CSP:
             #use DGr argument
             if not isinstance(DGr, np.ndarray):
                 if isinstance(DGr,(float, int, list)): DGr = np.array(DGr)
-                else: raise ValueError(f'DGr must be a non-zero float, int, list or array. current type: {type(DGr)}')
+                else: raise TypeError(f'DGr must be a non-zero float, int, list or array. current type: {type(DGr)}')
             _DGr = DGr * 1000  #[J/moleD]
         #check shape of _DGr and _Rs arrays
         if not _DGr.shape == _Rs.shape :
-            raise ValueError(f'Arrays of different shape cannot be used as operands (_Rs:{_Rs.shape} ; _DGr:{_DGr.shape}).')
+            raise IndexError(f'Arrays of different shape cannot be used as operands (_Rs:{_Rs.shape} ; _DGr:{_DGr.shape}).')
         # compute cell-growth yield and Pana
         Yx = -(_DGr * (0.5/1.04e-10))   # [cell/moleD]
         Pana = Yx * _Rs * DGsynth * 1e15
