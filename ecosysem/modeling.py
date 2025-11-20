@@ -95,75 +95,142 @@ class MSMM:
         self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
         self.Bsol = {}
     
-    def _callEnvP(self, envModel, envArgs):
+    def _callEnvP(self, envModel):
         """
         Function to import needed environment data (temperature, pH, etc.) 
         
         Parameters
         ----------
-        
         envModel : STR
             Environment model from which data are extracted.
-        envArgs : LIST or DICT
-            Required arguments for the environment model.
-            E.g. for envModel = 'ISA' :
-                envArgs = {layers : 'All',      -> troposphere only ?
-                           phase : 'All',       -> 'L-FW' / 'L_SW'
-                           H2O : 0.0,           -> affects atmo composition
-                           pH : 7.0,            -> affects bioenergetics
-                           selCompounds : None, -> metabolism related only ?
-                           selAlt = None,       -> subset of attributes related to portion of selected layers
-                           resolution = 1000}
-                or :
-                envArgs = ['All', 'All', 0., 7., None, None, 1000]
-            or: enArgs = None for other models
-                
+                        
         Returns
         -------
         None (environment data set as MSMM attributes)
         """
         envModel = self.envModel
         atmModels = self.atmModels
+        rxn = self.metabolism
+        phase_ = self.Wtype
+        pH_ = self.pH
+        coord_ = self.coord.copy()
+        dataType_ = self.dataType #??? if other than 'yly', what about dataRange ?
+        dataRange_ = self.dataRange #??? dataRange other than years only ?
         #!!! other models?
         if not isinstance(envModel, str):
-            print(f'arg.error: environment model must be a string. current input: {envModel}')
-            sys.exit()
+            raise ValueError(f'Environment model must be a string. current input: {envModel}')
+        # check model and import its attributes:
         if envModel in atmModels :
+            #import required ISA attributes:
             if envModel == 'ISA':
-                if isinstance(envArgs, list):
-                    ISAinst = ISA(*envArgs)
-                elif isinstance(envArgs, dict):
-                    ISAinst = ISA(**envArgs)
-                else:
-                    print('error in envArgs type')
-                    sys.exit()
-                self.pH = ISAinst.pH
+                if len(coord_) == 1: alt = coord_[0]
+                else: raise AttributeError(f'A list of one element (selected altitude) should be given as coordinate if envModel is ISA, current coord: {coord_}.')    
+                envArgs = {'layers' : 'All',
+                           'phase' : phase_,
+                           'H2O' : 0.0,
+                           'pH' : pH_, 
+                           'selCompounds' : None,
+                           'selAlt' : [alt, alt],
+                           'resolution' : 1000
+                            }
+                ISAinst = ISA(**envArgs)
                 self.compositions = ISAinst.compositions
                 self.compounds = ISAinst.compounds
-                self.resolution = ISAinst.resolution
                 self.temperature = ISAinst.temperature
                 self.pressure = ISAinst.pressure
-                self.altitude = ISAinst.altitude
                 self.H2O = ISAinst.H2O
-                self.Pi = ISAinst.Pi        #!!! could be useful for MSMMv2
-                self.Ci_G = ISAinst.Ci_G       #!!! //
-                if self.Wtype == 'L_FW':
+                if phase_ == 'L-FW':
                     self.Ct = ISAinst.Ci_LFW
-                elif self.Wtype == 'L_SW':
+                elif phase_ == 'L-SW':
                     self.Ct = ISAinst.Ci_LSW
-                else: print('Liquid phase could not be recognized. Enter "L_FW" or "L_SW".')
-                self.salinity = 0.0 #!!! for models other than atm, can be !=0
-                self.typeKin = 'MM-Arrhenius'
-                self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
-                #!!! print('ISA attributes were set.')
-            else: 
-                if envArgs:
-                    envArgs == None
-                    print('arg.error: No arguments required for instances from other class than ISA.')
-                #!!! import needed attributes from other models
+                ISAinst.salinity = self.salinity     # set to None by default in ISA
+                ISAinst.methods = self.method        # set to None by default in ISA
+                ISAinst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                              reactions = self.metabolism, specComp = self.eD,
+                              sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
+                self.DGr = ISAinst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+                self.Rs = ISAinst.Rs[f'{rxn[0]}'] / 3600 #[moleD/(cell.s)]
+                self.CSP = ISAinst.CSP[f'{rxn[0]}_pH:{pH_}']
+                self.ISAinst = ISAinst
+            #import required ISAMERRA2 attributes:
+            elif envModel == 'ISAMERRA2':
+                if len(coord_) == 3:
+                    alt = coord_[0]
+                    lon = coord_[1]
+                    lat = coord_[2]
+                else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for ISAMERRA2, current coord: {coord_}.')    
+                envArgs = {'dataType': dataType_,
+                           'y': dataRange_,
+                           'm' : None,
+                           'd' : None,
+                           'pH' : pH_,
+                           'bbox' : (lon, lat, lon, lat),
+                           'compound' : None,
+                           'phase' : phase_, 
+                           'altArray' : [alt],
+                           'numAlt' : 50,
+                           'surftrop' : None,
+                           'keysAsAttributes' : False, 
+                           'showMessage' : True
+                           }
+                ISAMERRA2inst = ISAMERRA2(**envArgs)
+                self.compositions = ISAMERRA2inst.compositions
+                self.compounds = ISAMERRA2inst.compounds
+                self.temperature = ISAMERRA2inst.temperature
+                self.pressure = ISAMERRA2inst.pressure
+                if phase_ == 'L-FW':
+                    self.Ct = ISAMERRA2inst.Ci_LFW
+                elif phase_ == 'L-SW':
+                    self.Ct = ISAMERRA2inst.Ci_LSW
+                ISAMERRA2inst.salinity = self.salinity      # set to None by default in ISAMERRA2
+                ISAMERRA2inst.methods = self.method         # set to None by default in ISAMERRA2
+                ISAMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                               reactions = self.metabolism, specComp = self.eD,
+                               sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
+                self.DGr = ISAMERRA2inst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+                self.Rs = ISAMERRA2inst.Rs[f'{rxn[0]}'] / 3600 #[moleD/(cell.s)]
+                self.CSP = ISAMERRA2inst.CSP[f'{rxn[0]}_pH:{pH_}']
+                self.ISAMERRA2inst = ISAMERRA2inst
+            elif envModel == 'CAMSMERRA2':
+                if len(coord_) == 3:
+                    alt = coord_[0]
+                    lon = coord_[1]
+                    lat = coord_[2]
+                else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for CAMSMERRA2, current coord: {coord_}.')
+                envArgs = {'dataType': dataType_,
+                           'y': dataRange_,
+                           'm' : None,
+                           'd' : None,
+                           'pH' : pH_,
+                           'bbox' : (lon, lat, lon, lat),
+                           'keys' : 'All',
+                           'phase' : phase_, 
+                           'altArray' : [alt],
+                           'numAlt' : 50,
+                           'surftrop' : None,
+                           'keysAsAttributes' : False, 
+                           'showMessage' : True
+                            }
+                CAMSMERRA2inst = CAMSMERRA2(**envArgs)
+                self.compounds = CAMSMERRA2inst.compounds
+                self.temperature = CAMSMERRA2inst.temperature
+                self.pressure = CAMSMERRA2inst.pressure
+                if phase_ == 'L-FW':
+                    self.Ct = CAMSMERRA2inst.Ci_LFW
+                elif phase_ == 'L-SW':
+                    self.Ct = CAMSMERRA2inst.Ci_LSW
+                CAMSMERRA2inst.salinity = self.salinity     # set to None by default in CAMSMERRA2
+                CAMSMERRA2inst.methods = self.method        # set to None by default in CAMSMERRA2
+                CAMSMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                               reactions = self.metabolism, specComp = self.eD,
+                               sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
+                self.DGr = CAMSMERRA2inst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+                self.Rs = CAMSMERRA2inst.Rs[f'{rxn[0]}'] / 3600  #[moleD/(cell.s)]
+                self.CSP = CAMSMERRA2inst.CSP[f'{rxn[0]}_pH:{pH_}']
+                self.CAMSMERRA2inst = CAMSMERRA2inst
+        #elif envModel in ___ :    #!!! import needed attributes for other models (e.g. GWB)
         else:
-            print('arg.error: environment model not found, see envModels')
-            sys.exit()     
+            raise NameError(f'Environment model ({envModel}) not found, see valid models in the README.')
 
     def _ODEsystem_MSMM(self, t, y, idP):
         """
