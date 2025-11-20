@@ -3,12 +3,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - yyyy/mm/dd
 ### Added
-- Bioenergetic calculations
+- Bioenergetic calculations.
   - Catabolic cell-specific power.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Complete thermodynamic sensitivity analysis.
+- Local sensitivity analysis of Gibbs free energy.
+  - Local (Derivative).
+  - Sigma-normalized derivative.
+  - Reference-normalized derivative.
+  - Variance-normalized derivative.
+  - Pearson's correlation. 
+- Global sensitivity analysis of Gibbs free energy.
+  - Sobol' indices.
 
 ### Changed
 - README file.
