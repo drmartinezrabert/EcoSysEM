@@ -339,9 +339,6 @@ class MSMM:
         self.theta = thetaDict
 
     def solveODE(self, Bini, tSpan, dt = 1, exportBint = False):
-        print("debut")
-        print(type(dt))
-        print(tSpan)
         """ #!!! tooltip
         Function to plot solutions of the MSMM ODE system.
         
@@ -349,7 +346,7 @@ class MSMM:
         ----------
         Bini : LIST of INT
             Initial biomass in each state (LIST)
-        time : LIST or np.array
+        tSpan : LIST or np.array
             Time range over which the microbial dynamic is computed
         exportBint : BOOL
             Command to export integrated biomass values as Excel document.
@@ -363,52 +360,22 @@ class MSMM:
         """
         if not isinstance(Bini, np.ndarray): Bini = np.array(Bini)
         if len(Bini) != 4:
-            print('error in initial biomass, Bini must contain 4 elements') #!!!
-            sys.exit()
-        # set variables from self.attributes
-        if self.envModel in self.atmModels:
-            alt = self.altitude.copy()
-            isolve = len(alt)
-        else: print('envModel not found') #!!! set needed variables for other models
-        if not isinstance(tSpan, int): tSpan = int(tSpan)
+            raise ValueError(f'Bini must contain 4 elements, current length: {len(Bini)}.')
+        self.t_plot = np.linspace(0, tSpan, int(tSpan/dt)+1)
         #Initialize Bint matrix
-        Bint = np.empty(Bini.shape)
+        Bint = np.empty(4)
         Bint = Bint[..., np.newaxis]
         Bint = np.repeat(Bint, tSpan+1, axis = -1)
-        Bint = Bint[..., np.newaxis]
-        Bint = np.repeat(Bint, isolve, axis = -1)
-        #print('sol matrix shape:', Bint.shape)
-        print("test")
-        t0 = process_time()
-        ODEsol = copy.copy(self._ODE_template)
-        print(process_time() - t0)
-        
-        
-        
-        print("debut boucle for")
-        t0 = process_time()
-        for idP in range(isolve):
-             ODEsol.set_f_params(idP)
-             ODEsol.set_initial_value(Bini, 0)
-             #print(vars(ODEsol))
-             print(f'alt = {alt[idP]} m') # for envModel from atmModels only
-             print("debut boucle while")
-             while ODEsol.successful() and ODEsol.t < tSpan:
-                 print("while...")
-                 t0 = process_time()
-                 print(ODEsol.t+dt)
-                 sol = ODEsol.integrate(ODEsol.t+dt)
-                 print(sol)
-                 print(process_time() - t0)
-                 #int_status = ODEsol.get_return_code()
-                 #if int_status > 0: print('integration success')
-                 #elif int_status < 0: print('integration stopped early or failed')
-                 time = int(ODEsol.t)
-                 #print(time, sol)
-                 Bint[:,time,idP] = sol
-        print("fin boucle for")
-        print(process_time() - t0)
-        return Bint
+        Bint[:,0] = Bini
+        #create ode instance & set initial values & integration method
+        ODEsol = ode(self._ODEsystem_MSMM)
+        ODEsol.set_initial_value(Bini, 0)
+        ODEsol.set_integrator('vode', method='adams')
+        while ODEsol.successful() and ODEsol.t < tSpan:
+             sol = ODEsol.integrate(ODEsol.t+dt)
+             time = int(ODEsol.t)
+             Bint[:,time] = sol
+        self.Bsol = Bint
         
     def plotMSMM(self, Bini, idP, time, dt = 1):
         
