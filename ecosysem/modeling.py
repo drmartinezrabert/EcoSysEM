@@ -273,15 +273,36 @@ class MSMM:
         dB = [dBg, dBm, dBs, dBrip]
         return dB
 
-    def _Bflux(self, idP,  Blist):
+    def _stShifts(self):
+        """
+        Function to compute shift control between two metabolic states.
+        
+        Returns
+        -------
+        Save a dictionary of metabolic shift controls as attribute of MSMM.
+            
+        """
+        CSPdict = self.CSP.copy()
+        st = self.st
+        #Compute cell specific powers
+        Pcat = CSPdict['Pcat']
+        Pm = CSPdict['Pm0']
+        Ps = CSPdict['Ps']
+        Pcell = CSPdict['Pcell']
+        #Initialize thetaDict before shift controls (theta) calculations
+        thetaDict = {}
+        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
+        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
+        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
+        self.theta = thetaDict
+
+    def _Bflux(self, Blist):
         """
         Function to compute biomass transfer between metabolic states.
         
         Parameters
         ----------
-        
-        idP : INT
-            Parameter index from the plot function (involved parameters depends on envModel)
+
         Blist : LIST
             List of 3 floats corresponding to biomass (e.g. [cell/m^3 air])
             in each state (growth, maintenance and survival) at time t.
@@ -290,7 +311,7 @@ class MSMM:
         
         Returns
         -------
-        Rlist : LIST    #??? to be changed
+        Rlist : LIST
              List of computed biomass transfer [cell/h] for each kind of metabolic shift:
                  - Rm_g : transfer from maintenance to growth
                  - Rg_m : transfer from growth to maintenance
@@ -298,25 +319,23 @@ class MSMM:
                  - Rs_rip : transfer from survival to dead cells
         """
         if len(Blist) != 3:
-            print('error in initial biomass, Blist must contain 3 elements') #!!!
-            sys.exit()
+            raise ValueError(f'Blist must contain 3 elements (Bg, Bm, Bs), current Blist: {Blist}.')
+        #Create shift control dict in MSMM attributes
+        self._stShifts()
         #Biomass in each metabolic state
-        Bg = Blist[0]
+        Bg = Blist[0] 
         Bm = Blist[1]
         Bs = Blist[2]
-        
-        thetaGM = MSMM._stShifts(self, shift = 'GxM')
-        thetaMS = MSMM._stShifts(self, shift = 'MxS')
-        thetaSRIP = MSMM._stShifts(self, shift = 'S-RIP')
-        
-        eta = self._specMtbShiftRates[self.mtbRates] 
-        Rm_g = Bm * eta * thetaGM[idP]
-        Rg_m = Bg * eta * (1 - thetaGM[idP])
-        Rs_m = Bs * eta * thetaMS[idP]
-        Rm_s = Bm * eta * (1 - thetaMS[idP])
-        Rs_rip = Bs * eta * (1 - thetaSRIP[idP])
+        #import metabolic shift controls and rates
+        theta = self.theta.copy()
+        eta = self._specMtbShiftRates[self.mtbRates]
+        #compute biomass transfers
+        Rm_g = Bm * eta * theta['GxM']
+        Rg_m = Bg * eta * (1 - theta['GxM'])
+        Rs_m = Bs * eta * theta['MxS']
+        Rm_s = Bm * eta * (1 - theta['MxS'])
+        Rs_rip = Bs * eta * (1 - theta['S-RIP'])
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
-        return Rlist    #??? change return format 
         
     def _stShifts(self, shift):
         """
