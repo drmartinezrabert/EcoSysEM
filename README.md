@@ -614,7 +614,7 @@ Environment.conc_var_DGr(typeRxn, input_, specComp, range_val, num=50, molality=
                          ms=8, figsize=(9.0, 6.0), fontsize_label=12, savePlot=False, printDG0r=False, printDH0r=False,
                          showMessage=True)
 ```
-Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder. This behaviour is available for `GWB` object.<p>
+Show the variation of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/#. rxnName` folder. This behaviour is available for `GWB` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
@@ -1879,7 +1879,7 @@ ThSA.conc_var_DeltaGr(typeRxn, input_, specComp, Ct, range_val, T=298.15, pH=7.0
                       molality=True, methods=None, marker='o', mec='k', mew=1, mfc='w', ms=8, figsize=(9.0, 6.0), fontsize_label=12,
                       savePlot=False, printDG0r=False, printDH0r=False, showMessage=True)
 ```
-Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/` folder in `/#. rxnName` folder.<p>
+Show the variation of Gibbs free energy for a set of reactions at a specific range of substrate and product concentrations. If `savePlot=True`, the plots are saved in `results/#. rxnName` folder.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
