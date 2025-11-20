@@ -232,7 +232,7 @@ class MSMM:
         else:
             raise NameError(f'Environment model ({envModel}) not found, see valid models in the README.')
 
-    def _ODEsystem_MSMM(self, t, y, idP):
+    def _ODEsystem_MSMM(self, t, y):
         """
         Function for the differential equations system of the model.
         
@@ -243,8 +243,6 @@ class MSMM:
             Initial biomass in each metabolic state, e.g. [cell/m^3 air]
         t : LIST or np.array
             Time range over which biomass variation is computed
-        idP : INT
-            Parameter index from the plot function (involved parameters depend on envModel)
             
         Returns
         -------
@@ -261,54 +259,16 @@ class MSMM:
         #import self.attributes
         mortality = self.mortality  #??? no copy required for immutable data types like floats or strings
         K = self.K
-        typeKin = self.typeKin
-        paramDB = self.db.copy()
-        typeRxn = self.typeMtb
-        rxn = self.metabolism
-        specComp = self.eD
-        T = self.temperature.copy()
-        pH = self.pH
-        S = self.salinity
-        C = self.Ct.copy()
-        fluidType = self.fluidType
-        # Set requested arguments for ThSA.getDeltaGr & KR.getRs
-        if self.envModel in self.atmModels:
-            DGr_args = {'typeRxn' : typeRxn,
-                        'input_' : rxn,
-                        'phase' : 'L',
-                        'specComp' : specComp,
-                        'T' : T,
-                        'pH' : pH,
-                        'S' : S,
-                        'Ct' : C,
-                        'fluidType' : fluidType,
-                        'molality' : True,
-                        'methods' : None,
-                        'solvent' : 'H2O',
-                        'asm' : 'stoich', 
-                        'warnings' : False,
-                        'printDG0r' : False,
-                        'printDH0r' : False
-                        }       
-            Rs_args = {'typeKin' : typeKin,
-                       'paramDB' : paramDB,
-                       'reactions' : rxn,
-                       'T' : T,
-                       'pH' : pH,
-                       'Ct' : C, 
-                       'sample' : 'All'
-                       }
-            #!!! set getDeltaGr and getRs args for other models
-        # Compute the cell growth yield and cell-specific uptake rate    
-        DGr = (ThSA.getDeltaGr(**DGr_args)[0])[idP] * 1000  #[J/moleD]
+        DGr = self.DGr.copy()
+        Rs = self.Rs.copy()
         Yx = -(DGr * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
-        cRate = pd.DataFrame((KR.getRs(**Rs_args)[0])[self.metabolism]).mean(axis=1)[idP]   #cell-specific uptake rate [mol/cell.h]
+        
         # Compute biomass transfer between metabolic states
-        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, idP, Blist = Blist)
+        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist)
         # Compute biomass variation       
-        dBg = Yx * cRate * Bg * (1 - (Bg/K)) + Rm_g - Rg_m - mortality * Bg    
-        dBm =  Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
-        dBs =  Rm_s - Rs_m - Rs_rip - mortality * Bs                          
+        dBg = Yx * Rs * Bg * (1 - (Bg / K)) + Rm_g - Rg_m - mortality * Bg    
+        dBm = Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
+        dBs = Rm_s - Rs_m - Rs_rip - mortality * Bs                          
         dBrip = mortality * Btot + Rs_rip  
         dB = [dBg, dBm, dBs, dBrip]
         return dB
