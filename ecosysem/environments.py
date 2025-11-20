@@ -448,7 +448,7 @@ class Environment:
         """
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
-            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
@@ -466,7 +466,7 @@ class Environment:
                 Ct = self.Ci_LSW.copy()
                 phase = 'L'
             else:
-                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
         fluidType = self.fluidType
         methods = self.methods
         DGr_dict = {}
@@ -477,7 +477,7 @@ class Environment:
                 DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
-    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None):
+    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
         """
         Compute reaction rates using information from environmental models.
         
@@ -494,7 +494,11 @@ class Environment:
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : INT or FLOAT, optional
-             pH value (None by default)
+            pH value (None by default)
+        combMean : BOOL
+            A command to compute the mean of sample combinations's values. Default = False.
+            If set to True, the returned dictionary contains a single np.ndarray
+            for each reaction key instead of comb keys with their own subarray.
                 
         Returns
         -------
@@ -505,10 +509,10 @@ class Environment:
             if not isinstance(pH, (float, int)):
                 if isinstance(pH, list) and len(pH) == 1:
                     pH = float(pH[0])
-                else: raise ValueError(f'pH ({type(pH)}) must be a single float or int.')
+                else: raise ValueError(f'pH ({pH}) must be a single float or int.')
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
-            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
         T = self.temperature.copy()
         # check attributes type
@@ -522,12 +526,18 @@ class Environment:
             elif phase == 'L-SW':
                 Ct = self.Ci_LSW.copy()
             else:
-                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
         Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
         self.Rs = Rs_dict
-        
+        # replace sample combinations's values with their mean
+        if combMean == True:
+            for key in Rs_dict.keys():
+                _rs = np.array(list(val for val in Rs_dict[key].values()))
+                _Rs = np.nanmean(_rs, axis = 0)
+                self.Rs[key] = _Rs
+          
     def getCSP(self, paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
-        """#!!!             
+        """ #!!!             
         Compute cell specific powers using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
                 - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
@@ -570,7 +580,7 @@ class Environment:
         """
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
-            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
@@ -586,7 +596,7 @@ class Environment:
             elif phase == 'L-SW':
                 Ct = self.Ci_LSW.copy()
             else:
-                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
         # Initialize parameters for CSP computing
         CSPargs = {}
         CSPargs['paramDB'] = paramDB
@@ -611,26 +621,25 @@ class Environment:
         #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
         CSP_dict = {}
         if not isinstance(reactions, list): reactions = [reactions]
-        if not isinstance(pH, (list, np.ndarray)):
-            pH = [pH]
+        if not isinstance(specComp, list): specComp = [specComp]
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         # Assign Rs and DGr if already computed as environment attributes or create them
         if EnvAttributes is True:
             #check DGr
-            _DGr = getattr(self,'DGr', None)#???
+            _DGr = getattr(self,'DGr', None)
             if _DGr is None:
                 self.getDGr(typeMetabo, reactions, specComp)
                 _DGr = self.DGr.copy()
             for pH_ in pH:
                 CSPargs['pH'] = pH_
                 #get Rs
-                self.getRs(typeKin, paramDB, reactions, sample, pH_)
+                self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
                 _Rs = self.Rs.copy()
                 #extract from _DGr, DGr keys for current pH (into DGr_aux)
                 DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
                 #assign needed arguments for CSP.getAllCSP()
                 for comp, rxn in enumerate(reactions):
                     CSPargs['reaction'] = rxn
-                    if not isinstance(specComp, list): specComp = [specComp]
                     CSPargs['specComp'] = specComp[comp]
                     CSPargs['Rs'] = _Rs[rxn] #dict
                     #extract from DGr_aux, DGr values of current reaction (assigned as argument for CSP)
@@ -646,11 +655,10 @@ class Environment:
                 CSPargs['pH'] = pH_
                 for comp, rxn in enumerate(reactions):
                     CSPargs['reaction'] = rxn
-                    if not isinstance(specComp, list): specComp = [specComp]
                     CSPargs['specComp'] = specComp[comp]
                     #compute CSP values
                     CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
-        else: raise ValueError(f'EnvAttributes ({EnvAttributes}) should be a Bool.')
+        else: raise TypeError(f'EnvAttributes ({EnvAttributes}) should be a Bool.')
         self.CSP = CSP_dict
     
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
