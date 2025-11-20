@@ -273,29 +273,6 @@ class MSMM:
         dB = [dBg, dBm, dBs, dBrip]
         return dB
 
-    def _stShifts(self):
-        """
-        Function to compute shift control between two metabolic states.
-        
-        Returns
-        -------
-        Save a dictionary of metabolic shift controls as attribute of MSMM.
-            
-        """
-        CSPdict = self.CSP.copy()
-        st = self.st
-        #Compute cell specific powers
-        Pcat = CSPdict['Pcat']
-        Pm = CSPdict['Pm0']
-        Ps = CSPdict['Ps']
-        Pcell = CSPdict['Pcell']
-        #Initialize thetaDict before shift controls (theta) calculations
-        thetaDict = {}
-        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
-        self.theta = thetaDict
-
     def _Bflux(self, Blist):
         """
         Function to compute biomass transfer between metabolic states.
@@ -336,72 +313,30 @@ class MSMM:
         Rm_s = Bm * eta * (1 - theta['MxS'])
         Rs_rip = Bs * eta * (1 - theta['S-RIP'])
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
-        
-    def _stShifts(self, shift):
+        return Rlist
+    
+    def _stShifts(self):
         """
         Function to compute shift control between two metabolic states.
         
-        Parameters
-        ----------
-        
-        shift : STR
-            'GxM' => shift from growth state to maintenance and conversely
-            'MxS' => shift from maintenance state to survival and conversely
-            'S-RIP' => shift from survival state to death
-        
         Returns
         -------
-        theta : TYPE
-            Metabolic shift control [-]
+        Save a dictionary of metabolic shift controls as attribute of MSMM.
+            
         """
-        # Set requested arguments for CSP.getAllCSP
-        if self.envModel in self.atmModels:
-            paramDB = self.db.copy()
-            typeKin = self.typeKin      # no copy required for immutable data types like floats or strings
-            typeMetabo = self.typeMtb
-            rxn = self.metabolism
-            specComp = self.eD
-            C = self.Ct.copy()
-            T = self.temperature.copy()
-            pH = self.pH
-            S = self.salinity
-            fluidType = self.fluidType
-            DGsynth = self.DGsynth
-        else: print('error in CSPargs'), sys.exit() #!!! set getAllCSP args for other models
-        
-        CSPargs = {'paramDB': paramDB, 
-                   'typeKin': typeKin,
-                   'typeMetabo': typeMetabo,
-                   'reaction': rxn,
-                   'specComp': specComp,
-                   'Ct': C,
-                   'T': T,
-                   'pH': pH,
-                   'S': S,
-                   'phase': 'L', 
-                   'sample': 'All',
-                   'fluidType': fluidType,
-                   'molality': True,
-                   'methods': None,
-                   'solvent': 'H2O',
-                   'asm': 'stoich',
-                   'DGsynth': DGsynth}
-        
+        CSPdict = self.CSP.copy()
         st = self.st
         #Compute cell specific powers
-        Pcat = CSP.getAllCSP(**CSPargs)['Pcat']
-        Pm = CSP.getAllCSP(**CSPargs)['Pm0']
-        Ps = CSP.getAllCSP(**CSPargs)['Ps']
-        Pcell = CSP.getAllCSP(**CSPargs)['Pcell']
-        #Compute shift controls (theta)
-        if shift == 'GxM':
-            theta = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        elif shift == 'MxS':
-            theta = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        elif shift == 'S-RIP':
-            theta = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
-        else: print('error in itheta value'), sys.exit() #!!!
-        return theta
+        Pcat = CSPdict['Pcat']
+        Pm = CSPdict['Pm0']
+        Ps = CSPdict['Ps']
+        Pcell = CSPdict['Pcell']
+        #Initialize thetaDict before shift controls (theta) calculations
+        thetaDict = {}
+        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
+        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
+        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
+        self.theta = thetaDict
 
     def solveODE(self, Bini, tSpan, dt = 1, exportBint = False):
         print("debut")
