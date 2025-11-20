@@ -320,7 +320,7 @@ ecosysem
   │      │    ├── combData
   │      │    ├── getDGr
   │      │    ├── smmryDGr
-  │      │    └── saConcDGr
+  │      │    └── conc_var_DGr
   │      ├── ISA
   │      │    ├── .altitude
   │      │    ├── .temperature
@@ -424,7 +424,7 @@ ecosysem
   │           ├── exportDeltaGr
   │           ├── getDeltaGr
   │           ├── smmryDeltaGr
-  │           └── saConcDeltaGr
+  │           └── conc_var_DeltaGr
   └── plotting.py
          ├── plotVarMap2D
          ├── plotZonalMean
