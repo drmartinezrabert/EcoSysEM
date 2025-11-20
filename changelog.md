@@ -8,17 +8,25 @@ All notable changes to this project will be documented in this file.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Local sensitivity analysis of Gibbs free energy.
+### Changed
+- README file.
+
+## [0.4] - yyyy/mm/dd
+### Added
+- Local sensitivity analysis of Gibbs free energy: `ThSA.local_sa_DeltaGr()` and `Environment.local_sa_DGr()`.
   - Local (Derivative).
   - Sigma-normalized derivative.
   - Reference-normalized derivative.
   - Variance-normalized derivative.
   - Pearson's correlation. 
-- Global sensitivity analysis of Gibbs free energy.
+- Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
   - Sobol' indices.
-
+- New environment in `Hydrosphere`.
+  - Water column: `WaterColumn()`.
 ### Changed
 - README file.
+- Rename the '2D compound sensitivity analysis (contourf plot)'.
+  - `Environment.conc_var_DGr()` and `ThSA.conc_var_DeltaGr()` instead of `Environment.conc_sa_DGr()` and `ThSA.conc_sa_DeltaGr()`.
 
 ## [0.3] - 2025/11/07
 ### Added
