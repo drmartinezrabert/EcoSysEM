@@ -119,7 +119,7 @@ class KinRates:
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : FLOAT, optional
-            pH values. The default is None.
+            pH value. The default is None.
         T : FLOAT, LIST or np.ndarray, optional
             Temperatures. The default is None.
         
