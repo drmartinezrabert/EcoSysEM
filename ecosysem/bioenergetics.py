@@ -8,6 +8,8 @@ Created on Mon Oct  6 10:00:16 2025
 from thermodynamics import ThSA
 from reactions import KinRates as KR
 import numpy as np
+import pandas as pd
+import os.path
 
 class CSP:
     
@@ -334,7 +336,7 @@ class CSP:
                   T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
                   fluidType  = 'ideal', molality = 'True', methods = 'None',
                   solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11,
-                  Rs = None, DGr = None):
+                  Rs = None, DGr = None, exportCSP = False):
         """
         Function to compute every cell-specific powers.
         
@@ -391,6 +393,9 @@ class CSP:
             Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default (None) to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, DGr must have the same shape as Rs.
+        exportCSP : BOOL
+            Command to export CSP values as Excel document.
+            Default is False.
         
         Returns
         -------
@@ -402,6 +407,7 @@ class CSP:
                 - 'Pm0' : Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
                 - 'Ps' : Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
                 - 'Pcell' : Growth power: energy flux of a growing cell (sum of Pana & Pmg).
+        If exportCSP is set to True, creates an Excel document of the results.
         """
         # Compute CSP through existing methods                    
         Pcat = CSP.getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
@@ -416,4 +422,38 @@ class CSP:
         Pcell = Pana + Pmg
         # Create DataFrame of CSP results
         CSP_dict = {'Pcat': Pcat, 'Pana': Pana, 'Pmg': Pmg, 'Pm0': Pm0, 'Ps': Ps, 'Pcell': Pcell}
+        if exportCSP == True:
+            path = 'results/'
+            nameDocument = input(' > Name of result document: ')
+            fullPathSave = path + nameDocument + '.xlsx'
+            if os.path.isfile(fullPathSave):
+                val = input(' > '+ nameDocument + '.xlsx already exists in this directory. /!\ Make sure no instance of the file is currently open. Do you want to overwrite `' + nameDocument + '.xlsx`? [Y/N]: ')
+                if val == 'Y' or val == 'y':       
+                    os.remove(fullPathSave)
+            CSP._writeExcel(CSP_dict, fullPathSave, reaction, T, pH, S, Ct)
         return CSP_dict  # [fW/cell]
+    
+    def _writeExcel(CSPdict, fullPathSave, reaction, T, pH, S, Ct):
+        """
+        Write calculated cell specific powers in Excel document.
+
+        """
+        nameSheet_CSP = 'cell specific powers'
+        CSPdf = pd.DataFrame(CSPdict)
+        yT = pd.DataFrame({'T (K)| CSP (fw/cell)': T})
+        introRowCSP = pd.DataFrame(np.array([f'CSP [fW/cell] | Metabolism: {reaction} | pH: {pH} | Salinity: {S}']))
+        introRowCt = pd.DataFrame(np.array(['Aerosol concentrations (mol/L)']))
+        # write excel document 
+        if not os.path.isfile(fullPathSave):
+            with pd.ExcelWriter(fullPathSave) as writer:
+                introRowCSP.to_excel(writer, sheet_name = nameSheet_CSP, index = False, header = False)
+        with pd.ExcelWriter(fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
+            yT.to_excel(writer, sheet_name = nameSheet_CSP, startrow = 2, startcol = 1, index = False, header = True)
+            CSPdf.to_excel(writer, sheet_name = nameSheet_CSP, startrow = 2, startcol = 2, index = False, header = True)    
+        if isinstance(Ct, dict):
+            nameSheet_Ct = 'Ct'
+            dFrame_Ct = pd.DataFrame(Ct)
+            with pd.ExcelWriter(fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer: 
+                introRowCt.to_excel(writer, sheet_name = nameSheet_Ct, index = False, header = False)
+                yT.to_excel(writer, sheet_name = nameSheet_Ct, startrow = 2, startcol = 1, index = False, header = True)
+                dFrame_Ct.to_excel(writer, sheet_name = nameSheet_Ct, startrow = 2, startcol = 2, index = False, header = True)
