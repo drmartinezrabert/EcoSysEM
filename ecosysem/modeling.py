@@ -6,7 +6,6 @@ Created on Mon Sep 22 11:11:07 2025
 """
 
 # Import Python packages
-import copy
 import pandas as pd
 import numpy as np
 import os.path
@@ -31,13 +30,13 @@ class MSMM:
         _metaboProperties['moderate'] = {'protein turnover rate':5 ,'specific metabolic shift rates':0.2}
         _metaboProperties['slow'] = {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}    
         dMtbRates = pd.DataFrame(data = _metaboProperties)
-        
-        self.envModel = envModel
+        self.Bstates = ['Growth', 'Maintenance', 'Survival', 'Dead cells']
+        self.envModel = envModel        #(STR), e.g. 'ISA'
         self.atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
-        #!!! other models?
+        #!!! other models like GWB
         if not isinstance(coord, (list, np.ndarray)): coord = [coord]
-        self.coord = coord
-        self.typeMtb = typeMetabo    #metabolism type (STR), e.g. 'AnMetabolisms'
+        self.coord = coord              #coordinates [alt, lon, lat]
+        self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
         if not isinstance(metabolism, list): metabolism = [metabolism]
         if not len(metabolism) == 1:
             raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
@@ -61,22 +60,21 @@ class MSMM:
             else: pH = pH[0]
         if not isinstance(pH, (float, int)):
             raise TypeError(f'Given pH value must be float or int, current type: {pH}.')
-        self.pH = pH
-        self.dataType = dataType
-        self.dataRange = dataRange
+        self.pH = pH                    #(FLOAT)
+        self.dataType = dataType        #(STR)
+        self.dataRange = dataRange      #(LIST)
         self.K = K                      #carrying capacity (FLOAT)
-        self.mortality = mortality      #(FLOAT) [1/h] #!!! and not 1/d
-        self.DGsynth = DeltaGsynth      #cell synthesis required energy
-        self.st = steepness
+        self.mortality = mortality      #(FLOAT) [1/h]
+        self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
+        self.st = steepness             # [-]
         self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
         self.eD = eDonor                #(specComp), e.g. 'CH4' for metabolism = 'Mth'
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
-        self.method = actMethods
+        self.method = actMethods        #None or 'DH-ext' or 'SS'
         self.typeKin = 'MM-Arrhenius'
         self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
         self._callEnvP(envModel)
         self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
-        self.Bsol = {}
     
     def _callEnvP(self, envModel):
         """
@@ -97,7 +95,7 @@ class MSMM:
         phase_ = self.Wtype
         pH_ = self.pH
         coord_ = self.coord.copy()
-        dataType_ = self.dataType #??? if other than 'yly', what about dataRange ?
+        dataType_ = self.dataType #??? if other than 'cyly', what about dataRange ?
         dataRange_ = self.dataRange #??? dataRange other than years only ?
         #!!! other models?
         if not isinstance(envModel, str):
@@ -174,6 +172,7 @@ class MSMM:
                 self.Rs = ISAMERRA2inst.Rs[f'{rxn[0]}'] / 3600 #[moleD/(cell.s)]
                 self.CSP = ISAMERRA2inst.CSP[f'{rxn[0]}_pH:{pH_}']
                 self.ISAMERRA2inst = ISAMERRA2inst
+            #import required CAMSMERRA2 attributes:   
             elif envModel == 'CAMSMERRA2':
                 if len(coord_) == 3:
                     alt = coord_[0]
@@ -230,7 +229,7 @@ class MSMM:
         Returns
         -------
         dB : LIST of FLOAT
-            Biomass variation in each metabolic state [cell/h].
+            Biomass variation [cell/h] in each metabolic state (Growth, Maintenance, Survival, Death).
         
         """
         Bg = y[0]
@@ -240,7 +239,7 @@ class MSMM:
         Btot = sum(Blist)
         
         #import self.attributes
-        mortality = self.mortality  #??? no copy required for immutable data types like floats or strings
+        mortality = self.mortality
         K = self.K
         DGr = self.DGr.copy()
         Rs = self.Rs.copy()
@@ -300,12 +299,8 @@ class MSMM:
     
     def _stShifts(self):
         """
-        Function to compute shift control between two metabolic states.
-        
-        Returns
-        -------
-        Save a dictionary of metabolic shift controls as attribute of MSMM.
-            
+        Function to compute shift controls between metabolic states.
+                   
         """
         CSPdict = self.CSP.copy()
         st = self.st
@@ -327,6 +322,7 @@ class MSMM:
         
         Parameters
         ----------
+        
         Bini : LIST of INT
             Initial biomass in each state (LIST)
         tSpan : LIST or np.array
@@ -339,13 +335,17 @@ class MSMM:
         
         Returns
         -------
-        db : LIST
-        [...]
+        
+        None 
+        ODE solutions (numpy.ndarray of shape [4, tSpan+1]) are saved as MSMM attribute ('Bsol')
+        If solExport is set to True, creates an Excel document of the results.
         
         """
+        # check Bini
         if not isinstance(Bini, np.ndarray): Bini = np.array(Bini)
         if len(Bini) != 4:
             raise ValueError(f'Bini must contain 4 elements, current length: {len(Bini)}.')
+        # create time array for later plotting
         self.t_plot = np.linspace(0, tSpan, int(tSpan/dt)+1)
         #Initialize Bint matrix
         Bint = np.empty(4)
@@ -356,6 +356,7 @@ class MSMM:
         ODEsol = ode(self._ODEsystem_MSMM)
         ODEsol.set_initial_value(Bini, 0)
         ODEsol.set_integrator('vode', method='adams')
+        # compute solutions over given time range
         while ODEsol.successful() and ODEsol.t < tSpan:
              sol = ODEsol.integrate(ODEsol.t+dt)
              time = int(ODEsol.t)
@@ -402,10 +403,11 @@ class MSMM:
         
     def plotMSMM(self):
         
-        """ #!!! tooltip
+        """
         Function to plot MSMM microbial dynamic of a single point in the environment space.
         
         """
+        # import solutions of the ODE and time array from MSMM attributes
         Bplot = getattr(self, 'Bsol', None)
         if Bplot is None:
             raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
