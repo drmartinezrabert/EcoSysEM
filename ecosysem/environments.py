@@ -505,11 +505,13 @@ class Environment:
         Results are saved as an attribute of model instances (modelName.Rs) as a dictionary.
 
         """
+        #check pH
         if pH is not None:
             if not isinstance(pH, (float, int)):
                 if isinstance(pH, list) and len(pH) == 1:
                     pH = float(pH[0])
                 else: raise ValueError(f'pH ({pH}) must be a single float or int.')
+        #check model
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
@@ -537,7 +539,7 @@ class Environment:
                 self.Rs[key] = _Rs
           
     def getCSP(self, paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
-        """ #!!!             
+        """           
         Compute cell specific powers using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
                 - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
@@ -578,9 +580,11 @@ class Environment:
         CSP dict saved as attribute of the model instance (modelName.CSP).
 
         """
+        #check model
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        #import environment conditions from instance's attributes
         phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
@@ -618,6 +622,7 @@ class Environment:
         CSPargs['DGsynth'] = DGsynth
         CSPargs['Rs'] = None
         CSPargs['DGr'] = None
+        CSPargs['exportCSP'] = False
         #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
         CSP_dict = {}
         if not isinstance(reactions, list): reactions = [reactions]
