@@ -9,6 +9,7 @@ Created on Mon Sep 22 11:11:07 2025
 import copy
 import pandas as pd
 import numpy as np
+import os.path
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 
@@ -320,19 +321,21 @@ class MSMM:
         thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
         self.theta = thetaDict
 
-    def solveODE(self, Bini, tSpan, dt = 1, exportBint = False):
-        """ #!!! tooltip
-        Function to plot solutions of the MSMM ODE system.
+    def solveODE(self, Bini, tSpan, dt = 1, solExport = False):
+        """
+        Function to solve the MSMM ODE system and export the results as .xlsx document.
         
         Parameters
         ----------
         Bini : LIST of INT
             Initial biomass in each state (LIST)
         tSpan : LIST or np.array
-            Time range over which the microbial dynamic is computed
-        exportBint : BOOL
+            Time range over which the microbial dynamic is computed, in hours
+        dt : INT or FLOAT
+            time step for the integration (default : 1 hour)
+        solExport : BOOL
             Command to export integrated biomass values as Excel document.
-            Default is False. #!!! add export code
+            Default is False.
         
         Returns
         -------
@@ -357,7 +360,45 @@ class MSMM:
              sol = ODEsol.integrate(ODEsol.t+dt)
              time = int(ODEsol.t)
              Bint[:,time] = sol
-        self.Bsol = Bint
+        # save ODE solutions as MSMM attribute (rounded values)
+        self.Bsol = np.round(Bint, 2)
+        # export ODE solutions as .xlsx document
+        if solExport == True:
+            path = 'results/'
+            nameDocument = input(' > Name of result document: ')
+            self.fullPathSave = path + nameDocument + '.xlsx'
+            if os.path.isfile(self.fullPathSave):
+                val = input(' > '+ nameDocument + '.xlsx already exists in this directory. /!\ Make sure no instance of the file is currently open. Do you want to overwrite `' + nameDocument + '.xlsx`? [Y/N]: ')
+                if val == 'Y' or val == 'y':       
+                    os.remove(self.fullPathSave)
+            MSMM._writeExcel(self)
+    
+    def _writeExcel(self):
+        """
+        Write calculated metabolic state biomass in Excel document.
+
+        """
+        nameSheet_B = 'MSMM biomass'
+        # import solutions of the ODE and time array from MSMM attributes
+        time = pd.DataFrame(self.t_plot, columns = ['time (h)| states :'])
+        Bdf = pd.DataFrame({self.Bstates[i]: self.Bsol[i] for i in range(4)})
+        # adapt header to environment model
+        if self.envModel in self.atmModels:
+            alt = self.coord[0]
+            if self.envModel == 'ISA':
+                introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolism: {self.metabolism[0]} | Altitude: {alt}m']))
+            else:
+                lon = self.coord[1]
+                lat = self.coord[2]
+                introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolism: {self.metabolism[0]} | Coordinates: {lon}LON;{lat}LAT | Altitude: {alt}m']))
+        # write excel document 
+        if not os.path.isfile(self.fullPathSave):
+            with pd.ExcelWriter(self.fullPathSave) as writer:
+                introRowB.to_excel(writer, sheet_name = nameSheet_B, index = False, header = False)
+        #!!! elif: introRowB for other models 
+        with pd.ExcelWriter(self.fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
+            time.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 1, index = False, header = True)
+            Bdf.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 2, index = False, header = True)    
         
     def plotMSMM(self):
         
@@ -369,21 +410,22 @@ class MSMM:
         if Bplot is None:
             raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
         t_array = self.t_plot.copy()
+        # plotting of metabolic state curves
+        plt.plot(t_array, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
+        plt.plot(t_array, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
+        plt.plot(t_array, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
+        plt.plot(t_array, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
+        # adapt labels to environment model
         if self.envModel in self.atmModels:
             datmMicr = {'CH4': 'Methanotrophs',
                         'H2': 'Hydrogen-oxidizing bacteria',
                         'CO': 'CO-oxidizing bacteria'}
             communityName = datmMicr[self.eD]
-            plt.plot(t_array, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
-            plt.plot(t_array, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
-            plt.plot(t_array, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
-            plt.plot(t_array, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
-            if self.envModel in self.atmModels:
-                plt.xlabel('time (hours)')
-                plt.ylabel('Cell concentration (cell/m^3 air)')
-                plt.title(f"{communityName}'s dynamic at {self.coord[0]}m altitude ({self.envModel})")
-            # elif: !!! labels for other models 
-            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
-            plt.grid() 
-            plt.show()
+            plt.xlabel('time (hours)')
+            plt.ylabel('Cell concentration (cell/m³ air)')
+            plt.title(f"{communityName}'s dynamic at {self.coord[0]}m altitude ({self.envModel})")
+            plt.legend(self.Bstates, bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
+        #!!! elif: labels for other models 
+        plt.grid() 
+        plt.show()
         return
