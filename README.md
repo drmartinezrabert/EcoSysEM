@@ -467,7 +467,7 @@ ecosysem
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
-This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by four main units:
+This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by three main units:
 <!-- four ? -->
 - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
   - General functions (for all environmental models) | [GO](#Environment)
