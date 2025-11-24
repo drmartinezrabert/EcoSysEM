@@ -202,7 +202,7 @@ To modify existing databases (_i.e.,_ include new parameter values), open de .xl
 | IUPAC 1 | Formula 1 | Phase 1 | Value 1 | REF 1 |
 | IUPAC 2 | Formula 2 | Phase 2 | Value 2 | REF 2 |
 
-Where **IUPAC** is the name of compound using IUPAC nomenclautre, **Formula** is the chemical formula of compound (see [Formulization of compounds](#formulization-of-compounds)), **Phase** is the fluid phase in which parameter has been measured or estimated, **Value** is the value of parameter, and **REF** is the literature reference (see [database references](#database-references)).
+Where **IUPAC** is the name of compound using IUPAC nomenclature, **Formula** is the chemical formula of compound (see [Formulization of compounds](#formulization-of-compounds)), **Phase** is the fluid phase in which parameter has been measured or estimated, **Value** is the value of parameter, and **REF** is the literature reference (see [database references](#database-references)).
 The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have three possible phases: G - gas, L - liquid, and S - solid. The H<sub>S</sub><sup>0</sup> and B parameters have two possible phases: FW - freshwater (liquid), and SW - sewater (liquid).
 
 #### <ins>Database references</ins>
@@ -318,6 +318,8 @@ ecosysem
   │      │    ├── getAttributeNames
   │      │    ├── combData
   │      │    ├── getDGr
+  │      │    ├── getRs
+  │      │    ├── getCSP
   │      │    ├── smmryDGr
   │      │    └── saConcDGr
   │      ├── ISA
@@ -407,23 +409,59 @@ ecosysem
   │           ├── getRxn
   │           ├── getRxnByComp
   │           └── getRxnByName
-  └── thermodynamics.py 
-         ├── ThP
-         │    ├── getThP
-         │    ├── getDeltaG0r
-         │    ├── getDeltaH0r
-         │    ├── ionicStrength
-         │    ├── activity
-         │    └── getKeq
-         ├── ThEq
-         │    ├── solubilityHenry
-         │    ├── pHSpeciation
-         │    └── plotpHSpeciation
-         └── ThSA
-              ├── exportDeltaGr
-              ├── getDeltaGr
-              ├── smmryDeltaGr
-              └── saConcDeltaGr
+  ├── thermodynamics.py 
+  │      ├── ThP
+  │      │    ├── getThP
+  │      │    ├── getDeltaG0r
+  │      │    ├── getDeltaH0r
+  │      │    ├── ionicStrength
+  │      │    ├── activity
+  │      │    └── getKeq
+  │      ├── ThEq
+  │      │    ├── solubilityHenry
+  │      │    ├── pHSpeciation
+  │      │    └── plotpHSpeciation
+  │      └── ThSA
+  │           ├── exportDeltaGr
+  │           ├── getDeltaGr
+  │           ├── smmryDeltaGr
+  │           └── saConcDeltaGr
+  ├── bioenergetics.py  │
+  │      └── CSP
+  │           ├── getPcat
+  │           ├── getPana
+  │           ├── getPmg
+  │           ├── getPm0
+  │           ├── getPs
+  │           └── getAllCSP
+  └── modeling.py 
+         └── MSMM
+              ├── .envModel
+              ├── .coord
+              ├── .typeMtb
+              ├── .metabolism
+              ├── .Wtype
+              ├── .salinity
+              ├── .pH
+              ├── .dataType
+              ├── .dataRange
+              ├── .K
+              ├── .mortality
+              ├── .DGsynth
+              ├── .st
+              ├── .mtbRates
+              ├── .eD
+              ├── .fluidType
+              ├── .actMethods
+              ├── .compositions
+              ├── .compounds
+              ├── .temperature
+              ├── .pressure
+              ├── .DGr
+              ├── .Rs
+              ├── .CSP
+              ├── solveODE
+              └── plotMSMM
 ```
 
 [🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
