@@ -668,7 +668,7 @@ Compute cell specific powers using information from environmental models (e.g., 
 **Returns:** <br>
 **New attribute (`.CSP`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.CSP : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:': {'Pcat' : CSP['Pcat'], 'Pana': CSP['Pana'], ..., 'Pcell': CSP['Pcell']}}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': {'Pcat' : [CSP['Pcat']], 'Pana': [CSP['Pana']], ..., 'Pcell': [CSP['Pcell']]}}`<br>
 
 ### Environment.smmryDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
