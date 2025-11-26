@@ -1695,7 +1695,7 @@ The `WaterColumn` does not need data to be download. The user can create a new _
 - 'sd_paramName' for standard deviations (`sd`).
 - **[!]** Distinct column names will be considered as extra parameters (`extraParam`).<p>
 
-The user can get the data calling the attributes defined above. Here are a couple of examples:
+The user can get the data calling the attributes defined above. Here are some examples:
 ```python
 from envdef import WaterColumn
 from thermodynamics import ThSA
@@ -1718,8 +1718,7 @@ new_WaterColumn = WaterColumn(depth = [100, 125, 150, 200, 400, 500, 750, 1000],
                                     'O2': [1.00E-07, 2.00E-07, 3.00E-07, 4.00E-07, 5.00E-07, 6.00E-07, 7.00E-07, 8.00E-07]}, 
                               extraParam = {'extraAttribute1': [1.92E-07, 2.26E-07, 2.01E-07, 1.77E-07, 1.21E-07, 6.40E-08, 5.60E-08, 4.70E-08],
                                             'extraAttribute2': [9.06E-07, 1.48E-06, 1.05E-06, 8.88E-07, 5.98E-07, 3.07E-07, 2.81E-07, 2.27E-07]}, 
-                              coor = (48.4506, -22.50094),
-                              cleanData = True)
+                              coor = (48.4506, -22.50094))
 
 # Compute and show non-standard Gibbs free energy of aerobic ammonia oxidation (AO) and nitrite oxidation (NO)
 new_WaterColumn.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
@@ -1759,6 +1758,40 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
  'DOC': array([5.56e-05, 5.36e-05, 5.14e-05, 5.30e-05, 5.22e-05, 5.33e-05, 4.49e-05, 4.38e-05]),
  'POC': array([9.06e-07, 1.48e-06, 1.05e-06, 8.88e-07, nan, 3.07e-07, 2.81e-07, 2.27e-07]),
  'PON': array([1.92e-07, 2.26e-07, 2.01e-07, 1.77e-07, nan, 6.40e-08,  5.60e-08, 4.70e-08])}
+```
+```python
+from envdef import WaterColumn
+from thermodynamics import ThSA
+
+## readMode = True
+new_WaterColumn_readMode = WaterColumn(readMode = True,
+                                       fileName = 'PSS1',
+                                       coor = (48.4506, -22.50094),
+                                       cleanData = True)
+
+# Compute and show non-standard Gibbs free energy of aerobic ammonia oxidation (AO) and nitrite oxidation (NO)
+new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
+>>> print(new_WaterColumn_readMode.DGr)
+{'AO': array([-260.1621351, -270.03276595, -268.56257866]),
+ 'NO': array([-59.45824969, -59.03465802, -58.10104723])}
+
+# Now there are not nan values in .DGr. Possible nan values have been dropped with 'cleanData = True'
+>>> print(new_WaterColumn_readMode.depth)
+[ 200  500 1000]
+>>> print(new_WaterColumn_readMode.temperature)
+[285.66 284.73 279.85]
+>>> print(new_WaterColumn_readMode.pH)
+[8.024 7.995 7.938]
+>>> print(new_WaterColumn_readMode.Ci_L)
+{'O2': array([0.000261, 0.000254, 0.000224]),
+ 'CO2': array([0.0022 , 0.00221, 0.00225]),
+ 'NO2-': array([1.e-08, 1.e-08, 1.e-08]),
+ 'NO3-': array([8.30e-06, 1.03e-05, 1.90e-05]),
+ 'NH3': array([3.00e-11, 2.37e-09, 2.46e-09]),
+ 'PO43-': array([5.30e-07, 6.60e-07, 1.22e-06]),
+ 'DOC': array([5.30e-05, 5.33e-05, 4.38e-05]),
+ 'POC': array([8.88e-07, 3.07e-07, 2.27e-07]),
+ 'PON': array([1.77e-07, 6.40e-08, 4.70e-08])}
 ```
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
