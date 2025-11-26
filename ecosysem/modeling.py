@@ -20,27 +20,51 @@ class MSMM:
     Class for Multi-State Metabolic Model
     """
 
-    def __init__(self, envModel, coord, typeMetabo, metabolism, eDonor, K, mortality, 
+    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality, 
                  Wtype = 'L-FW', pH = 7.0, dataType = 'cyly', dataRange = [2020, 2024],
                  DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate',
                  salinity = None, fluidType = 'ideal', actMethods = None):
         
-        _metaboProperties = {}
-        _metaboProperties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #resp. [h] & [1/h]
-        _metaboProperties['moderate'] = {'protein turnover rate':5 ,'specific metabolic shift rates':0.2}
-        _metaboProperties['slow'] = {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}    
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        validMetabo = ['Mth', 'HOB', 'COOB']
+        if not isinstance(envModel, str):
+            raise ValueError(f'Environment model must be a string. current input: {envModel}')
+        if not envModel in validModels:
+            raise NameError(f'Invalid model ({self.model}). Valid models: {validModels}.')
+        if not isinstance(envModel, str):
+            raise ValueError(f'Environment model must be a string. current input: {envModel}')
+        self.envModel = envModel
+        atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
+        _metaboProperties = {'fast' : {'protein turnover rate':1 ,'specific metabolic shift rates':1},
+                             'moderate': {'protein turnover rate':5 ,'specific metabolic shift rates':0.2},
+                             'slow': {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}
+                             }  #resp. [h] & [1/h]
         dMtbRates = pd.DataFrame(data = _metaboProperties)
-        self.Bstates = ['Growth', 'Maintenance', 'Survival', 'Dead cells']
-        self.envModel = envModel        #(STR), e.g. 'ISA'
-        self.atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
-        #!!! other models like GWB
-        if not isinstance(coord, (list, np.ndarray)): coord = [coord]
-        self.coord = coord              #coordinates [alt, lon, lat]
+        _specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
+        _eDonor = {'Mth':'CH4',
+                   'HOB': 'H2',
+                   'COOB':'CO'}
+        micrCommunity = {'CH4': 'Methanotrophs',
+                         'H2': 'Hydrogen-oxidizing bacteria',
+                         'CO': 'CO-oxidizing bacteria'}
         self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
         if not isinstance(metabolism, list): metabolism = [metabolism]
         if not len(metabolism) == 1:
             raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
-        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth' #??? only one community at a time?
+        if not metabolism[0] in validMetabo:
+            raise NameError(f'Invalid metabolism. Valid inputs: {validMetabo}')
+        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth'
+        self.eD = _eDonor[metabolism[0]]    #(specComp) based on given metabolism
+        self.communityName = micrCommunity[self.eD]
+        if not isinstance(coord, (list, np.ndarray)): coord = [coord]
+        self.coord = coord
+        if envModel in atmModels:
+            self.ylabel = 'Cell concentration (cell/m³ air)'
+            if len(coord) == 1:
+                self.title = f"{self.communityName}'s dynamic at {coord[0]}m altitude ({envModel})"
+            elif len(coord) == 3:
+                self.title = f"{self.communityName}'s dynamic at {coord[0]}m altitude, {coord[1]}LON ; {coord[2]}LAT ({envModel})"
+            else : raise AttributeError('Invalid coordinates. Atmospheric models admit vertical (ISA) or 3D position. See README for more details.')   
         if not isinstance(Wtype, str):
             raise TypeError(f'Wtype must be a string, current type:{type(Wtype)}.')
         if not Wtype == 'L-FW' and not Wtype == 'L-SW':
@@ -64,155 +88,136 @@ class MSMM:
         self.dataType = dataType        #(STR)
         self.dataRange = dataRange      #(LIST)
         self.K = K                      #carrying capacity (FLOAT)
-        self.mortality = mortality      #(FLOAT) [1/h]
+        if not isinstance(mortality, list): mortality = [mortality]
+        if len(mortality) == 1: mortality *= 3
+        elif len(mortality) != 3:
+            raise AttributeError(f'Mortality rates must be either the same for all 3 states (Growth, Maintenance, Survival) or a list of 3 ordered Floats. Current input: {mortality}.')
+        self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
         self.st = steepness             # [-]
         self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
-        self.eD = eDonor                #(specComp), e.g. 'CH4' for metabolism = 'Mth'
+        self.eta = _specMtbShiftRates[degradPace] #specific metabolic shift rate [1/h]
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
         self.method = actMethods        #None or 'DH-ext' or 'SS'
         self.typeKin = 'MM-Arrhenius'
         self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
-        self._callEnvP(envModel)
-        self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
+        self._callEnvP()
     
-    def _callEnvP(self, envModel):
+    def _callEnvP(self):
         """
-        Function to import needed environment data (temperature, pH, etc.) 
-        
-        Parameters
-        ----------
-        envModel : STR
-            Environment model from which data are extracted.
-                        
-        Returns
-        -------
-        None (environment data set as MSMM attributes)
+        Function to import needed environment data (temperature, pH, etc.) as MSMM attributes.
+
         """
-        envModel = self.envModel
-        atmModels = self.atmModels
-        rxn = self.metabolism
-        phase_ = self.Wtype
-        pH_ = self.pH
-        coord_ = self.coord.copy()
-        dataType_ = self.dataType #??? if other than 'cyly', what about dataRange ?
-        dataRange_ = self.dataRange #??? dataRange other than years only ?
-        #!!! other models?
-        if not isinstance(envModel, str):
-            raise ValueError(f'Environment model must be a string. current input: {envModel}')
-        # check model and import its attributes:
-        if envModel in atmModels :
-            #import required ISA attributes:
-            if envModel == 'ISA':
-                if len(coord_) == 1: alt = coord_[0]
-                else: raise AttributeError(f'A list of one element (selected altitude) should be given as coordinate if envModel is ISA, current coord: {coord_}.')    
-                envArgs = {'layers' : 'All',
-                           'phase' : phase_,
-                           'H2O' : 0.0,
-                           'pH' : pH_, 
-                           'selCompounds' : None,
-                           'selAlt' : [alt, alt],
-                           'resolution' : 1000
-                            }
-                ISAinst = ISA(**envArgs)
-                self.compositions = ISAinst.compositions
-                self.compounds = ISAinst.compounds
-                self.temperature = ISAinst.temperature
-                self.pressure = ISAinst.pressure
-                self.H2O = ISAinst.H2O
-                if phase_ == 'L-FW':
-                    self.Ct = ISAinst.Ci_LFW
-                elif phase_ == 'L-SW':
-                    self.Ct = ISAinst.Ci_LSW
-                ISAinst.salinity = self.salinity     # set to None by default in ISA
-                ISAinst.methods = self.method        # set to None by default in ISA
-                ISAinst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
-                              reactions = self.metabolism, specComp = self.eD,
-                              sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
-                self.DGr = ISAinst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
-                self.Rs = ISAinst.Rs[f'{rxn[0]}'] / 3600 #[moleD/(cell.s)]
-                self.CSP = ISAinst.CSP[f'{rxn[0]}_pH:{pH_}']
-                self.ISAinst = ISAinst
-            #import required ISAMERRA2 attributes:
-            elif envModel == 'ISAMERRA2':
-                if len(coord_) == 3:
-                    alt = coord_[0]
-                    lon = coord_[1]
-                    lat = coord_[2]
-                else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for ISAMERRA2, current coord: {coord_}.')    
-                envArgs = {'dataType': dataType_,
-                           'y': dataRange_,
-                           'm' : None,
-                           'd' : None,
-                           'pH' : pH_,
-                           'bbox' : (lon, lat, lon, lat),
-                           'compound' : None,
-                           'phase' : phase_, 
-                           'altArray' : [alt],
-                           'numAlt' : 50,
-                           'surftrop' : None,
-                           'keysAsAttributes' : False, 
-                           'showMessage' : True
-                           }
-                ISAMERRA2inst = ISAMERRA2(**envArgs)
-                self.compositions = ISAMERRA2inst.compositions
-                self.compounds = ISAMERRA2inst.compounds
-                self.temperature = ISAMERRA2inst.temperature
-                self.pressure = ISAMERRA2inst.pressure
-                if phase_ == 'L-FW':
-                    self.Ct = ISAMERRA2inst.Ci_LFW
-                elif phase_ == 'L-SW':
-                    self.Ct = ISAMERRA2inst.Ci_LSW
-                ISAMERRA2inst.salinity = self.salinity      # set to None by default in ISAMERRA2
-                ISAMERRA2inst.methods = self.method         # set to None by default in ISAMERRA2
-                ISAMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
-                               reactions = self.metabolism, specComp = self.eD,
-                               sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
-                self.DGr = ISAMERRA2inst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
-                self.Rs = ISAMERRA2inst.Rs[f'{rxn[0]}'] / 3600 #[moleD/(cell.s)]
-                self.CSP = ISAMERRA2inst.CSP[f'{rxn[0]}_pH:{pH_}']
-                self.ISAMERRA2inst = ISAMERRA2inst
-            #import required CAMSMERRA2 attributes:   
-            elif envModel == 'CAMSMERRA2':
-                if len(coord_) == 3:
-                    alt = coord_[0]
-                    lon = coord_[1]
-                    lat = coord_[2]
-                else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for CAMSMERRA2, current coord: {coord_}.')
-                envArgs = {'dataType': dataType_,
-                           'y': dataRange_,
-                           'm' : None,
-                           'd' : None,
-                           'pH' : pH_,
-                           'bbox' : (lon, lat, lon, lat),
-                           'keys' : 'All',
-                           'phase' : phase_, 
-                           'altArray' : [alt],
-                           'numAlt' : 50,
-                           'surftrop' : None,
-                           'keysAsAttributes' : False, 
-                           'showMessage' : True
-                            }
-                CAMSMERRA2inst = CAMSMERRA2(**envArgs)
-                self.compounds = CAMSMERRA2inst.compounds
-                self.temperature = CAMSMERRA2inst.temperature
-                self.pressure = CAMSMERRA2inst.pressure
-                if phase_ == 'L-FW':
-                    self.Ct = CAMSMERRA2inst.Ci_LFW
-                elif phase_ == 'L-SW':
-                    self.Ct = CAMSMERRA2inst.Ci_LSW
-                CAMSMERRA2inst.salinity = self.salinity     # set to None by default in CAMSMERRA2
-                CAMSMERRA2inst.methods = self.method        # set to None by default in CAMSMERRA2
-                CAMSMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
-                               reactions = self.metabolism, specComp = self.eD,
-                               sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
-                self.DGr = CAMSMERRA2inst.DGr[f'{rxn[0]}_pH:{pH_}'] * 1000 #[J/moleD]
-                self.Rs = CAMSMERRA2inst.Rs[f'{rxn[0]}'] / 3600  #[moleD/(cell.s)]
-                self.CSP = CAMSMERRA2inst.CSP[f'{rxn[0]}_pH:{pH_}']
-                self.CAMSMERRA2inst = CAMSMERRA2inst
-        #elif envModel in ___ :    #!!! import needed attributes for other models (e.g. GWB)
-        else:
-            raise NameError(f'Environment model ({envModel}) not found, see valid models in the README.')
+        #import required ISA attributes:
+        if self.envModel == 'ISA':
+            if len(self.coord) == 1: alt = self.coord[0]
+            else: raise AttributeError(f'A list of one element (selected altitude) should be given as coordinate if envModel is ISA, current coord: {self.coord}.')    
+            envArgs = {'layers' : 'All',
+                       'phase' : self.Wtype,
+                       'H2O' : 0.0,
+                       'pH' : self.pH, 
+                       'selCompounds' : None,
+                       'selAlt' : [alt, alt],
+                       'resolution' : 1000
+                        }
+            ISAinst = ISA(**envArgs)
+            self.compositions = ISAinst.compositions
+            self.compounds = ISAinst.compounds
+            self.temperature = ISAinst.temperature
+            self.pressure = ISAinst.pressure
+            self.H2O = ISAinst.H2O
+            if self.Wtype == 'L-FW':
+                self.Ct = ISAinst.Ci_LFW
+            elif self.Wtype == 'L-SW':
+                self.Ct = ISAinst.Ci_LSW
+            ISAinst.salinity = self.salinity     # set to None by default in ISA
+            ISAinst.methods = self.method        # set to None by default in ISA
+            ISAinst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                          reactions = self.metabolism, specComp = self.eD,
+                          sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+            self.DGr = ISAinst.DGr[f'{self.metabolism[0]}_pH:{self.pH}'] * 1000 #[J/moleD]
+            self.Rs = ISAinst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
+            self.CSP = ISAinst.CSP[f'{self.metabolism[0]}_pH:{self.pH}']
+            self.ISAinst = ISAinst
+        #import required ISAMERRA2 attributes:
+        elif self.envModel == 'ISAMERRA2':
+            if len(self.coord) == 3:
+                alt = self.coord[0]
+                lon = self.coord[1]
+                lat = self.coord[2]
+            else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for ISAMERRA2, current coord: {self.coord}.')    
+            envArgs = {'dataType': self.dataType,
+                       'y': self.dataRange,
+                       'm' : None,
+                       'd' : None,
+                       'pH' : self.pH,
+                       'bbox' : (lon, lat, lon, lat),
+                       'compound' : None,
+                       'phase' : self.Wtype, 
+                       'altArray' : [alt],
+                       'numAlt' : 50,
+                       'surftrop' : None,
+                       'keysAsAttributes' : False, 
+                       'showMessage' : True
+                       }
+            ISAMERRA2inst = ISAMERRA2(**envArgs)
+            self.compositions = ISAMERRA2inst.compositions
+            self.compounds = ISAMERRA2inst.compounds
+            self.temperature = ISAMERRA2inst.temperature
+            self.pressure = ISAMERRA2inst.pressure
+            if self.Wtype == 'L-FW':
+                self.Ct = ISAMERRA2inst.Ci_LFW
+            elif self.Wtype == 'L-SW':
+                self.Ct = ISAMERRA2inst.Ci_LSW
+            ISAMERRA2inst.salinity = self.salinity      # set to None by default in ISAMERRA2
+            ISAMERRA2inst.methods = self.method         # set to None by default in ISAMERRA2
+            ISAMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                           reactions = self.metabolism, specComp = self.eD,
+                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+            self.DGr = ISAMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{self.pH}'] * 1000 #[J/moleD]
+            self.Rs = ISAMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
+            self.CSP = ISAMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{self.pH}']
+            self.ISAMERRA2inst = ISAMERRA2inst
+        #import required CAMSMERRA2 attributes:   
+        elif self.envModel == 'CAMSMERRA2':
+            if len(self.coord) == 3:
+                alt = self.coord[0]
+                lon = self.coord[1]
+                lat = self.coord[2]
+            else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for CAMSMERRA2, current coord: {self.coord}.')
+            envArgs = {'dataType': self.dataType,
+                       'y': self.dataRange,
+                       'm' : None,
+                       'd' : None,
+                       'pH' : self.pH,
+                       'bbox' : (lon, lat, lon, lat),
+                       'keys' : 'All',
+                       'phase' : self.Wtype, 
+                       'altArray' : [alt],
+                       'numAlt' : 50,
+                       'surftrop' : None,
+                       'keysAsAttributes' : False, 
+                       'showMessage' : True
+                        }
+            CAMSMERRA2inst = CAMSMERRA2(**envArgs)
+            self.compounds = CAMSMERRA2inst.compounds
+            self.temperature = CAMSMERRA2inst.temperature
+            self.pressure = CAMSMERRA2inst.pressure
+            if self.Wtype == 'L-FW':
+                self.Ct = CAMSMERRA2inst.Ci_LFW
+            elif self.Wtype == 'L-SW':
+                self.Ct = CAMSMERRA2inst.Ci_LSW
+            CAMSMERRA2inst.salinity = self.salinity     # set to None by default in CAMSMERRA2
+            CAMSMERRA2inst.methods = self.method        # set to None by default in CAMSMERRA2
+            CAMSMERRA2inst.getCSP(paramDB = self.db, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                           reactions = self.metabolism, specComp = self.eD,
+                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+            self.DGr = CAMSMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{self.pH}'] * 1000 #[J/moleD]
+            self.Rs = CAMSMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600  #[moleD/(cell.s)]
+            self.CSP = CAMSMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{self.pH}']
+            self.CAMSMERRA2inst = CAMSMERRA2inst
+        if self.envModel == "GWB":
+            raise AttributeError('Code part dedicated to general water body was not written yet.')
 
     def _ODEsystem_MSMM(self, t, y):
         """
@@ -239,7 +244,10 @@ class MSMM:
         Btot = sum(Blist)
         
         #import self.attributes
-        mortality = self.mortality
+        mortality = self.mortality.copy()
+        mG = mortality[0]   #mortality in growth state
+        mM = mortality[1]   #mortality in maintenance state
+        mS = mortality[2]   #mortality in survival state
         K = self.K
         DGr = self.DGr.copy()
         Rs = self.Rs.copy()
@@ -248,10 +256,10 @@ class MSMM:
         # Compute biomass transfer between metabolic states
         Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist)
         # Compute biomass variation       
-        dBg = Yx * Rs * Bg * (1 - (Bg / K)) + Rm_g - Rg_m - mortality * Bg    
-        dBm = Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
-        dBs = Rm_s - Rs_m - Rs_rip - mortality * Bs                          
-        dBrip = mortality * Btot + Rs_rip  
+        dBg = Yx * Rs * Bg * (1 - (Btot / K)) + Rm_g - Rg_m - mG * Bg    
+        dBm = Rg_m + Rs_m - Rm_g - Rm_s - mM * Bm                     
+        dBs = Rm_s - Rs_m - Rs_rip - mS * Bs                          
+        dBrip = mG * Bg + mM * Bm + mS * Bs + Rs_rip  
         dB = [dBg, dBm, dBs, dBrip]
         return dB
 
@@ -287,7 +295,7 @@ class MSMM:
         Bs = Blist[2]
         #import metabolic shift controls and rates
         theta = self.theta.copy()
-        eta = self._specMtbShiftRates[self.mtbRates]
+        eta = self.eta
         #compute biomass transfers
         Rm_g = Bm * eta * theta['GxM']
         Rg_m = Bg * eta * (1 - theta['GxM'])
@@ -327,11 +335,10 @@ class MSMM:
             Initial biomass in each state (LIST)
         tSpan : LIST or np.array
             Time range over which the microbial dynamic is computed, in hours
-        dt : INT or FLOAT
-            time step for the integration (default : 1 hour)
-        solExport : BOOL
-            Command to export integrated biomass values as Excel document.
-            Default is False.
+        dt : INT or FLOAT, optional (default : 1h)
+            time step for the integration
+        solExport : BOOL, optional (default : False)
+            Command to export integrated biomass values as Excel document if set to True.
         
         Returns
         -------
@@ -396,7 +403,6 @@ class MSMM:
         if not os.path.isfile(self.fullPathSave):
             with pd.ExcelWriter(self.fullPathSave) as writer:
                 introRowB.to_excel(writer, sheet_name = nameSheet_B, index = False, header = False)
-        #!!! elif: introRowB for other models 
         with pd.ExcelWriter(self.fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
             time.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 1, index = False, header = True)
             Bdf.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 2, index = False, header = True)    
@@ -411,23 +417,15 @@ class MSMM:
         Bplot = getattr(self, 'Bsol', None)
         if Bplot is None:
             raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
-        t_array = self.t_plot.copy()
         # plotting of metabolic state curves
-        plt.plot(t_array, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
-        plt.plot(t_array, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
-        plt.plot(t_array, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
-        plt.plot(t_array, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
-        # adapt labels to environment model
-        if self.envModel in self.atmModels:
-            datmMicr = {'CH4': 'Methanotrophs',
-                        'H2': 'Hydrogen-oxidizing bacteria',
-                        'CO': 'CO-oxidizing bacteria'}
-            communityName = datmMicr[self.eD]
-            plt.xlabel('time (hours)')
-            plt.ylabel('Cell concentration (cell/m³ air)')
-            plt.title(f"{communityName}'s dynamic at {self.coord[0]}m altitude ({self.envModel})")
-            plt.legend(self.Bstates, bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
-        #!!! elif: labels for other models 
+        plt.plot(self.t_plot, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
+        plt.plot(self.t_plot, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
+        plt.plot(self.t_plot, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
+        plt.plot(self.t_plot, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
+        plt.xlabel('time (hours)')
+        plt.ylabel(self.ylabel)
+        plt.title(self.title)
+        plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
         plt.grid() 
         plt.show()
         return
