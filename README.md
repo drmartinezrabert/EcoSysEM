@@ -1695,7 +1695,7 @@ The `WaterColumn` does not need data to be download. The user can create a new _
 - 'sd_paramName' for standard deviations (`sd`).
 - **[!]** Distinct column names will be considered as extra parameters (`extraParam`).<p>
 
-The user can get the data calling the attributes defined above. Here is an example:
+The user can get the data calling the attributes defined above. Here are a couple of examples:
 ```python
 from envdef import WaterColumn
 from thermodynamics import ThSA
@@ -1726,7 +1726,10 @@ new_WaterColumn.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
 >>> print(new_WaterColumn.DGr)
 {'AO': array([-265.9967149 , -265.98870882, -266.39742029, -260.1621351, -267.93919102, -270.03276595, -270.52803137, -268.56257866]),
  'NO': array([-59.43567374, -59.44725721, -59.45439055, -59.45824969, -59.10906355, -59.03465802, -55.48680321, -58.10104723])}
-
+```
+```python
+from envdef import WaterColumn
+from thermodynamics import ThSA
 
 ## readMode = True
 new_WaterColumn_readMode = WaterColumn(readMode = True,
