@@ -2627,12 +2627,59 @@ NB : Input units must be respected. If given, DGr must have the same shape as Rs
 <!-- intro -->
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_MSMM = MSMM(...)
+instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype = 'L-FW', pH = 7.0, dataType = 'cyly', dataRange = [2020, 2024], DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate', salinity = None, fluidType = 'ideal', actMethods = None)
 ```
-Create an instance of `MSMM` object.<p>
+Create an instance of `MSMM` object :<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **param : _type_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **envModel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **coord : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Position coordinates depending on chosen environment (envModel).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; envModel = 'ISA' : coord = [altitude] (in meters) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; envModel = 'ISAMERRA2' or 'CAMSMERRA2': coord = [altitude(m), longitude, latitude] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeMetabo : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested metabolism type, matching with csv name in `reactions\` folder (without '.csv'). E.g.:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'metabolisms' : aerobic metabolisms <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'AnMetabolisms' : anaerobic metabolisms <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **metabolism : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of microbial autotrophy. Currently accepted metabolisms:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Mth' : methanotrophy <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'COOB' : carbon monoxide oxidation <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'HOB' : hydrogen oxidation <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **K : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Carrying capacity of the microbial community [cell/volume unity].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mortality : _float or list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: Growth, Maintenance, Survival).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all states have the same mortality rate. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Wtype : _str_, _optional, default: 'L-FW'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water type ('L-FW' or 'L-SW') in which the microbes bathe.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' : liquid sea water <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH value.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _type_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataRange : _type_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DeltaGsynth : _float_, _optional, default: 9.54E-11_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy necessary to synthesize a cell in J/cell.<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **steepness : _float_, _optional, default: 0.2_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the step function used to calculate metabolic shifts controls.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **degradPace : _type_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity :  _float, list or np.ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_, _optional, default: 'ideal'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid ('ideal' or 'non-ideal').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **actMethods :  _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for activity coefficient estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
 ...<p>
 **Attributes:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.attr : _type_**<br>
@@ -2676,14 +2723,10 @@ Function to solve the MSMM ODE system and export the results as Excel document i
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   If solExport is set to True, also creates an Excel document of the results.<br>
 
 ### MSMM.plotMSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-<!-- fct description -->
 ```python
 MSMM.plotMSMM()
 ```
-Function to plot the multi-state metabolic microbial dynamic of a single point in the environment space.<p>
-**Returns:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **return : _type_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; description... <br>
+Function to plot the multi-state metabolic microbial dynamic for a discrete position in the environment.<p>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
