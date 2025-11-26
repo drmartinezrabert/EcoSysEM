@@ -2,6 +2,7 @@
 ~*
 test*
 ecosysem/results/*.xlsx
+ecosysem/data/*.xlsx
 *.nc
 *.avi
 *.npz
