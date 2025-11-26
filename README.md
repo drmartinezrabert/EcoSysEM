@@ -1556,11 +1556,11 @@ Create an instance of `GWB` object.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_ or _list of floats_, _optional, default: 298.15_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_ or _list of floats_, _optional, default: 298.15_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_ or _list of floats_, _optional, default: 7.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_ or _list of floats_, _optional, default: 7.0_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _float_ or _list of floats_, _optional, default: 0.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _float_ or _list of floats_, _optional, default: 0.0_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water body.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
@@ -1571,11 +1571,11 @@ Create an instance of `GWB` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **showMessage : _bool_, _optional, default: True_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Console.<p>
 **Attributes:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _float_ or _list of floats_, _optional, default: 298.15_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _float_ or _list of floats_, _optional, default: 298.15_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pH : _float_ or _list of floats_, _optional, default: 7.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pH : _float_ or _list of floats_, _optional, default: 7.0_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.salinity : _float_ or _list of floats_, _optional, default: 0.0_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.salinity : _float_ or _list of floats_, _optional, default: 0.0_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water body.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_L : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`<br>
@@ -1629,25 +1629,25 @@ instance_WaterColumn = WaterColumn(readMode=False, fileName=None, depth=None, Ct
 ```
 Create an instance of `WaterColumn` object.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **readMode : _bool_, _optional, default: False_ ** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **readMode : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set creation mode (read mode: True, argument mode: False).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; readMode=True         - Data is taken from `data/fileName.csv` file.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; readMode=False        - Data is taken from arguments (depth, T, pH, salinity).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fileName : _str_, _optional, default: None_ ** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fileName : _str_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of `.csv` file where data is taken (from `data/` folder).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **depth : _list of flaots_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **depth : _list of flaots_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of depth values in m. <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _list of floats_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _list of floats_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s) in K. Same lenght as `depth` argument.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _list of floats_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _list of floats_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s). Same lenght as `depth` argument.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _list of floats_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _list of floats_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water in ppt. Same lenght as `depth` argument.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **coor : _(float, float)_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **coor : _(float, float)_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set coordinates of water column (latitude, longitude).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **extraParam : _dict_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **extraParam : _dict_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Include extra properties of water in addition to temperature (`T`), pH, salinity and composition (`Ct`). `{'paramName': [values]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
@@ -1655,26 +1655,26 @@ Create an instance of `WaterColumn` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **date : _str_, _optional, default: None_ ** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **date : _str_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set date(s) of data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cleanData : _bool_, _optional, default: False_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cleanData : _bool_, _optional, default: False_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to drop empty (NaN) values of original data (only when readMode = True).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sd : _dict_, _optional, default: None_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sd : _dict_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard deviations of data. `{'parameter': [standard deviation values]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **showMessage : _bool_, _optional, default: True_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Console.<p>
 **Attributes:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.depth : _list of floats_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.depth : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of depth values in m. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.lat : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Latitude of water column.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.lon : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Longitude of water column.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _list of floats_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.temperature : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature(s) in K.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.pH : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH(s).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.salinity : _list of floats_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.salinity : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity of water body in ppt.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Ci_L : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of water in mol/L. `{'compound': [concentration]}`<br>
