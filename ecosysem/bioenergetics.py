@@ -19,7 +19,7 @@ class CSP:
     def getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                 T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
                 fluidType = 'ideal', molality = 'True', methods = 'None',
-                solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11, Rs = None, DGr = None):
+                solvent = 'H2O', asm = 'stoich', Rs = None, DGr = None):
         """   
         Function to compute the catabolic cell-specific power.
         
@@ -39,41 +39,38 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : (if input_ is reaction; STR) or (if input_ is compound; BOOL - True), optional
-            Name of compound to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        specComp : STR or LIST
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
-        T : INT or FLOAT or LIST or numpy.ndarray
-            Set of temperature [K]. The default is 298.15 K (standard temperature).
-        pH : INT or FLOAT, optional
-            Set of pH. The default is 7.0 (neutral pH).
-        S : FLOAT, LIST or np.array, optional
-            Salinity [ppt]. The default is None.
-        phase : STR, optional
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid. The default is 'L'.
-        sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        fluidType : STR, optional
-            Type of fluid (ideal or non-ideal). The default is ideal.
-        molality : BOOL, optional
-            Select if activity units are in molality (True) or molarity (False). The default is True.
-        methods : DICT, optional
-            Method for coefficient activity estimation. The default is None.
+        T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
+            Set of temperature [K].
+        pH : INT or FLOAT, optional (default: 7.0, neutral pH)
+            Set of pH.
+        S : FLOAT, LIST or np.array, optional (default: None)
+            Salinity [ppt].
+        phase : STR, optional (default: 'L')
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        sample : STR or LIST, optional (default: 'All')
+            Requested samples (rows of `paramDB.csv`).
+        fluidType : STR, optional (default: 'ideal')
+            Type of fluid (ideal or non-ideal).
+        molality : BOOL, optional (default: True)
+            Select if activity units are in molality (True) or molarity (False).
+        methods : DICT, optional (default: None)
+            Method for coefficient activity estimation.
                 'DH-ext'    - Debye-Hückel equation extended version.
                 'SS'        - Setschenow-Shumpe equation.
-        solvent : STRING, optional
-            Solvent name. The default is 'H2O' (water).
-        asm : STR, optional
+        solvent : STRING, optional (default: 'H2O, water')
+            Solvent name.
+        asm : STR, optional (default: 'stoich', stoichiometric concentrations)
             Assumption when products are not present in the environment.
-            The default is 'stoich' (stoichiometric concentrations).
-        DGsynth : FLOAT
-            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
-        Rs : np.ndarray, LIST, INT, FLOAT, optional
-            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default (None) to be computed inside of the function.
+        Rs : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, Rs must have the same shape as DGr.
-        DGr : np.ndarray, LIST, INT, FLOAT, optional
-            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default (None) to be computed inside of the function.
+        DGr : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, DGr must have the same shape as Rs.
                    
@@ -163,41 +160,40 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : (if input_ is reaction; STR) or (if input_ is compound; BOOL - True), optional
-            Name of compound to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        specComp : STR or LIST
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
-        T : INT or FLOAT or LIST or numpy.ndarray
-            Set of temperature [K]. The default is 298.15 K (standard temperature).
-        pH : INT or FLOAT, optional
-            Set of pH. The default is 7.0 (neutral pH).
-        S : FLOAT, LIST or np.array, optional
-            Salinity [ppt]. The default is None.
-        phase : STR, optional
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid. The default is 'L'.
-        sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        fluidType : STR, optional
-            Type of fluid (ideal or non-ideal). The default is ideal.
-        molality : BOOL, optional
-            Select if activity units are in molality (True) or molarity (False). The default is True.
-        methods : DICT, optional
-            Method for coefficient activity estimation. The default is None.
+        T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
+            Set of temperature [K].
+        pH : INT or FLOAT, optional (default: 7.0, neutral pH)
+            Set of pH.
+        S : FLOAT, LIST or np.array, optional (default: None)
+            Salinity [ppt].
+        phase : STR, optional (default: 'L')
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        sample : STR or LIST, optional (default: 'All')
+            Requested samples (rows of `paramDB.csv`).
+        fluidType : STR, optional (default: 'ideal')
+            Type of fluid (ideal or non-ideal).
+        molality : BOOL, optional (default: True)
+            Select if activity units are in molality (True) or molarity (False).
+        methods : DICT, optional (default: None)
+            Method for coefficient activity estimation.
                 'DH-ext'    - Debye-Hückel equation extended version.
                 'SS'        - Setschenow-Shumpe equation.
-        solvent : STRING, optional
-            Solvent name. The default is 'H2O' (water).
-        asm : STR, optional
+        solvent : STRING, optional (default: 'H2O, water')
+            Solvent name.
+        asm : STR, optional (default: 'stoich', stoichiometric concentrations)
             Assumption when products are not present in the environment.
-            The default is 'stoich' (stoichiometric concentrations).
-        DGsynth : FLOAT
-            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
-        Rs : np.ndarray, LIST, INT, FLOAT, optional
-            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default (None) to be computed inside of the function.
+        DGsynth : FLOAT, optional (default = 9.54E-11)
+            Energy necessary to synthesize a cell [J/cell].
+        Rs : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, Rs must have the same shape as DGr.
-        DGr : np.ndarray, LIST, INT, FLOAT, optional
-            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default (None) to be computed inside of the function.
+        DGr : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, DGr must have the same shape as Rs.
         
@@ -356,46 +352,44 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : (if input_ is reaction; STR) or (if input_ is compound; BOOL - True), optional
-            Name of compound to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        specComp : STR or LIST
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
-        T : INT or FLOAT or LIST or numpy.ndarray
-            Set of temperature [K]. The default is 298.15 K (standard temperature).
-        pH : INT or FLOAT, optional
-            Set of pH. The default is 7.0 (neutral pH).
-        S : FLOAT, LIST or np.array, optional
-            Salinity [ppt]. The default is None.
-        phase : STR, optional
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid. The default is 'L'.
-        sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        fluidType : STR, optional
-            Type of fluid (ideal or non-ideal). The default is ideal.
-        molality : BOOL, optional
-            Select if activity units are in molality (True) or molarity (False). The default is True.
-        methods : DICT, optional
-            Method for coefficient activity estimation. The default is None.
+        T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
+            Set of temperature [K].
+        pH : INT or FLOAT, optional (default: 7.0, neutral pH)
+            Set of pH.
+        S : FLOAT, LIST or np.array, optional (default: None)
+            Salinity [ppt].
+        phase : STR, optional (default: 'L')
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        sample : STR or LIST, optional (default: 'All')
+            Requested samples (rows of `paramDB.csv`).
+        fluidType : STR, optional (default: 'ideal')
+            Type of fluid (ideal or non-ideal).
+        molality : BOOL, optional (default: True)
+            Select if activity units are in molality (True) or molarity (False).
+        methods : DICT, optional (default: None)
+            Method for coefficient activity estimation.
                 'DH-ext'    - Debye-Hückel equation extended version.
                 'SS'        - Setschenow-Shumpe equation.
-        solvent : STRING, optional
-            Solvent name. The default is 'H2O' (water).
-        asm : STR, optional
+        solvent : STRING, optional (default: 'H2O, water')
+            Solvent name.
+        asm : STR, optional (default: 'stoich', stoichiometric concentrations)
             Assumption when products are not present in the environment.
-            The default is 'stoich' (stoichiometric concentrations).
-        DGsynth : FLOAT
-            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
-        Rs : np.ndarray, LIST, INT, FLOAT, optional
-            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default (None) to be computed inside of the function.
+        DGsynth : FLOAT, optional (default = 9.54E-11)
+            Energy necessary to synthesize a cell [J/cell].
+        Rs : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, Rs must have the same shape as DGr.
-        DGr : np.ndarray, LIST, INT, FLOAT, optional
-            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default (None) to be computed inside of the function.
+        DGr : np.ndarray, LIST, INT, FLOAT, optional (default: None)
+            Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, DGr must have the same shape as Rs.
-        exportCSP : BOOL
-            Command to export CSP values as Excel document.
-            Default is False.
+        exportCSP : BOOL, optional (default: False)
+            Command to export CSP values as Excel document if set to True.
         
         Returns
         -------
@@ -412,7 +406,7 @@ class CSP:
         # Compute CSP through existing methods                    
         Pcat = CSP.getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                     T, pH, S, phase, sample, fluidType, molality, methods,
-                    solvent, asm, DGsynth, Rs, DGr)
+                    solvent, asm, Rs, DGr)
         Pana = CSP.getPana(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                     T, pH, S, phase, sample, fluidType, molality, methods,
                     solvent, asm, DGsynth, Rs, DGr)
