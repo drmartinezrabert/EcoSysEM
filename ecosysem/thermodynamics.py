@@ -643,7 +643,7 @@ class ThP:
                 if rComp is not None:
                     rComp = rComp[1:]
                     C = composition[iComp]
-                    if iComp != 'H+':
+                    if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
                         cSpec = ThEq.pHSpeciation(iComp, pH, T, C, True)
                         for idC, C in enumerate(rComp):
                             composition_aux[C] = cSpec[..., idC]
@@ -789,6 +789,9 @@ class ThEq:
             return Ct
         reqSp = rComp.index(iCompound) - 1 # Requested chemical species
         Ka = ThP.getKeq(rComp, mRxn, t, 'L')
+        nnzeros_Ka = np.nonzero(Ka)
+        shape_nnz_Ka = Ka[nnzeros_Ka].shape
+        shape_nnz_Ka = (shape_nnz_Ka[0]+1,)
         # Speciation
         theta = H**3 + (Ka[..., 0] * H**2) + (Ka[..., 0] * Ka[..., 1] * H) + Ka[..., 0] * Ka[..., 1] * Ka[..., 2]
         mSpec__ = np.array([Ct * H**3 / theta,                                    # [B]
@@ -801,9 +804,12 @@ class ThEq:
         if rAllConc == False:
             rSpec = mSpec_aux[..., reqSp]
         else:
-            nzeros = np.nonzero(mSpec_aux)
-            shapes = t.shape + (len(rComp) - 1,)
-            rSpec = np.reshape(mSpec_aux[nzeros], shapes)
+            if np.isnan(mSpec_aux).any():
+                rSpec = np.nan * np.ones(shape_nnz_Ka)
+            else:
+                nzeros = np.nonzero(mSpec_aux)
+                shapes = t.shape + (len(rComp) - 1,)
+                rSpec = np.reshape(mSpec_aux[nzeros], shapes)
         return rSpec
     
     def plotpHSpeciation(compounds, pH, temperature):
