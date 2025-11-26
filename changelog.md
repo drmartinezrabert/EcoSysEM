@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 - Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
   - Sobol' indices.
 -->
-## Fixed
+### Fixed
 - Bug in `ThEq.ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
 ### Changed
 - README file.
