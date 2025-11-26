@@ -390,15 +390,28 @@ ecosysem
   │      │    ├── .compounds
   │      │    ├── .DGr (if CAMSMERRA2.getDGr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
-  │      └── GWB
+  │      │── GWB
+  │      │    ├── .temperature
+  │      │    ├── .pH
+  │      │    ├── .salinity
+  │      │    ├── .Ci_L
+  │      │    ├── .methods
+  │      │    ├── .fluidType
+  │      │    ├── .compounds
+  │      │    └── .DGr (if GWB.getDGr() is called)
+  │      └── WaterColumn
+  │           ├── .depth
+  │           ├── .lat
+  │           ├── .lon
   │           ├── .temperature
   │           ├── .pH
   │           ├── .salinity
   │           ├── .Ci_L
   │           ├── .methods
   │           ├── .fluidType
-  │           ├── .compounds
-  │           └── .DGr (if GWB.getDGr() is called)
+  │           ├── .DGr (if WaterColumn.getDGr() is called)
+  │           ├── .sd (if standard deviations is given using 'sd' argument or in .csv file)
+  │           └── # Extra attributes (if more parameters is given using 'extraParam' argument)
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
@@ -555,7 +568,7 @@ Return attribute names of an Environment object as a list. This behaviour is ava
 ```python
 Environment.getDGr(typeRxn, input_, specComp)
 ```
-Compute (non-)stadard Gibbs free energy using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2` and `GWB` objects.<p>
+Compute (non-)stadard Gibbs free energy using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
@@ -569,7 +582,7 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 **Returns:** <br>
 **New attribute (`.DGr`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': [DGr]}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': [DGr]}` or `{'rxnName: [DGr]}`<br>
 
 ### Environment.smmryDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
