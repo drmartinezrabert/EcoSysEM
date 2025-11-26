@@ -491,12 +491,12 @@ class Environment:
             Name of parameter database, matching with csv name.
         reactions : STR or LIST
             Requested reaction names.
-        sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        pH : INT or FLOAT, optional
-            pH value (None by default)
-        combMean : BOOL
-            A command to compute the mean of sample combinations's values. Default = False.
+        sample : STR or LIST, optional (default: 'All')
+            Requested samples (rows of `paramDB.csv`).
+        pH : INT or FLOAT, optional (default: None)
+            pH value.
+        combMean : BOOL, optional (default: False)
+            A command to compute the mean of sample combinations's values.
             If set to True, the returned dictionary contains a single np.ndarray
             for each reaction key instead of comb keys with their own subarray.
                 
@@ -538,7 +538,7 @@ class Environment:
                 _Rs = np.nanmean(_rs, axis = 0)
                 self.Rs[key] = _Rs
           
-    def getCSP(self, paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
+    def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
         """           
         Compute cell specific powers using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
@@ -550,12 +550,12 @@ class Environment:
                 
         Parameters
         ----------
-        paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
-        typeKin : STR
+        typeKin : STR:
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR or LIST
+            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
         typeMetabo : STR
             Requested metabolism type, matching with csv name. E.g.:
                 - 'metabolisms' : aerobic metabolisms
@@ -564,13 +564,13 @@ class Environment:
             Requested reactions names. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
-            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
-        sample : STR or LIST, optional
-            Requested samples (rows of `paramDB.csv`). The default is 'All'.
-        DGsynth : FLOAT
-            Energy necessary to synthesize a cell [J/cell], by default: 9.54E-11.
-        EnvAttributes : BOOL
+        specComp : STR or LIST
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        sample : STR or LIST, optional (default = 'All')
+            Requested samples (rows of `paramDB.csv`).
+        DGsynth : FLOAT, optional (default = 9.54E-11)
+            Energy necessary to synthesize a cell [J/cell].
+        EnvAttributes : BOOL, optional
             Command to take non-standard Gibbs free energy (DGr) and cell-specific uptake rates
             from already existing environment attributes (or create them) in order to calculate
             the corresponding cell specific powers. Default : True (uses self.DGr and self.Rs)
@@ -1383,7 +1383,7 @@ class MERRA2(Atmosphere):
             max_TROPH = np.nanmax(TROPH) * 0.99
             altChk = altArray
             if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
-            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = np.where(altArray < max_TROPH, altArray, np.nan)
             altArray = altArray[~np.isnan(altArray)]
             if np.any(altChk > max_TROPH):
                 altArray = np.append(altArray, max_TROPH)
@@ -1401,11 +1401,11 @@ class MERRA2(Atmosphere):
         # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
         # Temperature
-        T = np.where(H < HS, np.NaN, T)
-        T = np.where(H > TROPH, np.NaN, T)
+        T = np.where(H < HS, np.nan, T)
+        T = np.where(H > TROPH, np.nan, T)
         # Pressure
-        P = np.where(H < HS, np.NaN, P)
-        P = np.where(H > TROPH, np.NaN, P)
+        P = np.where(H < HS, np.nan, P)
+        P = np.where(H > TROPH, np.nan, P)
         return T, P, altArray
         
     def getDataMERRA2(self, dataType, years, months,
