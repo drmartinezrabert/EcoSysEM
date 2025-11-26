@@ -444,7 +444,7 @@ class Environment:
         Results are saved as an attribute of model instances (modelName.DGr) as a dictionary.
 
         """
-        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
@@ -452,7 +452,7 @@ class Environment:
         pH = self.pH
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         S = self.salinity
-        if self.model == 'GWB':
+        if self.model in {'GWB', 'WaterColumn'}:
             Ct = self.Ci_L.copy()
         elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
             if phase == 'G':
@@ -468,11 +468,23 @@ class Environment:
         fluidType = self.fluidType
         methods = self.methods
         DGr_dict = {}
-        for pH_ in pH:
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
-                                           fluidType = fluidType, methods = methods)
-            for idRxn, rxn in enumerate(infoRxn):
-                DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
+            for pH_ in pH:
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        elif self.model in {'WaterColumn'}:
+            for idDepth, iDepth in enumerate(self.depth):
+                C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
+                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    try:
+                        DGr_dict[f'{rxn}'] = np.append(DGr_dict[f'{rxn}'], DGr[..., idRxn])
+                    except:
+                        DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
@@ -2742,7 +2754,8 @@ class CAMSMERRA2(Atmosphere):
                             new_data[k, i, j] = val
         return new_data
     
-    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), altArray = None, loc = None, num = 50):
+    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), 
+                           altArray = None, loc = None, num = 50):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
