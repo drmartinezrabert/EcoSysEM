@@ -2964,6 +2964,8 @@ class WaterColumn(Hydrosphere):
     def __init__(self, readMode = False, fileName = None, depth = None, Ct = None, T = None, pH = None,
                  salinity = None, coor = None, extraParam = None, fluidType = 'ideal', methods = None,
                  date = None, cleanData = False, sd = None, showMessage = True, _model = None):
+        if readMode == False and not depth:
+            raise ValueError('WaterColumn instance cannot be created because not enough information has been given. Activate read mode and give a file name or specify depth, water composition (Ct), temperature (T), pH and salinity.')
         if showMessage:
             print('  > Creating WaterColumn instance...')
         self.environment = 'Hydrosphere'
@@ -2973,8 +2975,8 @@ class WaterColumn(Hydrosphere):
         self._cleanData = cleanData
         if coor:
             if not isinstance(coor, tuple): raise TypeError('Argument \'coor\' must be a tuple: (latitude, longitude).')
-            self.longitude = coor[1]
-            self.latitude = coor[0]
+            self.lon = coor[1]
+            self.lat = coor[0]
         if date: self.date = date
         if readMode: # Read file 'fileName.csv' from `/data` folder.
             if fileName:
