@@ -3001,6 +3001,7 @@ class WaterColumn(Hydrosphere):
             self.pH = pH
             self.salinity = salinity
             if not isinstance(Ct, dict): raise TypeError('Argument \'Ct\' (water composition) must be a dictionary: {\'compound\': [concentration]}.')
+            Ct = {f'{comp}': np.array(Ct[comp]) for comp in Ct}
             lenC = [len(Ct[comp]) for comp in Ct]
             setC = set(lenC)
             if len(setC) == 1:
