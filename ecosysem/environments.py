@@ -2955,6 +2955,116 @@ class GWB(Hydrosphere):
         if showMessage:
             print('  > Done.')
 
+class WaterColumn(Hydrosphere):
+    """
+    Definition of physical (temperature, salinity, ligth penetration) and chemical (pH, DO, concentration of nutrients)
+    characteristics of seawater or freshwater at different depths for a defined geographical point (latitude, longitude).
+    
+    """
+    def __init__(self, readMode = False, fileName = None, depth = None, Ct = None, T = None, pH = None,
+                 salinity = None, coor = None, extraParam = None, fluidType = 'ideal', methods = None,
+                 date = None, cleanData = False, sd = None, showMessage = True, _model = None):
+        if showMessage:
+            print('  > Creating WaterColumn instance...')
+        self.environment = 'Hydrosphere'
+        self.model = 'WaterColumn'
+        self.phase = 'L'
+        self._readMode = readMode
+        self._cleanData = cleanData
+        if coor:
+            if not isinstance(coor, tuple): raise TypeError('Argument \'coor\' must be a tuple: (latitude, longitude).')
+            self.longitude = coor[1]
+            self.latitude = coor[0]
+        if date: self.date = date
+        if readMode: # Read file 'fileName.csv' from `/data` folder.
+            if fileName:
+                self._readCSV(fileName, cleanData)
+            else: raise ValueError('A `fileName` must be given with WaterColumn() in read mode.')
+        if _model:
+            raise ValueError('The creation of a WaterColumn instance using a specific model has not yet been implemented.')
+        if not readMode and not _model: # readMode = False
+            if not isinstance(depth, (list, np.ndarray)): raise TypeError('Argument \'depth\' must be a list.')
+            if not isinstance(T, (list, np.ndarray)): raise TypeError('Argument \'T\' (temperature) must be a list.')
+            if not isinstance(pH, (list, np.ndarray)): raise TypeError('Argument \'pH\' must be a list.')
+            if not isinstance(salinity, (list, np.ndarray)): raise TypeError('Argument \'salinity\' must be a list.')
+            lenDepth = len(depth)
+            lenT = len(T)
+            lenpH = len(pH)
+            lenS = len(salinity)
+            if lenT != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`T`: {lenT}) lenghts do not match.')
+            if lenpH != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and pH (`pH`: {lenpH}) lenghts do not match.')
+            if lenS != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and salinity (`salinity`: {lenT}) lenghts do not match.')
+            self.depth = depth
+            self.temperature = T
+            self.pH = pH
+            self.salinity = salinity
+            if not isinstance(Ct, dict): raise TypeError('Argument \'Ct\' (water composition) must be a dictionary: {\'compound\': [concentration]}.')
+            lenC = [len(Ct[comp]) for comp in Ct]
+            setC = set(lenC)
+            if len(setC) == 1:
+                lenC = lenC[0]
+                if lenC != lenDepth: 
+                    raise ValueError(f' Depth (`depth`: {lenDepth}) and water composition (`Ct`: {lenC}) lenghts do not match.')
+                else:
+                    self.Ci_L = Ct
+            if sd:
+                if not isinstance(sd, dict): 
+                    raise TypeError('Argument \'sd\' (standard deviations) must be a dictionary: {\'parameter\': [st. dev.]}.')
+                else:
+                    self.sd = sd
+            if extraParam:
+                if isinstance(extraParam, dict):
+                    for var in extraParam:
+                        value = extraParam[var]
+                        if not isinstance(value, (list, np.ndarray)): raise TypeError('Parameter \'{var}\' must be a list.')
+                        lenParam = len(value)
+                        if lenParam != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`{var}`: {lenParam}) lenghts do not match.')
+                        setattr(self, var, value)
+                else: raise TypeError('Argument \'extraParam\' must be a dictionary.')
+        if fluidType != 'ideal' and fluidType != 'non-ideal':
+            raise ValueError(f'Unknown fluid type ({fluidType}). Existing types: \'ideal\' and \'non-ideal\'')
+        self.fluidType = fluidType
+        if fluidType == 'non-ideal':
+            if not methods:
+                methods = {}
+                for compound in self.Ci_L:
+                    methods[compound] = 'DH-ext'
+            self.methods = methods
+        else:
+            self.methods = None
+        if showMessage:
+            print('  > Done.')
+        
+    def _readCSV(self, fileName, cleanData):
+        path = 'data/'
+        df = pd.read_csv(f'{path}{fileName}.csv')
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        if cleanData:
+            df = df.dropna()
+        mainAttributes = {'Depth', 'depth', 'Temperature', 'temperature', 'pH', 'ph', 'Salinity', 'salinity'}
+        Ct = {}
+        sd = {}
+        for var in df:
+            if var in mainAttributes:
+                if var == 'ph':
+                    varAttr = 'pH'
+                else:
+                    varAttr = var[0].lower() + var[1:]
+                setattr(self, varAttr, df[var].values)
+            elif 'conc_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                Ct[compound] = df[var].values
+            elif 'sd_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                sd[compound] = df[var].values
+            else:
+                setattr(self, var, df[var].values)
+        if bool(Ct):
+            self.Ci_L = Ct
+        if bool(sd):
+            self.sd = sd
 class Ocean(Hydrosphere):
     pass
 
