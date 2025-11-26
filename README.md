@@ -458,6 +458,7 @@ This section clarifies concepts, design decisions and technical details of this 
     - CAMS-MERRA2 atmospheric model | [GO](#CAMSMERRA2)
   - Hydrosphere
     - General (or non-specific) Water Body (GWB) | [GO](#GWB)
+    - Water column | [GO](#WaterColumn)
   - How to create a new environment (class or subclass) | [GO](#create-new-environment)
 - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
 - Ecosystem modelling 🚧 | [GO](#ecosystem-modelling)
