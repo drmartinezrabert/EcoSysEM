@@ -1687,14 +1687,73 @@ Create an instance of `WaterColumn` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.sd : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard deviations of data. `{'parameter': [standard deviation values]}`.<p>
 
-The `WaterColumn` does not need data to be download. The user can create a new _WaterColumn_ object _[lorem ipsum...]_. The user can get the data calling the attributes defined above. Here is an example:
-_Description of .csv file (like pH reaction file)_
+The `WaterColumn` does not need data to be download. The user can create a new _WaterColumn_ object using data from `fileName.csv` file from `data/` folder (`readMode = True, fileName = 'name'`) or giving the data via argument definition (`depth= [...], Ct={'compound': [...]}, T=[...], pH=[...], salinity=[...]`). The column names of `fileName.csv` file must be:
+- 'Temperature' or 'temperature' for temperature (`T`).
+- 'pH' or 'ph' for pH (`pH`).
+- 'Salinity' or 'salinity' for salinity (`salinity`).
+- 'conc_compSymbol' for concentrations (`Ct`).
+- 'sd_paramName' for standard deviations (`sd`).
+- **[!]** Distinct column names will be considered as extra parameters (`extraParam`).<p>
 
+The user can get the data calling the attributes defined above. Here is an example:
 ```python
 from envdef import WaterColumn
 from thermodynamics import ThSA
 
+## readMode = False
+new_WaterColumn = WaterColumn(depth = [100, 125, 150, 200, 400, 500, 750, 1000],
+                              T = [285.8, 285.71, 285.69, 285.66, 284.95, 284.73, 282.07, 279.85], 
+                              pH = [8.037, 8.037, 8.037, 8.024, 8.024, 7.995, 7.995, 7.938], 
+                              salinity = [35.62, 35.62, 35.62, 35.62, 35.52, 35.49, 35.24, 35.18], 
+                              Ct = {'O2': [2.60E-04, 2.60E-04, 2.61E-04, 2.61E-04, 2.56E-04, 2.54E-04, 1.97E-04, 2.24E-04],
+                                    'CO2': [2.20E-03, 2.20E-03, 2.20E-03, 2.20E-03, 2.20E-03, 2.21E-03, 2.21e-03, 2.25E-03],
+                                    'NO2-': [1.00E-08, 1.00E-08, 1.00E-08, 1.00E-08, 1.00E-08, 1.00E-08, 4.00E-09, 1.00E-08],
+                                    'NO3-': [8.30E-06, 8.30E-06, 8.30E-06, 8.30E-06, 9.90E-06, 1.03E-05, 1.91E-05, 1.90E-05],
+                                    'NH3': [3.30E-10, 3.30E-10, 3.90E-10, 3.00E-11, 8.40E-10, 2.37E-09, 1.93E-09, 2.46E-09],
+                                    'PO43-': [5.30E-07, 5.20E-07, 5.40E-07, 5.30E-07, 6.30E-07, 6.60E-07, 1.24E-06, 1.22E-06],
+                                    'DOC': [5.56E-05, 5.36E-05, 5.14E-05, 5.30E-05, 5.22E-05, 5.33E-05, 4.49E-05, 4.38E-05],
+                                    'POC': [9.06E-07, 1.48E-06, 1.05E-06, 8.88E-07, 5.98E-07, 3.07E-07, 2.81E-07, 2.27E-07],
+                                    'PON': [1.92E-07, 2.26E-07, 2.01E-07, 1.77E-07, 1.21E-07, 6.40E-08, 5.60E-08, 4.70E-08]}, 
+                              sd = {'temperature': [5.00, 10.00, 3.00, 2.00, 5.00, 3.00, 2.00, 1.00],
+                                    'O2': [1.00E-07, 2.00E-07, 3.00E-07, 4.00E-07, 5.00E-07, 6.00E-07, 7.00E-07, 8.00E-07]}, 
+                              extraParam = {'extraAttribute1': [1.92E-07, 2.26E-07, 2.01E-07, 1.77E-07, 1.21E-07, 6.40E-08, 5.60E-08, 4.70E-08],
+                                            'extraAttribute2': [9.06E-07, 1.48E-06, 1.05E-06, 8.88E-07, 5.98E-07, 3.07E-07, 2.81E-07, 2.27E-07]}, 
+                              coor = (48.4506, -22.50094),
+                              cleanData = True)
 
+# Compute and show non-standard Gibbs free energy of aerobic ammonia oxidation (AO) and nitrite oxidation (NO)
+new_WaterColumn.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
+>>> print(new_WaterColumn.DGr)
+{'AO': array([-260.1621351 , -270.03276595, -268.56257866]),
+ 'NO': array([-59.45824969, -59.03465802, -58.10104723])}
+
+## readMode = True
+new_WaterColumn_readMode = WaterColumn(readMode = True,
+                                       fileName = 'PSS1',
+                                       coor = (48.4506, -22.50094))
+
+# Compute and show non-standard Gibbs free energy of aerobic ammonia oxidation (AO) and nitrite oxidation (NO)
+new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
+>>> print(new_WaterColumn_readMode.DGr)
+{'AO': array([nan, nan, nan, -260.1621351 , nan, -270.03276595, nan, -268.56257866]),
+ 'NO': array([-59.43567374, nan, nan, -59.45824969, nan, -59.03465802, nan, -58.10104723])}
+# Some nan values are present in .DGr becasue data is missing for specific depth (e.g., pH or compound concentration)
+>>> print(new_WaterColumn_readMode.depth)
+[ 100  125  150  200  400  500  750 1000]
+>>> print(new_WaterColumn_readMode.temperature)
+[285.8  285.71 285.69 285.66 284.95 284.73 282.07 279.85]
+>>> print(new_WaterColumn_readMode.pH)
+[8.037   nan   nan 8.024   nan 7.995   nan 7.938]
+>>> print(new_WaterColumn_readMode.Ci_L)
+{'O2': array([0.00026, 0.00026, 0.000261, 0.000261, 0.000256, 0.000254, 0.000197, 0.000224]),
+ 'CO2': array([0.0022, nan, nan, 0.0022, nan, 0.00221, nan, 0.00225]),
+ 'NO2-': array([1.e-08, 1.e-08, 1.e-08, 1.e-08, 1.e-08, 1.e-08, 4.e-09, 1.e-08]),
+ 'NO3-': array([8.30e-06, 8.30e-06, 8.30e-06, 8.30e-06, 9.90e-06, 1.03e-05, 1.91e-05, 1.90e-05]),
+ 'NH3': array([nan, 3.30e-10, 3.90e-10, 3.00e-11, 8.40e-10, 2.37e-09, 1.93e-09, 2.46e-09]),
+ 'PO43-': array([5.30e-07, 5.20e-07, 5.40e-07, 5.30e-07, 6.30e-07, 6.60e-07, 1.24e-06, 1.22e-06]),
+ 'DOC': array([5.56e-05, 5.36e-05, 5.14e-05, 5.30e-05, 5.22e-05, 5.33e-05, 4.49e-05, 4.38e-05]),
+ 'POC': array([9.06e-07, 1.48e-06, 1.05e-06, 8.88e-07, nan, 3.07e-07, 2.81e-07, 2.27e-07]),
+ 'PON': array([1.92e-07, 2.26e-07, 2.01e-07, 1.77e-07, nan, 6.40e-08,  5.60e-08, 4.70e-08])}
 ```
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
