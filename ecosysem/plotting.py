@@ -27,12 +27,12 @@ def _savePlot(file, cPlots):
     else:
         plt.savefig(f'{file}.tiff', bbox_inches='tight')
 
-def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, 
-                 figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, 
+def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, fontFamily = 'Arial',  
+                 figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, fwtl = 'normal',
                  drawCoastLines = True, clw = 0.5, drawParallels = True, plw = 0.5, cpl = 'k', title = None,
                  drawMeridians = True, mlw = 0.5, cml = 'k', colorbar = True, parallelsLabels = [1,0,0,0], 
                  parallels = [-90, -60, -30, 0, 30, 60, 90], meridians = [0., 60., 120., 180., 240., 300.], 
-                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', 
+                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey',
                  colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
     """
     Plot variable on world map.
@@ -110,7 +110,8 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     Spyder plot.
 
     """
-    savePath = 'results/' 
+    savePath = 'results/'
+    plt.rcParams["font.family"] = fontFamily
     # Plotting colour
     if isinstance(cmap, (list, np.ndarray)):
         cmap = ListedColormap(cmap, name = 'plot_cmap')
@@ -142,7 +143,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                cmap=cmap)
     ax.set_facecolor(lakeColor)
     if title:
-        plt.title(title, fontweight = 'bold')
+        plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
     if savePlot:
         cPlots = 1
         file = f'{savePath}{varName}_varMap2D'
@@ -167,12 +168,11 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
             _savePlot(file, cPlots)
         plt.show()
     
-def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, 
-                  fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, 
-                  fontsize = 12, alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, 
-                  latitude = None, longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12,
-                  xTicks = None, colorbarSize = None, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}',
-                  savePlot = False):
+def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, fontFamily = 'Arial',
+                  fwtl = 'normal', fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, fontsize = 12, 
+                  alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, latitude = None, longitude = None, 
+                  vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, colorbarSize = None, savePlot = False,
+                  cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
     """
     Plot zonal mean of data.
 
@@ -252,6 +252,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
     savePath = 'results/' 
     font = {'size': fontsize}
     plt.rc('font', **font)
+    plt.rcParams["font.family"] = fontFamily
     if zone == 'latlon':
         axis_ = (1, 2)
     elif zone == 'lon':
@@ -340,7 +341,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             fig.tight_layout()
             plt.margins(y=0)
             if title:
-                plt.title(title, fontweight = 'bold')
+                plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
         elif zone == 'lon':
             ax.contourf(latitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
             ax.set_xlabel('Latitude (°)')
@@ -401,8 +402,8 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                 _savePlot(file, cPlots)
             plt.show()
     
-def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
-                      sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
+def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), fontFamily = 'Arial',
+                      fwtl = 'normal', sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
                       colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
                       fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
                       lakeColor = 'darkgrey', savePlot = False):
@@ -469,6 +470,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     savePath = 'results/'
     font = {'size': fontsize}
     plt.rc('font', **font)
+    plt.rcParams["font.family"] = fontFamily
     # Ocean depth
     npzDepth = np.load('data/GEBCO_LR.npz')
     keys = npzDepth.keys()
@@ -661,7 +663,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     m.drawmapboundary(fill_color='darkgrey')
     m.contourf(x, y, data2D, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
     if title:
-        plt.title(title)
+        plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
     if sections:
         for section in sections:
             locus = locusType[section]
