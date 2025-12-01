@@ -2774,7 +2774,52 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 How to create an MSMM instance :
 ```python
 from modeling import MSMM
-create instances (several models)
+import numpy as np
+
+# create MSMM instance with ISA
+>>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E5, 4.2E-4)
+>>> print(newMSMM.communityName)
+Methanotrophs
+>>> print(newMSMM.eD)
+CH4
+>>> print(newMSMM.envConditions.temperature)
+[281.65] #np.ndarray of shape (1,) because ISA is a 1D model
+>>> print(newMSMM.CSP)
+{'Pcat': array([0.31505687]), 'Pana': array([0.14450204]), 'Pmg': array([1.97431531]), 'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11881735])}
+
+# create MSMM instance with CAMSMERRA2
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+>>> print(newMSMM.communityName)
+Hydrogen-oxidizing bacteria
+>>> print(newMSMM.eD)
+H2
+>>> print(newMSMM.envConditions.temperature)
+[[[229.45488245]]] #np.ndarray of shape (1,,,) because ISA is a 3D model
+>>> print(newMSMM.CSP)
+{'Pcat': array([[[0.00022071]]]), 'Pana': array([[[0.00010123]]]), 'Pmg': array([[[0.00393853]]]), 'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00403975]]])}
+
+# create MSMM instance with ISAMERRA2
+>>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', 'COOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+>>> print(newMSMM.communityName)
+CO-oxidizing bacteria
+>>> print(newMSMM.eD)
+CO
+# .copy() -> assigns a copy of the attribute to prevent following operations to affect the attribute (non immutable) itself.
+# np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
+>>> T = newMSMM.envConditions.temperature.copy()
+>>> T = np.round(np.squeeze(T), 2)
+>>> T
+np.float64(255.35)
+>>> dCSP = newMSMM.CSP.copy()
+>>> for k in dCSP:
+>>>    dCSP[k] = np.round(np.squeeze(dCSP[k]), 5)
+>>> dCSP
+{'Pcat': np.float64(0.0),
+ 'Pana': np.float64(0.0),
+ 'Pmg': np.float64(0.11823),
+ 'Pm0': np.float64(0.0),
+ 'Ps': np.float64(0.0),
+ 'Pcell': np.float64(0.11823)}
 ```
 What to do with a MSMM object instance Here is an example:
 ```python
