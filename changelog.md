@@ -35,7 +35,7 @@ All notable changes to this project will be documented in this file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.
   - `Environment.conc_var_DGr()` and `ThSA.conc_var_DeltaGr()` instead of `Environment.conc_sa_DGr()` and `ThSA.conc_sa_DeltaGr()`.
 - `Environment.getDGr()`. 'Hydrosphere.WaterColumn()' environment has been incorporated.
-- Improvement of tick lables of plotting: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
+- Improvement of plotting - tick labels: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
 - Design improvment on `plotCrossSections()`.
 
 ## [0.3] - 2025/11/07
