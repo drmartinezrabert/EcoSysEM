@@ -2488,7 +2488,7 @@ plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevel
              fix_aspect=False, fontsize=12, drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None, mlw=0.5,
              drawMeridians=True, cml='k', colorbar=True, meridiansLabels=[0,0,0,1], meridians=[0., 60., 120., 180., 240., 300.], 
              parallelsLabels=[1,0,0,0], parallels=[-90, -60, -30, 0, 30, 60, 90], continentColor='darkgrey', lakeColor='darkgrey', 
-             colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlot=False)
+             colorbarSize=(10, 4), fontFamily='Arial', fwtl='normal', cbOrientation='horizontal', cbFontSize=12, savePlot=False)
 ```
 Plot two dimensional data on a world map.<br>
 **Parameters:**<br>
@@ -2505,9 +2505,9 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title of plot.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float__, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float__, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numlevels : _int_, _optional, default: 100_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
@@ -2551,6 +2551,10 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: (10, 4)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar size. (Width, Height) in inches.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar orientation: 'horizontal' or 'vertical'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbFontSize : _float_, _optional, default: 12_**<br>
@@ -2565,7 +2569,7 @@ Plot two dimensional data on a world map.<br>
 plotZonalMean(altitude, data, color, varName, varUnits, zone, pH=None, T=None, compSpec=None, fillBetween=True, semiLog=False, title=None,
               figsize=(5.0, 3.6), lw=2.0, fontsize=12, alpha=0.4, nticks=10, legend=True, ncol=1, legendOrientation=None, latitude=None,
               longitude=None, vmin=None, vmax=None, colorbar=None, cbFontSize=12, xTicks=None, colorbarSize=None, cbOrientation='horizontal',
-              formatColorbar='{:0.1f}', savePlot=False)
+              fontFamily='Arial', fwtl='normal', formatColorbar='{:0.1f}', savePlot=False)
 ```
 Plot zonal mean of data.<br> 
 **Parameters:**<br>
@@ -2630,6 +2634,10 @@ Plot zonal mean of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set size of colorbar (width, height). Only for zone = 'lat' and 'lon'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar orientation: 'horizontal' or 'vertical' (only for zone = 'lat' and 'lon').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set format of tick values of colorbar.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
@@ -2641,7 +2649,7 @@ Plot zonal mean of data.<br>
 ```python
 plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
-                  fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
+                  fontFamily='Arial', fwtl='normal', fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
 **Parameters:**<br>
@@ -2683,6 +2691,10 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; World map size (2D data plotting).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of coast lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fix_aspect : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numTicks : _dict_, _optional, default: None_** <br>
