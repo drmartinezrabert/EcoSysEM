@@ -2627,7 +2627,12 @@ NB : Input units must be respected. If given, DGr must have the same shape as Rs
 #
 
 #### <ins>Ecosystem modeling</ins>
-<!-- intro -->
+<a name="MSMM">**Multi State Metabolic Model**</a><br>
+
+...<p>
+**Figure .**
+<img width="867" height="309" alt="image" src="https://github.com/user-attachments/assets/83897c5a-8eb1-4d29-a246-0f34a4b6bcaf" />
+
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype = 'L-FW', pH = 7.0, dataType = 'cyly', dataRange = [2020, 2024], DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate', salinity = None, fluidType = 'ideal', actMethods = None)
@@ -2662,7 +2667,6 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH value.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Wcontent : _float_, _optional, default: 0.0_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water vapor volume fraction in atmosphere (used for ISA only to compute wet compositions of N2, O2 & Ar).<br>
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daily data.<br>
@@ -2701,8 +2705,8 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Instance of the environment class. It contains local conditions data such as temperature, composition and compound concentrations.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.coord : _list_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of coordinates.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Expected order for atmospheric models : [altitude, longitude, latitude]
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataType : _str or NoneType_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Expected order for atmospheric models : [altitude, longitude, latitude] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataType : _str_ or _NoneType_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daily data.<br>
@@ -2710,13 +2714,13 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'yly' - Yearly data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cmly' - Combined monthly data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cyly' - Combined yearly data.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataYear : _int, list of int or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataYear : _int, list of int or NoneType_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _int_ for dataType 'dly', 'mly' and 'yly'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _list of int_ [start_year, end_year] for dataType 'cmly' and 'cyly'.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataMonth : _ str or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataMonth : _str_ or _NoneType_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataDay : _ str or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataDay : _str_ or _NoneType_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.typeMtb : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of metabolism.<br>
