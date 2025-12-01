@@ -288,7 +288,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                     labels += [f'{abs(int(position))}°E']
         else:
             positions = [-180, -90, 0, 90, 179.375]
-            labels = ['180°W', '90°W', '0°', '90°E', '180°E']
+            labels = ['180°', '90°W', '0°', '90°E', '180°']
         split_points = [0, 6.0, np.max(altitude)]
         backgroundColor = ['black', 'lightgrey']
     else:
@@ -563,12 +563,13 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     tickLoc = np.linspace(bbox[0], bbox[2], numTick)
                     tickLabels = []
                     for loc in tickLoc:
-                        if loc > 0:
-                            tickLabels += [f'{int(loc)}°E']
-                        elif loc == 0:
-                            tickLabels += [f'{int(loc)}°']
+                        loc = int(loc)
+                        if loc == 0 or loc == 180 or loc == -180:
+                            tickLabels += [f'{abs(loc)}°']
+                        elif loc > 0:
+                            tickLabels += [f'{loc}°E']
                         else:
-                            tickLabels += [f'{int(abs(loc))}°W']
+                            tickLabels += [f'{abs(loc)}°W']
                 elif locus == 'meridian':
                     sectionData = data3D[:, :, idx[0]]
                     matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
@@ -584,12 +585,13 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     tickLoc = np.linspace(bbox[1], bbox[3], numTick)
                     tickLabels = []
                     for loc in tickLoc:
+                        loc = int(loc)
                         if loc > 0:
-                            tickLabels += [f'{int(loc)}°N']
+                            tickLabels += [f'{loc}°N']
                         elif loc == 0:
-                            tickLabels += [f'{int(loc)}°']
+                            tickLabels += [f'{loc}°']
                         else:
-                            tickLabels += [f'{int(abs(loc))}°S']
+                            tickLabels += [f'{abs(loc)}°S']
             else:
                 sectionData = data3D[:, idx[1], idx[0]:idx[2]+1]
                 matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
@@ -609,7 +611,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     for loc in tickLoc:
                         if loc > 0:
                             tickLabels += [f'{int(loc)}°E']
-                        elif loc == 0:
+                        elif loc == 0 or loc == 180 or loc == -180:
                             tickLabels += [f'{int(loc)}°']
                         else:
                             tickLabels += [f'{int(abs(loc))}°W']
@@ -630,7 +632,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
             yCoor = np.hstack((altitude, depthArray))
             fig, ax = plt.subplots(figsize=sectionFigSize[section])
             ax.contourf(xCoor, yCoor/1000, sectionData, levels = 78, cmap = plot_cmap, vmin = vmin, vmax = vmax)
-            ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'dodgerblue'))
+            ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'cornflowerblue'))
             ax.set_ylabel('Altitude (km)', fontsize = 10)
             ax.set_xlabel(xLabel, fontsize = 10)
             ax.tick_params(labelsize = 10)
@@ -677,16 +679,16 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
             if locus == 'parallel':
                 parallelLabel = labels[section]
                 parallel = coor[1]
-                m.drawparallels([parallel], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                m.drawparallels([parallel], labels=[0,0,0,0], fontsize=10, linewidth=1.5, dashes=[4, 2])
                 plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
-                ax.text(-235, parallel - 2.0, parallelLabel, size = 10)
+                ax.text(-232, parallel - 2.0, parallelLabel, size = 10)
                 ax.text(-195, parallel - 3.0, letterLabel1, size = 12, weight = 'bold')
                 ax.text(185, parallel - 3.0, letterLabel2, size = 12, weight = 'bold')
                         # bbox = dict(boxstyle=f"circle,pad={0.25}", fc = 'w'))
             elif locus == 'meridian':
                 meridianLabel = labels[section]
                 meridian = coor[0]
-                m.drawmeridians([meridian], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                m.drawmeridians([meridian], labels=[0,0,0,0], fontsize=10, linewidth=1.5, dashes=[4, 2])
                 plt.plot(x1, y1, x2, y2, marker = '_', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
                 ax.text(meridian - 15, 102, meridianLabel, size = 10)
                 ax.text(meridian - 5, 92, letterLabel1, size = 12, weight = 'bold')
