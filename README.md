@@ -2551,9 +2551,9 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: (10, 4)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar size. (Width, Height) in inches.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar orientation: 'horizontal' or 'vertical'.<br>
@@ -2634,9 +2634,9 @@ Plot zonal mean of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set size of colorbar (width, height). Only for zone = 'lat' and 'lon'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar orientation: 'horizontal' or 'vertical' (only for zone = 'lat' and 'lon').<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set format of tick values of colorbar.<br>
@@ -2691,9 +2691,9 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; World map size (2D data plotting).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of coast lines.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_ **<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fix_aspect : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
