@@ -437,29 +437,32 @@ ecosysem
   └── modeling.py 
          └── MSMM
               ├── .envModel
+              ├── .envConditions
               ├── .coord
+              ├── .dataType
+              ├── .dataYear
+              ├── .dataMonth
+              ├── .dataDay
               ├── .typeMtb
               ├── .metabolism
+              ├── .mtbRates
+              ├── .specMSrate
+              ├── .eD
               ├── .Wtype
-              ├── .salinity
-              ├── .pH
-              ├── .dataType
-              ├── .dataRange
+              ├── .fluidType
               ├── .K
               ├── .mortality
               ├── .DGsynth
               ├── .st
-              ├── .mtbRates
-              ├── .eD
-              ├── .fluidType
-              ├── .actMethods
-              ├── .compositions
-              ├── .compounds
-              ├── .temperature
-              ├── .pressure
               ├── .DGr
               ├── .Rs
               ├── .CSP
+              ├── .MSctrls
+              ├── .Bsol
+              ├── .communityName
+              ├── .plotTitle
+              ├── .plotYlabel
+              ├── .t_plot
               ├── solveODE
               └── plotMSMM
 ```
@@ -2620,7 +2623,7 @@ NB : Input units must be respected. If given, DGr must have the same shape as Rs
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NB: If exportCSP is set to True, creates an Excel document of the results.<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
+ 
 #
 
 #### <ins>Ecosystem modeling</ins>
@@ -2642,7 +2645,7 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'metabolisms' : aerobic metabolisms <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'AnMetabolisms' : anaerobic metabolisms <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **metabolism : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of microbial autotrophy. Currently accepted metabolisms:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed  by the microbial community. Currently accepted metabolisms: <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Mth' : methanotrophy <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'COOB' : carbon monoxide oxidation <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'HOB' : hydrogen oxidation <br>
@@ -2652,26 +2655,37 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: Growth, Maintenance, Survival).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all states have the same mortality rate. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Wtype : _str_, _optional, default: 'L-FW'_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water type ('L-FW' or 'L-SW') in which the microbes bathe.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water type ('L-FW' or 'L-SW') in which the microbial community bathes.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' : liquid sea water <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH value.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Wcontent : _float_, _optional, default: 0.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water vapor volume fraction in atmosphere (used for ISA only to compute wet compositions of N2, O2 & Ar).<br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _type_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataRange : _type_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dataType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daily data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly' - Monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'yly' - Yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cmly' - Combined monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cyly' - Combined yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **years : _int_ or _list of int_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _int_ for dataType 'dly', 'mly' and 'yly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _list of int_ [start_year, end_year] for dataType 'cmly' and 'cyly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **month : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **day : _int_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DeltaGsynth : _float_, _optional, default: 9.54E-11_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy necessary to synthesize a cell in J/cell.<br>
-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy requirement for cell synthesis in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **steepness : _float_, _optional, default: 0.2_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the step function used to calculate metabolic shifts controls.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **degradPace : _type_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; param description.<br>
-
-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **degradPace : _str, int or float_, _optional, default: ‘moderate’_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Command to select protein turnover rate of the microbial community and the corresponding metabolic shift rate. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  If a float (protein turnover rate in hours) is given, code will automatically change it for the corresponding string.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Valid strs are ‘fast’ (PTR = 1 h), ‘moderate’ (PTR = 5 h), ‘slow’ (PTR = 14 h). <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity :  _float, list or np.ndarray of floats_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_, _optional, default: 'ideal'_** <br>
@@ -2679,17 +2693,79 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **actMethods :  _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for activity coefficient estimation `{'compounds': 'methods'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
-...<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<p>
 **Attributes:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.attr : _type_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; attr description.<br>
-...<p>
-**Default dynamic attributes**:<br> 
-(including attributes from environment model, see corresponding sections)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.defaultattr : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultattr description.<br>
-...<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.envModel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environment model.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.envConditions : _object instance_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Instance of the environment class. It contains local conditions data such as temperature, composition and compound concentrations.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.coord : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of coordinates.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Expected order for atmospheric models : [altitude, longitude, latitude]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataType : _str or NoneType_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dly' - Daily data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'mly' - Monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'yly' - Yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cmly' - Combined monthly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cyly' - Combined yearly data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataYear : _int, list of int or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year(s) of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _int_ for dataType 'dly', 'mly' and 'yly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; years : _list of int_ [start_year, end_year] for dataType 'cmly' and 'cyly'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataMonth : _ str or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.dataDay : _ str or NoneType _**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.typeMtb : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of metabolism.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolism : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed  by the microbial community.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mtbRates : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Qualitative speed of metabolic processes based on the protein turnover rate of the strain.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.specMSrate : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specific metabolic shift rate in 1/hours (inverse of protein turnover rate).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.eD : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Electron donor of the metabolic reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Wtype : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Water type.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' : liquid sea water <br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.fluidType : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.K : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Carrying capacity of the microbial community in cell/unit volume.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mortality : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of mortality rates for each metabolic state in 1/hours.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; State indexing : [m_growth, m_maintenance, m_survival] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGsynth: _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Energy requirement for cell synthesis in J/cell.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.st : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Steepness of the step function used to compute metabolic shifts controls.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the non-standard Gibbs free energy (in J/mol eD) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Rs : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the cell specific uptake rate (in mol eD/(cell.s)) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.CSP : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of cell specific powers (in fW/cell) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MSctrls : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of metabolic shifts controls (floats between 0 and 1) based on local environment conditions. Available only after running .solveODE().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ ‘GxM’ ] : Control of the shifts between growth and maintenance states <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘MxS’ ] : Control of the shifts between maintenance and survival states <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ ‘S-RIP’] : Control of the survival to death shift <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume. Available only after running .solveODE(). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, survival, death], tSpan+1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityName : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community name based on metabolism. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotTitle : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotYlabel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.t_plot : _np.ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of floats of shape (tSpan,) containing a time index for solutions of the MSMM ODE in order to be plotted as function of time. Available only after running .solveODE().<p>
 
 How to create an MSMM instance :
 ```python
