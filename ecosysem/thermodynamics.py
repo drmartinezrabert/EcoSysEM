@@ -1588,6 +1588,7 @@ class ThSA:
             print(f'    > {iC}. {rxn} done.')
         if showMessage:
             print('  > Done.')
+            
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
         Write calculated DeltaGr in Excel document.

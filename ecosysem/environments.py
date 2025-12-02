@@ -540,7 +540,7 @@ class Environment:
           
     def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
         """           
-        Compute cell specific powers using information from environmental models :
+        Compute cell specific powers in fW/cell using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
                 - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
                 - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).

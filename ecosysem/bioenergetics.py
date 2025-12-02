@@ -39,8 +39,9 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : STR or LIST
-            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        specComp : STR
+            Name of compound to calculate specific deltaGr (kJ/mol-compound). E.g.:
+                reaction = 'COOB' ; specComp = 'CO'
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
         T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
@@ -50,7 +51,7 @@ class CSP:
         S : FLOAT, LIST or np.array, optional (default: None)
             Salinity [ppt].
         phase : STR, optional (default: 'L')
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+            Phase in which the reaction occurs. 'G' - Gas, 'L' - Liquid.
         sample : STR or LIST, optional (default: 'All')
             Requested samples (rows of `paramDB.csv`).
         fluidType : STR, optional (default: 'ideal')
@@ -73,7 +74,7 @@ class CSP:
             Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function.
                 NB : Input units must be respected.
                      If given, DGr must have the same shape as Rs.
-                   
+        
         Returns
         -------
         Pcat : numpy.ndarray
@@ -87,9 +88,9 @@ class CSP:
             Rs_args = {'typeKin' : typeKin,
                        'paramDB' : paramDB,
                        'reactions' : reaction,
+                       'Ct' : Ct.copy(),
                        'T' : T,
                        'pH' : pH,
-                       'Ct' : Ct, 
                        'sample' : sample
                        }
             #compute Rs dict
@@ -113,7 +114,7 @@ class CSP:
                         'T' : T,
                         'pH' : pH,
                         'S' : S,
-                        'Ct' : Ct,
+                        'Ct' : Ct.copy(),
                         'fluidType' : fluidType,
                         'molality' : molality,
                         'methods' : methods,
@@ -160,8 +161,9 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : STR or LIST
-            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        specComp : STR
+            Name of compound to calculate specific deltaGr (kJ/mol-compound). E.g.:
+                reaction = 'COOB' ; specComp = 'CO'
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
         T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
@@ -171,7 +173,7 @@ class CSP:
         S : FLOAT, LIST or np.array, optional (default: None)
             Salinity [ppt].
         phase : STR, optional (default: 'L')
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+            Phase in which the reaction occurs. 'G' - Gas, 'L' - Liquid.
         sample : STR or LIST, optional (default: 'All')
             Requested samples (rows of `paramDB.csv`).
         fluidType : STR, optional (default: 'ideal')
@@ -211,7 +213,7 @@ class CSP:
                        'reactions' : reaction,
                        'T' : T,
                        'pH' : pH,
-                       'Ct' : Ct, 
+                       'Ct' : Ct.copy(), 
                        'sample' : sample
                        }
             #compute Rs dict
@@ -235,7 +237,7 @@ class CSP:
                         'T' : T,
                         'pH' : pH,
                         'S' : S,
-                        'Ct' : Ct,
+                        'Ct' : Ct.copy(),
                         'fluidType' : fluidType,
                         'molality' : molality,
                         'methods' : methods,
@@ -334,7 +336,7 @@ class CSP:
                   solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11,
                   Rs = None, DGr = None, exportCSP = False):
         """
-        Function to compute every cell-specific powers.
+        Function to compute every cell-specific powers [fW/cell] and export them as Excel document if needed.
         
         Parameters
         ----------
@@ -352,8 +354,9 @@ class CSP:
             Requested reaction name. E.g.:
                 -'COOB' : carbon monoxide oxidation
                 -'HOB' : hydrogen oxidation
-        specComp : STR or LIST
-            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        specComp : STR
+            Name of compound to calculate specific deltaGr (kJ/mol-compound). E.g.:
+                reaction = 'COOB' ; specComp = 'CO'
         Ct : DICT
             Total concentrations of compound {'compound': [concentrations]}.
         T : INT or FLOAT or LIST or numpy.ndarray, optional (default: 298.15 K, standard temperature)
@@ -363,7 +366,7 @@ class CSP:
         S : FLOAT, LIST or np.array, optional (default: None)
             Salinity [ppt].
         phase : STR, optional (default: 'L')
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+            Phase in which the reaction occurs. 'G' - Gas, 'L' - Liquid.
         sample : STR or LIST, optional (default: 'All')
             Requested samples (rows of `paramDB.csv`).
         fluidType : STR, optional (default: 'ideal')
@@ -395,12 +398,12 @@ class CSP:
         -------
         CSP_dict : DICT of numpy.ndarray
             Contains all cell specific power series + Pcell in fW/cell:
-                - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
-                - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
-                - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
-                - 'Pm0' : Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
-                - 'Ps' : Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
-                - 'Pcell' : Growth power: energy flux of a growing cell (sum of Pana & Pmg).
+                - 'Pcat' - Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
+                - 'Pana' - Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
+                - 'Pmg' - Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
+                - 'Pm0' - Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
+                - 'Ps' - Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
+                - 'Pcell' - Growth power: energy flux of a growing cell (sum of Pana & Pmg).
         If exportCSP is set to True, creates an Excel document of the results.
         """
         # Compute CSP through existing methods                    

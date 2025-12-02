@@ -137,7 +137,7 @@ class KinRates:
         MyModule = importlib.import_module('thermodynamics')
         ThEq = MyModule.ThEq
         # Check variables
-        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:
