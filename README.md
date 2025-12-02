@@ -76,6 +76,7 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **<ins>cdsapi</ins>**. The Climate Data Store (CDS) Application Program Interface (API) is a service providing programmatic access to CDS and ADS data. For more info and tutorials, click [here](https://cds.climate.copernicus.eu/how-to-api).
 - **<ins>molmass</ins>**. Molmass is a Python library, console script, and web application to calculate the molecular mass (average, nominal, and isotopic pure), the elemental composition, and the mass distribution spectrum of a molecule given by its chemical formula, relative element weights, or sequence. For more info and tutorials, click [here](https://pypi.org/project/molmass/).
 - **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
+- **<ins>basemap</ins>**. Basemap is a matplotlib toolkit for plotting 2D data on maps in Python. It is similar in functionality to GrADS, GMT, the MATLAB Mapping Toolbox and the IDL Mapping Facilities. CDAT and PyNGL are other Python libraries with similar capabilities. For more info and tutorials, click [here](https://matplotlib.org/basemap/stable/index.html).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -131,6 +132,10 @@ pip install pyatmos
 ```
 pip install netCDF4 h5netcdf
 ```
+**basemap**
+```
+pip install basemap
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -175,6 +180,10 @@ python -m pip install pyatmos
 **netCDF4 (h5netcdf)**
 ```
 python -m pip install netCDF4 h5netcdf
+```
+**basemap**
+```
+python -m pip install basemap
 ```
 [🔼 Back to **Contents**](#readme-contents)
 
