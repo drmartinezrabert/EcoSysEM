@@ -1322,7 +1322,7 @@ class MERRA2(Atmosphere):
             max_TROPH = np.nanmax(TROPH) * 0.99
             altChk = altArray
             if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
-            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = np.where(altArray < max_TROPH, altArray, np.nan)
             altArray = altArray[~np.isnan(altArray)]
             if np.any(altChk > max_TROPH):
                 altArray = np.append(altArray, max_TROPH)
@@ -1340,11 +1340,11 @@ class MERRA2(Atmosphere):
         # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
         # Temperature
-        T = np.where(H < HS, np.NaN, T)
-        T = np.where(H > TROPH, np.NaN, T)
+        T = np.where(H < HS, np.nan, T)
+        T = np.where(H > TROPH, np.nan, T)
         # Pressure
-        P = np.where(H < HS, np.NaN, P)
-        P = np.where(H > TROPH, np.NaN, P)
+        P = np.where(H < HS, np.nan, P)
+        P = np.where(H > TROPH, np.nan, P)
         return T, P, altArray
         
     def getDataMERRA2(self, dataType, years, months,
