@@ -32,7 +32,7 @@ ____________________________
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
         - Environment definition and instance calling | [GO](#environment-definition-and-instance-calling)
         - Thermodynamic State Analysis (ThSA) | [GO](#thermodynamic-state-analysis-thsa)
-        - Ecosystem modeling | [GO](#ecosystem-modelling)
+        - Ecosystem modeling | [GO](#ecosystem-modeling)
 -  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Error List | [GO](#error-list)
