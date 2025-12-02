@@ -2391,6 +2391,43 @@ The functions to obtain the required cell specific powers (CSP) are found in `bi
 > In the second case, ThSA.getDGr() and KinRates.getRs() will be called upon through given parameters (temperature, pH, etc.).
 > Resulting CSPs can be exported into an Excel document.
 
+Here is an example:
+```python
+>>> from bioenergetics import CSP
+>>> from environments import ISA
+
+# set arguments for CSP.getAllCSP()
+>>> paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+>>> typeKin = 'MM-Arrhenius'
+>>> typeMetabo = 'metabolisms'
+>>> reaction = 'Mth'
+>>> specComp = 'CH4'
+>>> DGsynth = 9.54E-11
+# (import concentrations & temperatures from an ISA instance)
+>>> ISAcond = ISA(0, phase = 'L-FW', selAlt = [0,3000]) # altitudes : 0 to 3 km
+>>> Ct = ISAcond.Ci_LFW
+>>> T = ISAcond.temperature
+
+# compute CSPs with no previously calculated Rs and DGr values
+>>> csp = CSP.getAllCSP(paramDB, typeKin, typeMetabo, reaction, specComp, Ct.copy(), T, Rs = None, DGr = None, exportCSP = False)
+>>> print(csp)
+{'Pcat': array([0.50742422, 0.31505687, 0.20455106, 0.13630574]),
+'Pana': array([0.23273207, 0.14450204, 0.09381813, 0.06251715]),
+'Pmg': array([3.6574006 , 1.97431531, 1.03516561, 0.52605876]),
+'Pm0': array([4.77497373e-04, 1.99301471e-04, 7.98218276e-05, 3.05846240e-05]),
+'Ps': array([1.20546200e-06, 6.97461209e-07, 3.93241309e-07, 2.15653149e-07]),
+'Pcell': array([3.89013267, 2.11881735, 1.12898374, 0.58857591])}
+
+# compute CSPs with already calculated Rs and DGr values (and export results as an Excel)
+>>> Rs_ = KinRates.getRs(typeKin, paramDB, reaction, Ct.copy(), 'All', 7.0, T)[0]
+>>> Dgr_ = ThSA.getDeltaGr(typeMetabo, reaction, 'L', specComp, T, 7.0, None, Ct.copy())[0]
+>>> csp = CSP.getAllCSP(paramDB, typeKin, typeMetabo, reaction, specComp, Ct.copy(), T, Rs = Rs_, DGr = DGr_, exportCSP = True)
+
+# Another way to do it (except for the results export as Excel) is to simply use Environment.getCSP()
+>>> ISAcond.getCSP(typeKin, paramDB, typeMetabo, reaction, specComp)
+>>> csp = ISAcond.CSP
+```
+
 ### CSP.getPcat &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 CSP.getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All', fluidType = 'ideal', molality = 'True', methods = 'None', solvent = 'H2O', asm = 'stoich', Rs = None, DGr = None):
@@ -2628,9 +2665,11 @@ NB : Input units must be respected. If given, DGr must have the same shape as Rs
 
 #### <ins>Ecosystem modeling</ins>
 <a name="MSMM">**Multi State Metabolic Model**</a><br>
+A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
+Here, four distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_), survival (_B<sub>S</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance, which is more demanding than survival. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in survival state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
-...<p>
-**Figure .**
+**Figure 1. Schematic representation of the simulated metabolic states of cells, the associated metabolic processes and the interaction with the environment**
+_Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).
 <img width="867" height="309" alt="image" src="https://github.com/user-attachments/assets/83897c5a-8eb1-4d29-a246-0f34a4b6bcaf" />
 
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
@@ -2736,7 +2775,6 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Water type.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' : liquid sea water <br>
-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.fluidType : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.K : _float_**<br>
@@ -2756,9 +2794,9 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of cell specific powers (in fW/cell) based on local environment conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MSctrls : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of metabolic shifts controls (floats between 0 and 1) based on local environment conditions. Available only after running .solveODE().<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ ‘GxM’ ] : Control of the shifts between growth and maintenance states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘MxS’ ] : Control of the shifts between maintenance and survival states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ ‘S-RIP’] : Control of the survival to death shift <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘GxM’] : Control of the shifts between growth and maintenance states <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘MxS’] : Control of the shifts between maintenance and survival states <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘S-RIP’] : Control of the survival to death shift <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume. Available only after running .solveODE(). <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, survival, death], tSpan+1).<br>
@@ -2773,11 +2811,13 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 
 How to create an MSMM instance :
 ```python
-from modeling import MSMM
-import numpy as np
+>>> from modeling import MSMM
+>>> import numpy as np
 
 # create MSMM instance with ISA
 >>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E5, 4.2E-4)
+> Creating ISA instance...
+> Done.
 >>> print(newMSMM.communityName)
 Methanotrophs
 >>> print(newMSMM.eD)
@@ -2789,23 +2829,28 @@ CH4
 
 # create MSMM instance with CAMSMERRA2
 >>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+> Creating CAMSMERRA2 instance...
+> Done.
 >>> print(newMSMM.communityName)
 Hydrogen-oxidizing bacteria
 >>> print(newMSMM.eD)
 H2
 >>> print(newMSMM.envConditions.temperature)
-[[[229.45488245]]] #np.ndarray of shape (1,,,) because ISA is a 3D model
+[[[229.45488245]]] #np.ndarray of shape (1,1,1) because CAMSMERRA2 is a 3D model
 >>> print(newMSMM.CSP)
 {'Pcat': array([[[0.00022071]]]), 'Pana': array([[[0.00010123]]]), 'Pmg': array([[[0.00393853]]]), 'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00403975]]])}
 
 # create MSMM instance with ISAMERRA2
 >>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', 'COOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+> Creating ISAMERRA2 instance...
+> Done.
 >>> print(newMSMM.communityName)
 CO-oxidizing bacteria
 >>> print(newMSMM.eD)
 CO
 # .copy() -> assigns a copy of the attribute to prevent following operations to affect the attribute (non immutable) itself.
 # np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
+# np.squeeze( a, axis=None) -> NumPy function: Remove axes of length one from `a`.
 >>> T = newMSMM.envConditions.temperature.copy()
 >>> T = np.round(np.squeeze(T), 2)
 >>> T
@@ -2821,11 +2866,31 @@ np.float64(255.35)
  'Ps': np.float64(0.0),
  'Pcell': np.float64(0.11823)}
 ```
-What to do with a MSMM object instance Here is an example:
+Once an MSMM instance has been created, it is possible to solve the corresponding ODE system. The solutions are saved as an attribute (_Bsol_) and can be exported as an Excel document or plotted in Spyder. Here is an example:
 ```python
-from modeling import MSMM
-solve, plot & export data
+>>> from modeling import MSMM
+
+#create instance 
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'Mth', 10E5, (0.01/24), dataType = 'cyly', years = [2020,2024])
+> Creating CAMSMERRA2 instance...
+> Done.
+
+# solve ODE system over 10 days (240 hours) with initial state biomass in cell/m3 of:
+# Growth = 5, Maintenance = 30, Survival = 15, Dead cells = 0
+>>> newMSMM.solveODE([5,30,15,0], 240, solExport = True)
+# => Excel document of solutions is created
+
+# print solutions (first 5 hours are shown here)
+>>> print(newMSMM.Bsol)
+array([[ 5.000e+00,  1.015e+01,  1.477e+01,  1.889e+01,  2.253e+01, 2.572e+01, …], 
+	[3.000e+01,  2.755e+01,  2.514e+01,  2.283e+01,  2.066e+01, 1.867e+01, …], 
+	[1.500e+01,  1.228e+01,  1.005e+01,  8.220e+00,  6.730e+00, 5.510e+00, …],
+	[0.000e+00,  2.000e-02,  4.000e-02,  6.000e-02,  8.000e-02, 1.000e-01, …]])
+
+# plot solutions
+>>> newMSMM.plotMSMM()
 ```
+<img width="945" height="494" alt="image" src="https://github.com/user-attachments/assets/086fc83f-1908-49f9-8bbc-5a36431c3900" />
 
 ### MSMM.solveODE &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
