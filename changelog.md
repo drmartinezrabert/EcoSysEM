@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Complete thermodynamic sensitivity analysis. 
+- Complete thermodynamic sensitivity analysis.
 ### Changed
 - README file.
 
@@ -20,6 +20,10 @@ All notable changes to this project will be documented in this file.
   - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `gWB()`.
 - Sensitivity analysis of non-standard Gibbs free energy.
   - 2D compound sensitivity analysis (contourf plot).
+- Creation of plotting script
+  - New function: plotVarMap2D()
+  - New function: plotZonalMean()
+  - New function: plotCrossSections()
 ### Fixed
 - Bug in `Environment.loadData()`: data existence wasn't check before loading.
 - Bug in `CAMSMERRA2()`: error came out when phase was defined.
