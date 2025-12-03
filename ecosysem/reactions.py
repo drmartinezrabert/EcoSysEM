@@ -112,14 +112,14 @@ class KinRates:
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR
             Name of parameter database, matching with csv name.
-        reactions : STR
-            Requested reaction.
+        reactions : STR or LIST
+            Requested reaction(s).
         Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : FLOAT, optional
-            pH values. The default is None.
+            pH value. The default is None.
         T : FLOAT, LIST or np.ndarray, optional
             Temperatures. The default is None.
         
@@ -137,7 +137,7 @@ class KinRates:
         MyModule = importlib.import_module('thermodynamics')
         ThEq = MyModule.ThEq
         # Check variables
-        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:

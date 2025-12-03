@@ -122,7 +122,7 @@ class ThP:
     
     """
     # Directory of databases
-    path = 'db\\'
+    path = 'db/'
     
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
@@ -1052,7 +1052,7 @@ class ThSA:
             else:
                 rDGr = deltaGTr
             DGr[..., idRxn] = rDGr
-        return DGr, infoRxn # np.squeeze(DGr), infoRxn
+        return DGr, infoRxn
     
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
@@ -1588,6 +1588,7 @@ class ThSA:
             print(f'    > {iC}. {rxn} done.')
         if showMessage:
             print('  > Done.')
+            
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
         Write calculated DeltaGr in Excel document.
