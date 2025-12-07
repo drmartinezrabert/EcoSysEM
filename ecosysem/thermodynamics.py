@@ -234,6 +234,26 @@ class ThP:
         deltaH0r = deltaH0f @ mRxn
         return deltaH0r
     
+    def getDeltaCp(Cpi, mRxn):
+        """
+        Function to get heat capacity of reaction from Cpi.
+
+        Parameters
+        ----------
+        Cpi : LIST or np.array
+            Specific heat capacity.
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+
+        Returns
+        -------
+        deltaCpi : np.array
+            Heat capacity of reaction.
+    
+        """
+        deltaCpi = Cpi @ mRxn
+        return deltaCpi
+    
     def getKeq(compounds, mRxn, t, phase):
         """
         Function to get equilibrium constants from DeltaG0f.
@@ -998,7 +1018,15 @@ class ThSA:
                 print(f'· DH0r of {iRxn}: {deltaH0r}.')
             if printDG0r or printDH0r:
                 print('')
-            deltaGTr = deltaG0r * (T / Ts) + deltaH0r * ((Ts - T) / Ts)
+            # Calculate DeltaHr (if necessary)
+            Cpi, notNan_Cpi = ThP.getThP('Cpi', i_rComp, phase)                 # J/mol-i/K
+            check_Cpi = notNan_Cpi.all()
+            if check_Cpi:
+               deltaCp = ThP.getDeltaCp(Cpi, i_mRxn) / 1000                     # kJ/mol-i/K
+               deltaHr = deltaH0r + deltaCp * (T - Ts)                          # kJ/mol-i (if specDGr)
+            else:
+               deltaHr = deltaH0r
+            deltaGTr = deltaG0r * (T / Ts) + deltaHr * ((Ts - T) / Ts)
             if isinstance(Ct, dict):
                 # Calculate reaction quotient (Qr)
                 Qr = 0
