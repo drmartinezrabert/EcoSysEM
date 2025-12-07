@@ -9,6 +9,5 @@ ecosysem/data/*.xlsx
 *.png
 *.tiff
 ecosysem/data/*.txt
-*.csv
 ecosysem/plots
 ThSA calculations.py
