@@ -24,6 +24,9 @@ All notable changes to this project will be documented in this file.
 - New arguments in plotting functions: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
   - Font family: `fontFamily='Arial'`.
   - Font weight of title: `fwtl='normal'`
+- Create new databases:
+  - Specific heat capacities of compounds: `data/Cpi.csv`.
+  - Equilibrium equation of electrolites: `reactions/electrolytes.csv`.
 <!--
 - Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
   - Sobol' indices.
@@ -37,6 +40,8 @@ All notable changes to this project will be documented in this file.
 - `Environment.getDGr()`. 'Hydrosphere.WaterColumn()' environment has been incorporated.
 - Improvement of plotting - tick labels: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
 - Design improvment on `plotCrossSections()`.
+- Improvement of Gibbs free energy calculation: `ThSA.getDeltaGr()`.
+  - Non-standard enthalpy of reaction in function of temperature and heat capacity of reactions is included. 
 
 ## [0.3] - 2025/11/07
 ### Added
