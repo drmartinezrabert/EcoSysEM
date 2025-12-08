@@ -435,6 +435,7 @@ ecosysem
   │      │    ├── getThP
   │      │    ├── getDeltaG0r
   │      │    ├── getDeltaH0r
+  │      │    ├── getDeltaCp
   │      │    ├── ionicStrength
   │      │    ├── activity
   │      │    └── getKeq
@@ -2227,7 +2228,7 @@ Return a n-dimension array with thermodynamic parameters and an array with the `
 ```python
 ThP.getDeltaG0r(deltaG0f, mRxn)
 ```
-Compute standard Gibbs free energy of reaction from the standard Gibbs free energy of formation of substrate and products.<br>
+Compute standard Gibbs free energy of reaction from the standard Gibbs free energy of formation of substrates and products.<br>
 Return a n-dimension array with the values of standard Gibbs free energy of reactions.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaG0f : _ndarray_** <br>
@@ -2242,7 +2243,7 @@ Return a n-dimension array with the values of standard Gibbs free energy of reac
 ```python
 ThP.getDeltaH0r(deltaH0f, mRxn)
 ```
-Compute standard enthalpy of reaction from the standard enhalpy of formation of substrate and products.<br>
+Compute standard enthalpy of reaction from the standard enhalpy of formation of substrates and products.<br>
 Return a n-dimension array with the values of standard enthalpy of reactions.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaH0f : _ndarray_** <br>
@@ -2252,6 +2253,21 @@ Return a n-dimension array with the values of standard enthalpy of reactions.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaH0r : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard enthalpy of reactions.<br>
+
+### ThP.getDeltaCp &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThP.getDeltaCp(Cpi, mRxn)
+```
+Compute heat capacity of reaction from the standard heat capacity of substrates and products.<br>
+Return a n-dimension array with the values of heat capacity of reactions.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Cpi : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard heat capacity of compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaCpi : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the heat capacity of reactions.<br>
 
 ### ThP.getKeq &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -2839,6 +2855,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getThP](#thpgetthp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaG0r](#thpgetdeltag0r---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaH0r](#thpgetdeltah0r---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaCp](#thpgetdeltacp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getKeq](#thpgetkeq---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.ionicStrength](#thpionicstrength---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.activity](#thpactivity---back-to-function-navigation)<br>
