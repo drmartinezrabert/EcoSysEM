@@ -26,7 +26,8 @@ All notable changes to this project will be documented in this file.
   - Font weight of title: `fwtl='normal'`
 - Create new databases:
   - Specific heat capacities of compounds: `data/Cpi.csv`.
-  - Equilibrium equation of electrolites: `reactions/electrolytes.csv`.
+  - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
+- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`
 <!--
 - Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
   - Sobol' indices.
