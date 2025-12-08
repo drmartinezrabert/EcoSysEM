@@ -16,6 +16,8 @@ import matplotlib.ticker as tkr
 import os.path
 from itertools import combinations
 from scipy import stats
+from scipy.stats import qmc
+import warnings
 
 class MinorSymLogLocator(Locator):
     """
@@ -882,7 +884,13 @@ class ThSA:
     Class for thermodynamic state analysis of environment.
     
     """
-
+    def _check_arguments(varNames, varValues, varTypes):
+        for idVar, varName in enumerate(varNames):
+            varValue = varValues[idVar]
+            varType = varTypes[idVar]
+            varType_str = str(varType).replace('<class \'','').replace('\'>', '').replace(',', ' or').replace('(', '').replace(')','')
+            if not isinstance(varValue, varType): raise TypeError(f'Argument `{varName}` must be {varType_str}.')
+    
     def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
                    fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    warnings = False, printDG0r = False, printDH0r = False):
@@ -1723,12 +1731,12 @@ class ThSA:
         plt.rc('font', **font)
         sensitivity_methods = ('local', 'sigma-norm', 'ref-norm', 'var-based', 'pearson')
         if showMessage:
-            print('  > Running complete sensitivity analysis of Gibbs free energy...')
-        if not isinstance(T_sv, (int,float)) and (isinstance(T_sv, (list, np.ndarray)) and len(T_sv) > 1):
+            print('  > Running local sensitivity analysis of Gibbs free energy...')
+        if not isinstance(T_sv, (int,float)) or (isinstance(T_sv, (list, np.ndarray)) and len(T_sv) > 1):
             raise ValueError('Temperature (argument \'T_sv\') must be an integer or float.')
-        if not isinstance(pH_sv, (int,float)) and (isinstance(pH_sv, (list, np.ndarray)) and len(pH_sv) > 1):
+        if not isinstance(pH_sv, (int,float)) or (isinstance(pH_sv, (list, np.ndarray)) and len(pH_sv) > 1):
             raise ValueError('pH (argument \'pH_sv\') must be an integer or float.')
-        if not isinstance(S_sv, (int,float)) and (isinstance(S_sv, (list, np.ndarray)) and len(S_sv) > 1):
+        if not isinstance(S_sv, (int,float)) or (isinstance(S_sv, (list, np.ndarray)) and len(S_sv) > 1):
             raise ValueError('Salinity (argument \'S_sv\') must be an integer or float.')
         if vmin and vmax and cb_limit == False:
             cb_limit = True
@@ -1948,6 +1956,126 @@ class ThSA:
         plt.show()
         if showMessage:
             print('  > Done.')
+    
+    def sobol_indices_DeltaGr(list_var, Ct = 1.0, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0, 
+                              rangeType = None, range_ = None, num = 50, rng = None, showMessage = True):
+        # rng -> 'rng seed'
+        # (typeRxn, input_, specComp, [...]): # !!!
+        #-Private function
+        def _N_power_of_two(num, maxN = 15):
+            power_of_two = np.array([int(2**n) for n in list(np.linspace(0, maxN, maxN+1))])
+            indx = np.argmin(abs(power_of_two - num))
+            return power_of_two[indx]
+            
+        def _u_l_bounds(list_var, rangeType, range_, Ct, T_sv, pH_sv, S_sv):
+            if rangeType:
+                l_bounds = np.nan * np.ones(len(list_var))
+                u_bounds = np.nan * np.ones(len(list_var))
+                if rangeType == 'VR':
+                    if not range_:
+                        for idVar, var in enumerate(list_var):
+                            if var == 'T':
+                                l_bounds[idVar] = float(T_sv) - 10
+                                u_bounds[idVar] = float(T_sv) + 10
+                            elif var == 'pH':
+                                l_bounds[idVar] = max(float(pH_sv)-5, 0.0)
+                                u_bounds[idVar] = min(float(pH_sv)+5, 14.0)
+                            elif 'conc_' in var:
+                                indx = var.find('_') + 1
+                                comp = var[indx:]
+                                try:
+                                    l_bounds[idVar] = float(Ct[comp]) / 100
+                                    u_bounds[idVar] = float(Ct[comp]) * 100
+                                except:
+                                    raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                    else:
+                        for idVar, var in enumerate(list_var):
+                            lower_oom = range_[var][0]
+                            upper_oom = range_[var][1]
+                            if var == 'T':
+                                l_bounds[idVar] = float(T_sv) - lower_oom
+                                u_bounds[idVar] = float(T_sv) + upper_oom
+                            elif var == 'pH':
+                                l_bounds[idVar] = max(float(pH_sv)-lower_oom, 0.0)
+                                u_bounds[idVar] = min(float(pH_sv)+upper_oom, 14.0)
+                            elif 'conc_' in var:
+                                indx = var.find('_') + 1
+                                comp = var[indx:]
+                                try:
+                                    l_bounds[idVar] = float(Ct[comp]) / lower_oom
+                                    u_bounds[idVar] = float(Ct[comp]) * upper_oom
+                                except:
+                                    raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                elif rangeType == 'DR':
+                    if not range_:
+                        raise ValueError('Range values must be defined with \'range_\' argument. {\'variable\': [lower_value, upper_value]}.')
+                    else:
+                        for idVar, var in enumerate(list_var):
+                            l_bounds[idVar] = range_[var][0]
+                            u_bounds[idVar] = range_[var][1]
+                else: raise ValueError(f'Unknown rangeType ({rangeType}). Existing rangeType: \'VR\' (Value Range) and \'DR\' (Defined Range).')
+            else:
+                l_bounds = None
+                u_bounds = None
+            return l_bounds, u_bounds
+        
+        def _sample_A_B_AB(N, k, l_bounds = None, u_bounds = None, rng = None):
+            A_B = qmc.Sobol(d = 2*k, seed = rng, bits = 64).random(N)
+            if (l_bounds is not None) and (u_bounds is not None):
+                if ~np.isnan(l_bounds).any() and ~np.isnan(u_bounds).any():
+                    l_bounds = np.tile(l_bounds, 2)
+                    u_bounds = np.tile(u_bounds, 2)
+                    A_B = qmc.scale(A_B, l_bounds, u_bounds)
+                else:
+                    warnings.warn(f'NaN value(s) present in \'l_bounds\' ({l_bounds}) and/or \'u_bounds\' ({u_bounds}).')
+            A = A_B[:, 0:k]
+            B = A_B[:, k:]
+            AB = np.tile(A, (k, 1, 1))
+            for i in np.arange(k):
+                AB[i, :, i] = B[:, i]
+            return A, B, AB
+        
+        # def _sobol_DGr(typeRxn, input_, specComp, [...], sample, AB = False):
+        #     # [...] rest of arguments for DGr calculation e.g. 'methods', 'fluidType'...
+        #     #-DEBUGGING-#
+        #     f = 0
+        #     #-----------#
+        #     return f
+        
+        if showMessage:
+            print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
+        #-Checking arguments
+        ThSA._check_arguments(('list_var', 'T_sv', 'pH_sv', 'S_sv'), 
+                              (list_var, T_sv, pH_sv, S_sv),
+                              (list, (int, float), (int, float), (int, float)))
+        #-Definiion of `l_bounds` and `u_bounds` based on rangeType ('VR' or 'DR') and range_. Shape: (k,)
+        k = len(list_var)
+        l_bounds, u_bounds = _u_l_bounds(list_var, rangeType, range_, Ct, T_sv, pH_sv, S_sv)
+        #-The balance properties of Sobol' points require N to be a power of 2.
+        N = _N_power_of_two(num, maxN = 15)
+        # Creation of sampling matrices (N, k)
+        A, B, AB = _sample_A_B_AB(N, k, l_bounds, u_bounds, rng)
+        #-Calculation of DGr with samples A, B and ABs
+        f_A = A.copy() # _sobol_DGr(typeRxn, input_, specComp, A, AB = False)
+        f_B = B.copy() # _sobol_DGr(typeRxn, input_, specComp, B, AB = False)
+        f_AB = AB.copy() # _sobol_DGr(typeRxn, input_, specComp, AB, AB = True)
+        #-Normalization by mean - empirically centered function.
+        mean = np.nanmean([f_A, f_B], axis = (0, -1)).reshape(-1, 1)
+        f_A -= mean
+        f_B -= mean
+        f_AB -= mean
+        #-Compute indices
+        
+        #-DEBUGGING-#
+        print('Sample A')
+        print(A)
+        print('Sample B')
+        print(B)
+        print('Sample AB')
+        print(AB)
+        print('Mean of samples A and B')
+        print(mean)
+        #-----------#
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
