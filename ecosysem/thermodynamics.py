@@ -1653,7 +1653,7 @@ class ThSA:
         pH_sv : FLOAT, optional
             Set of pH. The default is 7.0 (neutral pH).
         S_sv : FLOAT
-            Salinity [ppt]. The default is None.
+            Salinity [ppt]. The default is 0.0.
         fontsize : FLOAT, optional
             Set font size. The default is 11.
         rangeType : STR ('DR' or 'VR'), optional
@@ -1903,7 +1903,7 @@ class ThSA:
                     print(f'    ·[{comp}] done.')
                 else:
                     print(f'    ·{var} done.')
-        #-Plotting smmry_sa_DGr
+        #-Plotting local_sa_DGr
         fig, ax = plt.subplots(figsize = figsize)
         yLabels = input_.copy()
         if renameRxn:
