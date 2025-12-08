@@ -967,7 +967,7 @@ class ISA(Atmosphere):
         # Layers of the Earth's atmosphere (ISA)
         _ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
-                        'Layer name': ['Troposphere', 'Tropopuse', 'Stratosphere', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesosphere', 'Mesopause'],
+                        'Layer name': ['Troposphere', 'Tropopause', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesopause', 'Thermosphere', 'Thermopause'],
                         'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
                         'End altitude': [11000, 20000, 32000, 47000, 51000, 71000, 84852, 85852],       # [m (above MSL)]
                         'Lapse rate': [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0, 0.0],                      # [C/km)]
