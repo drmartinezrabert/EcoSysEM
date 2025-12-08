@@ -446,7 +446,7 @@ class Environment:
         Results are saved as an attribute of model instances (modelName.DGr) as a dictionary.
 
         """
-        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
@@ -454,7 +454,7 @@ class Environment:
         pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         S = self.salinity
-        if self.model == 'GWB':
+        if self.model in {'GWB', 'WaterColumn'}:
             Ct = self.Ci_L.copy()
         elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
             if phase == 'G':
@@ -470,11 +470,23 @@ class Environment:
         fluidType = self.fluidType
         methods = self.methods
         DGr_dict = {}
-        for pH_ in pH:
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
-                                           fluidType = fluidType, methods = methods)
-            for idRxn, rxn in enumerate(infoRxn):
-                DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
+            for pH_ in pH:
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        elif self.model in {'WaterColumn'}:
+            for idDepth, iDepth in enumerate(self.depth):
+                C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
+                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    try:
+                        DGr_dict[f'{rxn}'] = np.append(DGr_dict[f'{rxn}'], DGr[..., idRxn])
+                    except:
+                        DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
     def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
@@ -740,13 +752,12 @@ class Environment:
                           printDH0r = printDH0r,
                           showMessage = showMessage)
 
-    def conc_sa_DGr(self, typeRxn, input_, specComp, range_val, num = 50, molality = True, marker = 'o', 
-                    mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12, 
-                    savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
+    def conc_var_DGr(self, typeRxn, input_, specComp, range_val, num = 50, molality = True, marker = 'o', 
+                     mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12, 
+                     savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
         """
-        Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
-        range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
-        `results/` folder in `/#. rxnName` folder.
+        Show the variation of Gibbs free energy for a set of reactions at a specific range of substrate
+        and product concentrations. If `savePlot=True`, the plots are saved in `results/#. rxnName` folder.
 
         Parameters
         ----------
@@ -802,30 +813,152 @@ class Environment:
             Ct = self.Ci_L.copy()
         fluidType = self.fluidType
         methods = self.methods
-        ThSA.conc_sa_DeltaGr(typeRxn = typeRxn, 
-                             input_ = input_, 
-                             specComp = specComp, 
-                             Ct = Ct, 
-                             range_val = range_val, 
-                             T = T, 
-                             pH = pH, 
-                             S = S,
-                             phase = phase,
-                             num = num, 
-                             fluidType = fluidType, 
-                             molality = molality, 
-                             methods = methods, 
-                             marker = marker, 
-                             mec = mec, mew = mew,
-                             mfc = mfc, ms = ms, 
-                             figsize = figsize, 
-                             fontsize_label = fontsize_label, 
-                             savePlot = savePlot,
-                             printDG0r = printDG0r, 
-                             printDH0r = printDH0r, 
-                             showMessage = showMessage)
+        ThSA.conc_var_DeltaGr(typeRxn = typeRxn, 
+                              input_ = input_, 
+                              specComp = specComp, 
+                              Ct = Ct, 
+                              range_val = range_val, 
+                              T = T, 
+                              pH = pH, 
+                              S = S,
+                              phase = phase,
+                              num = num, 
+                              fluidType = fluidType, 
+                              molality = molality, 
+                              methods = methods, 
+                              marker = marker, 
+                              mec = mec, mew = mew,
+                              mfc = mfc, ms = ms, 
+                              figsize = figsize, 
+                              fontsize_label = fontsize_label, 
+                              savePlot = savePlot,
+                              printDG0r = printDG0r, 
+                              printDH0r = printDH0r, 
+                              showMessage = showMessage)
         
+    def local_sa_DGr(self, typeRxn, input_, specComp, list_var, rangeType = 'VR', range_ = None, 
+                     num = 50, num_pH = 10, sensitivity_method = 'sigma-norm', concLog10 = False, 
+                     molality = True, renameRxn = None, figsize = (12.0, 8.0), cb_limit = False, 
+                     vmin = None, vmax = None, cb_fontsize = 12, cb_orientation = 'horizontal', 
+                     marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, printDG0r = False, 
+                     printDH0r = False, showMessage = True, fontsize = 11):
+        """
+        Perform the local sensitivity analysis of Gibbs free energy for a set of reactions at a specific
+        range of temperature, pH and concentrations of substrates and products.
 
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 50.
+        num_pH : INT, optional
+            Number of pH values to generate between min_value and max_value. The default is 10.
+        sensitivity_method : STR ('local', 'sigma-norm'), optional
+            Set sensitivity method. The default is 'sigma-norm'.
+        concLog10 : BOOL, optional
+            Establish whether concentration is analysed using log10(Ci). The default is True.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        cb_vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+        fontsize : FLOAT, optional
+            Set font size. The default is 11.
+
+        Returns
+        -------
+        Plot in Spyder.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T_sv = self.temperature
+        pH_sv = self.pH
+        S_sv = self.salinity
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        ThSA.local_sa_DeltaGr(typeRxn = typeRxn, 
+                              input_ = input_, 
+                              specComp = specComp,
+                              list_var = list_var,
+                              Ct = Ct, 
+                              T_sv = T_sv, 
+                              pH_sv = pH_sv, 
+                              S_sv = S_sv,
+                              fontsize = fontsize,
+                              rangeType = rangeType, 
+                              range_ = range_, 
+                              num = num,
+                              num_pH = num_pH,
+                              sensitivity_method = sensitivity_method,
+                              concLog10 = concLog10, 
+                              phase = phase, 
+                              fluidType = fluidType, 
+                              molality = molality, 
+                              methods = methods, 
+                              renameRxn = renameRxn, 
+                              figsize = figsize, 
+                              cb_limit = cb_limit, 
+                              vmin = vmin, 
+                              vmax = vmax, 
+                              cb_fontsize = cb_fontsize,
+                              cb_orientation = cb_orientation, 
+                              marker = marker, 
+                              mec = mec, mew = mew, 
+                              mfc = mfc, ms = ms, 
+                              printDG0r = printDG0r, 
+                              printDH0r = printDH0r, 
+                              showMessage = showMessage)
+            
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _HfromP(self, P):
@@ -2812,7 +2945,8 @@ class CAMSMERRA2(Atmosphere):
                             new_data[k, i, j] = val
         return new_data
     
-    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), altArray = None, loc = None, num = 50):
+    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), 
+                           altArray = None, loc = None, num = 50):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
@@ -2957,7 +3091,8 @@ class GWB(Hydrosphere):
     pool, pond, or stream.
     
     """
-    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', methods = None, showMessage = True):
+    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', 
+                 methods = None, showMessage = True):
         if showMessage:
             print('  > Creating GWB instance...')
         self.environment = 'Hydrosphere'
@@ -3011,6 +3146,119 @@ class GWB(Hydrosphere):
         if showMessage:
             print('  > Done.')
 
+class WaterColumn(Hydrosphere):
+    """
+    Definition of physical (temperature, salinity, ligth penetration) and chemical (pH, DO, concentration of nutrients)
+    characteristics of seawater or freshwater at different depths for a defined geographical point (latitude, longitude).
+    
+    """
+    def __init__(self, readMode = False, fileName = None, depth = None, Ct = None, T = None, pH = None,
+                 salinity = None, coor = None, extraParam = None, fluidType = 'ideal', methods = None,
+                 date = None, cleanData = False, sd = None, showMessage = True, _model = None):
+        if readMode == False and not depth:
+            raise ValueError('WaterColumn instance cannot be created because not enough information has been given. Activate read mode and give a file name or specify depth, water composition (Ct), temperature (T), pH and salinity.')
+        if showMessage:
+            print('  > Creating WaterColumn instance...')
+        self.environment = 'Hydrosphere'
+        self.model = 'WaterColumn'
+        self.phase = 'L'
+        self._readMode = readMode
+        self._cleanData = cleanData
+        if coor:
+            if not isinstance(coor, tuple): raise TypeError('Argument \'coor\' must be a tuple: (latitude, longitude).')
+            self.lon = coor[1]
+            self.lat = coor[0]
+        if date: self.date = date
+        if readMode: # Read file 'fileName.csv' from `/data` folder.
+            if fileName:
+                self._readCSV(fileName, cleanData)
+            else: raise ValueError('A `fileName` must be given with WaterColumn() in read mode.')
+        if _model:
+            raise ValueError('The creation of a WaterColumn instance using a specific model has not yet been implemented.')
+        if not readMode and not _model: # readMode = False
+            if not isinstance(depth, (list, np.ndarray)): raise TypeError('Argument \'depth\' must be a list.')
+            if not isinstance(T, (list, np.ndarray)): raise TypeError('Argument \'T\' (temperature) must be a list.')
+            if not isinstance(pH, (list, np.ndarray)): raise TypeError('Argument \'pH\' must be a list.')
+            if not isinstance(salinity, (list, np.ndarray)): raise TypeError('Argument \'salinity\' must be a list.')
+            lenDepth = len(depth)
+            lenT = len(T)
+            lenpH = len(pH)
+            lenS = len(salinity)
+            if lenT != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`T`: {lenT}) lenghts do not match.')
+            if lenpH != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and pH (`pH`: {lenpH}) lenghts do not match.')
+            if lenS != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and salinity (`salinity`: {lenT}) lenghts do not match.')
+            self.depth = depth
+            self.temperature = T
+            self.pH = pH
+            self.salinity = salinity
+            if not isinstance(Ct, dict): raise TypeError('Argument \'Ct\' (water composition) must be a dictionary: {\'compound\': [concentration]}.')
+            Ct = {f'{comp}': np.array(Ct[comp]) for comp in Ct}
+            lenC = [len(Ct[comp]) for comp in Ct]
+            setC = set(lenC)
+            if len(setC) == 1:
+                lenC = lenC[0]
+                if lenC != lenDepth: 
+                    raise ValueError(f' Depth (`depth`: {lenDepth}) and water composition (`Ct`: {lenC}) lenghts do not match.')
+                else:
+                    self.Ci_L = Ct
+            if sd:
+                if not isinstance(sd, dict): 
+                    raise TypeError('Argument \'sd\' (standard deviations) must be a dictionary: {\'parameter\': [st. dev.]}.')
+                else:
+                    self.sd = sd
+            if extraParam:
+                if isinstance(extraParam, dict):
+                    for var in extraParam:
+                        value = extraParam[var]
+                        if not isinstance(value, (list, np.ndarray)): raise TypeError('Parameter \'{var}\' must be a list.')
+                        lenParam = len(value)
+                        if lenParam != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`{var}`: {lenParam}) lenghts do not match.')
+                        setattr(self, var, value)
+                else: raise TypeError('Argument \'extraParam\' must be a dictionary.')
+        if fluidType != 'ideal' and fluidType != 'non-ideal':
+            raise ValueError(f'Unknown fluid type ({fluidType}). Existing types: \'ideal\' and \'non-ideal\'')
+        self.fluidType = fluidType
+        if fluidType == 'non-ideal':
+            if not methods:
+                methods = {}
+                for compound in self.Ci_L:
+                    methods[compound] = 'DH-ext'
+            self.methods = methods
+        else:
+            self.methods = None
+        if showMessage:
+            print('  > Done.')
+        
+    def _readCSV(self, fileName, cleanData):
+        path = 'data/'
+        df = pd.read_csv(f'{path}{fileName}.csv')
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        if cleanData:
+            df = df.dropna()
+        mainAttributes = {'Depth', 'depth', 'Temperature', 'temperature', 'pH', 'ph', 'Salinity', 'salinity'}
+        Ct = {}
+        sd = {}
+        for var in df:
+            if var in mainAttributes:
+                if var == 'ph':
+                    varAttr = 'pH'
+                else:
+                    varAttr = var[0].lower() + var[1:]
+                setattr(self, varAttr, df[var].values)
+            elif 'conc_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                Ct[compound] = df[var].values
+            elif 'sd_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                sd[compound] = df[var].values
+            else:
+                setattr(self, var, df[var].values)
+        if bool(Ct):
+            self.Ci_L = Ct
+        if bool(sd):
+            self.sd = sd
 class Ocean(Hydrosphere):
     pass
 
