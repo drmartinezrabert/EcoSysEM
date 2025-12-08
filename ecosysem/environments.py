@@ -627,8 +627,8 @@ class Environment:
         CSPargs['phase'] = 'L'
         CSPargs['sample'] = 'All'
         CSPargs['fluidType'] = 'ideal'
-        CSPargs['molality'] = 'True'
-        CSPargs['methods'] = 'None'
+        CSPargs['molality'] = True
+        CSPargs['methods'] = None
         CSPargs['solvent'] = 'H2O'
         CSPargs['asm'] = 'stoich'
         CSPargs['DGsynth'] = DGsynth
