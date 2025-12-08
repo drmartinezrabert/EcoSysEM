@@ -56,7 +56,7 @@ class KinP:
             Requested reaction.
         sample : STR or LIST, optional
             Requested samples (rows of `typeParam.csv`). The default is 'All'.
-        comp : STR or LIST, optional
+        compounds : STR or LIST, optional
             Compounds of parameters associated to compounds (e.g., Km). The default is None.
 
         Returns
@@ -67,6 +67,7 @@ class KinP:
             Names of samples (rows of `typeParam.csv`.
         """
         if not isinstance(params, list): params = [params]
+        if not isinstance(compounds, list): compounds = [compounds]
         dParam = pd.read_csv(KinP.path + paramDB + '.csv', encoding_errors='ignore')
         KinP.checkKinP(paramDB, dParam, params)
         dParam = dParam.loc[dParam['Reaction'] == reaction]
@@ -105,20 +106,20 @@ class KinRates:
 
         Parameters
         ----------
-        paramDB : STR
+        typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
-                MM-Arrhenihus - 'Michaelis-Menten-Arrhenius equation'
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR
             Name of parameter database, matching with csv name.
-        reactions : STR
-            Requested reaction.
+        reactions : STR or LIST
+            Requested reaction(s).
         Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : FLOAT, optional
-            pH values. The default is None.
+            pH value. The default is None.
         T : FLOAT, LIST or np.ndarray, optional
             Temperatures. The default is None.
         
@@ -136,7 +137,7 @@ class KinRates:
         MyModule = importlib.import_module('thermodynamics')
         ThEq = MyModule.ThEq
         # Check variables
-        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:
@@ -158,6 +159,11 @@ class KinRates:
                 Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
         if typeKin == 'MM':
             params = ['qmax', 'Km']
+            """ # !!!
+            if len(paramDB) != 1:
+                print('!EcoSysEM.Error: only 1 database must be given: paramDB = "Michaelis-Menten DB"')
+                sys.exit()
+            """
             # Initialize results
             Rs = {}
             combNames = {}
@@ -253,7 +259,7 @@ class KinRates:
             k = Km[f'Km_{limComp}']
             if not isinstance(k, (list, np.ndarray)): k = np.array(k)
             if isinstance(k, np.ndarray):
-                if k.ndim != 1:
+                if k.ndim == 0:
                     k = np.array([k])
             K = k * np.ones(c.shape)
             M *= (c) / (K + c + 1e-25)
@@ -501,9 +507,9 @@ class Reactions:
             What reaction(s) type are requested, matching with csv name. E.g.:
                 - 'pHSpeciation': pH equilibrium
                 - 'metabolisms': metabolic activities
-        compounds : STR or LIST
-            Name(s) of requested compound(s).
-            STR - one compound; LIST - multiple compounds.
+        nameRxn : STR or LIST
+            Name(s) of requested reaction(s).
+            STR - one reaction; LIST - multiple reactions.
         warnings : BOOL, optional
             Display function warnings. The default is False.
         
