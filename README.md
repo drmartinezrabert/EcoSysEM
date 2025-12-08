@@ -2608,7 +2608,6 @@ Return a dictionary with activities of compound(s) in solution and their chemica
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selComp : _str_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To obtain the activity of a specific compound (must be in `methods` and `composition`).<p>
-
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **activity : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Activity values (`{'compounds': [activity]}`)<br>
@@ -2713,10 +2712,10 @@ Function to compute the catabolic cell-specific power [fW/cell], i.e. the energy
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rs : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DGr : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, DGr must have the same shape as Rs.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, DGr must have the same shape as Rs.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pcat : _np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Catabolic cell-specific power [fW/cell]. <br>
@@ -2776,10 +2775,10 @@ Function to compute the anabolic cell-specific power [fW/cell], i.e. the energy 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy necessary to synthesize a cell in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rs : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DGr : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, DGr must have the same shape as Rs.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, DGr must have the same shape as Rs.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Pana : _np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Anabolic cell-specific power [fW/cell]. <br>
@@ -2882,10 +2881,10 @@ Function to compute all the cell specific powers [fW/cell] (including Pcell) and
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy necessary to synthesize a cell in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rs : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cell-specific uptake rate(s) in [moleD/cell.h]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, Rs must have the same shape as DGr.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DGr : _np.ndarray or list of floats or ints_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard Gibbs free energy in [kJ/moleD]. It can be either given or kept to default to be computed inside of the function. <br>
-NB : Input units must be respected. If given, DGr must have the same shape as Rs.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB : Input units must be respected. If given, DGr must have the same shape as Rs.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **exportCSP : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Command to export CSP values as Excel document if set to True.<p>
 **Returns:**<br>
