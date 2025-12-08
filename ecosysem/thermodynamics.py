@@ -123,7 +123,7 @@ class ThP:
     
     """
     # Directory of databases
-    path = 'db\\'
+    path = 'db/'
     
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
@@ -957,10 +957,10 @@ class ThSA:
         # Get reactions
         rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
         nRxn = infoRxn.size
-        # Initialise variables
+        # Initialize variables
         Ts = 298.15                                                             # Standard temperature [K]
         R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
-        # Initializate DGr matrix
+        # Initialize DGr matrix
         DGr = np.empty(T.shape)
         DGr = DGr[..., np.newaxis]
         DGr = np.repeat(DGr, len(input_), axis = -1)
@@ -1087,7 +1087,7 @@ class ThSA:
             else:
                 rDGr = deltaGTr
             DGr[..., idRxn] = rDGr
-        return DGr, infoRxn # np.squeeze(DGr), infoRxn
+        return DGr, infoRxn
     
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
