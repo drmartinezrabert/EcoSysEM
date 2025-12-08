@@ -3071,7 +3071,8 @@ _Consumption and production_ refer to the uptake of available energy source and 
 
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype = 'L-FW', pH = 7.0, dataType = 'cyly', dataRange = [2020, 2024], DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate', salinity = None, fluidType = 'ideal', actMethods = None)
+instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype='L-FW', pH=7.0, dataType='cyly', dataRange=[2020, 2024],
+					 DeltaGsynth=9.54E-11, steepness=0.2, degradPace='moderate', salinity=None, fluidType='ideal', actMethods=None)
 ```
 Create an instance of `MSMM` object :<p>
 **Parameters:**<br>
