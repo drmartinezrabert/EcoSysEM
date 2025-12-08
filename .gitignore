@@ -2,12 +2,12 @@
 ~*
 test*
 ecosysem/results/*.xlsx
+ecosysem/data/*.xlsx
 *.nc
 *.avi
 *.npz
 *.png
 *.tiff
 ecosysem/data/*.txt
-*.csv
 ecosysem/plots
 ThSA calculations.py

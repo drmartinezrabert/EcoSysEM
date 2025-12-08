@@ -12,13 +12,12 @@ import pandas as pd
 import os.path
 
 class CSP:
-    
-    Rj = 8.314      #universal gas constant [J/mol.K]
+    Rj = 8.314      #universal gas constant [J/mol/K]
     T0 = 298.15     #standard temperature [K]
     
     def getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                 T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
-                fluidType = 'ideal', molality = 'True', methods = 'None',
+                fluidType = 'ideal', molality = True, methods = None,
                 solvent = 'H2O', asm = 'stoich', Rs = None, DGr = None):
         """   
         Function to compute the catabolic cell-specific power.
@@ -140,7 +139,7 @@ class CSP:
 
     def getPana(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                 T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
-                fluidType = 'ideal', molality = 'True', methods = 'None',
+                fluidType = 'ideal', molality = True, methods = None,
                 solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11, Rs = None, DGr = None):
         """
         Function to compute the anabolic cell-specific power.
@@ -332,7 +331,7 @@ class CSP:
         
     def getAllCSP(paramDB, typeKin, typeMetabo, reaction, specComp, Ct,
                   T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
-                  fluidType  = 'ideal', molality = 'True', methods = 'None',
+                  fluidType  = 'ideal', molality = True, methods = None,
                   solvent = 'H2O', asm = 'stoich', DGsynth = 9.54E-11,
                   Rs = None, DGr = None, exportCSP = False):
         """

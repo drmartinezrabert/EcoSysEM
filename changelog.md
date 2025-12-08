@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - yyyy/mm/dd
 ### Added
-- Bioenergetic calculations
+- Bioenergetic calculations.
   - Catabolic cell-specific power.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
@@ -12,12 +12,45 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - README file.
 
+## [0.4] - yyyy/mm/dd
+### Added
+- Local sensitivity analysis of Gibbs free energy: `ThSA.local_sa_DeltaGr()` and `Environment.local_sa_DGr()`.
+  - Local (Derivative).
+  - Sigma-normalized derivative.
+  - Reference-normalized derivative.
+  - Variance-normalized derivative.
+  - Pearson's correlation. 
+- New environment in `Hydrosphere`.
+  - Water column: `WaterColumn()`.
+- New arguments in plotting functions: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
+  - Font family: `fontFamily='Arial'`.
+  - Font weight of title: `fwtl='normal'`
+- Create new databases:
+  - Specific heat capacities of compounds: `data/Cpi.csv`.
+  - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
+- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`
+<!--
+- Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
+  - Sobol' indices.
+-->
+### Fixed
+- Bug in `ThEq.ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
+### Changed
+- README file.
+- Rename the '2D compound sensitivity analysis (contourf plot)'.
+  - `Environment.conc_var_DGr()` and `ThSA.conc_var_DeltaGr()` instead of `Environment.conc_sa_DGr()` and `ThSA.conc_sa_DeltaGr()`.
+- `Environment.getDGr()`. 'Hydrosphere.WaterColumn()' environment has been incorporated.
+- Improvement of plotting - tick labels: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
+- Design improvment on `plotCrossSections()`.
+- Improvement of Gibbs free energy calculation: `ThSA.getDeltaGr()`.
+  - Non-standard enthalpy of reaction in function of temperature and heat capacity of reactions is included. 
+
 ## [0.3] - 2025/11/07
 ### Added
 - New environment in `Hydrosphere`.
   - General (or non-specific) Water Body: `GWB()`.
 - Thermodynamic State Analysis (ThSA) is incorporated in `Environment class`.
-  - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `gWB()`.
+  - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `GWB()`.
 - Sensitivity analysis of non-standard Gibbs free energy.
   - 2D compound sensitivity analysis (contourf plot).
 - Creation of plotting script
