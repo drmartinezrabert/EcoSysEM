@@ -958,7 +958,15 @@ class Environment:
                               printDG0r = printDG0r, 
                               printDH0r = printDH0r, 
                               showMessage = showMessage)
-            
+    
+    def sobol_indices_DGr(self):
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        
+        ThSA.sobol_indices_DeltaGr(
+                                    )
+    
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _HfromP(self, P):
