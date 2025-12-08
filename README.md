@@ -2620,7 +2620,7 @@ With the <ins>Bioenergetics</ins> module, the user can evaluate the dynamic ener
 > [!NOTE]
 > CSP can only be calculated for one metabolism (and specific compound) at a time.
 > When required, non-standard Gibbs free energy and uptake rates can either be given as float (or list of floats) or set to None.
-> In the second case, ThSA.getDGr() and KinRates.getRs() will be called upon through given parameters (temperature, pH, etc.).
+> In the second case, `ThSA.getDeltaGr()` and `KinRates.getRs()` will be called upon through given parameters (temperature, pH, etc.).
 > Resulting CSPs can be exported into an Excel document.
 
 Here is an example:
