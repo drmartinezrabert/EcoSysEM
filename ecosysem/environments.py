@@ -584,7 +584,13 @@ class Environment:
             Requested samples (rows of `paramDB.csv`).
         DGsynth : FLOAT, optional (default = 9.54E-11)
             Energy necessary to synthesize a cell [J/cell].
-
+        molality : BOOL, optional (default = True)
+            Select if activity units are in molality (True) or molarity (False).
+        solvent : STR, optional (default = 'H2O')
+            Solvent name.
+        asm : STR, optional (default = 'stoich')
+            Assumption when products are not present in the environment.
+                - 'stoich' : stoichiometric concentrations
         Returns
         -------
         CSP dict saved as attribute of the model instance (modelName.CSP).

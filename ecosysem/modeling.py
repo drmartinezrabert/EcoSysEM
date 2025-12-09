@@ -25,11 +25,10 @@ class MSMM:
                  Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
                  actMethods = None, molality = True, asm = 'stoich',
                  dataType = None, years = None, month = None, day = None,
-                 typeKin = 'MM-Arrhenius', kinDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
                  turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
-                 eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
-                 microCommunity = {'CH4': 'Methanotrophs','H2': 'Hydrogen-oxidizing bacteria','CO': 'CO-oxidizing bacteria'}):
-        
+                 kinDB = {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']},
+                 typeKin = 'MM-Arrhenius', eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
+                 microCommunity = {'Mth': 'Methanotrophs','HOB': 'Hydrogen-oxidizing bacteria','COOB': 'CO-oxidizing bacteria'}):
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         validMetabo = ['Mth', 'HOB', 'COOB']
         if not isinstance(envModel, str):
@@ -56,9 +55,13 @@ class MSMM:
             raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
         if not metabolism[0] in validMetabo:
             raise NameError(f'Invalid metabolism. Valid inputs: {validMetabo}')
-        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth'
-        self.eD = eD[metabolism[0]]    #(specComp) based on given metabolism
-        self.communityName = microCommunity[self.eD]
+        self.metabolism = metabolism   #reaction (STR), e.g. 'Mth'
+        if eD.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the eD dictionary. Please modify the corresponding argument.')
+        self.eD = eD[self.metabolism[0]]    #(specComp) based on given metabolism
+        if microCommunity.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the microCommunity dictionary. Please modify the corresponding argument.')
+        self.communityName = microCommunity[self.metabolism[0]]
         if not isinstance(coord, (list, np.ndarray)): coord = [coord]
         self.coord = coord
         if envModel in atmModels:
@@ -111,18 +114,19 @@ class MSMM:
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
         if not isinstance(typeKin, str):
             raise TypeError(f'typeKin must be a str. Current type: {type(typeKin)}.')
+        if not isinstance(typeKin, str):
+            raise TypeError(f'Argument typeKin must be a str. Current input: {type(typeKin)}.')
         self.typeKin = typeKin
-        if not isinstance(kinDB, list): kinDB = [kinDB]
-        if not all(isinstance(kinDB[n], str) for n in range(len(kinDB))):
-            raise TypeError(f'Invalid kinDB, it must be a single str or a list thereof. Current kinDB: {kinDB}.')
-        self.kinDB = kinDB
+        if kinDB.get(self.typeKin, None) == None:
+            raise AttributeError(f'No {self.typeKin} key could be found in the kinDB dictionary. Please modify the corresponding argument.')
+        self.kinDB = kinDB[self.typeKin]
         if not isinstance(Wcontent, (float, int)):
             raise TypeError(f'Wcontent must be an int or a float. current type: {type(Wcontent)}.')
-        if not isinstance(actMethods, str):
-            if not actMethods == None:
-                raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
-        if not actMethods == 'DH-ext' and not actMethods == 'SS':
-            raise NameError(f'Str input for actMethod must be "DH-ext" or "SS". Current input: {actMethods}.')
+        if isinstance(actMethods, str):
+            if not actMethods == 'DH-ext' and not actMethods == 'SS':
+                raise NameError(f'Str input for actMethod must be "DH-ext" or "SS". Current input: {actMethods}.')
+        elif actMethods != None:
+            raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
         if not isinstance(molality, bool):
             raise TypeError(f'Argument molality must be a bool (True). Current type: {type(molality)}.')
         if not molality == True:
