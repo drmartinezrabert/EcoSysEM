@@ -121,8 +121,12 @@ class MSMM:
         if not isinstance(actMethods, str):
             if not actMethods == None:
                 raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
+        if not actMethods == 'DH-ext' and not actMethods == 'SS':
+            raise NameError(f'Str input for actMethod must be "DH-ext" or "SS". Current input: {actMethods}.')
         if not isinstance(molality, bool):
-            raise TypeError(f'Argument molality must be a bool. Current type: {type(molality)}.')    
+            raise TypeError(f'Argument molality must be a bool (True). Current type: {type(molality)}.')
+        if not molality == True:
+            raise AttributeError(f'Currently only admitted input for molality is True. invalid input: {molality}')
         if not asm == 'stoich':
             raise AttributeError(f'Currently only accepted input for asm is "stoich". Invalid input was given: {asm}.')
         self._callEnvP(salinity, pH, Wcontent, actMethods, molality, asm)
