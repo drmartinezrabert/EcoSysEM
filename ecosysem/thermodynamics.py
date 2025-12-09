@@ -18,6 +18,9 @@ from itertools import combinations
 from scipy import stats
 from scipy.stats import qmc
 import warnings
+#-DEBUGGING-#
+import time
+#-----------#
 
 class MinorSymLogLocator(Locator):
     """
@@ -1957,17 +1960,22 @@ class ThSA:
         if showMessage:
             print('  > Done.')
     
-    def sobol_indices_DeltaGr(list_var, Ct = 1.0, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0, 
-                              rangeType = None, range_ = None, num = 50, rng = None, showMessage = True):
+    def sobol_indices_DeltaGr(typeRxn, input_, specComp, list_var, Ct = 1.0, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0, 
+                              phase = 'L', fluidType = 'ideal', methods = None, molality = True, rangeType = None, 
+                              range_ = None, num = 50, rng = None, stat_method = 'saltelli', mean_normd = True, 
+                              decimals = 4, check_negatives = True, showMessage = True):
         # rng -> 'rng seed'
-        # (typeRxn, input_, specComp, [...]): # !!!
         #-Private function
         def _N_power_of_two(num, maxN = 15):
             power_of_two = np.array([int(2**n) for n in list(np.linspace(0, maxN, maxN+1))])
             indx = np.argmin(abs(power_of_two - num))
             return power_of_two[indx]
             
-        def _u_l_bounds(list_var, rangeType, range_, Ct, T_sv, pH_sv, S_sv):
+        def _u_l_bounds(list_var, rangeType, range_, sv):
+            Ct = sv['Ct']
+            T_sv = sv['T']
+            pH_sv = sv['pH']
+            S_sv = sv['S']
             if rangeType:
                 l_bounds = np.nan * np.ones(len(list_var))
                 u_bounds = np.nan * np.ones(len(list_var))
@@ -2035,12 +2043,89 @@ class ThSA:
                 AB[i, :, i] = B[:, i]
             return A, B, AB
         
-        # def _sobol_DGr(typeRxn, input_, specComp, [...], sample, AB = False):
-        #     # [...] rest of arguments for DGr calculation e.g. 'methods', 'fluidType'...
-        #     #-DEBUGGING-#
-        #     f = 0
-        #     #-----------#
-        #     return f
+        def _sobol_DGr(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, list_var, sample, AB = False):
+            if AB:
+                d, k, d = sample.shape
+                sample = sample.reshape(-1, sample.shape[-1])
+            warnMessage = False
+            non_DGr_parameters = []
+            N, _ = sample.shape
+            C = sv['Ct']
+            T_ = sv['T']
+            pH_ = sv['pH']
+            S_ = sv['S']
+            f = []
+            #-DEBUGGING-#
+            print(C)
+            #-----------#
+            for n in range(N):
+                # list_var + sample -> arguments ThSA.getDeltaGr(). For loop in N.
+                # Ct, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0 (single values) must be given here.
+                for idVar, var in enumerate(list_var):
+                    if var == 'T':
+                        T_ = sample[n, idVar]
+                    elif var == 'pH':
+                        pH_ = sample[n, idVar]
+                    elif var == 'S':
+                        S_ = sample[n, idVar]
+                    elif var.startswith('conc_'):
+                        indx = var.find('_') + 1
+                        comp = var[indx:]
+                        try:
+                            C[comp] = sample[n, idVar]
+                        except:
+                            raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                    else:
+                        warnMessage = True
+                        if not var in non_DGr_parameters:
+                            non_DGr_parameters += var
+                DGr, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                         input_ = rxn,
+                                         specComp = specComp, 
+                                         phase = phase,
+                                         T = [T_],
+                                         pH = pH_,
+                                         S = [S_],
+                                         Ct = C,
+                                         fluidType = fluidType,
+                                         methods = methods,
+                                         molality = molality)
+                f += [np.squeeze(DGr)]
+            f = np.array(f).T
+            if warnMessage:
+                warnings.warn(f'Some variables given in \'list_var\' are not used for DGr calculations: {non_DGr_parameters}.')
+            if AB:
+                f = f.reshape((-1, k))
+            else:
+                f = np.squeeze(f)
+            return f
+        
+        def _indices(f_A, f_B, f_AB, method):
+            # 'saltelli': (c) + (f)
+            # 'jansen':   (b) + (f)
+            # 'sobol':    (a) + (e)
+            # 'homma':    (a) + (d)
+            valid_methods = {'saltelli', 'jansen', 'sobol', 'homma'}
+            I, _ = f_AB.shape
+            first_order = []
+            total_order = []
+            var = np.nanvar([f_A, f_B], axis = (0, -1))
+            # print(f_AB.shape)
+            for i in range(I):
+                fi_AB = f_AB[i, ]
+                method = method.lower()
+                if not method in valid_methods:
+                    raise NameError(f'Invalid method ({method}) to compute sobol\' indices. Valid methods: {valid_methods}.')
+                if method == 'saltelli':
+                    first_order += [np.nanmean(f_B * (fi_AB - f_A)) / var]
+                elif method == 'jansen':
+                    first_order = 0 / var
+                elif method == 'sobol':
+                    first_order = 0 / var
+                elif method == 'homma':
+                    first_order = 0 / var
+                total_order += [0.5 * np.nanmean((f_A - fi_AB) ** 2) / var]
+            return first_order, total_order
         
         if showMessage:
             print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
@@ -2048,34 +2133,58 @@ class ThSA:
         ThSA._check_arguments(('list_var', 'T_sv', 'pH_sv', 'S_sv'), 
                               (list_var, T_sv, pH_sv, S_sv),
                               (list, (int, float), (int, float), (int, float)))
+        sv = {'Ct': Ct,
+              'T': T_sv,
+              'pH': pH_sv,
+              'S': S_sv}
         #-Definiion of `l_bounds` and `u_bounds` based on rangeType ('VR' or 'DR') and range_. Shape: (k,)
         k = len(list_var)
-        l_bounds, u_bounds = _u_l_bounds(list_var, rangeType, range_, Ct, T_sv, pH_sv, S_sv)
+        l_bounds, u_bounds = _u_l_bounds(list_var, rangeType, range_, sv)
         #-The balance properties of Sobol' points require N to be a power of 2.
         N = _N_power_of_two(num, maxN = 15)
         # Creation of sampling matrices (N, k)
         A, B, AB = _sample_A_B_AB(N, k, l_bounds, u_bounds, rng)
-        #-Calculation of DGr with samples A, B and ABs
-        f_A = A.copy() # _sobol_DGr(typeRxn, input_, specComp, A, AB = False)
-        f_B = B.copy() # _sobol_DGr(typeRxn, input_, specComp, B, AB = False)
-        f_AB = AB.copy() # _sobol_DGr(typeRxn, input_, specComp, AB, AB = True)
-        #-Normalization by mean - empirically centered function.
-        mean = np.nanmean([f_A, f_B], axis = (0, -1)).reshape(-1, 1)
-        f_A -= mean
-        f_B -= mean
-        f_AB -= mean
-        #-Compute indices
-        
-        #-DEBUGGING-#
-        print('Sample A')
-        print(A)
-        print('Sample B')
-        print(B)
-        print('Sample AB')
-        print(AB)
-        print('Mean of samples A and B')
-        print(mean)
-        #-----------#
+        si = np.zeros((len(input_), len(list_var)))
+        st = np.zeros((len(input_), len(list_var)))
+        for idRxn, rxn in enumerate(input_):
+            print(f'  {idRxn+1}.{rxn}')
+            specC_ = specComp[idRxn]
+            #-DEBUGGING-#
+            start_time = time.time()
+            #-----------#
+            #-Calculation of DGr with samples A, B and AB: f(A), f(B), f(AB)
+            f_A = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, A, AB = False)
+            #-DEBUGGING-#
+            print('    ·Sample matrix A done (%s seconds).' % (time.time() - start_time))
+            start_time = time.time()
+            #-----------#
+            f_B = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, B, AB = False)
+            #-DEBUGGING-#
+            print('    ·Sample matrix B done (%s seconds).' % (time.time() - start_time))
+            start_time = time.time()
+            #-----------#
+            f_AB = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, AB, AB = True)
+            #-DEBUGGING-#
+            print('    ·Sample matrix AB done (%s seconds).' % (time.time() - start_time))
+            if mean_normd:
+                #-Normalization by mean - empirically centered function.
+                mean = np.nanmean([f_A, f_B], axis = 0)
+                f_A -= mean
+                f_B -= mean
+                f_AB -= mean
+            #-Compute indices
+            s_i, s_t = _indices(f_A = f_A, f_B = f_B, f_AB = f_AB, method = stat_method)
+            s_i = np.round(s_i, decimals = decimals)
+            s_t = np.round(s_t, decimals = decimals)
+            #-DEBUGGING-#
+            print(f'si: {s_i}')
+            print(f'st: {s_t}')
+            print('')
+            #-----------#
+            if check_negatives and ((s_i < 0).any() or (s_t < 0).any()):
+                warnings.warn('Negative Sobol\' indices have been found. Please use a higher number of samples.')
+            si[idRxn, :] = s_i
+            st[idRxn, :] = s_t
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
