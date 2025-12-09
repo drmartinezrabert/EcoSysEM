@@ -22,7 +22,8 @@ class MSMM:
 
     def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
                  DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
-                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal', actMethods = None,
+                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
+                 actMethods = None, molality = True, asm = 'stoich',
                  dataType = None, years = None, month = None, day = None,
                  typeKin = 'MM-Arrhenius', kinDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
                  turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
@@ -42,10 +43,11 @@ class MSMM:
                 self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
             else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
         else:
-            self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
-        if not degradPace in ['fast', 'moderate', 'slow'] :
-            raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
-        self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
+            if not degradPace in ['fast', 'moderate', 'slow'] :
+                raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
+            else: 
+                self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
+        self.mtbRates = degradPace      #'fast', 'moderate', 'slow' or float/int.
         if not isinstance(typeMetabo, str):
             raise TypeError(f'typeMetabo must be a str. Current type: {typeMetabo}.')
         self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
@@ -88,20 +90,44 @@ class MSMM:
         self.dataYear = years #(INT or LIST)
         self.dataMonth = month #(INT)
         self.dataDay = day #(INT)
-        self.K = K     #(FLOAT), carrying capacity [cell/unit volume]
+        if not isinstance(K, (float,int)):
+            raise TypeError(f'Carrying capacity (K) must be a float or an int. Current type: {type(K)}.')
+        self.K = K     #(INT or FLOAT), carrying capacity [cell/unit volume]
         if not isinstance(mortality, list): mortality = [mortality]
         if len(mortality) == 1: mortality *= 3
         elif len(mortality) != 3:
             raise AttributeError(f'Mortality rates must be either the same for all 3 states (Growth, Maintenance, Survival) or a list of 3 ordered Floats. Current input: {mortality}.')
         self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
+        if not isinstance(DeltaGsynth, (float,int)):
+            raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
+        if not isinstance(steepness, (float,int)):
+            raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
         self.st = steepness             # [-]
+        if not isinstance(fluidType, str):
+            raise TypeError(f'fluidType must be a str. Current type: {type(fluidType)}.')
+        if not fluidType == 'ideal' and not fluidType == 'non-ideal':
+            raise AttributeError(f'Invalid input for fluidType. valid inputs: ideal, non-ideal. current input: {fluidType}.')
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
+        if not isinstance(typeKin, str):
+            raise TypeError(f'typeKin must be a str. Current type: {type(typeKin)}.')
         self.typeKin = typeKin
+        if not isinstance(kinDB, list): kinDB = [kinDB]
+        if not all(isinstance(kinDB[n], str) for n in range(len(kinDB))):
+            raise TypeError(f'Invalid kinDB, it must be a single str or a list thereof. Current kinDB: {kinDB}.')
         self.kinDB = kinDB
-        self._callEnvP(salinity, pH, Wcontent, actMethods)
+        if not isinstance(Wcontent, (float, int)):
+            raise TypeError(f'Wcontent must be an int or a float. current type: {type(Wcontent)}.')
+        if not isinstance(actMethods, str):
+            if not actMethods == None:
+                raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
+        if not isinstance(molality, bool):
+            raise TypeError(f'Argument molality must be a bool. Current type: {type(molality)}.')    
+        if not asm == 'stoich':
+            raise AttributeError(f'Currently only accepted input for asm is "stoich". Invalid input was given: {asm}.')
+        self._callEnvP(salinity, pH, Wcontent, actMethods, molality, asm)
     
-    def _callEnvP(self, salinity_, pH_, H2O_, method_):
+    def _callEnvP(self, salinity_, pH_, H2O_, method_, molality_, asm_):
         """
         Function to import needed environment data (temperature, pH, etc.) as MSMM attributes.
 
@@ -121,7 +147,8 @@ class MSMM:
             ISAinst.methods = method_        # set to None by default in ISA
             ISAinst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                           reactions = self.metabolism, specComp = self.eD,
-                          sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                          sample = 'All', DGsynth = self.DGsynth,
+                          solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = ISAinst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = ISAinst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
             self.CSP = ISAinst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
@@ -150,7 +177,8 @@ class MSMM:
             ISAMERRA2inst.methods = method_         # set to None by default in ISAMERRA2
             ISAMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                            reactions = self.metabolism, specComp = self.eD,
-                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = ISAMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = ISAMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
             self.CSP = ISAMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
@@ -179,7 +207,8 @@ class MSMM:
             CAMSMERRA2inst.methods = method_        # set to None by default in CAMSMERRA2
             CAMSMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                            reactions = self.metabolism, specComp = self.eD,
-                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = CAMSMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = CAMSMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600  #[moleD/(cell.s)]
             self.CSP = CAMSMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
