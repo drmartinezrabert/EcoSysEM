@@ -20,11 +20,14 @@ class MSMM:
     Class for Multi-State Metabolic Model
     """
 
-    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality, 
-                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,
+    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
+                 DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
+                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal', actMethods = None,
                  dataType = None, years = None, month = None, day = None,
-                 DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate',
-                 salinity = None, fluidType = 'ideal', actMethods = None):
+                 typeKin = 'MM-Arrhenius', kinDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
+                 turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
+                 eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
+                 microCommunity = {'CH4': 'Methanotrophs','H2': 'Hydrogen-oxidizing bacteria','CO': 'CO-oxidizing bacteria'}):
         
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         validMetabo = ['Mth', 'HOB', 'COOB']
@@ -34,26 +37,15 @@ class MSMM:
             raise NameError(f'Invalid model ({self.envModel}). Valid models: {validModels}.')
         self.envModel = envModel
         atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
-        _protTurnoverRate = {'fast' : 1,
-                             'moderate': 5 ,
-                             'slow': 14} #[h]
         if not isinstance(degradPace, str):
             if isinstance(degradPace, (int, float)):
-                if degradPace <= _protTurnoverRate['fast']:
-                    degradPace = 'fast'
-                elif degradPace >= _protTurnoverRate['slow']:
-                    degradPace = 'slow'
-                else : degradPace = 'moderate'
+                self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
             else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
+        else:
+            self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
         if not degradPace in ['fast', 'moderate', 'slow'] :
             raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
         self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
-        _eDonor = {'Mth':'CH4',
-                   'HOB': 'H2',
-                   'COOB':'CO'}
-        micrCommunity = {'CH4': 'Methanotrophs',
-                         'H2': 'Hydrogen-oxidizing bacteria',
-                         'CO': 'CO-oxidizing bacteria'}
         if not isinstance(typeMetabo, str):
             raise TypeError(f'typeMetabo must be a str. Current type: {typeMetabo}.')
         self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
@@ -63,8 +55,8 @@ class MSMM:
         if not metabolism[0] in validMetabo:
             raise NameError(f'Invalid metabolism. Valid inputs: {validMetabo}')
         self.metabolism = metabolism    #reaction (STR), e.g. 'Mth'
-        self.eD = _eDonor[metabolism[0]]    #(specComp) based on given metabolism
-        self.communityName = micrCommunity[self.eD]
+        self.eD = eD[metabolism[0]]    #(specComp) based on given metabolism
+        self.communityName = microCommunity[self.eD]
         if not isinstance(coord, (list, np.ndarray)): coord = [coord]
         self.coord = coord
         if envModel in atmModels:
@@ -104,10 +96,9 @@ class MSMM:
         self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
         self.st = steepness             # [-]
-        self.specMSrate = 1 / (_protTurnoverRate[degradPace]) #specific metabolic shift rate [1/h]
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
-        self.typeKin = 'MM-Arrhenius'
-        self.kinDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+        self.typeKin = typeKin
+        self.kinDB = kinDB
         self._callEnvP(salinity, pH, Wcontent, actMethods)
     
     def _callEnvP(self, salinity_, pH_, H2O_, method_):
