@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Complete thermodynamic sensitivity analysis.
 ### Changed
 - README file.
 
@@ -29,12 +28,12 @@ All notable changes to this project will be documented in this file.
   - Specific heat capacities of compounds: `data/Cpi.csv`.
   - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
 - Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`
-<!--
-- Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
-  - Sobol' indices.
--->
+- Global sensitivity analysis of Gibbs free energy.
+  - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()`.
 ### Fixed
-- Bug in `ThEq.ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
+- Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
+- Bug in `ThP.getThP`: Now the function return empty Param if parameter(s) are not available for a compound.
+- Bug in `ThSA.getDeltaGr`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
 ### Changed
 - README file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.
