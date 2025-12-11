@@ -194,8 +194,12 @@ class ThP:
 
         """
         dParam = pd.read_csv(ThP.path + typeParam + '.csv')
-        dParam = dParam.set_index('Formula').loc[compounds].reset_index()
-        Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
+        try:
+            dParam = dParam.set_index('Formula').loc[compounds].reset_index()
+        except:
+            Param = np.empty(0)
+        else:
+            Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
         notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         return Param, notNaN
     
