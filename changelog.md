@@ -23,11 +23,11 @@ All notable changes to this project will be documented in this file.
   - Water column: `WaterColumn()`.
 - New arguments in plotting functions: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
   - Font family: `fontFamily='Arial'`.
-  - Font weight of title: `fwtl='normal'`
+  - Font weight of title: `fwtl='normal'`.
 - Create new databases:
   - Specific heat capacities of compounds: `data/Cpi.csv`.
   - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
-- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`
+- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`.
 - Global sensitivity analysis of Gibbs free energy.
   - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()`.
 ### Fixed
@@ -52,10 +52,10 @@ All notable changes to this project will be documented in this file.
   - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `GWB()`.
 - Sensitivity analysis of non-standard Gibbs free energy.
   - 2D compound sensitivity analysis (contourf plot).
-- Creation of plotting script
-  - New function: plotVarMap2D()
-  - New function: plotZonalMean()
-  - New function: plotCrossSections()
+- Creation of plotting script.
+  - New function: plotVarMap2D().
+  - New function: plotZonalMean().
+  - New function: plotCrossSections().
 ### Fixed
 - Bug in `Environment.loadData()`: data existence wasn't check before loading.
 - Bug in `CAMSMERRA2()`: error came out when phase was defined.
@@ -71,7 +71,7 @@ All notable changes to this project will be documented in this file.
   - CAMS-MERRA2 atmospheric model.
 - New functions to calculate kinetic rates.
   - Michaelis-Menten.
-  - Michaelis-Menten + Arrhenius .
+  - Michaelis-Menten + Arrhenius.
 - Calculation of non-standard Gibbs free energy (non-ideal liquids).
   - Estimation of thermodynamic activity coefficients.
     - Activity coefficients of electrolytes. Debye-Hückel theory (extended version).
