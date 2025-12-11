@@ -982,7 +982,7 @@ class ThSA:
         if specComp:
             if specComp == True:
                 tSpecComp = 'compounds'
-                specComp = input_
+                specComp = input_.copy()
                 for iSpecComp in specComp:
                     c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
                     if c_specComp.size == 0: 
@@ -1060,9 +1060,12 @@ class ThSA:
                             else:
                                 # Check if product is a species of iComp
                                 rComp_pH, _, _ = Rxn.getRxnpH(iComp)
+                                if 'H2CO3' in rComp_pH:
+                                    rComp_pH += ['CO2']
                                 uIComp = np.isin(uComp, rComp_pH)
-                                if (rComp is None) or (any(uIComp) == False):
-                                    if asm == 'stoich': # [P] is calculated based on stoichiometry.
+                                if not any(uIComp):
+                                    if asm == 'stoich': 
+                                        # [P] is calculated based on stoichiometry.
                                         if specComp:
                                             iConc = (vi) * Ct[uComp[findSpecComp]]
                                         else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
