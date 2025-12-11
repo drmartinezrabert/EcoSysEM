@@ -32,8 +32,8 @@ All notable changes to this project will be documented in this file.
   - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()`.
 ### Fixed
 - Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
-- Bug in `ThP.getThP`: Now the function return empty Param if parameter(s) are not available for a compound.
-- Bug in `ThSA.getDeltaGr`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
+- Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
+- Bug in `ThSA.getDeltaGr()`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
 ### Changed
 - README file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.
