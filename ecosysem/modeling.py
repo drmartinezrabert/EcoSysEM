@@ -41,7 +41,7 @@ class MSMM:
             if isinstance(degradPace, (int, float)):
                 self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
             else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
-        else:
+        elif isinstance(degradPace, str):
             if not degradPace in ['fast', 'moderate', 'slow'] :
                 raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
             else: 
@@ -104,8 +104,12 @@ class MSMM:
         if not isinstance(DeltaGsynth, (float,int)):
             raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
-        if not isinstance(steepness, (float,int)):
+        if not isinstance(steepness, list): steepness = [steepness]
+        if not all(isinstance(k, (float,int)) for k in steepness):
             raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
+        if len(steepness) == 1: steepness *= 3
+        elif len(steepness) != 3:
+            raise AttributeError(f'Steepness parameter in the shift control functions must be either the same for all 3 types of shift (GxM, MxS, S-RIP) or a list of 3 ordered Floats. Current input: {steepness}.')
         self.st = steepness             # [-]
         if not isinstance(fluidType, str):
             raise TypeError(f'fluidType must be a str. Current type: {type(fluidType)}.')
@@ -324,9 +328,9 @@ class MSMM:
         Pcell = CSPdict['Pcell']
         #Initialize thetaDict before shift controls (theta) calculations
         thetaDict = {}
-        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
+        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st[0] * Pcell)) +1)
+        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st[1] * Pm)) +1)
+        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st[2] * Ps)) +1)
         self.MSctrls = thetaDict
 
     def solveODE(self, Bini, tSpan, dt = 1, solExport = False):
