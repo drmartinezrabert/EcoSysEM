@@ -20,12 +20,15 @@ class MSMM:
     Class for Multi-State Metabolic Model
     """
 
-    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality, 
-                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,
+    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
+                 DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
+                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
+                 actMethods = None, molality = True, asm = 'stoich',
                  dataType = None, years = None, month = None, day = None,
-                 DeltaGsynth = 9.54E-11, steepness = 0.2, degradPace = 'moderate',
-                 salinity = None, fluidType = 'ideal', actMethods = None):
-        
+                 turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
+                 kinDB = {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']},
+                 typeKin = 'MM-Arrhenius', eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
+                 microCommunity = {'Mth': 'Methanotrophs','HOB': 'Hydrogen-oxidizing bacteria','COOB': 'CO-oxidizing bacteria'}):
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         validMetabo = ['Mth', 'HOB', 'COOB']
         if not isinstance(envModel, str):
@@ -34,26 +37,16 @@ class MSMM:
             raise NameError(f'Invalid model ({self.envModel}). Valid models: {validModels}.')
         self.envModel = envModel
         atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
-        _protTurnoverRate = {'fast' : 1,
-                             'moderate': 5 ,
-                             'slow': 14} #[h]
         if not isinstance(degradPace, str):
             if isinstance(degradPace, (int, float)):
-                if degradPace <= _protTurnoverRate['fast']:
-                    degradPace = 'fast'
-                elif degradPace >= _protTurnoverRate['slow']:
-                    degradPace = 'slow'
-                else : degradPace = 'moderate'
+                self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
             else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
-        if not degradPace in ['fast', 'moderate', 'slow'] :
-            raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
-        self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
-        _eDonor = {'Mth':'CH4',
-                   'HOB': 'H2',
-                   'COOB':'CO'}
-        micrCommunity = {'CH4': 'Methanotrophs',
-                         'H2': 'Hydrogen-oxidizing bacteria',
-                         'CO': 'CO-oxidizing bacteria'}
+        elif isinstance(degradPace, str):
+            if not degradPace in ['fast', 'moderate', 'slow'] :
+                raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
+            else: 
+                self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
+        self.mtbRates = degradPace      #'fast', 'moderate', 'slow' or float/int.
         if not isinstance(typeMetabo, str):
             raise TypeError(f'typeMetabo must be a str. Current type: {typeMetabo}.')
         self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
@@ -62,9 +55,13 @@ class MSMM:
             raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
         if not metabolism[0] in validMetabo:
             raise NameError(f'Invalid metabolism. Valid inputs: {validMetabo}')
-        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth'
-        self.eD = _eDonor[metabolism[0]]    #(specComp) based on given metabolism
-        self.communityName = micrCommunity[self.eD]
+        self.metabolism = metabolism   #reaction (STR), e.g. 'Mth'
+        if eD.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the eD dictionary. Please modify the corresponding argument.')
+        self.eD = eD[self.metabolism[0]]    #(specComp) based on given metabolism
+        if microCommunity.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the microCommunity dictionary. Please modify the corresponding argument.')
+        self.communityName = microCommunity[self.metabolism[0]]
         if not isinstance(coord, (list, np.ndarray)): coord = [coord]
         self.coord = coord
         if envModel in atmModels:
@@ -96,21 +93,53 @@ class MSMM:
         self.dataYear = years #(INT or LIST)
         self.dataMonth = month #(INT)
         self.dataDay = day #(INT)
-        self.K = K     #(FLOAT), carrying capacity [cell/unit volume]
+        if not isinstance(K, (float,int)):
+            raise TypeError(f'Carrying capacity (K) must be a float or an int. Current type: {type(K)}.')
+        self.K = K     #(INT or FLOAT), carrying capacity [cell/unit volume]
         if not isinstance(mortality, list): mortality = [mortality]
         if len(mortality) == 1: mortality *= 3
         elif len(mortality) != 3:
             raise AttributeError(f'Mortality rates must be either the same for all 3 states (Growth, Maintenance, Survival) or a list of 3 ordered Floats. Current input: {mortality}.')
         self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
+        if not isinstance(DeltaGsynth, (float,int)):
+            raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
+        if not isinstance(steepness, list): steepness = [steepness]
+        if not all(isinstance(k, (float,int)) for k in steepness):
+            raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
+        if len(steepness) == 1: steepness *= 3
+        elif len(steepness) != 3:
+            raise AttributeError(f'Steepness parameter in the shift control functions must be either the same for all 3 types of shift (GxM, MxS, S-RIP) or a list of 3 ordered Floats. Current input: {steepness}.')
         self.st = steepness             # [-]
-        self.specMSrate = 1 / (_protTurnoverRate[degradPace]) #specific metabolic shift rate [1/h]
+        if not isinstance(fluidType, str):
+            raise TypeError(f'fluidType must be a str. Current type: {type(fluidType)}.')
+        if not fluidType == 'ideal' and not fluidType == 'non-ideal':
+            raise AttributeError(f'Invalid input for fluidType. valid inputs: ideal, non-ideal. current input: {fluidType}.')
         self.fluidType = fluidType      #'ideal' or 'non-ideal'
-        self.typeKin = 'MM-Arrhenius'
-        self.kinDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
-        self._callEnvP(salinity, pH, Wcontent, actMethods)
+        if not isinstance(typeKin, str):
+            raise TypeError(f'typeKin must be a str. Current type: {type(typeKin)}.')
+        if not isinstance(typeKin, str):
+            raise TypeError(f'Argument typeKin must be a str. Current input: {type(typeKin)}.')
+        self.typeKin = typeKin
+        if kinDB.get(self.typeKin, None) == None:
+            raise AttributeError(f'No {self.typeKin} key could be found in the kinDB dictionary. Please modify the corresponding argument.')
+        self.kinDB = kinDB[self.typeKin]
+        if not isinstance(Wcontent, (float, int)):
+            raise TypeError(f'Wcontent must be an int or a float. current type: {type(Wcontent)}.')
+        if isinstance(actMethods, str):
+            if not actMethods == 'DH-ext' and not actMethods == 'SS':
+                raise NameError(f'Str input for actMethod must be "DH-ext" or "SS". Current input: {actMethods}.')
+        elif actMethods != None:
+            raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
+        if not isinstance(molality, bool):
+            raise TypeError(f'Argument molality must be a bool (True). Current type: {type(molality)}.')
+        if not molality == True:
+            raise AttributeError(f'Currently only admitted input for molality is True. invalid input: {molality}')
+        if not asm == 'stoich':
+            raise AttributeError(f'Currently only accepted input for asm is "stoich". Invalid input was given: {asm}.')
+        self._callEnvP(salinity, pH, Wcontent, actMethods, molality, asm)
     
-    def _callEnvP(self, salinity_, pH_, H2O_, method_):
+    def _callEnvP(self, salinity_, pH_, H2O_, method_, molality_, asm_):
         """
         Function to import needed environment data (temperature, pH, etc.) as MSMM attributes.
 
@@ -130,7 +159,8 @@ class MSMM:
             ISAinst.methods = method_        # set to None by default in ISA
             ISAinst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                           reactions = self.metabolism, specComp = self.eD,
-                          sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                          sample = 'All', DGsynth = self.DGsynth,
+                          solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = ISAinst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = ISAinst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
             self.CSP = ISAinst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
@@ -159,7 +189,8 @@ class MSMM:
             ISAMERRA2inst.methods = method_         # set to None by default in ISAMERRA2
             ISAMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                            reactions = self.metabolism, specComp = self.eD,
-                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = ISAMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = ISAMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
             self.CSP = ISAMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
@@ -188,7 +219,8 @@ class MSMM:
             CAMSMERRA2inst.methods = method_        # set to None by default in CAMSMERRA2
             CAMSMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
                            reactions = self.metabolism, specComp = self.eD,
-                           sample = 'All', DGsynth = self.DGsynth, EnvAttributes = True)
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
             self.DGr = CAMSMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
             self.Rs = CAMSMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600  #[moleD/(cell.s)]
             self.CSP = CAMSMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
@@ -296,9 +328,9 @@ class MSMM:
         Pcell = CSPdict['Pcell']
         #Initialize thetaDict before shift controls (theta) calculations
         thetaDict = {}
-        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
+        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st[0] * Pcell)) +1)
+        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st[1] * Pm)) +1)
+        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st[2] * Ps)) +1)
         self.MSctrls = thetaDict
 
     def solveODE(self, Bini, tSpan, dt = 1, solExport = False):

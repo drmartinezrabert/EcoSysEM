@@ -550,7 +550,9 @@ class Environment:
                 _Rs = np.nanmean(_rs, axis = 0)
                 self.Rs[key] = _Rs
           
-    def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True):
+    def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp,
+               sample = 'All', DGsynth = 9.54E-11, molality = True,
+               solvent = 'H2O', asm = 'stoich'):
         """           
         Compute cell specific powers in fW/cell using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
@@ -582,11 +584,13 @@ class Environment:
             Requested samples (rows of `paramDB.csv`).
         DGsynth : FLOAT, optional (default = 9.54E-11)
             Energy necessary to synthesize a cell [J/cell].
-        EnvAttributes : BOOL, optional
-            Command to take non-standard Gibbs free energy (DGr) and cell-specific uptake rates
-            from already existing environment attributes (or create them) in order to calculate
-            the corresponding cell specific powers. Default : True (uses self.DGr and self.Rs)
-
+        molality : BOOL, optional (default = True)
+            Select if activity units are in molality (True) or molarity (False).
+        solvent : STR, optional (default = 'H2O')
+            Solvent name.
+        asm : STR, optional (default = 'stoich')
+            Assumption when products are not present in the environment.
+                - 'stoich' : stoichiometric concentrations
         Returns
         -------
         CSP dict saved as attribute of the model instance (modelName.CSP).
@@ -603,14 +607,14 @@ class Environment:
         S = self.salinity
         # check attributes type
         if self.model == 'GWB':
-            Ct = self.Ci_L.copy()
+            Ct = self.Ci_L
         elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
             if phase == 'G':
-                Ct = self.Ci_G.copy()
+                Ct = self.Ci_G
             elif phase == 'L-FW':
-                Ct = self.Ci_LFW.copy()
+                Ct = self.Ci_LFW
             elif phase == 'L-SW':
-                Ct = self.Ci_LSW.copy()
+                Ct = self.Ci_LSW
             else:
                 raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
         # Initialize parameters for CSP computing
@@ -620,17 +624,17 @@ class Environment:
         CSPargs['typeMetabo'] = typeMetabo
         CSPargs['reaction'] = None
         CSPargs['specComp'] = None
-        CSPargs['Ct'] = Ct
+        CSPargs['Ct'] = Ct.copy()
         CSPargs['T'] = T
         CSPargs['pH'] = None
         CSPargs['S'] = S
-        CSPargs['phase'] = 'L'
-        CSPargs['sample'] = 'All'
-        CSPargs['fluidType'] = 'ideal'
-        CSPargs['molality'] = 'True'
-        CSPargs['methods'] = 'None'
-        CSPargs['solvent'] = 'H2O'
-        CSPargs['asm'] = 'stoich'
+        CSPargs['phase'] = phase
+        CSPargs['sample'] = sample
+        CSPargs['fluidType'] = self.fluidType
+        CSPargs['molality'] = molality
+        CSPargs['methods'] = self.methods
+        CSPargs['solvent'] = solvent
+        CSPargs['asm'] = asm
         CSPargs['DGsynth'] = DGsynth
         CSPargs['Rs'] = None
         CSPargs['DGr'] = None
@@ -640,42 +644,29 @@ class Environment:
         if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(specComp, list): specComp = [specComp]
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
-        # Assign Rs and DGr if already computed as environment attributes or create them
-        if EnvAttributes is True:
-            #check DGr
-            _DGr = getattr(self,'DGr', None)
-            if _DGr is None:
-                self.getDGr(typeMetabo, reactions, specComp)
-                _DGr = self.DGr.copy()
-            for pH_ in pH:
-                CSPargs['pH'] = pH_
-                #get Rs
-                self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
-                _Rs = self.Rs.copy()
-                #extract from _DGr, DGr keys for current pH (into DGr_aux)
-                DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
-                #assign needed arguments for CSP.getAllCSP()
-                for comp, rxn in enumerate(reactions):
-                    CSPargs['reaction'] = rxn
-                    CSPargs['specComp'] = specComp[comp]
-                    CSPargs['Rs'] = _Rs[rxn] #dict
-                    #extract from DGr_aux, DGr values of current reaction (assigned as argument for CSP)
-                    for r in DGr_aux: 
-                        if f'{rxn}' in r:
-                            CSPargs['DGr'] = DGr_aux[r] #np.ndarray
-                    #compute CSP values for current pH and reaction
-                    CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
-        # Compute CSP without Rs and DGr environment's attributes
-        elif EnvAttributes is False:
+        #check DGr
+        _DGr = getattr(self,'DGr', None)
+        if _DGr is None:
+            self.getDGr(typeMetabo, reactions, specComp)
+            _DGr = self.DGr.copy()
+        for pH_ in pH:
+            CSPargs['pH'] = pH_
+            #get Rs
+            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
+            _Rs = self.Rs.copy()
+            #extract from _DGr, DGr keys for current pH (into DGr_aux)
+            DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
             #assign needed arguments for CSP.getAllCSP()
-            for pH_ in pH:
-                CSPargs['pH'] = pH_
-                for comp, rxn in enumerate(reactions):
-                    CSPargs['reaction'] = rxn
-                    CSPargs['specComp'] = specComp[comp]
-                    #compute CSP values
-                    CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
-        else: raise TypeError(f'EnvAttributes ({EnvAttributes}) should be a Bool.')
+            for comp, rxn in enumerate(reactions):
+                CSPargs['reaction'] = rxn
+                CSPargs['specComp'] = specComp[comp]
+                CSPargs['Rs'] = _Rs[rxn] #dict
+                #extract from DGr_aux, DGr values of current reaction (assigned as argument for CSP)
+                for r in DGr_aux: 
+                    if f'{rxn}' in r:
+                        CSPargs['DGr'] = DGr_aux[r] #np.ndarray
+                #compute CSP values for current pH and reaction
+                CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
         self.CSP = CSP_dict
     
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
@@ -1100,7 +1091,7 @@ class ISA(Atmosphere):
         # Layers of the Earth's atmosphere (ISA)
         _ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
-                        'Layer name': ['Troposphere', 'Tropopuse', 'Stratosphere', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesosphere', 'Mesopause'],
+                        'Layer name': ['Troposphere', 'Tropopause', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesopause', 'Thermosphere', 'Thermopause'],
                         'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
                         'End altitude': [11000, 20000, 32000, 47000, 51000, 71000, 84852, 85852],       # [m (above MSL)]
                         'Lapse rate': [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0, 0.0],                      # [C/km)]
