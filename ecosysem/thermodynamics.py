@@ -1932,10 +1932,89 @@ class ThSA:
             print('  > Done.')
     
     def sobol_indices_DeltaGr(typeRxn, input_, specComp, list_var, Ct = 1.0, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0, 
-                              phase = 'L', fluidType = 'ideal', methods = None, molality = True, rangeType = None, 
-                              range_ = None, num = 50, rng = None, stat_method = 'saltelli', check_negatives = True, 
-                              showMessage = True):
-        # rng -> 'rng seed'
+                              phase = 'L', fluidType = 'ideal', methods = None, molality = True, rangeType = 'VR', 
+                              range_ = None, num = 64, rng = None, sobol_simpl = 'saltelli', check_negatives = True, 
+                              stat_sign_method = 'kendall', plotMode = False, renameRxn = None, cb_limit = False, 
+                              cb_orientation = 'horizontal', cb_fontsize = 12, vmin = None, vmax = None, figsize = (12.0, 8.0),
+                               marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, showMessage = True):
+        """
+        Perform the global sensitivity analysis (variance-based sensitivity analysis or Sobol' indices) of Gibbs free 
+        energy for a set of reactions at a specific range of temperature, pH and concentrations of substrates and products.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations. The default is 1.0.
+        T_sv : FLOAT, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH_sv : FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S_sv : FLOAT
+            Salinity [ppt]. The default is 0.0.
+        phase : STR, optional
+            Phase of fluid. The default is 'L'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'. The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 64.
+        rng : INT, optional
+            Pseudorandom number generator state (rng seed). The default is None.
+            When rng is None, a new numpy.random.Generator is created using entropy from the operating system.
+        sobol_simpl : STR, optional
+            Estimator method to calculate Sobol' indices. The default is 'saltelli'.
+                'saltelli'    - Estimators from Saltelli et al. (2010), doi: 10.1016/j.cpc.2009.09.018
+        check_negatives : BOOL, optional
+            Boolean to set whether negative Sobol' indices are displayed in Console (if any). The default is True.
+        stat_sign_method : STR, optional
+            Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
+        plotMode : BOOL, optional
+            Boolean to set whether color mesh plot is created. The default is False.
+        showMessage : BOOL, optional
+            Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        si : np.ndarray
+            Matrix of first order indices. Shape: (reactions, variables).
+        st : np.ndarray
+            Matrix of total indices. Shape: (reactions, variables).
+        stat_sign : np.ndarray
+            Matrix of statistical sign. Shape: (reactions, variables).
+                If positive (+1), DGr and variable are positively correlated (both increase or decrease together).
+                If negative (-1), DGr and variable are negatively correlated (one increase and the other decrease or vice versa).
+                If zero (0), DGr and variable are not correlated.
+        eqch : np.ndarray
+            Matrix of equilbirum change (endergonic <-> exergonic). Shape: (reactions, variables).
+                If one (1), an equilibrium change is observed in the range of values of variables.
+                If zero (0), no equilibrium change is observed in the range of values of variables.
+        Plot in Spyder if 'plotMode = True'.
+        
+        """
         #-Private functions
         def _N_power_of_two(num, maxN = 15):
             power_of_two = np.array([int(2**n) for n in list(np.linspace(0, maxN, maxN+1))])
