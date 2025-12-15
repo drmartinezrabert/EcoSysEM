@@ -1729,7 +1729,7 @@ class ThSA:
         printDH0r : BOOL, optional
             Print in console the values of standard enthalpy of reactions. The default is False.
         showMessage : BOOL, optional
-             Boolean to set whether informative messages are displayed in Console. The default is True.
+            Boolean to set whether informative messages are displayed in Console. The default is True.
 
         Returns
         -------
@@ -1783,10 +1783,13 @@ class ThSA:
         res_pH = num_pH
         # Matrix initialization
         m_eqch = np.empty((len(input_), len(list_var))) 
-        m_diff = np.empty((len(input_), len(list_var))) 
+        m_diff = np.empty((len(input_), len(list_var)))
         for idRxn, rxn in enumerate(input_):
             print(f'  {idRxn+1}.{rxn}')
             specCp_ = specComp[idRxn]
+            C = Ct.copy()
+            for c in Ct:
+                C[c] = np.array([C[c]])
             DGr_ref, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
                                          input_ = rxn, 
                                          phase = phase, 
@@ -1794,7 +1797,7 @@ class ThSA:
                                          T = [T_sv],
                                          pH = pH_sv,
                                          S = [S_sv], 
-                                         Ct = Ct.copy(),
+                                         Ct = C,
                                          fluidType = fluidType,
                                          methods = methods,
                                          printDG0r = printDG0r,
@@ -1870,8 +1873,10 @@ class ThSA:
                                              printDG0r = printDG0r,
                                              printDH0r = printDH0r)
                 else:
-                    DGr = np.empty(np.array(pH).shape)
+                    DGr = []
                     C = Ct.copy()
+                    for c in C:
+                        C[c] = np.array([C[c]])
                     for idpH, pH_ in enumerate(pH):
                         DGr_pH, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
                                                     input_ = rxn, 
@@ -1885,31 +1890,31 @@ class ThSA:
                                                     methods = methods,
                                                     printDG0r = printDG0r,
                                                     printDH0r = printDH0r)
-                        DGr[idpH] = DGr_pH
+                        DGr += [DGr_pH]
                 if sensitivity_method == 'local':
                     sa_method = 'Local sensitivity analysis'
-                    m_diff[idRxn, idVar] = (DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])
+                    m_diff[idRxn, idVar] = np.squeeze((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
                 elif sensitivity_method == 'sigma-norm':
                     sa_method = 'Sigma-normalized Derivative'
                     sigma_x = np.nanstd(list_val)
                     sigma_y = np.nanstd(DGr)
-                    m_diff[idRxn, idVar] = (sigma_x / sigma_y) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((sigma_x / sigma_y) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'ref-norm':
                     sa_method = 'Reference-normalized Derivative'
-                    m_diff[idRxn, idVar] = (ref_val / DGr_ref) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((ref_val / DGr_ref) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'var-based':
                     sa_method = 'Variance-normalized Derivative'
                     N = len(DGr)
                     varEDGr_X = np.sum(abs(DGr - DGr_ref)**2) / N
                     varEX = np.sum(abs(list_val - ref_val)**2) / N
-                    m_diff[idRxn, idVar] =  (varEX / varEDGr_X) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((varEX / varEDGr_X) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'pearson':
                     sa_method = 'Pearson\'s correlation'
                     cov_xy = np.cov(list_val, DGr) # np.cov(a,b) = [[cov(a,a), cov(a,b)][cov(a,b), cov(b,b)]]
                     Sxy = cov_xy[0][1]
                     sigma_x = np.nanstd(list_val)
                     sigma_y = np.nanstd(DGr)
-                    m_diff[idRxn, idVar] = (Sxy / (sigma_x * sigma_y))
+                    m_diff[idRxn, idVar] = np.squeeze((Sxy / (sigma_x * sigma_y)))
                 else:
                     raise ValueError(f'Unknown sensitivity method ({sensitivity_method}). Existing sensitivity methods: {sensitivity_methods}')
                 if min(DGr) < 0 and max(DGr) > 0:
@@ -1920,49 +1925,9 @@ class ThSA:
                     print(f'    ·[{comp}] done.')
                 else:
                     print(f'    ·{var} done.')
-        #-Plotting local_sa_DGr
-        fig, ax = plt.subplots(figsize = figsize)
-        yLabels = input_.copy()
-        if renameRxn:
-            for rxn_rename in renameRxn:
-                try:
-                    ind = yLabels.index(rxn_rename)
-                except:
-                    continue
-                else:
-                    yLabels[ind] = renameRxn[rxn_rename] 
-        x = np.arange(-0.5, len(list_var), 1)
-        y = np.arange(-0.5, len(yLabels), 1)
-        z = m_diff
-        if cb_limit:
-            pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True, vmin = vmin, vmax = vmax,
-                               cmap = 'coolwarm_r')
-            clb = fig.colorbar(pc, extend='both', orientation = cb_orientation)
-        else:
-            pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True,
-                               norm = clr.CenteredNorm(), cmap = 'coolwarm_r')
-            clb = fig.colorbar(pc, orientation = cb_orientation)
-        a = f'Sᵢ ({sa_method})'
-        if cb_orientation == 'vertical':
-            clb.set_label(a, fontsize = cb_fontsize) # , y = 0.53, labelpad = 9
-        else:
-            clb.set_label(a, fontsize = cb_fontsize)
-        # Equilibrium change (endergonic <-> exergonic)
-        eqch = np.argwhere(m_eqch == 1)
-        for idx_eqch in eqch:
-            plt.plot(idx_eqch[1], idx_eqch[0], marker = marker, mec = mec, mew = mew,
-                     mfc = mfc, ms = ms)
-        ax.xaxis.set_ticks_position('top')
-        ax.xaxis.set_label_position('top')
-        ax.set_xticks(np.arange(0, len(list_var), 1))
-        ax.set_xticklabels(xLabels, rotation = 90)
-        ax.set_yticks(np.arange(0, len(yLabels), 1))
-        ax.set_yticklabels(yLabels)
-        ax.set_facecolor('dimgrey') # dimgrey
-        ax.invert_yaxis()
-        fig.tight_layout()
-        plt.gca().set_aspect('equal', adjustable='box')  # Ensures equal aspect ratio
-        plt.show()
+        # #-Plotting local_sa_DGr
+        ThSA._plot_mesh_sa(input_, list_var, m_diff, m_eqch, None, sa_method , cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                           renameRxn, marker, mec, mew, mfc, ms)
         if showMessage:
             print('  > Done.')
     
