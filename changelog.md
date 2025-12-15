@@ -34,7 +34,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
 - Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
 - Bug in `ThSA.getDeltaGr()`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
-- Decrecation NumPy 1.25 solved. More information [here](https://github.com/pybamm-team/PyBaMM/issues/3052).
+- Warning in `ThSA.local_sa_DeltaGr()`. Decrecation NumPy 1.25 solved. More information [here](https://github.com/pybamm-team/PyBaMM/issues/3052).
 ### Changed
 - README file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.
