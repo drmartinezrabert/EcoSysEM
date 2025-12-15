@@ -2157,7 +2157,6 @@ class ThSA:
             first_order = []
             total_order = []
             var = np.nanvar([f_A, f_B], axis = (0, -1))
-            # print(f_AB.shape)
             for i in range(I):
                 fi_AB = f_AB[i, :]
                 method = method.lower()
@@ -2285,6 +2284,7 @@ class ThSA:
         N = _N_power_of_two(num, maxN = 15)
         # Creation of sampling matrices (N, k)
         A, B, AB = _sample_A_B_AB(N, k, l_bounds, u_bounds, rng)
+        # Variable initialization
         si = np.zeros((len(input_), len(list_var)))
         st = np.zeros((len(input_), len(list_var)))
         if check_negatives:
@@ -2340,6 +2340,75 @@ class ThSA:
                                renameRxn, marker, mec, mew, mfc, ms)
         else:
             return si, st, stat_sign, eqch
+    
+    def _plot_mesh_sa(input_, list_var, si, m_eqch, stat_sign, sa_method, cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                      renameRxn, marker, mec, mew, mfc, ms, fontFamily = 'Arial'):
+        plt.rcParams["font.family"] = fontFamily
+        fig, ax = plt.subplots(figsize = figsize)
+        xLabels = []
+        for idVar, var in enumerate(list_var):
+            if 'conc_' in var:
+                indx = var.find('_') + 1
+                comp = var[indx:]
+                xLabels += [f'[{comp}]']
+            else:
+                xLabels += [var]
+        yLabels = input_.copy()
+        if renameRxn:
+            for rxn_rename in renameRxn:
+                try:
+                    ind = yLabels.index(rxn_rename)
+                except:
+                    continue
+                else:
+                    yLabels[ind] = renameRxn[rxn_rename] 
+        x = np.arange(-0.5, len(list_var), 1)
+        y = np.arange(-0.5, len(yLabels), 1)
+        if isinstance(stat_sign, np.ndarray):
+            z = np.where(stat_sign != 0, stat_sign * si, si)
+        else:
+            z = si
+        #-DEBUGGING-#
+        print(f'min(z): {np.nanmin(z)}')
+        print(f'max(z): {np.nanmax(z)}')
+        #-----------#
+        if cb_limit:
+            pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True, vmin = vmin, vmax = vmax,
+                               cmap = 'coolwarm_r')
+            if (np.nanmin(z) < vmin) and (np.nanmax(z) > vmax):
+                extend_ = 'both'
+            elif (np.nanmin(z) < vmin) and not (np.nanmax(z) > vmax):
+                extend_ = 'min'
+            elif (np.nanmax(z) > vmax) and not (np.nanmin(z) < vmin):
+                extend_ = 'max'
+            else:
+                extend_ = 'neither'
+            clb = fig.colorbar(pc, extend=extend_, orientation = cb_orientation)
+        else:
+            pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True,
+                               norm = clr.CenteredNorm(), cmap = 'coolwarm_r')
+            clb = fig.colorbar(pc, orientation = cb_orientation)
+        a = f'Sᵢ ({sa_method})'
+        if cb_orientation == 'vertical':
+            clb.set_label(a, fontsize = cb_fontsize) # , y = 0.53, labelpad = 9
+        else:
+            clb.set_label(a, fontsize = cb_fontsize)
+        # Equilibrium change (endergonic <-> exergonic)
+        eqch = np.argwhere(m_eqch == 1)
+        for idx_eqch in eqch:
+            plt.plot(idx_eqch[1], idx_eqch[0], marker = marker, mec = mec, mew = mew,
+                     mfc = mfc, ms = ms)
+        ax.xaxis.set_ticks_position('top')
+        ax.xaxis.set_label_position('top')
+        ax.set_xticks(np.arange(0, len(list_var), 1))
+        ax.set_xticklabels(xLabels, rotation = 90)
+        ax.set_yticks(np.arange(0, len(yLabels), 1))
+        ax.set_yticklabels(yLabels)
+        ax.set_facecolor('dimgrey') # dimgrey
+        ax.invert_yaxis()
+        fig.tight_layout()
+        plt.gca().set_aspect('equal', adjustable='box')  # Ensures equal aspect ratio
+        plt.show()
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
