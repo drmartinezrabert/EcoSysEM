@@ -2038,6 +2038,9 @@ class ThSA:
                             elif var == 'pH':
                                 l_bounds[idVar] = max(float(pH_sv)-5, 0.0)
                                 u_bounds[idVar] = min(float(pH_sv)+5, 14.0)
+                            elif var == 'S':
+                                l_bounds[idVar] = max(float(S_sv)-10, 0.0)
+                                u_bounds[idVar] = float(S_sv) + 10
                             elif 'conc_' in var:
                                 indx = var.find('_') + 1
                                 comp = var[indx:]
@@ -2081,9 +2084,12 @@ class ThSA:
             A_B = qmc.Sobol(d = 2*k, seed = rng, bits = 64).random(N)
             if (l_bounds is not None) and (u_bounds is not None):
                 if ~np.isnan(l_bounds).any() and ~np.isnan(u_bounds).any():
+                    l_bounds = np.log10(l_bounds)
+                    u_bounds = np.log10(u_bounds)
                     l_bounds = np.tile(l_bounds, 2)
                     u_bounds = np.tile(u_bounds, 2)
                     A_B = qmc.scale(A_B, l_bounds, u_bounds)
+                    A_B = 10 ** A_B
                 else:
                     warnings.warn(f'NaN value(s) present in \'l_bounds\' ({l_bounds}) and/or \'u_bounds\' ({u_bounds}).')
             A = A_B[:, 0:k]
@@ -2162,6 +2168,106 @@ class ThSA:
                     total_order += [0.5 * np.nanmean((f_A - fi_AB) ** 2) / var]
             return np.array(first_order), np.array(total_order)
         
+        def _stat_sign(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, sample, list_var, stat_sign_method):
+            valid_methods = {'kendall', 'spearman', 'pearson'}
+            if not stat_sign_method in valid_methods:
+                raise NameError(f'Invalid method ({stat_sign_method}) to compute sobol\' indices. Valid methods: {valid_methods}.')
+            N, _ = sample.shape
+            Ct = sv['Ct'].copy()
+            T_sv = sv['T']
+            pH_sv = sv['pH']
+            S_sv = sv['S']
+            # Matrix initialization
+            eqch = np.nan * np.ones((len(input_), len(list_var))) 
+            stat_sign = np.nan * np.ones((len(input_), len(list_var)))
+            for idRxn, rxn in enumerate(input_):
+                specC_ = specComp[idRxn]
+                for idVar, var in enumerate(list_var):
+                    var_values = sample[:, idVar]
+                    shape_var = var_values.shape
+                    if var == 'T':
+                        T = var_values
+                        pH = pH_sv
+                        S = S_sv * np.ones(shape_var)
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = C[c] * np.ones(shape_var)
+                    elif var == 'pH':
+                        T = T_sv
+                        pH = var_values
+                        S = S_sv
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = np.array(C[c])
+                    elif var == 'S':
+                        T = T_sv * np.ones(shape_var)
+                        pH = pH_sv
+                        S = sample[:, idVar]
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = C[c] * np.ones(shape_var)
+                    elif var.startswith('conc_'):
+                        indx = var.find('_') + 1
+                        comp = var[indx:]
+                        rxn_comp, _, _ = Rxn.getRxn(typeRxn, rxn)
+                        all_comp = rxn_comp.copy()
+                        for c in all_comp:
+                            if c == 'CO2': c = 'H2CO3'
+                            pH_comp, _, _ = Rxn.getRxnpH(c)
+                            if pH_comp and c != 'H+' and c != 'H2O':
+                                if 'CO2' in pH_comp:
+                                    pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                                all_comp = np.unique(np.hstack((all_comp, pH_comp)))
+                        if not comp in all_comp:
+                            stat_sign[idRxn, idVar] = np.nan
+                            eqch[idRxn, idVar] = np.nan
+                            continue
+                        C = Ct.copy()
+                        for c in C:
+                            if c == comp:
+                                C[comp] = var_values
+                            else:
+                                C[c] = C[c] * np.ones(shape_var)
+                    if var != 'pH':
+                        DGr, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                                 input_ = rxn, 
+                                                 phase = phase, 
+                                                 specComp = specC_,
+                                                 T = T,
+                                                 pH = pH,
+                                                 S = S, 
+                                                 Ct = C,
+                                                 fluidType = fluidType,
+                                                 methods = methods)
+                    else:
+                        DGr = np.empty(shape_var)
+                        for idpH, pH_ in enumerate(pH):
+                            DGr_pH, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                                        input_ = rxn, 
+                                                        phase = phase, 
+                                                        specComp = specC_,
+                                                        T = [T],
+                                                        pH = pH_,
+                                                        S = [S], 
+                                                        Ct = C,
+                                                        fluidType = fluidType,
+                                                        methods = methods)
+                            DGr[idpH] = np.squeeze(DGr_pH)
+                    # Thermodynamic change analysis (endergonic <-> exergonic)
+                    if np.nanmin(DGr) < 0 and np.nanmax(DGr) > 0:
+                        eqch[idRxn, idVar] = 1
+                    else:
+                        eqch[idRxn, idVar] = 0
+                    # Statistical sign from DGr = f(var)
+                    if stat_sign_method == 'kendall':
+                        stat, _ = stats.kendalltau(var_values, DGr)
+                    elif stat_sign_method == 'spearman':
+                        stat, _ = stats.spearmanr(var_values, DGr)
+                    elif stat_sign_method == 'pearson':
+                        stat, _ = stats.pearsonr(var_values, DGr)
+                    stat_sign[idRxn, idVar] = np.squeeze(np.sign(stat))
+            return stat_sign, eqch
+        
         if showMessage:
             print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
         #-Checking arguments
@@ -2182,7 +2288,10 @@ class ThSA:
         si = np.zeros((len(input_), len(list_var)))
         st = np.zeros((len(input_), len(list_var)))
         if check_negatives:
-            rxn_negative_indices = []
+            rxns_negative_first_order = []
+            negatives_first_order = []
+            rxns_negative_total_order = []
+            negatives_total_order = []
         for idRxn, rxn in enumerate(input_):
             print(f'  {idRxn+1}.{rxn}')
             specC_ = specComp[idRxn]
@@ -2202,21 +2311,35 @@ class ThSA:
             f_B -= mean
             f_AB -= mean
             #-Compute indices
-            s_i, s_t = _indices(f_A = f_A, f_B = f_B, f_AB = f_AB, method = stat_method)
-            #-DEBUGGING-#
-            print(f'si: {s_i}')
-            print(f'st: {s_t}')
-            print('')
-            #-----------#
-            if check_negatives and ((s_i < 0).any() or (s_t < 0).any()):
-                rxn_negative_indices += [rxn] 
+            s_i, s_t = _indices(f_A = f_A, f_B = f_B, f_AB = f_AB, method = sobol_simpl)
+            if check_negatives: 
+                if (s_i < 0).any():
+                    rxns_negative_first_order += [rxn]
+                    negatives_first_order += [np.nanmin(s_i)]
+                if (s_t < 0).any():
+                    rxns_negative_total_order += [rxn]
+                    negatives_total_order += [np.nanmin(s_t)]
             si[idRxn, :] = s_i
             st[idRxn, :] = s_t
-        # if si/st < -0.05 -> si/st = 0.0
-        if check_negatives and rxn_negative_indices:
-            warnings.warn('Negative Sobol\' indices have been found. Please use a higher number of samples (argument "num").')
-            print(f'Reactions with negative indices: {rxn_negative_indices}.')
-        return si, st
+        print('')
+        if check_negatives:
+            if rxns_negative_first_order:
+                zip_negative_first_order = zip(rxns_negative_first_order, np.round(negatives_first_order, decimals = 5))
+                print(f'[!] Reactions with negative first order indices [\'reaction\', min(index)]: {list(zip_negative_first_order)}.')
+                print('')
+            if rxns_negative_total_order:
+                zip_negative_total_order = zip(rxns_negative_total_order, np.round(negatives_total_order, decimals = 5))
+                print(f'[!] Reactions with negative total order indices [\'reaction\', min(index)]: {list(zip_negative_total_order)}.')
+                print('')
+        # Thermodynamic change analysis (endergonic <-> exergonic) & Statistical sign from DGr = f(var)
+        print('  Executing thermodynamic change analysis & correlation analysis between DGr and variables...')
+        stat_sign, eqch = _stat_sign(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, A, list_var, stat_sign_method)
+        print('  Done.')
+        if plotMode:
+            ThSA._plot_mesh_sa(input_, list_var, st, eqch, stat_sign, "[±] Sobol' indices" , cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                               renameRxn, marker, mec, mew, mfc, ms)
+        else:
+            return si, st, stat_sign, eqch
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
