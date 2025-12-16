@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file.
   - Empirical requirement cell-specific power.
 - New environment modelling framework.
   - Multi-Metabolic State Model (MMSM) based on cell-specific power.
-- Complete thermodynamic sensitivity analysis.
 ### Changed
 - README file.
 
@@ -24,17 +23,18 @@ All notable changes to this project will be documented in this file.
   - Water column: `WaterColumn()`.
 - New arguments in plotting functions: `plotVarMap2D()`, `plotZonalMean()` and `plotCrossSections()`.
   - Font family: `fontFamily='Arial'`.
-  - Font weight of title: `fwtl='normal'`
+  - Font weight of title: `fwtl='normal'`.
 - Create new databases:
   - Specific heat capacities of compounds: `data/Cpi.csv`.
   - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
-- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`
-<!--
-- Global sensitivity analysis of Gibbs free energy: `ThSA.global_sa_DeltaGr()` and `Environment.global_sa_DGr()`.
-  - Sobol' indices.
--->
+- Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`.
+- Global sensitivity analysis of Gibbs free energy.
+  - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()` for `GWB()`.
 ### Fixed
-- Bug in `ThEq.ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
+- Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
+- Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
+- Bug in `ThSA.getDeltaGr()`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
+- Warning in `ThSA.local_sa_DeltaGr()`. Decrecation NumPy 1.25 solved. More information [here](https://github.com/pybamm-team/PyBaMM/issues/3052).
 ### Changed
 - README file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.
@@ -53,10 +53,10 @@ All notable changes to this project will be documented in this file.
   - ThSA functions are behaviours of `ISA()`, `ISAMERRA2()`, `CAMSMERRA2()` and `GWB()`.
 - Sensitivity analysis of non-standard Gibbs free energy.
   - 2D compound sensitivity analysis (contourf plot).
-- Creation of plotting script
-  - New function: plotVarMap2D()
-  - New function: plotZonalMean()
-  - New function: plotCrossSections()
+- Creation of plotting script.
+  - New function: plotVarMap2D().
+  - New function: plotZonalMean().
+  - New function: plotCrossSections().
 ### Fixed
 - Bug in `Environment.loadData()`: data existence wasn't check before loading.
 - Bug in `CAMSMERRA2()`: error came out when phase was defined.
@@ -72,7 +72,7 @@ All notable changes to this project will be documented in this file.
   - CAMS-MERRA2 atmospheric model.
 - New functions to calculate kinetic rates.
   - Michaelis-Menten.
-  - Michaelis-Menten + Arrhenius .
+  - Michaelis-Menten + Arrhenius.
 - Calculation of non-standard Gibbs free energy (non-ideal liquids).
   - Estimation of thermodynamic activity coefficients.
     - Activity coefficients of electrolytes. Debye-Hückel theory (extended version).
