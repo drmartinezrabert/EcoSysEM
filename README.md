@@ -2457,8 +2457,8 @@ Perform the local sensitivity analysis of Gibbs free energy for a set of reactio
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid ('ideal' or 'non-ideal').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext' - Debye-Hückel equation extended version.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SS' - Setschenow-Shumpe equation.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext' - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SS' - Setschenow-Shumpe equation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rangeType : _str_, _optional, default: 'VR'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of range. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DR' - 'defined range' and the user gives the maximum and minimum values of each variable. <br>
@@ -2550,8 +2550,8 @@ Perform the global sensitivity analysis (variance-based sensitivity analysis or 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid ('ideal' or 'non-ideal').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext' - Debye-Hückel equation extended version.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SS' - Setschenow-Shumpe equation.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext' - Debye-Hückel equation extended version. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'SS' - Setschenow-Shumpe equation. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_**  <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rangeType : _str_, _optional, default: 'VR'_** <br>
