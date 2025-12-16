@@ -29,7 +29,7 @@ All notable changes to this project will be documented in this file.
   - Equilibrium equation of electrolites for activity estimations: `reactions/electrolytes.csv`.
 - Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`.
 - Global sensitivity analysis of Gibbs free energy.
-  - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()`.
+  - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()` for `GWB()`.
 ### Fixed
 - Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
 - Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
