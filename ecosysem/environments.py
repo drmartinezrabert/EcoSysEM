@@ -959,13 +959,148 @@ class Environment:
                               printDH0r = printDH0r, 
                               showMessage = showMessage)
     
-    def sobol_indices_DGr(self):
+    def sobol_indices_DGr(self, typeRxn, input_, specComp, list_var, molality = True, rangeType = None, 
+                          range_ = None, num = 64, rng = None, sobol_simpl = 'saltelli', check_negatives = True, 
+                          stat_sign_method = 'kendall', plotMode = False, renameRxn = None, cb_limit = False, 
+                          cb_orientation = 'horizontal', cb_fontsize = 12, vmin = None, vmax = None, 
+                          figsize = (12.0, 8.0), marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, 
+                          showMessage = True):
+        """
+        Perform the global sensitivity analysis (variance-based sensitivity analysis or Sobol' indices) of Gibbs free 
+        energy for a set of reactions at a specific range of temperature, pH and concentrations of substrates and products.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'. The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 64.
+        rng : INT, optional
+            Pseudorandom number generator state (rng seed). The default is None.
+            When rng is None, a new numpy.random.Generator is created using entropy from the operating system.
+        sobol_simpl : STR, optional
+            Estimator method to calculate Sobol' indices. The default is 'saltelli'.
+                'saltelli'    - Estimators from Saltelli et al. (2010), doi: 10.1016/j.cpc.2009.09.018
+        check_negatives : BOOL, optional
+            Boolean to set whether negative Sobol' indices are displayed in Console (if any). The default is True.
+        stat_sign_method : STR, optional
+            Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
+        plotMode : BOOL, optional
+            Boolean to set whether color mesh plot is created. The default is False.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        showMessage : BOOL, optional
+            Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        .sobol_DGr['reactions'] : LIST
+            List of reactions.
+        .sobol_DGr['variables'] : LIST
+            List of variables.
+        .sobol_DGr['first order'] : np.ndarray
+            Matrix of first order indices. Shape: (reactions, variables).
+        .sobol_DGr['total order'] : np.ndarray
+            Matrix of total indices. Shape: (reactions, variables).
+        .sobol_DGr['stat_sign'] : np.ndarray
+            Matrix of statistical sign. Shape: (reactions, variables).
+                If positive (+1), DGr and variable are positively correlated (both increase or decrease together).
+                If negative (-1), DGr and variable are negatively correlated (one increase and the other decrease or vice versa).
+                If zero (0), DGr and variable are not correlated.
+        .sobol_DGr['eqch'] : np.ndarray
+            Matrix of equilbirum change (endergonic <-> exergonic). Shape: (reactions, variables).
+                If one (1), an equilibrium change is observed in the range of values of variables.
+                If zero (0), no equilibrium change is observed in the range of values of variables.
+        Plot in Spyder if 'plotMode = True'.
+
+        """
         validModels = {'GWB'}
         if not self.model in validModels:
             raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
-        
-        ThSA.sobol_indices_DeltaGr(
-                                    )
+        T_sv = self.temperature[0]
+        pH_sv = self.pH
+        S_sv = self.salinity[0]
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        si, st, stat_sign, eqch = ThSA.sobol_indices_DeltaGr(typeRxn = typeRxn,
+                                                             input_ = input_,
+                                                             specComp = specComp,
+                                                             list_var = list_var,
+                                                             Ct = Ct, T_sv = T_sv,
+                                                             pH_sv = pH_sv, S_sv = S_sv,
+                                                             phase = phase,
+                                                             fluidType = fluidType,
+                                                             methods = methods,
+                                                             molality = molality,
+                                                             rangeType = rangeType,
+                                                             range_ = range_,
+                                                             num = num, rng = rng,
+                                                             sobol_simpl = sobol_simpl,
+                                                             check_negatives = check_negatives,
+                                                             stat_sign_method = stat_sign_method,
+                                                             plotMode = plotMode,
+                                                             renameRxn = renameRxn, 
+                                                             cb_limit = cb_limit, 
+                                                             cb_orientation = cb_orientation, 
+                                                             cb_fontsize = cb_fontsize, 
+                                                             vmin = vmin, vmax = vmax, 
+                                                             figsize = figsize, 
+                                                             marker = marker, 
+                                                             mec = mec, mew = mew, 
+                                                             mfc = mfc, ms = ms, 
+                                                             showMessage = showMessage)
+        self.sobol_DGr = {'reactions': input_,
+                          'variables': list_var,
+                          'first order': si,
+                          'total order': st,
+                          'stat_sign': stat_sign,
+                          'eqch': eqch}
     
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
