@@ -18,9 +18,9 @@ from itertools import combinations
 from scipy import stats
 from scipy.stats import qmc
 import warnings
-#-DEBUGGING-#
 import time
-#-----------#
+
+import sys
 
 class MinorSymLogLocator(Locator):
     """
@@ -1706,9 +1706,9 @@ class ThSA:
             Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
         cb_limit : BOOL, optional
             Active/inactive limits of colorbar. The default is False.
-        cb_vmin : FLOAT or None, optional
+        vmin : FLOAT or None, optional
             Set minimum value of colorbar. The default is None.
-        cb_vmax : FLOAT or None, optional
+        vmax : FLOAT or None, optional
             Set maximum value of colorbar. The default is None.
         cb_fontsize : FLOAT, optional
             Set size of colorbar font. The default is 12.
