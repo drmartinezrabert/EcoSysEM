@@ -1994,6 +1994,33 @@ class ThSA:
             Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
         plotMode : BOOL, optional
             Boolean to set whether color mesh plot is created. The default is False.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
         showMessage : BOOL, optional
             Boolean to set whether informative messages are displayed in Console. The default is True.
 
@@ -2338,8 +2365,7 @@ class ThSA:
         if plotMode:
             ThSA._plot_mesh_sa(input_, list_var, st, eqch, stat_sign, "[±] Sobol' indices" , cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
                                renameRxn, marker, mec, mew, mfc, ms)
-        else:
-            return si, st, stat_sign, eqch
+        return si, st, stat_sign, eqch
     
     def _plot_mesh_sa(input_, list_var, si, m_eqch, stat_sign, sa_method, cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
                       renameRxn, marker, mec, mew, mfc, ms, fontFamily = 'Arial'):
@@ -2368,10 +2394,6 @@ class ThSA:
             z = np.where(stat_sign != 0, stat_sign * si, si)
         else:
             z = si
-        #-DEBUGGING-#
-        print(f'min(z): {np.nanmin(z)}')
-        print(f'max(z): {np.nanmax(z)}')
-        #-----------#
         if cb_limit:
             pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True, vmin = vmin, vmax = vmax,
                                cmap = 'coolwarm_r')
