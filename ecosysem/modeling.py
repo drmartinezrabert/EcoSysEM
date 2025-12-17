@@ -8,146 +8,227 @@ Created on Mon Sep 22 11:11:07 2025
 # Import Python packages
 import pandas as pd
 import numpy as np
-from scipy.integrate import ode
+import os.path
 import matplotlib.pyplot as plt
-import sys
-from time import process_time
+from scipy.integrate import ode
 
-# Import classes from modules (as abb.) or import with importlib
-from envdef import ISA
-from reactions import KinRates as KR
-from thermodynamics import ThSA
-from bioenergetics import CSP
-
-import copy
-
+# Import environment classes
+from environments import ISA, ISAMERRA2, CAMSMERRA2
 
 class MSMM:
     """
     Class for Multi-State Metabolic Model
-    
-    
-    reminder for ISA args : #!!!
-        self,
-        'layers',   => troposphere index = 0
-        'phase' : 'All',
-        'H2O' : 0.0,
-        'pH' : 7.0, 
-        'selCompounds' : None, -> means all
-        'selAlt' : None, -> means all
-        'resolution' : 1000
     """
 
-
-
-    def __init__(self, typeMetabo, metabolism, eDonor, Wtype, K, mortality, envModel,
-                 envArgs = None, DeltaGsynth = 9.54E-11, steepness = 0.2,
-                 degradPace = 'moderate', fluidType = 'ideal', actMethods = None):
-        
-        _metaboProperties = {}
-        _metaboProperties['fast'] = {'protein turnover rate':1 ,'specific metabolic shift rates':1}     #resp. [h] & [1/h]
-        _metaboProperties['moderate'] = {'protein turnover rate':5 ,'specific metabolic shift rates':0.2}
-        _metaboProperties['slow'] = {'protein turnover rate':14 ,'specific metabolic shift rates':0.071}    
-        dMtbRates = pd.DataFrame(data = _metaboProperties)
-        
-        self.envModel = envModel
-        self.atmModels = ['ISA', 'MERRA2', 'CAMS', 'ISAMERRA2', 'CAMSMERRA2']
-        #!!! other models?
-        self.typeMtb = typeMetabo    #metabolism type (STR), e.g. 'AnMetabolisms'
-        self.metabolism = metabolism    #reaction (STR), e.g. 'Mth' #??? only one community at a time?
-        #self.phase = phase             #'L' as default
-        self.Wtype = Wtype              # 'L_SW' or 'L_FW'
-        self.K = K                      #carrying capacity (FLOAT)
-        self.mortality = mortality      #(FLOAT) [1/h] #!!! and not 1/d
-        self.DGsynth = DeltaGsynth      #cell synthesis required energy
-        self.st = steepness
-        self.mtbRates = degradPace      #'fast', 'moderate' or 'slow'
-        self.eD = eDonor                #(specComp), e.g. 'CH4' for metabolism = 'Mth'
-        self.fluidType = fluidType      #'ideal' or 'non-ideal'
-        self.method = actMethods
-        self._callEnvP(envModel = envModel, envArgs = envArgs)
-        self._specMtbShiftRates = dMtbRates.loc['specific metabolic shift rates']
-        #self.Bini = Bini                #initial biomass in each state (LIST) -> plot arg
-        #self.time = time                #[setTime method] -> plot arg 
-        #if plotMSMM == True:
-        #self.plotMSMM(Bini, time) -> required args must be given when instance is created
-        #AJOUT ALEXIS
-        self._ODE_template = ode(f = self._ODEsystem_MSMM)
-        self._ODE_template.set_integrator('vode', method='adams')
-        
-
-    
-    def _callEnvP(self, envModel, envArgs):
-        """
-        Function to import needed environment data (temperature, pH, etc.) 
-        
-        Parameters
-        ----------
-        
-        envModel : STR
-            Environment model from which data are extracted.
-        envArgs : LIST or DICT
-            Required arguments for the environment model.
-            E.g. for envModel = 'ISA' :
-                envArgs = {layers : 'All',      -> troposphere only ?
-                           phase : 'All',       -> 'L-FW' / 'L_SW'
-                           H2O : 0.0,           -> affects atmo composition
-                           pH : 7.0,            -> affects bioenergetics
-                           selCompounds : None, -> metabolism related only ?
-                           selAlt = None,       -> subset of attributes related to portion of selected layers
-                           resolution = 1000}
-                or :
-                envArgs = ['All', 'All', 0., 7., None, None, 1000]
-            or: enArgs = None for other models
-                
-        Returns
-        -------
-        None (environment data set as MSMM attributes)
-        """
-        envModel = self.envModel
-        atmModels = self.atmModels
-        #!!! other models?
+    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
+                 DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
+                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
+                 actMethods = None, molality = True, asm = 'stoich',
+                 dataType = None, years = None, month = None, day = None,
+                 turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
+                 kinDB = {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']},
+                 typeKin = 'MM-Arrhenius', eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
+                 microCommunity = {'Mth': 'Methanotrophs','HOB': 'Hydrogen-oxidizing bacteria','COOB': 'CO-oxidizing bacteria'}):
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        validMetabo = ['Mth', 'HOB', 'COOB']
         if not isinstance(envModel, str):
-            print(f'arg.error: environment model must be a string. current input: {envModel}')
-            sys.exit()
-        if envModel in atmModels :
-            if envModel == 'ISA':
-                if isinstance(envArgs, list):
-                    ISAinst = ISA(*envArgs)
-                elif isinstance(envArgs, dict):
-                    ISAinst = ISA(**envArgs)
-                else:
-                    print('error in envArgs type')
-                    sys.exit()
-                self.pH = ISAinst.pH
-                self.compositions = ISAinst.compositions
-                self.compounds = ISAinst.compounds
-                self.resolution = ISAinst.resolution
-                self.temperature = ISAinst.temperature
-                self.pressure = ISAinst.pressure
-                self.altitude = ISAinst.altitude
-                self.H2O = ISAinst.H2O
-                self.Pi = ISAinst.Pi        #!!! could be useful for MSMMv2
-                self.Ci_G = ISAinst.Ci_G       #!!! //
-                if self.Wtype == 'L_FW':
-                    self.Ct = ISAinst.Ci_LFW
-                elif self.Wtype == 'L_SW':
-                    self.Ct = ISAinst.Ci_LSW
-                else: print('Liquid phase could not be recognized. Enter "L_FW" or "L_SW".')
-                self.salinity = 0.0 #!!! for models other than atm, can be !=0
-                self.typeKin = 'MM-Arrhenius'
-                self.db = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
-                #!!! print('ISA attributes were set.')
+            raise ValueError(f'Environment model must be a string. current input: {envModel}')
+        if not envModel in validModels:
+            raise NameError(f'Invalid model ({self.envModel}). Valid models: {validModels}.')
+        self.envModel = envModel
+        atmModels = ['ISA', 'ISAMERRA2', 'CAMSMERRA2']
+        if not isinstance(degradPace, str):
+            if isinstance(degradPace, (int, float)):
+                self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
+            else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
+        elif isinstance(degradPace, str):
+            if not degradPace in ['fast', 'moderate', 'slow'] :
+                raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
             else: 
-                if envArgs:
-                    envArgs == None
-                    print('arg.error: No arguments required for instances from other class than ISA.')
-                #!!! import needed attributes from other models
-        else:
-            print('arg.error: environment model not found, see envModels')
-            sys.exit()     
+                self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
+        self.mtbRates = degradPace      #'fast', 'moderate', 'slow' or float/int.
+        if not isinstance(typeMetabo, str):
+            raise TypeError(f'typeMetabo must be a str. Current type: {typeMetabo}.')
+        self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
+        if not isinstance(metabolism, list): metabolism = [metabolism]
+        if not len(metabolism) == 1:
+            raise AttributeError(f'A single metabolism name must be given, current input: {metabolism}.')
+        if not metabolism[0] in validMetabo:
+            raise NameError(f'Invalid metabolism. Valid inputs: {validMetabo}')
+        self.metabolism = metabolism   #reaction (STR), e.g. 'Mth'
+        if eD.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the eD dictionary. Please modify the corresponding argument.')
+        self.eD = eD[self.metabolism[0]]    #(specComp) based on given metabolism
+        if microCommunity.get(self.metabolism[0], None) == None:
+            raise AttributeError(f'No {self.metabolism} key could be found in the microCommunity dictionary. Please modify the corresponding argument.')
+        self.communityName = microCommunity[self.metabolism[0]]
+        if not isinstance(coord, (list, np.ndarray)): coord = [coord]
+        self.coord = coord
+        if envModel in atmModels:
+            self.plotYlabel = 'Cell concentration (cell/m³ air)'
+            if len(coord) == 1:
+                self.plotTitle = f"{self.communityName}'s dynamic at {coord[0]}m altitude ({envModel})"
+            elif len(coord) == 3:
+                self.plotTitle = f"{self.communityName}'s dynamic at {coord[0]}m altitude, {coord[1]}LON ; {coord[2]}LAT ({envModel})"
+            else : raise AttributeError('Invalid coordinates. Atmospheric models admit vertical (ISA) or 3D position. See README for more details.')   
+        if not isinstance(Wtype, str):
+            raise TypeError(f'Wtype must be a string, current type:{type(Wtype)}.')
+        if not Wtype == 'L-FW' and not Wtype == 'L-SW':
+            raise NameError(f'Given Wtype invalid ({Wtype}). Did you mean "L-FW" or "L-SW"?')
+        self.Wtype = Wtype              # 'L_SW' or 'L_FW'
+        if Wtype == 'L-SW':
+            if not isinstance(salinity, list): salinity = [salinity]
+            if not len(salinity) == 1:
+                raise AttributeError(f'A single salinity value must be given, current salinity: {salinity}.')
+            if not isinstance(salinity[0], (float, int)):
+                raise TypeError(f'Given salinity value must be float or int, current type: {salinity[0]}.')
+        else: salinity = [0.0]
+        if isinstance(pH, list):
+            if not len(pH) == 1:
+                raise AttributeError(f'A single pH value must be given, current pH: {pH}.')
+            else: pH = pH[0]
+        if not isinstance(pH, (float, int)):
+            raise TypeError(f'Given pH value must be float or int, current type: {pH}.')
+        self.dataType = dataType        #(STR)
+        self.dataYear = years #(INT or LIST)
+        self.dataMonth = month #(INT)
+        self.dataDay = day #(INT)
+        if not isinstance(K, (float,int)):
+            raise TypeError(f'Carrying capacity (K) must be a float or an int. Current type: {type(K)}.')
+        self.K = K     #(INT or FLOAT), carrying capacity [cell/unit volume]
+        if not isinstance(mortality, list): mortality = [mortality]
+        if len(mortality) == 1: mortality *= 3
+        elif len(mortality) != 3:
+            raise AttributeError(f'Mortality rates must be either the same for all 3 states (Growth, Maintenance, Survival) or a list of 3 ordered Floats. Current input: {mortality}.')
+        self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
+        if not isinstance(DeltaGsynth, (float,int)):
+            raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
+        self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
+        if not isinstance(steepness, list): steepness = [steepness]
+        if not all(isinstance(k, (float,int)) for k in steepness):
+            raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
+        if len(steepness) == 1: steepness *= 3
+        elif len(steepness) != 3:
+            raise AttributeError(f'Steepness parameter in the shift control functions must be either the same for all 3 types of shift (GxM, MxS, S-RIP) or a list of 3 ordered Floats. Current input: {steepness}.')
+        self.st = steepness             # [-]
+        if not isinstance(fluidType, str):
+            raise TypeError(f'fluidType must be a str. Current type: {type(fluidType)}.')
+        if not fluidType == 'ideal' and not fluidType == 'non-ideal':
+            raise AttributeError(f'Invalid input for fluidType. valid inputs: ideal, non-ideal. current input: {fluidType}.')
+        self.fluidType = fluidType      #'ideal' or 'non-ideal'
+        if not isinstance(typeKin, str):
+            raise TypeError(f'typeKin must be a str. Current type: {type(typeKin)}.')
+        if not isinstance(typeKin, str):
+            raise TypeError(f'Argument typeKin must be a str. Current input: {type(typeKin)}.')
+        self.typeKin = typeKin
+        if kinDB.get(self.typeKin, None) == None:
+            raise AttributeError(f'No {self.typeKin} key could be found in the kinDB dictionary. Please modify the corresponding argument.')
+        self.kinDB = kinDB[self.typeKin]
+        if not isinstance(Wcontent, (float, int)):
+            raise TypeError(f'Wcontent must be an int or a float. current type: {type(Wcontent)}.')
+        if isinstance(actMethods, str):
+            if not actMethods == 'DH-ext' and not actMethods == 'SS':
+                raise NameError(f'Str input for actMethod must be "DH-ext" or "SS". Current input: {actMethods}.')
+        elif actMethods != None:
+            raise TypeError(f'Argument actMethod must be a str ("DH-ext" or "SS") or None. Current type: {type(actMethods)}.')
+        if not isinstance(molality, bool):
+            raise TypeError(f'Argument molality must be a bool (True). Current type: {type(molality)}.')
+        if not molality == True:
+            raise AttributeError(f'Currently only admitted input for molality is True. invalid input: {molality}')
+        if not asm == 'stoich':
+            raise AttributeError(f'Currently only accepted input for asm is "stoich". Invalid input was given: {asm}.')
+        self._callEnvP(salinity, pH, Wcontent, actMethods, molality, asm)
+    
+    def _callEnvP(self, salinity_, pH_, H2O_, method_, molality_, asm_):
+        """
+        Function to import needed environment data (temperature, pH, etc.) as MSMM attributes.
 
-    def _ODEsystem_MSMM(self, t, y, idP):
+        """
+        #import required ISA attributes:
+        if self.envModel == 'ISA':
+            if len(self.coord) == 1: alt = self.coord[0]
+            else: raise AttributeError(f'A list of one element (selected altitude) should be given as coordinate if envModel is ISA, current coord: {self.coord}.')    
+            ISAinst = ISA(layers = 'All',
+                           phase = self.Wtype,
+                           H2O = H2O_,
+                           pH = pH_, 
+                           selCompounds = None,
+                           selAlt = [alt, alt],
+                           resolution = 1000)
+            ISAinst.salinity = salinity_     # set to None by default in ISA
+            ISAinst.methods = method_        # set to None by default in ISA
+            ISAinst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                          reactions = self.metabolism, specComp = self.eD,
+                          sample = 'All', DGsynth = self.DGsynth,
+                          solvent = 'H2O', molality = molality_, asm = asm_)
+            self.DGr = ISAinst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+            self.Rs = ISAinst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
+            self.CSP = ISAinst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
+            self.envConditions = ISAinst
+        #import required ISAMERRA2 attributes:
+        elif self.envModel == 'ISAMERRA2':
+            if len(self.coord) == 3:
+                alt = self.coord[0]
+                lon = self.coord[1]
+                lat = self.coord[2]
+            else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for ISAMERRA2, current coord: {self.coord}.')    
+            ISAMERRA2inst = ISAMERRA2(dataType = self.dataType,
+                                       y = self.dataYear,
+                                       m = self.dataMonth,
+                                       d = self.dataDay,
+                                       pH = pH_,
+                                       bbox = (lon, lat, lon, lat),
+                                       compound = None,
+                                       phase = self.Wtype, 
+                                       altArray = [alt],
+                                       numAlt = 50,
+                                       surftrop = None,
+                                       keysAsAttributes = False, 
+                                       showMessage = True)
+            ISAMERRA2inst.salinity = salinity_      # set to None by default in ISAMERRA2
+            ISAMERRA2inst.methods = method_         # set to None by default in ISAMERRA2
+            ISAMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                           reactions = self.metabolism, specComp = self.eD,
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
+            self.DGr = ISAMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+            self.Rs = ISAMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600 #[moleD/(cell.s)]
+            self.CSP = ISAMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
+            self.envConditions = ISAMERRA2inst
+        #import required CAMSMERRA2 attributes:   
+        elif self.envModel == 'CAMSMERRA2':
+            if len(self.coord) == 3:
+                alt = self.coord[0]
+                lon = self.coord[1]
+                lat = self.coord[2]
+            else: raise AttributeError(f'A list of 3 elements (selected altitude, longitude, latitude) should be given as coordinates for CAMSMERRA2, current coord: {self.coord}.')
+            CAMSMERRA2inst = CAMSMERRA2(dataType = self.dataType,
+                                           y = self.dataYear,
+                                           m = self.dataMonth,
+                                           d = self.dataDay,
+                                           pH = pH_,
+                                           bbox = (lon, lat, lon, lat),
+                                           keys = 'All',
+                                           phase = self.Wtype, 
+                                           altArray = [alt],
+                                           numAlt = 50,
+                                           surftrop = None,
+                                           keysAsAttributes = False, 
+                                           showMessage = True)
+            CAMSMERRA2inst.salinity = salinity_     # set to None by default in CAMSMERRA2
+            CAMSMERRA2inst.methods = method_        # set to None by default in CAMSMERRA2
+            CAMSMERRA2inst.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, typeMetabo = self.typeMtb,
+                           reactions = self.metabolism, specComp = self.eD,
+                           sample = 'All', DGsynth = self.DGsynth,
+                           solvent = 'H2O', molality = molality_, asm = asm_)
+            self.DGr = CAMSMERRA2inst.DGr[f'{self.metabolism[0]}_pH:{pH_}'] * 1000 #[J/moleD]
+            self.Rs = CAMSMERRA2inst.Rs[f'{self.metabolism[0]}'] / 3600  #[moleD/(cell.s)]
+            self.CSP = CAMSMERRA2inst.CSP[f'{self.metabolism[0]}_pH:{pH_}'] #[fW/cell]
+            self.envConditions = CAMSMERRA2inst
+        if self.envModel == "GWB":
+            raise AttributeError('Code part dedicated to general water body was not written yet.')
+
+    def _ODEsystem_MSMM(self, t, y):
         """
         Function for the differential equations system of the model.
         
@@ -158,13 +239,11 @@ class MSMM:
             Initial biomass in each metabolic state, e.g. [cell/m^3 air]
         t : LIST or np.array
             Time range over which biomass variation is computed
-        idP : INT
-            Parameter index from the plot function (involved parameters depend on envModel)
             
         Returns
         -------
         dB : LIST of FLOAT
-            Biomass variation in each metabolic state [cell/h].
+            Biomass variation [cell/h] in each metabolic state (Growth, Maintenance, Survival, Death).
         
         """
         Bg = y[0]
@@ -174,69 +253,32 @@ class MSMM:
         Btot = sum(Blist)
         
         #import self.attributes
-        mortality = self.mortality  #??? no copy required for immutable data types like floats or strings
+        mortality = self.mortality.copy()
+        mG = mortality[0]   #mortality in growth state
+        mM = mortality[1]   #mortality in maintenance state
+        mS = mortality[2]   #mortality in survival state
         K = self.K
-        typeKin = self.typeKin
-        paramDB = self.db.copy()
-        typeRxn = self.typeMtb
-        rxn = self.metabolism
-        specComp = self.eD
-        T = self.temperature.copy()
-        pH = self.pH
-        S = self.salinity
-        C = self.Ct.copy()
-        fluidType = self.fluidType
-        # Set requested arguments for ThSA.getDeltaGr & KR.getRs
-        if self.envModel in self.atmModels:
-            DGr_args = {'typeRxn' : typeRxn,
-                        'input_' : rxn,
-                        'phase' : 'L',
-                        'specComp' : specComp,
-                        'T' : T,
-                        'pH' : pH,
-                        'S' : S,
-                        'Ct' : C,
-                        'fluidType' : fluidType,
-                        'molality' : True,
-                        'methods' : None,
-                        'solvent' : 'H2O',
-                        'asm' : 'stoich', 
-                        'warnings' : False,
-                        'printDG0r' : False,
-                        'printDH0r' : False
-                        }       
-            Rs_args = {'typeKin' : typeKin,
-                       'paramDB' : paramDB,
-                       'reactions' : rxn,
-                       'T' : T,
-                       'pH' : pH,
-                       'Ct' : C, 
-                       'sample' : 'All'
-                       }
-            #!!! set getDeltaGr and getRs args for other models
-        # Compute the cell growth yield and cell-specific uptake rate    
-        DGr = (ThSA.getDeltaGr(**DGr_args)[0])[idP] * 1000  #[J/moleD]
+        DGr = self.DGr.copy()
+        Rs = self.Rs.copy()
         Yx = -(DGr * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
-        cRate = pd.DataFrame((KR.getRs(**Rs_args)[0])[self.metabolism]).mean(axis=1)[idP]   #cell-specific uptake rate [mol/cell.h]
+        
         # Compute biomass transfer between metabolic states
-        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, idP, Blist = Blist)
+        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist)
         # Compute biomass variation       
-        dBg = Yx * cRate * Bg * (1 - (Bg/K)) + Rm_g - Rg_m - mortality * Bg    
-        dBm =  Rg_m + Rs_m - Rm_g - Rm_s - mortality * Bm                     
-        dBs =  Rm_s - Rs_m - Rs_rip - mortality * Bs                          
-        dBrip = mortality * Btot + Rs_rip  
+        dBg = Yx * Rs * Bg * (1 - (Btot / K)) + Rm_g - Rg_m - mG * Bg    
+        dBm = Rg_m + Rs_m - Rm_g - Rm_s - mM * Bm                     
+        dBs = Rm_s - Rs_m - Rs_rip - mS * Bs                          
+        dBrip = mG * Bg + mM * Bm + mS * Bs + Rs_rip  
         dB = [dBg, dBm, dBs, dBrip]
         return dB
 
-    def _Bflux(self, idP,  Blist):
+    def _Bflux(self, Blist):
         """
         Function to compute biomass transfer between metabolic states.
         
         Parameters
         ----------
-        
-        idP : INT
-            Parameter index from the plot function (involved parameters depends on envModel)
+
         Blist : LIST
             List of 3 floats corresponding to biomass (e.g. [cell/m^3 air])
             in each state (growth, maintenance and survival) at time t.
@@ -245,7 +287,7 @@ class MSMM:
         
         Returns
         -------
-        Rlist : LIST    #??? to be changed
+        Rlist : LIST
              List of computed biomass transfer [cell/h] for each kind of metabolic shift:
                  - Rm_g : transfer from maintenance to growth
                  - Rg_m : transfer from growth to maintenance
@@ -253,197 +295,147 @@ class MSMM:
                  - Rs_rip : transfer from survival to dead cells
         """
         if len(Blist) != 3:
-            print('error in initial biomass, Blist must contain 3 elements') #!!!
-            sys.exit()
+            raise ValueError(f'Blist must contain 3 elements (Bg, Bm, Bs), current Blist: {Blist}.')
+        #Create shift control dict in MSMM attributes
+        self._stShifts()
         #Biomass in each metabolic state
-        Bg = Blist[0]
+        Bg = Blist[0] 
         Bm = Blist[1]
         Bs = Blist[2]
-        
-        thetaGM = MSMM._stShifts(self, shift = 'GxM')
-        thetaMS = MSMM._stShifts(self, shift = 'MxS')
-        thetaSRIP = MSMM._stShifts(self, shift = 'S-RIP')
-        
-        eta = self._specMtbShiftRates[self.mtbRates] 
-        Rm_g = Bm * eta * thetaGM[idP]
-        Rg_m = Bg * eta * (1 - thetaGM[idP])
-        Rs_m = Bs * eta * thetaMS[idP]
-        Rm_s = Bm * eta * (1 - thetaMS[idP])
-        Rs_rip = Bs * eta * (1 - thetaSRIP[idP])
+        #import metabolic shift controls and rates
+        theta = self.MSctrls.copy()
+        eta = self.specMSrate
+        #compute biomass transfers
+        Rm_g = Bm * eta * theta['GxM']
+        Rg_m = Bg * eta * (1 - theta['GxM'])
+        Rs_m = Bs * eta * theta['MxS']
+        Rm_s = Bm * eta * (1 - theta['MxS'])
+        Rs_rip = Bs * eta * (1 - theta['S-RIP'])
         Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
-        return Rlist    #??? change return format 
-        
-    def _stShifts(self, shift):
+        return Rlist
+    
+    def _stShifts(self):
         """
-        Function to compute shift control between two metabolic states.
-        
-        Parameters
-        ----------
-        
-        shift : STR
-            'GxM' => shift from growth state to maintenance and conversely
-            'MxS' => shift from maintenance state to survival and conversely
-            'S-RIP' => shift from survival state to death
-        
-        Returns
-        -------
-        theta : TYPE
-            Metabolic shift control [-]
+        Function to compute shift controls between metabolic states.
+                   
         """
-        # Set requested arguments for CSP.getAllCSP
-        if self.envModel in self.atmModels:
-            paramDB = self.db.copy()
-            typeKin = self.typeKin      # no copy required for immutable data types like floats or strings
-            typeMetabo = self.typeMtb
-            rxn = self.metabolism
-            specComp = self.eD
-            C = self.Ct.copy()
-            T = self.temperature.copy()
-            pH = self.pH
-            S = self.salinity
-            fluidType = self.fluidType
-            DGsynth = self.DGsynth
-        else: print('error in CSPargs'), sys.exit() #!!! set getAllCSP args for other models
-        
-        CSPargs = {'paramDB': paramDB, 
-                   'typeKin': typeKin,
-                   'typeMetabo': typeMetabo,
-                   'reaction': rxn,
-                   'specComp': specComp,
-                   'Ct': C,
-                   'T': T,
-                   'pH': pH,
-                   'S': S,
-                   'phase': 'L', 
-                   'sample': 'All',
-                   'fluidType': fluidType,
-                   'molality': True,
-                   'methods': None,
-                   'solvent': 'H2O',
-                   'asm': 'stoich',
-                   'DGsynth': DGsynth}
-        
+        CSPdict = self.CSP.copy()
         st = self.st
         #Compute cell specific powers
-        Pcat = CSP.getAllCSP(**CSPargs)['Pcat']
-        Pm = CSP.getAllCSP(**CSPargs)['Pm0']
-        Ps = CSP.getAllCSP(**CSPargs)['Ps']
-        Pcell = CSP.getAllCSP(**CSPargs)['Pcell']
-        #Compute shift controls (theta)
-        if shift == 'GxM':
-            theta = 1 / (np.exp((-Pcat + Pcell)/(st * Pcell)) +1)
-        elif shift == 'MxS':
-            theta = 1 / (np.exp((-Pcat + Pm)/(st * Pm)) +1)
-        elif shift == 'S-RIP':
-            theta = 1 / (np.exp((-Pcat + Ps)/(st * Ps)) +1)
-        else: print('error in itheta value'), sys.exit() #!!!
-        return theta
+        Pcat = CSPdict['Pcat']
+        Pm = CSPdict['Pm0']
+        Ps = CSPdict['Ps']
+        Pcell = CSPdict['Pcell']
+        #Initialize thetaDict before shift controls (theta) calculations
+        thetaDict = {}
+        thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st[0] * Pcell)) +1)
+        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st[1] * Pm)) +1)
+        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st[2] * Ps)) +1)
+        self.MSctrls = thetaDict
 
-    def solveODE(self, Bini, tSpan, dt = 1, exportBint = False):
-        print("debut")
-        print(type(dt))
-        print(tSpan)
-        """ #!!! tooltip
-        Function to plot solutions of the MSMM ODE system.
+    def solveODE(self, Bini, tSpan, dt = 1, solExport = False):
+        """
+        Function to solve the MSMM ODE system and export the results as .xlsx document.
         
         Parameters
         ----------
+        
         Bini : LIST of INT
-            Initial biomass in each state (LIST)
-        time : LIST or np.array
-            Time range over which the microbial dynamic is computed
-        exportBint : BOOL
-            Command to export integrated biomass values as Excel document.
-            Default is False. #!!! add export code
+            Initial biomass in each state (Growth, Maintenance, Survival, Death)
+        tSpan : LIST or np.array
+            Time range over which the microbial dynamic is computed, in hours
+        dt : INT or FLOAT, optional (default : 1h)
+            Time step for the integration.
+        solExport : BOOL, optional (default : False)
+            Command to export integrated biomass values as Excel document if set to True.
         
         Returns
         -------
-        db : LIST
-        [...]
+        
+        None 
+        ODE solutions (numpy.ndarray of shape [4, tSpan+1]) are saved as MSMM attribute ('Bsol')
+        If solExport is set to True, creates an Excel document of the results.
         
         """
+        # check Bini
         if not isinstance(Bini, np.ndarray): Bini = np.array(Bini)
         if len(Bini) != 4:
-            print('error in initial biomass, Bini must contain 4 elements') #!!!
-            sys.exit()
-        # set variables from self.attributes
-        if self.envModel in self.atmModels:
-            alt = self.altitude.copy()
-            isolve = len(alt)
-        else: print('envModel not found') #!!! set needed variables for other models
-        if not isinstance(tSpan, int): tSpan = int(tSpan)
+            raise ValueError(f'Bini must contain 4 elements, current length: {len(Bini)}.')
+        # create time array for later plotting
+        self.t_plot = np.linspace(0, tSpan, int(tSpan/dt)+1)
         #Initialize Bint matrix
-        Bint = np.empty(Bini.shape)
+        Bint = np.empty(4)
         Bint = Bint[..., np.newaxis]
         Bint = np.repeat(Bint, tSpan+1, axis = -1)
-        Bint = Bint[..., np.newaxis]
-        Bint = np.repeat(Bint, isolve, axis = -1)
-        #print('sol matrix shape:', Bint.shape)
-        print("test")
-        t0 = process_time()
-        ODEsol = copy.copy(self._ODE_template)
-        print(process_time() - t0)
-        
-        
-        
-        print("debut boucle for")
-        t0 = process_time()
-        for idP in range(isolve):
-             ODEsol.set_f_params(idP)
-             ODEsol.set_initial_value(Bini, 0)
-             #print(vars(ODEsol))
-             print(f'alt = {alt[idP]} m') # for envModel from atmModels only
-             print("debut boucle while")
-             while ODEsol.successful() and ODEsol.t < tSpan:
-                 print("while...")
-                 t0 = process_time()
-                 print(ODEsol.t+dt)
-                 sol = ODEsol.integrate(ODEsol.t+dt)
-                 print(sol)
-                 print(process_time() - t0)
-                 #int_status = ODEsol.get_return_code()
-                 #if int_status > 0: print('integration success')
-                 #elif int_status < 0: print('integration stopped early or failed')
-                 time = int(ODEsol.t)
-                 #print(time, sol)
-                 Bint[:,time,idP] = sol
-        print("fin boucle for")
-        print(process_time() - t0)
-        return Bint
-        
-    def plotMSMM(self, Bini, idP, time, dt = 1):
-        
-        """ #!!! tooltip
-        Function to plot solutions of the MSMM ODE system.
-        
-        Parameters
-        ----------
-        [...]
-        
-        Returns
-        -------
-        None (microbial dynamic is plotted, one microbial community at a time)
+        Bint[:,0] = Bini
+        #create ode instance & set initial values & integration method
+        ODEsol = ode(self._ODEsystem_MSMM)
+        ODEsol.set_initial_value(Bini, 0)
+        ODEsol.set_integrator('vode', method='adams')
+        # compute solutions over given time range
+        while ODEsol.successful() and ODEsol.t < tSpan:
+             sol = ODEsol.integrate(ODEsol.t+dt)
+             time = int(ODEsol.t)
+             Bint[:,time] = sol
+        # save ODE solutions as MSMM attribute (rounded values)
+        self.Bsol = np.round(Bint, 2)
+        # export ODE solutions as .xlsx document
+        if solExport == True:
+            path = 'results/'
+            nameDocument = input(' > Name of result document: ')
+            self.fullPathSave = path + nameDocument + '.xlsx'
+            if os.path.isfile(self.fullPathSave):
+                val = input(' > '+ nameDocument + '.xlsx already exists in this directory. /!\ Make sure no instance of the file is currently open. Do you want to overwrite `' + nameDocument + '.xlsx`? [Y/N]: ')
+                if val == 'Y' or val == 'y':       
+                    os.remove(self.fullPathSave)
+            MSMM._writeExcel(self)
+    
+    def _writeExcel(self):
         """
-        # call ODE solving function
-        Bplot = self.solveODE(Bini, time, dt)
+        Write calculated metabolic state biomass in Excel document.
 
-        if self.envModel in self.atmModels:
-            datmMicr = {'CH4': 'Methanotrophs',
-                        'H2': 'Hydrogen-oxidizing bacteria',
-                        'CO': 'CO-oxidizing bacteria'}
-            communityName = datmMicr[self.eD]
-            plt.plot(time, Bplot[0,:,idP],'g-', linewidth=2.0)    #growth state curve
-            plt.plot(time, Bplot[1,:,idP],'k-', linewidth=2.0)    #maintenance state curve
-            plt.plot(time, Bplot[2,:,idP],'b-', linewidth=2.0)    #survival state curve
-            plt.plot(time, Bplot[3,:,idP],'r--', linewidth=2.0)   #death state curve
-            if self.envModel in self.atmModels:
-                if self.envModel == 'ISA':
-                    plt.xlabel('time (hours)')
-                    plt.ylabel('Cell concentration (cell/m^3 air)')
-                    plt.title(f'Dynamic of the {communityName} community at {idP} km altitude')
-            else: sys.exit() #!!! labels for other models 
-            plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.4, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
-            plt.grid() 
-            plt.show()
+        """
+        Bstates = ['Growth', 'Maintenance', 'Survival', 'Death']
+        nameSheet_B = 'MSMM biomass'
+        # import solutions of the ODE and time array from MSMM attributes
+        time = pd.DataFrame(self.t_plot, columns = ['time (h)| states :'])
+        Bdf = pd.DataFrame({Bstates[i]: self.Bsol[i] for i in range(4)})
+        # adapt header to environment model
+        if self.envModel == 'ISA':
+            alt = self.coord[0]
+            introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolism: {self.metabolism[0]} | Altitude: {alt}m | Environment: {self.envModel}']))
+        elif self.envModel in ['ISAMERRA2', 'CAMSMERRA2']:
+            alt = self.coord[0]
+            lon = self.coord[1]
+            lat = self.coord[2]
+            introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolism: {self.metabolism[0]} | Coordinates: {lon}LON;{lat}LAT | Altitude: {alt}m | Environment: {self.envModel}']))
+        # write excel document 
+        if not os.path.isfile(self.fullPathSave):
+            with pd.ExcelWriter(self.fullPathSave) as writer:
+                introRowB.to_excel(writer, sheet_name = nameSheet_B, index = False, header = False)
+        with pd.ExcelWriter(self.fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
+            time.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 1, index = False, header = True)
+            Bdf.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 2, index = False, header = True)    
+        
+    def plotMSMM(self):
+        
+        """
+        Function to plot MSMM microbial dynamic of a single point in the environment space.
+        
+        """
+        # import solutions of the ODE and time array from MSMM attributes
+        Bplot = getattr(self, 'Bsol', None)
+        if Bplot is None:
+            raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
+        # plotting of metabolic state curves
+        plt.plot(self.t_plot, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
+        plt.plot(self.t_plot, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
+        plt.plot(self.t_plot, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
+        plt.plot(self.t_plot, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
+        plt.xlabel('time (hours)')
+        plt.ylabel(self.plotYlabel)
+        plt.title(self.plotTitle)
+        plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
+        plt.grid() 
+        plt.show()
         return
-

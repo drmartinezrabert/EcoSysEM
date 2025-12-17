@@ -1,0 +1,20 @@
+Sample,REF,Reaction,Coeff
+Methylobacter luteus ACM 3304,Tveit2023,Mth,1.080
+Methylomonas rubra,King1992,Mth,1.219
+Surface soil from Lena-Anabar lowland (0 – 14 cm),Knoblauch2008,Mth,1.053
+Surface soil from Samoylov Island (0 – 5 cm),Knoblauch2008,Mth,1.086
+Sludge sample from Lyubertsy (0 – 60 cm),Nozhevnikova2001,Mth,1.058
+Surface canopy soil from Puupuai volcano (0 – 2 cm),King2012,HOB,1.114
+Surface bare soil from Puupuai volcano (0 – 2cm),King2016,HOB,1.123
+Acidic cambisol from Mainau Forest (0 – 10 cm),Schuler1991,HOB,1.113
+Compost soil from greenhouse of the Uni. of Konstanz,Schuler1991,HOB,1.132
+"Boreal forest soil from Delta Junction, Alaska (23% moisture)",Smith-Downey2006,HOB,1.158
+Mojave Desert soil from Burns-Piñon Reserve (46% moisture),Smith-Downey2006,HOB,1.192
+Soil from mixed hardwood-conifer forest at the Darling Marine Center,King1999,COOB,1.065
+"Histosol (pH 6.2, grassland) ",Bartholomew&Alexander1981,COOB,1.041
+"Erie silt loam (pH 4.5, hardwood forest)",Bartholomew&Alexander1981,COOB,1.028
+"Williamson silt loam (pH 6.3, cropland)",Bartholomew&Alexander1981,COOB,1.085
+"Wehadkee silt loam 1 (pH 4.0, hardwood forest)",Bartholomew&Alexander1981,COOB,1.062
+"Congaree fine sandy loam (pH 4.5, hardwood forest)",Bartholomew&Alexander1981,COOB,1.058
+"Enon fine sandy loam (pH 4.5, hardwood forest)",Bartholomew&Alexander1981,COOB,1.057
+"Appling sandy loam (pH 4.7, cropland)",Bartholomew&Alexander1981,COOB,1.045

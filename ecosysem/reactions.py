@@ -112,14 +112,14 @@ class KinRates:
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR
             Name of parameter database, matching with csv name.
-        reactions : STR
-            Requested reaction.
+        reactions : STR or LIST
+            Requested reaction(s).
         Ct : DICT
             Concentration of substrates, products and/or inhibitors.
         sample : STR or LIST, optional
             Requested samples (rows of `paramDB.csv`). The default is 'All'.
         pH : FLOAT, optional
-            pH values. The default is None.
+            pH value. The default is None.
         T : FLOAT, LIST or np.ndarray, optional
             Temperatures. The default is None.
         
@@ -137,7 +137,7 @@ class KinRates:
         MyModule = importlib.import_module('thermodynamics')
         ThEq = MyModule.ThEq
         # Check variables
-        if not isinstance(T, np.ndarray): T = np.ndarray(T)
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if not isinstance(reactions, list): reactions = [reactions]
         if not isinstance(Ct, dict): raise TypeError('`Ct` argument must be a dictionary.')
         else:
@@ -397,7 +397,7 @@ class Reactions:
             if iCompound == 'CO2': iCompound = 'H2CO3'
             dRxnAux1 = dRxn.filter(regex = f'^{iCompound}/')
             dRxnAux2 = dRxn.filter(regex = f'/{iCompound}/')
-            dRxnAux3 = dRxn.filter(regex = f'/{iCompound}\s')
+            dRxnAux3 = dRxn.filter(regex = f'/{iCompound} *')
             dRxnSizes = [dRxnAux1.shape[1], dRxnAux2.shape[1], dRxnAux3.shape[1]]
             ind_dRxnMax = dRxnSizes.index(max(dRxnSizes))
             if ind_dRxnMax == 0:

@@ -7,6 +7,8 @@ Created on Fri Aug 29 12:00:06 2025
 
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
+from reactions import KinRates
+from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
 import pandas as pd
@@ -426,7 +428,7 @@ class Environment:
 
     def getDGr(self, typeRxn, input_, specComp):
         """
-        Compute (non-)stadard Gibbs free energy using information from
+        Compute (non-)standard Gibbs free energy using information from
         environmental models.
 
         Parameters
@@ -444,15 +446,15 @@ class Environment:
         Results are saved as an attribute of model instances (modelName.DGr) as a dictionary.
 
         """
-        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
-            raise ValueError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         phase = self.phase
-        T = self.temperature
-        pH = self.pH
+        T = self.temperature.copy()
+        pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         S = self.salinity
-        if self.model == 'GWB':
+        if self.model in {'GWB', 'WaterColumn'}:
             Ct = self.Ci_L.copy()
         elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
             if phase == 'G':
@@ -464,16 +466,208 @@ class Environment:
                 Ct = self.Ci_LSW.copy()
                 phase = 'L'
             else:
-                raise ValueError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
         fluidType = self.fluidType
         methods = self.methods
         DGr_dict = {}
-        for pH_ in pH:
-            DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
-                                           fluidType = fluidType, methods = methods)
-            for idRxn, rxn in enumerate(infoRxn):
-                DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
+            for pH_ in pH:
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
+        elif self.model in {'WaterColumn'}:
+            for idDepth, iDepth in enumerate(self.depth):
+                C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
+                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
+                                               fluidType = fluidType, methods = methods)
+                for idRxn, rxn in enumerate(infoRxn):
+                    try:
+                        DGr_dict[f'{rxn}'] = np.append(DGr_dict[f'{rxn}'], DGr[..., idRxn])
+                    except:
+                        DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
+    
+    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
+        """
+        Compute reaction rates using information from environmental models.
+        
+        Parameters
+        ----------
+        typeKin : STR
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR
+            Name of parameter database, matching with csv name.
+        reactions : STR or LIST
+            Requested reaction names.
+        sample : STR or LIST, optional (default: 'All')
+            Requested samples (rows of `paramDB.csv`).
+        pH : INT or FLOAT, optional (default: None)
+            pH value.
+        combMean : BOOL, optional (default: False)
+            A command to compute the mean of sample combinations's values.
+            If set to True, the returned dictionary contains a single np.ndarray
+            for each reaction key instead of comb keys with their own subarray.
+                
+        Returns
+        -------
+        Results are saved as an attribute of model instances (modelName.Rs) as a dictionary.
+
+        """
+        #check pH
+        if pH is not None:
+            if not isinstance(pH, (float, int)):
+                if isinstance(pH, list) and len(pH) == 1:
+                    pH = float(pH[0])
+                else: raise ValueError(f'pH ({pH}) must be a single float or int.')
+        #check model
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature.copy()
+        # check attributes type
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
+        Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
+        self.Rs = Rs_dict
+        # replace sample combinations's values with their mean
+        if combMean == True:
+            for key in Rs_dict.keys():
+                _rs = np.array(list(val for val in Rs_dict[key].values()))
+                _Rs = np.nanmean(_rs, axis = 0)
+                self.Rs[key] = _Rs
+          
+    def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp,
+               sample = 'All', DGsynth = 9.54E-11, molality = True,
+               solvent = 'H2O', asm = 'stoich'):
+        """           
+        Compute cell specific powers in fW/cell using information from environmental models :
+                - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
+                - 'Pana' : Anabolic cell-specific power: energy flux associated with the synthesis of cellular components.
+                - 'Pmg' : Growth-based maintenance power: energy flux that microbes use that does not result in growth while they are growing (Pirt et al., 1965).
+                - 'Pm0' : Basal maintenance power: energy flux associated with the minimal set of functions required to sustain a basal functional state (Hoehler et al., 2013).
+                - 'Ps' : Survival power: minimal energy flux for preservation of membrane integrity and key macromolecules (e.g., enzymes), as well as other maintenance costs, such as maintaining energized membranes or the conservation of catabolic energy.
+                - 'Pcell' : Growth power: energy flux of a growing cell (sum of Pana & Pmg).
+                
+        Parameters
+        ----------
+        typeKin : STR:
+            Type of kinetic equations 
+                MM - 'Michaelis-Menten equation'.
+                MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
+        paramDB : STR or LIST
+            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+        typeMetabo : STR
+            Requested metabolism type, matching with csv name. E.g.:
+                - 'metabolisms' : aerobic metabolisms
+                - 'AnMetabolisms' : anaerobic metabolisms
+        reactions : STR or LIST
+            Requested reactions names. E.g.:
+                -'COOB' : carbon monoxide oxidation
+                -'HOB' : hydrogen oxidation
+        specComp : STR or LIST
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        sample : STR or LIST, optional (default = 'All')
+            Requested samples (rows of `paramDB.csv`).
+        DGsynth : FLOAT, optional (default = 9.54E-11)
+            Energy necessary to synthesize a cell [J/cell].
+        molality : BOOL, optional (default = True)
+            Select if activity units are in molality (True) or molarity (False).
+        solvent : STR, optional (default = 'H2O')
+            Solvent name.
+        asm : STR, optional (default = 'stoich')
+            Assumption when products are not present in the environment.
+                - 'stoich' : stoichiometric concentrations
+        Returns
+        -------
+        CSP dict saved as attribute of the model instance (modelName.CSP).
+
+        """
+        #check model
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        #import environment conditions from instance's attributes
+        phase = self.phase
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        S = self.salinity
+        # check attributes type
+        if self.model == 'GWB':
+            Ct = self.Ci_L
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        # Initialize parameters for CSP computing
+        CSPargs = {}
+        CSPargs['paramDB'] = paramDB
+        CSPargs['typeKin'] = typeKin
+        CSPargs['typeMetabo'] = typeMetabo
+        CSPargs['reaction'] = None
+        CSPargs['specComp'] = None
+        CSPargs['Ct'] = Ct.copy()
+        CSPargs['T'] = T
+        CSPargs['pH'] = None
+        CSPargs['S'] = S
+        CSPargs['phase'] = phase
+        CSPargs['sample'] = sample
+        CSPargs['fluidType'] = self.fluidType
+        CSPargs['molality'] = molality
+        CSPargs['methods'] = self.methods
+        CSPargs['solvent'] = solvent
+        CSPargs['asm'] = asm
+        CSPargs['DGsynth'] = DGsynth
+        CSPargs['Rs'] = None
+        CSPargs['DGr'] = None
+        CSPargs['exportCSP'] = False
+        #initialize CSP dict (keys: Pcat, Pana,..., Pcell ; items: np.ndarrays)
+        CSP_dict = {}
+        if not isinstance(reactions, list): reactions = [reactions]
+        if not isinstance(specComp, list): specComp = [specComp]
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        #check DGr
+        _DGr = getattr(self,'DGr', None)
+        if _DGr is None:
+            self.getDGr(typeMetabo, reactions, specComp)
+            _DGr = self.DGr.copy()
+        for pH_ in pH:
+            CSPargs['pH'] = pH_
+            #get Rs
+            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
+            _Rs = self.Rs.copy()
+            #extract from _DGr, DGr keys for current pH (into DGr_aux)
+            DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
+            #assign needed arguments for CSP.getAllCSP()
+            for comp, rxn in enumerate(reactions):
+                CSPargs['reaction'] = rxn
+                CSPargs['specComp'] = specComp[comp]
+                CSPargs['Rs'] = _Rs[rxn] #dict
+                #extract from DGr_aux, DGr values of current reaction (assigned as argument for CSP)
+                for r in DGr_aux: 
+                    if f'{rxn}' in r:
+                        CSPargs['DGr'] = DGr_aux[r] #np.ndarray
+                #compute CSP values for current pH and reaction
+                CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
+        self.CSP = CSP_dict
     
     def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
                  logScaleX = True, vmin = None, vmax = None, printDG0r = False, printDH0r = False, 
@@ -549,13 +743,12 @@ class Environment:
                           printDH0r = printDH0r,
                           showMessage = showMessage)
 
-    def conc_sa_DGr(self, typeRxn, input_, specComp, range_val, num = 50, molality = True, marker = 'o', 
-                    mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12, 
-                    savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
+    def conc_var_DGr(self, typeRxn, input_, specComp, range_val, num = 50, molality = True, marker = 'o', 
+                     mec = 'k', mew = 1, mfc = 'w', ms = 8, figsize = (9.0, 6.0), fontsize_label = 12, 
+                     savePlot = False, printDG0r = False, printDH0r = False, showMessage = True):
         """
-        Perform a sensitivity analysis of Gibbs free energy for a set of reactions at a specific
-        range of substrate and product concentrations. If `savePlot=True`, the plots are saved in
-        `results/` folder in `/#. rxnName` folder.
+        Show the variation of Gibbs free energy for a set of reactions at a specific range of substrate
+        and product concentrations. If `savePlot=True`, the plots are saved in `results/#. rxnName` folder.
 
         Parameters
         ----------
@@ -611,30 +804,295 @@ class Environment:
             Ct = self.Ci_L.copy()
         fluidType = self.fluidType
         methods = self.methods
-        ThSA.conc_sa_DeltaGr(typeRxn = typeRxn, 
-                             input_ = input_, 
-                             specComp = specComp, 
-                             Ct = Ct, 
-                             range_val = range_val, 
-                             T = T, 
-                             pH = pH, 
-                             S = S,
-                             phase = phase,
-                             num = num, 
-                             fluidType = fluidType, 
-                             molality = molality, 
-                             methods = methods, 
-                             marker = marker, 
-                             mec = mec, mew = mew,
-                             mfc = mfc, ms = ms, 
-                             figsize = figsize, 
-                             fontsize_label = fontsize_label, 
-                             savePlot = savePlot,
-                             printDG0r = printDG0r, 
-                             printDH0r = printDH0r, 
-                             showMessage = showMessage)
+        ThSA.conc_var_DeltaGr(typeRxn = typeRxn, 
+                              input_ = input_, 
+                              specComp = specComp, 
+                              Ct = Ct, 
+                              range_val = range_val, 
+                              T = T, 
+                              pH = pH, 
+                              S = S,
+                              phase = phase,
+                              num = num, 
+                              fluidType = fluidType, 
+                              molality = molality, 
+                              methods = methods, 
+                              marker = marker, 
+                              mec = mec, mew = mew,
+                              mfc = mfc, ms = ms, 
+                              figsize = figsize, 
+                              fontsize_label = fontsize_label, 
+                              savePlot = savePlot,
+                              printDG0r = printDG0r, 
+                              printDH0r = printDH0r, 
+                              showMessage = showMessage)
         
+    def local_sa_DGr(self, typeRxn, input_, specComp, list_var, rangeType = 'VR', range_ = None, 
+                     num = 50, num_pH = 10, sensitivity_method = 'sigma-norm', concLog10 = False, 
+                     molality = True, renameRxn = None, figsize = (12.0, 8.0), cb_limit = False, 
+                     vmin = None, vmax = None, cb_fontsize = 12, cb_orientation = 'horizontal', 
+                     marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, printDG0r = False, 
+                     printDH0r = False, showMessage = True, fontsize = 11):
+        """
+        Perform the local sensitivity analysis of Gibbs free energy for a set of reactions at a specific
+        range of temperature, pH and concentrations of substrates and products.
 
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 50.
+        num_pH : INT, optional
+            Number of pH values to generate between min_value and max_value. The default is 10.
+        sensitivity_method : STR ('local', 'sigma-norm'), optional
+            Set sensitivity method. The default is 'sigma-norm'.
+        concLog10 : BOOL, optional
+            Establish whether concentration is analysed using log10(Ci). The default is True.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        cb_vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        printDG0r : BOOL, optional
+            Print in console the values of standard Gibbs free energy of reactions. The default is False.
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        showMessage : BOOL, optional
+             Boolean to set whether informative messages are displayed in Console. The default is True.
+        fontsize : FLOAT, optional
+            Set font size. The default is 11.
+
+        Returns
+        -------
+        Plot in Spyder.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T_sv = self.temperature
+        pH_sv = self.pH
+        S_sv = self.salinity
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        ThSA.local_sa_DeltaGr(typeRxn = typeRxn, 
+                              input_ = input_, 
+                              specComp = specComp,
+                              list_var = list_var,
+                              Ct = Ct, 
+                              T_sv = T_sv, 
+                              pH_sv = pH_sv, 
+                              S_sv = S_sv,
+                              fontsize = fontsize,
+                              rangeType = rangeType, 
+                              range_ = range_, 
+                              num = num,
+                              num_pH = num_pH,
+                              sensitivity_method = sensitivity_method,
+                              concLog10 = concLog10, 
+                              phase = phase, 
+                              fluidType = fluidType, 
+                              molality = molality, 
+                              methods = methods, 
+                              renameRxn = renameRxn, 
+                              figsize = figsize, 
+                              cb_limit = cb_limit, 
+                              vmin = vmin, 
+                              vmax = vmax, 
+                              cb_fontsize = cb_fontsize,
+                              cb_orientation = cb_orientation, 
+                              marker = marker, 
+                              mec = mec, mew = mew, 
+                              mfc = mfc, ms = ms, 
+                              printDG0r = printDG0r, 
+                              printDH0r = printDH0r, 
+                              showMessage = showMessage)
+    
+    def sobol_indices_DGr(self, typeRxn, input_, specComp, list_var, molality = True, rangeType = None, 
+                          range_ = None, num = 64, rng = None, sobol_simpl = 'saltelli', check_negatives = True, 
+                          stat_sign_method = 'kendall', plotMode = False, renameRxn = None, cb_limit = False, 
+                          cb_orientation = 'horizontal', cb_fontsize = 12, vmin = None, vmax = None, 
+                          figsize = (12.0, 8.0), marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, 
+                          showMessage = True):
+        """
+        Perform the global sensitivity analysis (variance-based sensitivity analysis or Sobol' indices) of Gibbs free 
+        energy for a set of reactions at a specific range of temperature, pH and concentrations of substrates and products.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'. The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 64.
+        rng : INT, optional
+            Pseudorandom number generator state (rng seed). The default is None.
+            When rng is None, a new numpy.random.Generator is created using entropy from the operating system.
+        sobol_simpl : STR, optional
+            Estimator method to calculate Sobol' indices. The default is 'saltelli'.
+                'saltelli'    - Estimators from Saltelli et al. (2010), doi: 10.1016/j.cpc.2009.09.018
+        check_negatives : BOOL, optional
+            Boolean to set whether negative Sobol' indices are displayed in Console (if any). The default is True.
+        stat_sign_method : STR, optional
+            Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
+        plotMode : BOOL, optional
+            Boolean to set whether color mesh plot is created. The default is False.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        showMessage : BOOL, optional
+            Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        .sobol_DGr['reactions'] : LIST
+            List of reactions.
+        .sobol_DGr['variables'] : LIST
+            List of variables.
+        .sobol_DGr['first order'] : np.ndarray
+            Matrix of first order indices. Shape: (reactions, variables).
+        .sobol_DGr['total order'] : np.ndarray
+            Matrix of total indices. Shape: (reactions, variables).
+        .sobol_DGr['stat_sign'] : np.ndarray
+            Matrix of statistical sign. Shape: (reactions, variables).
+                If positive (+1), DGr and variable are positively correlated (both increase or decrease together).
+                If negative (-1), DGr and variable are negatively correlated (one increase and the other decrease or vice versa).
+                If zero (0), DGr and variable are not correlated.
+        .sobol_DGr['eqch'] : np.ndarray
+            Matrix of equilbirum change (endergonic <-> exergonic). Shape: (reactions, variables).
+                If one (1), an equilibrium change is observed in the range of values of variables.
+                If zero (0), no equilibrium change is observed in the range of values of variables.
+        Plot in Spyder if 'plotMode = True'.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T_sv = self.temperature[0]
+        pH_sv = self.pH
+        S_sv = self.salinity[0]
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        si, st, stat_sign, eqch = ThSA.sobol_indices_DeltaGr(typeRxn = typeRxn,
+                                                             input_ = input_,
+                                                             specComp = specComp,
+                                                             list_var = list_var,
+                                                             Ct = Ct, T_sv = T_sv,
+                                                             pH_sv = pH_sv, S_sv = S_sv,
+                                                             phase = phase,
+                                                             fluidType = fluidType,
+                                                             methods = methods,
+                                                             molality = molality,
+                                                             rangeType = rangeType,
+                                                             range_ = range_,
+                                                             num = num, rng = rng,
+                                                             sobol_simpl = sobol_simpl,
+                                                             check_negatives = check_negatives,
+                                                             stat_sign_method = stat_sign_method,
+                                                             plotMode = plotMode,
+                                                             renameRxn = renameRxn, 
+                                                             cb_limit = cb_limit, 
+                                                             cb_orientation = cb_orientation, 
+                                                             cb_fontsize = cb_fontsize, 
+                                                             vmin = vmin, vmax = vmax, 
+                                                             figsize = figsize, 
+                                                             marker = marker, 
+                                                             mec = mec, mew = mew, 
+                                                             mfc = mfc, ms = ms, 
+                                                             showMessage = showMessage)
+        self.sobol_DGr = {'reactions': input_,
+                          'variables': list_var,
+                          'first order': si,
+                          'total order': st,
+                          'stat_sign': stat_sign,
+                          'eqch': eqch}
+    
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _HfromP(self, P):
@@ -776,7 +1234,7 @@ class ISA(Atmosphere):
         # Layers of the Earth's atmosphere (ISA)
         _ISAproperties = {
                         'Layer': [0, 1, 2, 3, 4, 5, 6, 7],
-                        'Layer name': ['Troposphere', 'Tropopuse', 'Stratosphere', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesosphere', 'Mesopause'],
+                        'Layer name': ['Troposphere', 'Tropopause', 'Stratosphere', 'Stratopause', 'Mesosphere', 'Mesopause', 'Thermosphere', 'Thermopause'],
                         'Start altitude': [0, 11000, 20000, 32000, 47000, 51000, 71000, 84852],         # [m (above MSL)]
                         'End altitude': [11000, 20000, 32000, 47000, 51000, 71000, 84852, 85852],       # [m (above MSL)]
                         'Lapse rate': [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0, 0.0],                      # [C/km)]
@@ -1189,7 +1647,7 @@ class MERRA2(Atmosphere):
             max_TROPH = np.nanmax(TROPH) * 0.99
             altChk = altArray
             if not isinstance(altArray, (list, np.ndarray)): altArray = np.array(altArray)
-            altArray = np.where(altArray < max_TROPH, altArray, np.NaN)
+            altArray = np.where(altArray < max_TROPH, altArray, np.nan)
             altArray = altArray[~np.isnan(altArray)]
             if np.any(altChk > max_TROPH):
                 altArray = np.append(altArray, max_TROPH)
@@ -1207,11 +1665,11 @@ class MERRA2(Atmosphere):
         # Pressure profile
         P = PS * (1 + ((LR) / (TS)) * (H - HS)) ** (-(g0 * M0) / (R * LR))
         # Temperature
-        T = np.where(H < HS, np.NaN, T)
-        T = np.where(H > TROPH, np.NaN, T)
+        T = np.where(H < HS, np.nan, T)
+        T = np.where(H > TROPH, np.nan, T)
         # Pressure
-        P = np.where(H < HS, np.NaN, P)
-        P = np.where(H > TROPH, np.NaN, P)
+        P = np.where(H < HS, np.nan, P)
+        P = np.where(H > TROPH, np.nan, P)
         return T, P, altArray
         
     def getDataMERRA2(self, dataType, years, months,
@@ -2621,7 +3079,8 @@ class CAMSMERRA2(Atmosphere):
                             new_data[k, i, j] = val
         return new_data
     
-    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), altArray = None, loc = None, num = 50):
+    def _getConcCAMSMERRA2(self, phase, data, dataType, year, month = None, day = None, bbox = (-180, -90, 180, 90), 
+                           altArray = None, loc = None, num = 50):
         """
         Converts the mass ratio (kg/kg) to concentration (mol/L).
 
@@ -2766,7 +3225,8 @@ class GWB(Hydrosphere):
     pool, pond, or stream.
     
     """
-    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', methods = None, showMessage = True):
+    def __init__(self, Ct, T = [298.15], pH = [7.0], salinity = [0.0], fluidType = 'ideal', 
+                 methods = None, showMessage = True):
         if showMessage:
             print('  > Creating GWB instance...')
         self.environment = 'Hydrosphere'
@@ -2820,6 +3280,119 @@ class GWB(Hydrosphere):
         if showMessage:
             print('  > Done.')
 
+class WaterColumn(Hydrosphere):
+    """
+    Definition of physical (temperature, salinity, ligth penetration) and chemical (pH, DO, concentration of nutrients)
+    characteristics of seawater or freshwater at different depths for a defined geographical point (latitude, longitude).
+    
+    """
+    def __init__(self, readMode = False, fileName = None, depth = None, Ct = None, T = None, pH = None,
+                 salinity = None, coor = None, extraParam = None, fluidType = 'ideal', methods = None,
+                 date = None, cleanData = False, sd = None, showMessage = True, _model = None):
+        if readMode == False and not depth:
+            raise ValueError('WaterColumn instance cannot be created because not enough information has been given. Activate read mode and give a file name or specify depth, water composition (Ct), temperature (T), pH and salinity.')
+        if showMessage:
+            print('  > Creating WaterColumn instance...')
+        self.environment = 'Hydrosphere'
+        self.model = 'WaterColumn'
+        self.phase = 'L'
+        self._readMode = readMode
+        self._cleanData = cleanData
+        if coor:
+            if not isinstance(coor, tuple): raise TypeError('Argument \'coor\' must be a tuple: (latitude, longitude).')
+            self.lon = coor[1]
+            self.lat = coor[0]
+        if date: self.date = date
+        if readMode: # Read file 'fileName.csv' from `/data` folder.
+            if fileName:
+                self._readCSV(fileName, cleanData)
+            else: raise ValueError('A `fileName` must be given with WaterColumn() in read mode.')
+        if _model:
+            raise ValueError('The creation of a WaterColumn instance using a specific model has not yet been implemented.')
+        if not readMode and not _model: # readMode = False
+            if not isinstance(depth, (list, np.ndarray)): raise TypeError('Argument \'depth\' must be a list.')
+            if not isinstance(T, (list, np.ndarray)): raise TypeError('Argument \'T\' (temperature) must be a list.')
+            if not isinstance(pH, (list, np.ndarray)): raise TypeError('Argument \'pH\' must be a list.')
+            if not isinstance(salinity, (list, np.ndarray)): raise TypeError('Argument \'salinity\' must be a list.')
+            lenDepth = len(depth)
+            lenT = len(T)
+            lenpH = len(pH)
+            lenS = len(salinity)
+            if lenT != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`T`: {lenT}) lenghts do not match.')
+            if lenpH != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and pH (`pH`: {lenpH}) lenghts do not match.')
+            if lenS != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and salinity (`salinity`: {lenT}) lenghts do not match.')
+            self.depth = depth
+            self.temperature = T
+            self.pH = pH
+            self.salinity = salinity
+            if not isinstance(Ct, dict): raise TypeError('Argument \'Ct\' (water composition) must be a dictionary: {\'compound\': [concentration]}.')
+            Ct = {f'{comp}': np.array(Ct[comp]) for comp in Ct}
+            lenC = [len(Ct[comp]) for comp in Ct]
+            setC = set(lenC)
+            if len(setC) == 1:
+                lenC = lenC[0]
+                if lenC != lenDepth: 
+                    raise ValueError(f' Depth (`depth`: {lenDepth}) and water composition (`Ct`: {lenC}) lenghts do not match.')
+                else:
+                    self.Ci_L = Ct
+            if sd:
+                if not isinstance(sd, dict): 
+                    raise TypeError('Argument \'sd\' (standard deviations) must be a dictionary: {\'parameter\': [st. dev.]}.')
+                else:
+                    self.sd = sd
+            if extraParam:
+                if isinstance(extraParam, dict):
+                    for var in extraParam:
+                        value = extraParam[var]
+                        if not isinstance(value, (list, np.ndarray)): raise TypeError('Parameter \'{var}\' must be a list.')
+                        lenParam = len(value)
+                        if lenParam != lenDepth: raise ValueError(f' Depth (`depth`: {lenDepth}) and temperature (`{var}`: {lenParam}) lenghts do not match.')
+                        setattr(self, var, value)
+                else: raise TypeError('Argument \'extraParam\' must be a dictionary.')
+        if fluidType != 'ideal' and fluidType != 'non-ideal':
+            raise ValueError(f'Unknown fluid type ({fluidType}). Existing types: \'ideal\' and \'non-ideal\'')
+        self.fluidType = fluidType
+        if fluidType == 'non-ideal':
+            if not methods:
+                methods = {}
+                for compound in self.Ci_L:
+                    methods[compound] = 'DH-ext'
+            self.methods = methods
+        else:
+            self.methods = None
+        if showMessage:
+            print('  > Done.')
+        
+    def _readCSV(self, fileName, cleanData):
+        path = 'data/'
+        df = pd.read_csv(f'{path}{fileName}.csv')
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        if cleanData:
+            df = df.dropna()
+        mainAttributes = {'Depth', 'depth', 'Temperature', 'temperature', 'pH', 'ph', 'Salinity', 'salinity'}
+        Ct = {}
+        sd = {}
+        for var in df:
+            if var in mainAttributes:
+                if var == 'ph':
+                    varAttr = 'pH'
+                else:
+                    varAttr = var[0].lower() + var[1:]
+                setattr(self, varAttr, df[var].values)
+            elif 'conc_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                Ct[compound] = df[var].values
+            elif 'sd_' in var:
+                indx = var.index('_') + 1
+                compound = var[indx:]
+                sd[compound] = df[var].values
+            else:
+                setattr(self, var, df[var].values)
+        if bool(Ct):
+            self.Ci_L = Ct
+        if bool(sd):
+            self.sd = sd
 class Ocean(Hydrosphere):
     pass
 

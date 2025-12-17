@@ -27,12 +27,12 @@ def _savePlot(file, cPlots):
     else:
         plt.savefig(f'{file}.tiff', bbox_inches='tight')
 
-def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, 
-                 figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, 
+def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, fontFamily = 'Arial',  
+                 figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, fwtl = 'normal',
                  drawCoastLines = True, clw = 0.5, drawParallels = True, plw = 0.5, cpl = 'k', title = None,
                  drawMeridians = True, mlw = 0.5, cml = 'k', colorbar = True, parallelsLabels = [1,0,0,0], 
                  parallels = [-90, -60, -30, 0, 30, 60, 90], meridians = [0., 60., 120., 180., 240., 300.], 
-                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', 
+                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey',
                  colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
     """
     Plot variable on world map.
@@ -110,7 +110,8 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     Spyder plot.
 
     """
-    savePath = 'results/' 
+    savePath = 'results/'
+    plt.rcParams["font.family"] = fontFamily
     # Plotting colour
     if isinstance(cmap, (list, np.ndarray)):
         cmap = ListedColormap(cmap, name = 'plot_cmap')
@@ -142,7 +143,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                cmap=cmap)
     ax.set_facecolor(lakeColor)
     if title:
-        plt.title(title, fontweight = 'bold')
+        plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
     if savePlot:
         cPlots = 1
         file = f'{savePath}{varName}_varMap2D'
@@ -167,12 +168,11 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
             _savePlot(file, cPlots)
         plt.show()
     
-def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, 
-                  fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, 
-                  fontsize = 12, alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, 
-                  latitude = None, longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12,
-                  xTicks = None, colorbarSize = None, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}',
-                  savePlot = False):
+def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, fontFamily = 'Arial',
+                  fwtl = 'normal', fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, fontsize = 12, 
+                  alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, latitude = None, longitude = None, 
+                  vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, colorbarSize = None, savePlot = False,
+                  cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
     """
     Plot zonal mean of data.
 
@@ -252,6 +252,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
     savePath = 'results/' 
     font = {'size': fontsize}
     plt.rc('font', **font)
+    plt.rcParams["font.family"] = fontFamily
     if zone == 'latlon':
         axis_ = (1, 2)
     elif zone == 'lon':
@@ -287,7 +288,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                     labels += [f'{abs(int(position))}°E']
         else:
             positions = [-180, -90, 0, 90, 179.375]
-            labels = ['180°W', '90°W', '0°', '90°E', '180°E']
+            labels = ['180°', '90°W', '0°', '90°E', '180°']
         split_points = [0, 6.0, np.max(altitude)]
         backgroundColor = ['black', 'lightgrey']
     else:
@@ -340,7 +341,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             fig.tight_layout()
             plt.margins(y=0)
             if title:
-                plt.title(title, fontweight = 'bold')
+                plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
         elif zone == 'lon':
             ax.contourf(latitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
             ax.set_xlabel('Latitude (°)')
@@ -401,8 +402,8 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
                 _savePlot(file, cPlots)
             plt.show()
     
-def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), 
-                      sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
+def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), fontFamily = 'Arial',
+                      fwtl = 'normal', sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
                       colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
                       fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
                       lakeColor = 'darkgrey', savePlot = False):
@@ -451,7 +452,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     fix_aspect : BOOL, optional
         Fix aspect ratio of plot to match aspect ratio of map projection region. The default is False.
     numTicks : DICT, optional
-        DESCRIPTION. The default is None.
+        Set latitude and longitude tick values of section plots. {'A-B': 9}. The default is None.
     clw : FLOAT, optional
         Coast line width. The default is 0.5.
     continentColor : STR, optional
@@ -469,6 +470,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     savePath = 'results/'
     font = {'size': fontsize}
     plt.rc('font', **font)
+    plt.rcParams["font.family"] = fontFamily
     # Ocean depth
     npzDepth = np.load('data/GEBCO_LR.npz')
     keys = npzDepth.keys()
@@ -561,12 +563,13 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     tickLoc = np.linspace(bbox[0], bbox[2], numTick)
                     tickLabels = []
                     for loc in tickLoc:
-                        if loc > 0:
-                            tickLabels += [f'{int(loc)}°E']
-                        elif loc == 0:
-                            tickLabels += [f'{int(loc)}°']
+                        loc = int(loc)
+                        if loc == 0 or loc == 180 or loc == -180:
+                            tickLabels += [f'{abs(loc)}°']
+                        elif loc > 0:
+                            tickLabels += [f'{loc}°E']
                         else:
-                            tickLabels += [f'{int(abs(loc))}°W']
+                            tickLabels += [f'{abs(loc)}°W']
                 elif locus == 'meridian':
                     sectionData = data3D[:, :, idx[0]]
                     matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
@@ -582,12 +585,13 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     tickLoc = np.linspace(bbox[1], bbox[3], numTick)
                     tickLabels = []
                     for loc in tickLoc:
+                        loc = int(loc)
                         if loc > 0:
-                            tickLabels += [f'{int(loc)}°N']
+                            tickLabels += [f'{loc}°N']
                         elif loc == 0:
-                            tickLabels += [f'{int(loc)}°']
+                            tickLabels += [f'{loc}°']
                         else:
-                            tickLabels += [f'{int(abs(loc))}°S']
+                            tickLabels += [f'{abs(loc)}°S']
             else:
                 sectionData = data3D[:, idx[1], idx[0]:idx[2]+1]
                 matrixDepthArray = np.repeat(depthArray[:, np.newaxis], sectionData.shape[-1], axis = -1)
@@ -607,7 +611,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     for loc in tickLoc:
                         if loc > 0:
                             tickLabels += [f'{int(loc)}°E']
-                        elif loc == 0:
+                        elif loc == 0 or loc == 180 or loc == -180:
                             tickLabels += [f'{int(loc)}°']
                         else:
                             tickLabels += [f'{int(abs(loc))}°W']
@@ -628,7 +632,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
             yCoor = np.hstack((altitude, depthArray))
             fig, ax = plt.subplots(figsize=sectionFigSize[section])
             ax.contourf(xCoor, yCoor/1000, sectionData, levels = 78, cmap = plot_cmap, vmin = vmin, vmax = vmax)
-            ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'dodgerblue'))
+            ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'cornflowerblue'))
             ax.set_ylabel('Altitude (km)', fontsize = 10)
             ax.set_xlabel(xLabel, fontsize = 10)
             ax.tick_params(labelsize = 10)
@@ -661,7 +665,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     m.drawmapboundary(fill_color='darkgrey')
     m.contourf(x, y, data2D, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
     if title:
-        plt.title(title)
+        plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
     if sections:
         for section in sections:
             locus = locusType[section]
@@ -675,16 +679,16 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
             if locus == 'parallel':
                 parallelLabel = labels[section]
                 parallel = coor[1]
-                m.drawparallels([parallel], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                m.drawparallels([parallel], labels=[0,0,0,0], fontsize=10, linewidth=1.5, dashes=[4, 2])
                 plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
-                ax.text(-235, parallel - 2.0, parallelLabel, size = 10)
+                ax.text(-232, parallel - 2.0, parallelLabel, size = 10)
                 ax.text(-195, parallel - 3.0, letterLabel1, size = 12, weight = 'bold')
                 ax.text(185, parallel - 3.0, letterLabel2, size = 12, weight = 'bold')
                         # bbox = dict(boxstyle=f"circle,pad={0.25}", fc = 'w'))
             elif locus == 'meridian':
                 meridianLabel = labels[section]
                 meridian = coor[0]
-                m.drawmeridians([meridian], labels=[0,0,0,0], fontsize=10, linewidth=2.0, dashes=[4, 2])
+                m.drawmeridians([meridian], labels=[0,0,0,0], fontsize=10, linewidth=1.5, dashes=[4, 2])
                 plt.plot(x1, y1, x2, y2, marker = '_', color = 'k', ms=12.0, mew=2.0, zorder = 3.5)
                 ax.text(meridian - 15, 102, meridianLabel, size = 10)
                 ax.text(meridian - 5, 92, letterLabel1, size = 12, weight = 'bold')

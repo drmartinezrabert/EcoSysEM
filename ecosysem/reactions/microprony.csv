@@ -1,0 +1,60 @@
+Compounds,Hydrogen oxidation (AEHO),Hydrogen oxidation sulphate reduction 1 (HOSR1),Hydrogen oxidation sulphate reduction 2 (HOSR2),Hydrogen oxidation sulphate reduction 3 (HOSR3),"Aerobic acetate oxidation 1
+(AEAcO1)","Aerobic acetate oxidation 2
+(AEAcO2)","Aerobic acetate oxidation 3
+(AEAcO3)","Acetate oxidation sulphate reduction 1
+(AcOSR1)","Acetate oxidation sulphate reduction 2
+(AcOSR2)","Acetate oxidation sulphate reduction 3
+(AcOSR3)","Acetate oxidation sulphate reduction 4
+(AcOSR4)","Aerobic glycine oxidation 1
+(AEGlyO1)","Aerobic glycine oxidation 2
+(AEGlyO2)","Aerobic glycine oxidation 3
+(AEGlyO3)",Glycine oxidation sulphate reduction 1 (GlyOSR1),Glycine oxidation sulphate reduction 2 (GlyOSR2),Glycine oxidation sulphate reduction 3 (GlyOSR3),"Glycine fermentation to acetate 1
+(GlyFerAc1)","Glycine fermentation to acetate 2
+(GlyFerAc2)","Glycine fermentation to acetate 3
+(GlyFerAc3)","Glycine fermentation to acetate 4
+(GlyFerAc4)","Glycine fermentation to acetate 5
+(GlyFerAc5)","Methane oxidation sulphate reduction 1
+(MetOSR1)","Methane oxidation sulphate reduction 2
+(MetOSR2)","Methane oxidation sulphate reduction 3
+(MetOSR3)","Methane oxidation sulphate reduction 4
+(MetOSR4)","Methane oxidation sulphate reduction 5
+(MetOSR5)","Methane oxidation sulphate reduction 6
+(MetOSR6)","Methane oxidation sulphate reduction 7
+(MetOSR7)","Hydrogen oxidation nitrate reduction to nitrite
+(HOPDEN)","Hydrogen oxidation nitrate reduction to N2
+(HOCDEN)","Acetate oxidation nitrate reduction to nitrite
+(AcOPDEN)","Acetate oxidation nitrate reduction to N2 1
+(AcOCDEN1)","Acetate oxidation nitrate reduction to N2 2
+(AcOCDEN2)","Homoacetogenesis
+(AcGen)",Hydrogen methanogenesis (HydMetGen),"Acetoclastic methanogenesis 1
+(AcMetGen1)","Acetoclastic methanogenesis 2
+(AcMetGen2)","Dissimilatory nitrate reduction to ammonia
+(DNRA)","Anaerobic methane oxidation nitrate reduction to N2
+(MetOCDEN)","Hydrogen sulfide oxidation nitrate reduction to N2
+(H2SOCDEN)","Bisulfide oxidation nitrate reduction to N2
+(HSOCDEN)","Sulfide oxidation nitrate reduction to N2
+(SOCDEN)",Methanotrophs (AEMetO),Aerobic hydrogen sulfide oxidation (AEH2SO),"Aerobic bisulfide oxidation 
+(AEHSO)","Aerobic sulfide oxidation 
+(AESO)",Ammonia oxidation (AO),Complete ammonia oxidation (CMX),Anaerobic ammonia oxidation (AMX),Aerobic nitrite oxidation (NO),Methanogenesis by formate (ForMetGen),Formate dissimilatory Nitrate reduction to ammonia (ForDNRA),Formate oxidation nitrate reduction to nitrite (ForOPDEN),Formate oxidation nitrate reduction to N2 (ForOCDEN),Formatogenesis (ForGen),Aerobic formate oxidation (AEForO),Formate oxidation sulphate reduction (ForOSR),Hydrogen sulfide oxidation nitrate reduction to nitrite (H2SOPDEN),Methane oxidation nitrate reduction to nitrite (MetOPDEN),Glycine oxidation nitrate reduction to nitrite (GlyOPDEN),Glycine oxidation nitrate reduction to N2 (GlyOCDEN)
+H+,,-0.5,-0.25,,-1,1,3,-2,,-2,2,,2,4,-0.75,1.25,3.25,,0.5,1,1.5,1,,1,-2,-1,2,1,,,-0.4,1,-0.6,-2.6,,,-1,,-0.25,-1.6,0.4,-0.6,-1.6,,2,1,,1,1,,,,-0.25,,-0.4,,,-0.5,2,,,-1.2
+H2O,1,1,1,1,2,,,2,,2,,1,-1,-1,1,-1,-1,-0.5,-1,-1,-1,-1,1,1,2,2,1,1,2,1,1.2,,0.8,2.8,0.5,0.5,,,0.75,2.8,0.8,0.8,0.8,2,,,,1,1,2,,0.5,0.75,1,1.2,,1,1,,2,1,1.6
+O2,-0.5,,,,-2,-2,-2,,,,,-1.5,-1.5,-1.5,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-2,-2,-2,-2,-1.5,-2,,-0.5,,,,,,-0.5,,,,,
+CO2,,,,,2,,,2,,2,,2,,,2,,,0.5,,,,,,,1,1,,,1,,,,,2,-0.5,-0.25,1,1,,1,,,,1,,,,,,,,0.75,1,1,1,-1,1,1,,1,2,2
+HCO3-,,,,,,2,,,2,,,,2,,,2,,,0.5,,0.5,,1,,,,,1,,,,2,2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+CO3-2,,,,,,,2,,,,2,,,2,,,2,,,0.5,,0.5,,1,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+H2,-1,-1,-1,-1,,,,,,,,,,,,,,,,,,,,,,,,,,-1,-1,,,,-1,-1,,,-1,,,,,,,,,,,,,,,,,-1,,,,,,
+H2S,,0.25,,,,,,,,1,,,,,,,,,,,,,,,1,,,,,,,,,,,,,,,,-1,,,,-1,,,,,,,,,,,,,0.25,-1,,,
+HS-,,,0.25,,,,,1,1,,1,,,,0.75,0.75,0.75,,,,,,1,1,,1,,,,,,,,,,,,,,,,-1,,,,-1,,,,,,,,,,,,,,,,
+S-2,,,,0.25,,,,,,,,,,,,,,,,,,,,,,,1,1,1,,,,,,,,,,,,,,-1,,,,-1,,,,,,,,,,,,,,,
+SO4-2,,-0.25,-0.25,-0.25,,,,-1,-1,-1,-1,,,,-0.75,-0.75,-0.75,,,,,,-1,-1,-1,-1,-1,-1,-1,,,,,,,,,,,,1,1,1,,1,1,1,,,,,,,,,,,-0.25,1,,,
+NH3,,,,,,,,,,,,1,1,1,1,1,1,1,1,1,1,1,,,,,,,,,,,,,,,,,0.25,,,,,,,,,-1,-1,,,,0.25,,,,,,,,1,1
+NH4+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,,,,,,,,,,,,
+NO2-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,4,,,,,,,,,,,,,,,,1,,-1,-1,,,1,,,,,4,4,3,
+NO3-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,-0.4,-4,-1.6,-1.6,,,,,-0.25,-1.6,-1.6,-1.6,-1.6,,,,,,1,,1,,-0.25,-1,-0.4,,,,-4,-4,-3,-1.2
+N2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.2,,0.8,0.8,,,,,,0.8,0.8,0.8,0.8,,,,,,,1,,,,,0.2,,,,,,,0.6
+CH4,,,,,,,,,,,,,,,,,,,,,,,-1,-1,-1,-1,-1,-1,-1,,,,,,,0.25,1,1,,-1,,,,-1,,,,,,,,0.25,,,,,,,,-1,,
+CH3COOH,,,,,,,,,,-1,,,,,,,,0.75,0.75,0.75,,0.75,,,,,,,,,,,,,0.25,,,-1,,,,,,,,,,,,,,,,,,,,,,,,
+CH3COO-,,,,,-1,-1,-1,-1,-1,,-1,,,,,,,,,,0.75,,,,,,,,,,,-1,-1,-1,,,-1,,,,,,,,,,,,,,,,,,,,,,,,,
+NH2CH2COOH,,,,,,,,,,,,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,-1
+HCOOH,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-1,-1,-1,-1,1,-1,-1,,,,
+HCOO-,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
