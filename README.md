@@ -191,7 +191,7 @@ python -m pip install basemap
 ____________________________
 
 ## :clipboard: Instructions for downloading and setting up EcoSysEM platform
-1. Download .zip code. Last version: `v0.3` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.3.zip).
+1. Download .zip code. Last version: `v0.4` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.4.zip).
 2. Extract files to a destination (Recommendation - Desktop).
 3. Modify (if necessary) parameter databases using Excel files in folder  `\ecosysem\db\Excels` (see [How to modify parameter databases](#how-to-modify-parameter-databases) section).
 4. Modify existing reaction databases or create a new one using Excel files in folder `\ecosysem\reactions\Excels` (see [How to modify reaction databases](#how-to-modify-reaction-databases) section).
@@ -3785,7 +3785,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
-1. Download .zip code. Last version: `v0.3` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.3.zip).
+1. Download .zip code. Last version: `v0.4` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.4.zip).
 2. Extract files to a destination (Recommendation - Desktop).
 3. Open **Anaconda Prompt or Terminal**.
 4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
