@@ -3,13 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - yyyy/mm/dd
 ### Added
-- Bioenergetic calculations.
-  - Catabolic cell-specific power.
-  - Empirical requirement cell-specific power.
-- New environment modelling framework.
-  - Multi-Metabolic State Model (MMSM) based on cell-specific power.
+- _Lorem ipsum..._
+### Fixed
+- _Lorem ipsum..._
 ### Changed
-- README file.
+- _Lorem ipsum..._
 
 ## [0.4] - yyyy/mm/dd
 ### Added
@@ -30,6 +28,11 @@ All notable changes to this project will be documented in this file.
 - Computation of heat capacity of reaction from specific heat capacity of compounds (C<sub>pi</sub>): `ThP.getDeltaCp()`.
 - Global sensitivity analysis of Gibbs free energy.
   - Variance-based sensitivity analysis or Sobol’ indices: `ThSA.sobol_indices_DeltaGr()` and `Environment.sobol_indices_DGr()` for `GWB()`.
+- Bioenergetic calculations: `bioenergetics.py` and `Environment` behaviours.
+  - Catabolic cell-specific power.
+  - Empirical requirement cell-specific power.
+- New environment modelling framework.
+  - Multi-Metabolic State Model (MMSM) based on cell-specific power.
 ### Fixed
 - Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
 - Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
