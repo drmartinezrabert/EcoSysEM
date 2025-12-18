@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.1] - yyyy/mm/dd
 ### Added
-- _Lorem ipsum..._
+- New function for plotting variables of water column: `WaterColumn.plotVariables()`.
 ### Fixed
 - _Lorem ipsum..._
 ### Changed
