@@ -9,6 +9,14 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - _Lorem ipsum..._
 
+## [0.4.1] - yyyy/mm/dd
+### Added
+- _Lorem ipsum..._
+### Fixed
+- _Lorem ipsum..._
+### Changed
+- README file.
+
 ## [0.4] - 2025/12/17
 ### Added
 - Local sensitivity analysis of Gibbs free energy: `ThSA.local_sa_DeltaGr()` and `Environment.local_sa_DGr()`.
