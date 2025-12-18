@@ -1048,7 +1048,7 @@ Create an instance of `ISA` object.<p>
 
 Here is an example:
 ```python
-from envdef import ISA
+from environments import ISA
 import numpy as np
 
 newISA = ISA(0, resolution = 500)
@@ -1218,7 +1218,7 @@ It can be other variables from MERRA2 databases (see [MERRA-2 documentation](htt
 
 The _MERRA2_ object has two modes: **Downloading** and **Loading/Combining**. To create a new _MERRA2_ instance in **Downloading** mode, this must be created without arguments. The data from MERRA-2 can be downloaded using `MERRA2.getDataMERRA2`. The data will be saved in the folder `data\MERRA2` in .npz format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html)). Here is an example:
 ```python
-from envdef import MERRA2
+from environments import MERRA2
 
 newMERRA2 = MERRA2()
 
@@ -1228,7 +1228,7 @@ newMERRA2.getDataMERRA2(dataType = 'mly', years = 1995, months = 10, days = 'All
 ```
 Once the data is downladed, the user can load the data creating a new _MERRA2_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
-from envdef import MERRA2
+from environments import MERRA2
 
 # Yearly data from 2020 was previously downloaded
 newMERRA2 = MERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5))
@@ -1393,7 +1393,7 @@ Create an instance of `ISAMERRA2` object.<p>
 
 If _MERRA2_ data has already been downloaded, the user can create a new _ISAMERRA2_ object with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
-from envdef import ISAMERRA2
+from environments import ISAMERRA2
 
 # Yearly data from 2020 was previously downloaded
 newISAMERRA2 = ISAMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5))
@@ -1553,7 +1553,7 @@ Create an instance of `MERRA2` object.<p>
 
 Like _MERRA_ object, the _CAMS_ object has two modes: **Downloading** and **Loading/Combining**. To create a new _CAMS_ instance in **Downloading** mode, this must be created without arguments. The data from CAMS can be downloaded using `CAMS.getDataCAMS`. The data will be saved in the folder `data\CAMS` in .npz format (more info [here](https://numpy.org/devdocs/reference/generated/numpy.lib.format.html)). Here is an example:
 ```python
-from envdef import CAMS
+from environments import CAMS
 
 # Get monthly data from online databases
 ## (Default arguments: pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
@@ -1561,7 +1561,7 @@ newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All
 ```
 Once the data is downladed, the user can load the data creating a new _CAMS_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
-from envdef import CAMS
+from environments import CAMS
 
 # Yearly data from 2020 was previously downloaded
 newCAMS = CAMS(dataType = 'yly', y = 2020, bbox = (-180, -90, -175, -85))
@@ -1757,7 +1757,7 @@ Create an instance of `CAMSMERRA2` object.<p>
 
 If _MERRA2_ data has already been downloaded, the user can create a new _CAMSMERRA2_ object with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
 ```python
-from envdef import CAMSMERRA2
+from environments import CAMSMERRA2
 
 # Yearly data from 2020 was previously downloaded
 newCAMSMERRA2 = CAMSMERRA2(dataType = 'yly', y = 2020, bbox = (-180, -90, -178.125, -88.5))
@@ -1889,7 +1889,7 @@ Create an instance of `GWB` object.<p>
 
 The `GWB` does not need data to be download. The user can create a new _GWB_ object with, at least, `Ct` argument. The user can get the data calling the attributes defined above. Here is an example:
 ```python
-from envdef import GWB
+from environments import GWB
 from thermodynamics import ThSA
 
 new_GWB = GWB(Ct = {'CO2': [6.007e-4], 'Mg+2': [2.325e-2], 'Ca+2': [4.596e-3], 'Na+': [1.833e-1], 'K+': [4.032e-3],
@@ -1996,7 +1996,7 @@ The `WaterColumn` does not need data to be download. The user can create a new _
 
 The user can get the data calling the attributes defined above. Here are some examples:
 ```python
-from envdef import WaterColumn
+from environments import WaterColumn
 from thermodynamics import ThSA
 
 ## readMode = False
@@ -2026,7 +2026,7 @@ new_WaterColumn.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
  'NO': array([-59.43567374, -59.44725721, -59.45439055, -59.45824969, -59.10906355, -59.03465802, -55.48680321, -58.10104723])}
 ```
 ```python
-from envdef import WaterColumn
+from environments import WaterColumn
 from thermodynamics import ThSA
 
 ## readMode = True
@@ -2059,7 +2059,7 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
  'PON': array([1.92e-07, 2.26e-07, 2.01e-07, 1.77e-07, nan, 6.40e-08,  5.60e-08, 4.70e-08])}
 ```
 ```python
-from envdef import WaterColumn
+from environments import WaterColumn
 from thermodynamics import ThSA
 
 ## readMode = True
@@ -2098,7 +2098,7 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
 #
 
 <a name="create-new-environment">**How to create a new environment (class or subclass)**</a><br>
-New environment classes (_Parent environment_) or subclasses (_child environment_) can be created in `envdef.py` module. Remember that a _child environment_ has all attributes and methods of _parent environments_ (_i.e._, `Environment01` and `Environment02` of example below). The _child environment_ can have its own attributes and methods in addition to those of the _parent environments_.
+New environment classes (_Parent environment_) or subclasses (_child environment_) can be created in `environments.py` module. Remember that a _child environment_ has all attributes and methods of _parent environments_ (_i.e._, `Environment01` and `Environment02` of example below). The _child environment_ can have its own attributes and methods in addition to those of the _parent environments_.
 
 · For a new _parent environment_, follow the example below:
 ```python
