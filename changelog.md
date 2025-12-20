@@ -1,6 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<!--
 ## [Unreleased] - yyyy/mm/dd
 ### Added
 - _Lorem ipsum..._
@@ -8,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 ### Changed
 - _Lorem ipsum..._
+-->
 
 ## [0.4.1] - yyyy/mm/dd
 ### Added
