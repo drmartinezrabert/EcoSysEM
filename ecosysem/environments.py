@@ -3395,12 +3395,55 @@ class WaterColumn(Hydrosphere):
         if bool(sd):
             self.sd = sd
 
-    def plotVariables(self, variables, pH_speciation = False, specComp = None, units = None, varNames = None, 
-                      xLog = False, x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.50, 0.5), 
+    def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
+                      x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.50, 0.5), 
                       set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
-                      linestyle = '-', ms = 4, fs = 12, ff = 'Arial'):
+                      linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial'):
+        """
+        Plotting variables of water column (x-coor: variable; y-coor: depth).
+
+        Parameters
+        ----------
+        variables : LIST
+            List of variables.
+        pH_speciation : BOOL, optional
+            Set whether pH speciation is compute on compound concentrations. The default is False.
+        specComp : LIST, optional
+            List of requested compounds for pH speciation. The default is None.
+        varNames : LIST, optional
+            List of variable names used on plot legend. The default is None.
+        xLog : BOOL, optional
+            Set whether variables are plot in logarithmic scale (x-coordinate). The default is False.
+        x_label_name : STR, optional
+            Set label name of x-coordinate. The default is 'Variable(s) [-]'.
+        legend : BOOL, optional
+            Set wheter plot legend is displayed. The default is True.
+        legend_pos : (FLOAT, FLOAT), optional
+            Set legend position. The default is (1.50, 0.5).
+        set_x_limits : (FLOAT, FLOAT), optional
+            Set limits of x-coordinate. The default is (None, None).
+        set_y_limits : (FLOAT, FLOAT), optional
+            Set limits of y-coordinate. The default is (None, 0).
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (3, 5).
+        marker : STR or LIST, optional
+            Set marker(s) style. The default is 'o'.
+        linestyle : STR or LIST, optional
+            Set line(s) style. The default is '-'.
+        ms : FLOAT, optional
+            Set marker size. The default is 4.
+        fs : TYPE, optional
+            Set font size. The default is 12.
+        fontFamily : TYPE, optional
+            Set font family. The default is 'Arial'.
+
+        Returns
+        -------
+        Plot in Spyder.
+
+        """
         font = {'size': fs,
-                'family': ff}
+                'family': fontFamily}
         plt.rc('font', **font)
         y = self.depth
         x = None
@@ -3480,7 +3523,7 @@ class WaterColumn(Hydrosphere):
                 plt.plot(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
                          ms = ms)
         ax.yaxis.set_inverted(True)
-        ax.set_ylim(set_x_limits[0], set_y_limits[1])
+        ax.set_xlim(set_x_limits[0], set_x_limits[1])
         ax.set_ylim(set_y_limits[0], set_y_limits[1])
         ax.set_ylabel('Depth (m)')
         ax.set_xlabel(x_label_name)
