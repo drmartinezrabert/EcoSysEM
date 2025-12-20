@@ -8,6 +8,7 @@ Created on Fri Aug 29 12:00:06 2025
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
 from reactions import KinRates
+from reactions import Reactions as Rxns
 from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
@@ -645,7 +646,7 @@ class Environment:
         if not isinstance(specComp, list): specComp = [specComp]
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         #check DGr
-        _DGr = getattr(self,'DGr', None)
+        _DGr = getattr(self, 'DGr', None)
         if _DGr is None:
             self.getDGr(typeMetabo, reactions, specComp)
             _DGr = self.DGr.copy()
@@ -2411,7 +2412,7 @@ class CAMS(Atmosphere):
         Parameters
         ----------
         dataType : STR 
-            Type of data ('dly', 'mly', or 'cmly'). 
+            Type of data ('dly', 'mly', or 'cmly').
         dataset : STR
             CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
                                "cams-global-ghg-reanalysis-egg4", or 
@@ -3393,6 +3394,101 @@ class WaterColumn(Hydrosphere):
             self.Ci_L = Ct
         if bool(sd):
             self.sd = sd
+
+    def plotVariables(self, variables, pH_speciation = False, specComp = None, units = None, varNames = None, 
+                      xLog = False, x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.50, 0.5), 
+                      set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
+                      linestyle = '-', ms = 4, fs = 12, ff = 'Arial'):
+        font = {'size': fs,
+                'family': ff}
+        plt.rc('font', **font)
+        y = self.depth
+        x = None
+        if not varNames: varNames_ = []
+        for idVar, var in enumerate(variables):
+            if var.startswith('conc_'):
+                indx = var.find('_') + 1
+                comp = var[indx:]
+                var = 'Ci_L'
+                if not varNames: varNames_ += [comp]
+            elif var.startswith('DGr_'):
+                indx = var.find('_') + 1
+                rxn = var[indx:]
+                var = 'DGr'
+            #-Legend names
+            if not varNames:
+                if var == 'pH':
+                    varNames_ += [var]
+                elif var == 'Ci_L':
+                    varNames_ += [f'[{comp}]']
+                elif var == 'DGr':
+                    varNames_ += [rxn]
+                else:
+                    varNames_ += [var[0].upper() + var[1:]]
+            try:
+                val = getattr(self, var, None)
+            except:
+                raise ValueError(f'Attribute {var} not found in WaterColumn() object.')
+            else:
+                if var == 'Ci_L':
+                    val = val[comp]
+                    if pH_speciation:
+                        if not isinstance(specComp, (list, np.ndarray)):
+                            raise ValueError('Missing chosen compounds for pH speciation - specComp : LIST or np.ndarray')
+                        rComp, _, _ = Rxns.getRxnpH(comp)
+                        check_pH_speciation = np.array([np.isin(c, rComp) for c in specComp])
+                        if check_pH_speciation.any():
+                            comp_ = np.array(specComp)[check_pH_speciation]
+                            if len(comp_) > 1:
+                                raise ValueError(f'More than one compound for pH speciation have been given: {comp}: {comp_}')
+                            else:
+                                comp_ = np.squeeze(comp_)
+                        else:
+                            comp_ = comp
+                        val_ = val.copy()
+                        for idVal, iVal in enumerate(val_):
+                            val_[idVal] = eQ.pHSpeciation(comp_, self.pH[idVal], self.temperature[idVal], iVal, 
+                                                          rAllConc = False)
+                        val = val_.copy()
+                elif var == 'DGr':
+                    try:
+                        val = val[rxn]
+                    except:
+                        raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
+                if not isinstance(x, np.ndarray):
+                    x = np.array(val)
+                else:
+                    x = np.vstack((x, val))
+        if not varNames: varNames = varNames_
+        #-Plotting
+        if isinstance(marker, str):
+            marker = [marker] * len(variables)
+        else:
+            if len(marker) != len(variables): 
+                raise ValueError(f'Variables length ({len(variables)}) and marker length ({len(marker)}) must match.')
+        if isinstance(linestyle, str):
+            linestyle = [linestyle] * len(variables)
+        else:
+            if len(linestyle) != len(variables):
+                raise ValueError(f'Variables length ({len(variables)}) and linestyle length ({len(linestyle)}) must match.')                
+        fig, ax = plt.subplots(figsize = figsize)
+        for idVar, _ in enumerate(variables):
+            if xLog:
+                plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                             ms = ms)
+            else:
+                plt.plot(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                         ms = ms)
+        ax.yaxis.set_inverted(True)
+        ax.set_ylim(set_x_limits[0], set_y_limits[1])
+        ax.set_ylim(set_y_limits[0], set_y_limits[1])
+        ax.set_ylabel('Depth (m)')
+        ax.set_xlabel(x_label_name)
+        plt.minorticks_on()
+        if legend:
+            plt.legend(varNames, loc = 'center right', bbox_to_anchor = legend_pos)
+        plt.show()
+            
 class Ocean(Hydrosphere):
     pass
 
