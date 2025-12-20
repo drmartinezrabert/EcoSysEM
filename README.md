@@ -2096,9 +2096,9 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
 
 ### WaterColumn.plotVariables &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-WaterColumn.plotVariables(variables, pH_speciation = False, specComp=None, units=None, varNames=None, xLog=False,
-						  x_label_name='Variable(s) [-]', legend=True, legend_pos=(1.50, 0.5), set_x_limits=(None, None),
-						  set_y_limits=(None, 0), figsize=(3, 5), marker='o', linestyle='-', ms=4, fs=12, fontFamily='Arial')
+WaterColumn.plotVariables(variables, pH_speciation=False, specComp=None, varNames=None, xLog=False, x_label_name='Variable(s) [-]',
+						  legend=True, legend_pos=(1.50, 0.5), set_x_limits=(None, None), set_y_limits=(None, 0), figsize=(3, 5), 
+						  marker='o', linestyle='-', ms=4, fs=12, fontFamily='Arial')
 ``` 
 Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr and so on). Variables are in _x-coordinate_ and depth (meters) in _y-coorindate_.<p>
 **Parameters:**<br>
