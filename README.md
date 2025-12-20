@@ -426,7 +426,8 @@ ecosysem
   │           ├── .fluidType
   │           ├── .DGr (if WaterColumn.getDGr() is called)
   │           ├── .sd (if standard deviations is given using 'sd' argument or in .csv file)
-  │           └── # Extra attributes (if more parameters is given using 'extraParam' argument)
+  │           ├── # Extra attributes (if more parameters is given using 'extraParam' argument)
+  │           └── plotVariables
   ├── reactions.py
   │      ├── KinP
   │      │    └── getKinP
@@ -2092,6 +2093,49 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
  'POC': array([8.88e-07, 3.07e-07, 2.27e-07]),
  'PON': array([1.77e-07, 6.40e-08, 4.70e-08])}
 ```
+
+### WaterColumn.plotVariables &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+WaterColumn.plotVariables(variables, pH_speciation = False, specComp=None, units=None, varNames=None, xLog=False,
+						  x_label_name='Variable(s) [-]', legend=True, legend_pos=(1.50, 0.5), set_x_limits=(None, None),
+						  set_y_limits=(None, 0), figsize=(3, 5), marker='o', linestyle='-', ms=4, fs=12, fontFamily='Arial')
+``` 
+Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr and so on). Variables are in _x-coordinate_ and depth (meters) in _y-coorindate_.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH_speciation : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested compounds for pH speciation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varNames : _list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variable names used in plot legend.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xLog : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether variables are plotted in logarithmic scale (x-coordinate).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _str_, _optional, default: 'Variable(s) [-]'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend : _str_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set wheter plot legend is displayed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend_pos : _(float, float)_, _optional, default: (1.5, 0.5)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set legend position (X, Y).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_x_limits : _(float, float)_, _optional, default: (None, None)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of x-coordinate (left, right).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_y_limits : _(float, float)_, _optional, default: (None, 0)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of y-coordinate (bottom, top).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **figsize : _(float, float)_, _optional, default: (3, 5)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set figure size in inches (width, height).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **marker : _str_ or _list_, _optional, default: 'o'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set marker(s) style.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **linestyle : _str_ or _list_, _optional, default: '-'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set line(s) style.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ms : _float_, _optional, default: 4.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set marker size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fs : _float_, _optional, default: 12_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font family.<br>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -3898,6 +3942,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 
 #### · <ins>Water column (Hydrosphere)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WaterColumn](#watercolumn---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WaterColumn.plotVariables](#watercolumnplotvariables---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
