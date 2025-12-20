@@ -3417,7 +3417,7 @@ class WaterColumn(Hydrosphere):
         x_label_name : STR, optional
             Set label name of x-coordinate. The default is 'Variable(s) [-]'.
         legend : BOOL, optional
-            Set wheter plot legend is displayed. The default is True.
+            Set whether plot legend is displayed. The default is True.
         legend_pos : (FLOAT, FLOAT), optional
             Set legend position. The default is (1.50, 0.5).
         set_x_limits : (FLOAT, FLOAT), optional
