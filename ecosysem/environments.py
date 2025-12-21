@@ -3411,19 +3411,19 @@ class WaterColumn(Hydrosphere):
         specComp : LIST, optional
             List of requested compounds for pH speciation. The default is None.
         varNames : LIST, optional
-            List of variable names used on plot legend. The default is None.
+            List of variable names used in plot legend. The default is None.
         xLog : BOOL, optional
-            Set whether variables are plot in logarithmic scale (x-coordinate). The default is False.
+            Set whether variables are plotted in logarithmic scale (x-coordinate). The default is False.
         x_label_name : STR, optional
             Set label name of x-coordinate. The default is 'Variable(s) [-]'.
         legend : BOOL, optional
             Set whether plot legend is displayed. The default is True.
         legend_pos : (FLOAT, FLOAT), optional
-            Set legend position. The default is (1.50, 0.5).
+            Set legend position (X, Y). The default is (1.50, 0.5).
         set_x_limits : (FLOAT, FLOAT), optional
-            Set limits of x-coordinate. The default is (None, None).
+            Set limits of x-coordinate (left, right). The default is (None, None).
         set_y_limits : (FLOAT, FLOAT), optional
-            Set limits of y-coordinate. The default is (None, 0).
+            Set limits of y-coordinate (bottom, top). The default is (None, 0).
         figsize : (FLOAT, FLOAT), optional
             Figure size. (Width, Height) in inches. The default is (3, 5).
         marker : STR or LIST, optional
