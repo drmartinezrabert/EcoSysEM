@@ -59,69 +59,6 @@ class MinorSymLogLocator(Locator):
         raise NotImplementedError('Cannot get tick locations for a '
                                   '%s type.' % type(self))
 
-def _rhoWater(T, S):
-    """
-    Density of water.
-    --------------------------------------------------------------------------
-    References: 
-        - Millero & Chen (1973). doi: 10.1016/0198-0149(80)90016-3
-
-    Parameters
-    ----------
-    T : FLOAT, LIST or np.ndarray
-        Temperature [K].
-    S : FLOAT, LIST or np.ndarray
-        Salinity [ppt or g/L].
-
-    Returns
-    -------
-    rho : FLOAT, LIST or np.ndarray
-        Density of water [kg/L].
-
-    """
-    if not isinstance(T, np.ndarray): T = np.array(T)
-    if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
-    T = T - 273.15 # [°C]
-    rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
-           6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
-           3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - 1.6871e-8 * T**2 + 2.83258e-10 * T **3) * S**(3/2) + \
-          (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
-    return rho
-
-def _rhoSCWater(T, S):
-    """
-    Density of supercooled water.
-    --------------------------------------------------------------------------
-    References: 
-        - Hare & Sorensen (1987). doi: 10.1063/1.453710
-
-    Parameters
-    ----------
-    T : FLOAT, LIST or np.ndarray
-        Temperature [K].
-    S : FLOAT, LIST or np.ndarray
-        Salinity [ppt or g/L].
-
-    Returns
-    -------
-    rho : FLOAT, LIST or np.ndarray
-        Density of water [kg/L].
-
-    """
-    if not isinstance(T, np.ndarray): T = np.array(T)
-    if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
-    rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
-         (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
-          1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
-    return rho
-
-def density(T, S, compound = 'H2O'):
-    if compound == 'H2O':
-        rho = np.where(T >= 0, _rhoWater(T, S), _rhoSCWater(T, S))
-    return rho
-
 class ThP:
     """
     Class for thermodynamic parameters.
@@ -129,6 +66,71 @@ class ThP:
     """
     # Directory of databases
     path = 'db/'
+    
+    # Density ()
+    def _rhoWater(T, S):
+        """
+        Density of water.
+        --------------------------------------------------------------------------
+        References: 
+            - Millero & Chen (1973). doi: 10.1016/0198-0149(80)90016-3
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/L].
+
+        Returns
+        -------
+        rho : FLOAT, LIST or np.ndarray
+            Density of water [kg/L].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        T = T - 273.15 # [°C]
+        rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
+               6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
+               3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - 1.6871e-8 * T**2 + 2.83258e-10 * T **3) * S**(3/2) + \
+              (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
+        return rho
+
+    def _rhoSCWater(T, S):
+        """
+        Density of supercooled water.
+        --------------------------------------------------------------------------
+        References: 
+            - Hare & Sorensen (1987). doi: 10.1063/1.453710
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/L].
+
+        Returns
+        -------
+        rho : FLOAT, LIST or np.ndarray
+            Density of water [kg/L].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        T = T - 273.15 # [°C] # ???
+        rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
+             (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
+              1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
+        return rho
+
+    def density(T, S, compound = 'H2O'):
+        if compound == 'H2O':
+            rho = np.where(T >= 0, ThP._rhoWater(T, S), ThP._rhoSCWater(T, S))
+        return rho
     
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
@@ -402,7 +404,7 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
         a = 4.6 # Effective ionic radius (Å)
         if molality:
             # Constants of solvents (unit weight of solvent)
@@ -551,7 +553,7 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
         # Electrolyte contributions
         dict_hi = {}
         dict_ci = {}
@@ -658,7 +660,7 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
         if pH is not None:
             composition_aux = {}
             methods_aux = {}
