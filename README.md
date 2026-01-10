@@ -2748,7 +2748,7 @@ ThP.density(T, S, compound='H2O')
 ```
 Compute density of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Millero et al. (1980), doi: 10.1016/0198-0149(80)90016-3; Hare & Sorensen (1987), doi: 10.1063/1.453710.<br>
-Return a n-dimensional array with density values (same shape as temperature (`T`) and salinity (`S`).<p>
+Return a n-dimensional array with density values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Absolute temperature (in Kelvin).<br>
@@ -2767,7 +2767,7 @@ ThP.surface_tension(T, S, compound='H2O')
 ```
 Compute surface tension of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Vinš et al. (2019), doi: 10.1016/j.marchem.2019.05.001.<br>
-Return a n-dimensional array with density values (same shape as temperature (`T`) and salinity (`S`).<p>
+Return a n-dimensional array with surface tension values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Absolute temperature (in Kelvin).<br>
