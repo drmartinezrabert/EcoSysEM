@@ -128,6 +128,25 @@ class ThP:
         return rho
 
     def density(T, S, compound = 'H2O'):
+        """
+        Function to compute density of compound.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or PSU].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        rho : np.ndarray
+            Density of compound [kg/L].
+
+        """
         if compound == 'H2O':
             rho = np.where(T >= 0, ThP._rhoWater(T, S), ThP._rhoSCWater(T, S))
         return rho
