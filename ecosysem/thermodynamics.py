@@ -88,9 +88,6 @@ class ThP:
             Density of water [kg/L].
 
         """
-        if not isinstance(T, np.ndarray): T = np.array(T)
-        if not isinstance(S, np.ndarray): S = np.array(S)
-        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
         T = T - 273.15 # [°C]
         rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
                6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
@@ -144,6 +141,9 @@ class ThP:
             Density of compound [kg/L].
 
         """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
         if compound == 'H2O':
             rho = np.where(T >= 0, ThP._rhoWater(T, S), ThP._rhoSCWater(T, S))
         return rho
