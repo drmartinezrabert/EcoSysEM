@@ -442,6 +442,7 @@ ecosysem
   │      │    ├── getThP
   │      │    ├── density
   │      │    ├── surface_tension
+  │      │    ├── vapor_pressure
   │      │    ├── getDeltaG0r
   │      │    ├── getDeltaH0r
   │      │    ├── getDeltaCp
@@ -2780,6 +2781,25 @@ Return a n-dimensional array with surface tension values (same shape as temperat
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **gamma : _np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Surface tension of compound [N/m].<br>
 
+### ThP.vapor_pressure &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThP.vapor_pressure(T, S, compound='H2O')
+```
+Compute vapor pressure of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+**References:** Roll H. (1965), doi: 10.1002/qj.49709239233; Kulkarni et al. (2011), doi: 10.1002/9781118001684; Sippola & Taskinen (2018), doi: 10.1021/acs.jced.8b00251.<br>
+Return a n-dimensional array with vapor pressure values (same shape as temperature (`T`) and salinity (`S`)).<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Absolute temperature (in Kelvin).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float, list or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity (in ppt or g/kg).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compound : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected compound.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Available compounds: 'H2O'.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **ps : _np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vapor pressure of compound [N/m].<br>
+
 ### ThP.getThP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.getThP(typeParam, compounds, phase)
@@ -3992,6 +4012,7 @@ python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 #### · <ins>Thermodynamic parameters (ThP)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.density](#thpdensity---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.surface_tension](#thpsurface_tension---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.vapor_pressure](#thpvapor_pressure---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getThP](#thpgetthp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaG0r](#thpgetdeltag0r---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaH0r](#thpgetdeltah0r---back-to-function-navigation)<br>
