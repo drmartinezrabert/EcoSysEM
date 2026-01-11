@@ -80,7 +80,7 @@ class ThP:
         T : FLOAT, LIST or np.ndarray
             Temperature [K].
         S : FLOAT, LIST or np.ndarray
-            Salinity [ppt or g/L].
+            Salinity [ppt or g/kg].
 
         Returns
         -------
@@ -110,7 +110,7 @@ class ThP:
         T : FLOAT, LIST or np.ndarray
             Temperature [K].
         S : FLOAT, LIST or np.ndarray
-            Salinity [ppt or g/L].
+            Salinity [ppt or g/kg].
 
         Returns
         -------
@@ -118,10 +118,7 @@ class ThP:
             Density of water [kg/L].
 
         """
-        if not isinstance(T, np.ndarray): T = np.array(T)
-        if not isinstance(S, np.ndarray): S = np.array(S)
-        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
-        T = T - 273.15 # [°C] # ???
+        T = T - 273.15 # [°C]
         rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
              (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
               1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
@@ -136,7 +133,7 @@ class ThP:
         T : FLOAT, LIST or np.ndarray
             Absolute temperature [K].
         S : FLOAT, LIST or np.ndarray
-            Salinity [ppt or PSU].
+            Salinity [ppt or g/kg].
         compound : STR, optional
             Selected compound. The default is 'H2O'.
             Available compounds: 'H2O'.
