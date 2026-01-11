@@ -181,6 +181,81 @@ class ThP:
             gamma = (gamma_w * (1 + 3.710e-4 * S + 2.595e-6 * S * T)) * (1/1000) # [from mN/m to N/m]
         return gamma
     
+    def _ps_water(T, S):
+        """
+        Vapor pressure of water.
+        --------------------------------------------------------------------------
+        References: 
+            - Roll H. (1965), doi: 10.1002/qj.49709239233
+            - Kulkarni et al. (2011), doi: 10.1002/9781118001684
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of water [Pa].
+
+        """
+        ps = (1 - 0.000537 * S) * np.exp(16.7 - (4060)/(T - 37)) * (1000)
+        return ps
+    
+    def _ps_SCwater(T, S):
+        """
+        Vapor pressure of supercooled water.
+        --------------------------------------------------------------------------
+        References: 
+            - Roll H. (1965), doi: 10.1002/qj.49709239233
+            - Sippola & Taskinen (2018), doi: 10.1021/acs.jced.8b00251
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of water [Pa].
+
+        """
+        ps = (1 - 0.000537 * S) * np.exp(24.09249 - (4301.08)/(T - 29.8418))
+        return ps
+    
+    def vapor_pressure(T, S, compound = 'H2O'):
+        """
+        Function to compute vapor pressure of compound.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of compound [Pa].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        if compound == 'H2O':
+            ps = np.where(T >= 0, ThP._ps_water(T, S), ThP._ps_SCwater(T, S))
+        return ps
+    
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
         Function to check not available parameters.
