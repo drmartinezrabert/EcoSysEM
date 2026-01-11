@@ -148,6 +148,39 @@ class ThP:
             rho = np.where(T >= 0, ThP._rhoWater(T, S), ThP._rhoSCWater(T, S))
         return rho
     
+    def surface_tension(T, S, compound = 'H2O'):
+        """
+        Function to compute surface tension of compound.
+        --------------------------------------------------------------------------
+        References: 
+            - Vinš et al. (2019), doi: 10.1016/j.marchem.2019.05.001
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        gamma : np.ndarray
+            Surface tension of compound [N/m].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        if compound == 'H2O':
+            T = T - 273.15 # [°C]
+            Tau = (373.946 - T) / (373.946 + 273.15)
+            gamma_w = 233.58 * Tau**1.2527 * (1 - 0.61594 * Tau)
+            gamma = (gamma_w * (1 + 3.710e-4 * S + 2.595e-6 * S * T)) * (1/1000) # [from mN/m to N/m]
+        return gamma
+    
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
         Function to check not available parameters.
