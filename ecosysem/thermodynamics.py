@@ -256,9 +256,9 @@ class ThP:
             ps = np.where(T >= 0, ThP._ps_water(T, S), ThP._ps_SCwater(T, S))
         return ps
     
-    def osmotic_coefficient(T, S = None, composition = None):
+    def osmotic_coefficient(T, S = None, composition = None, solution = 'seawater'):
         """
-        Function to compute osmotic coefficient of water.
+        Function to compute osmotic coefficient of a solution.
 
         Parameters
         ----------
@@ -267,8 +267,11 @@ class ThP:
         S : FLOAT, LIST or np.ndarray, optional
             Salinity [ppt or g/kg]. The default is None.
         composition : DICT, optional
-            Composition of solution. The default is None.
+            Composition of solution [mol/kg]. The default is None.
             {'compound': concentration}
+        solution : STR, optional
+            Selected solution. The default is 'seawater'.
+            Available solutions: 'seawater'
 
         Returns
         -------
@@ -276,26 +279,27 @@ class ThP:
             Osmotic coefficient of water [unitless].
 
         """
-        if isinstance(S, (float, list, np.ndarray)) or isinstance(composition, dict):
-            if isinstance(S, (float, list, np.ndarray)) and isinstance(composition, dict):
-                raise ValueError('Both salinity (`S`) and composition (`composition`) values are provided. Please define only one of them.')
-            if isinstance(composition, dict):
-                I = ThP.ionicStrength(composition)
-            else:
-                if isinstance(S, (float, list, np.ndarray)):
-                    # From Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035 -> Eq. 23
-                    I = 19.9201 * S / (1000 - 1.004880*S)
+        if solution == 'seawater':
+            if isinstance(S, (float, list, np.ndarray)) or isinstance(composition, dict):
+                if isinstance(S, (float, list, np.ndarray)) and isinstance(composition, dict):
+                    raise ValueError('Both salinity (`S`) and composition (`composition`) values are provided. Please define only one of them.')
+                if isinstance(composition, dict):
+                    I = ThP.ionicStrength(composition)
                 else:
-                    raise TypeError('Salinity must be float, list or np.ndarray.')
-            S_gamma = 20.660673 - (432.578663/T) - 3.711944*np.log(T) + 8.637627e-3*T
-            sigma = (3/(I**(3/2)))*((1+I**(1/2)) - 1/(1+I**(1/2)) - 2*np.log(1+I**(1/2)))
-            B_gamma = -831.658611 + (17022.3989/T) + 157.65271*np.log(T) - 0.493*T + 2.59506e-4*T**2
-            C_gamma = 553.905988 - (11200.445/T) - 105.239035*np.log(T) + 0.333219*T - 1.773514e-4*T**2
-            D_gamma = -0.15112
-            phi = 1 - (2.303*S_gamma*(sigma/3)*I**(1/2) + B_gamma*I + C_gamma*I**(3/2) + D_gamma*I**2)
-            return phi
-        else:
-            raise ValueError('Missing salinity (`S`) or composition (`composition`) values.')
+                    if isinstance(S, (float, list, np.ndarray)):
+                        # From Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035 -> Eq. 23
+                        I = 19.9201 * S / (1000 - 1.004880*S)
+                    else:
+                        raise TypeError('Salinity must be float, list or np.ndarray.')
+                S_gamma = 20.660673 - (432.578663/T) - 3.711944*np.log(T) + 8.637627e-3*T
+                sigma = (3/(I**(3/2)))*((1+I**(1/2)) - 1/(1+I**(1/2)) - 2*np.log(1+I**(1/2)))
+                B_gamma = -831.658611 + (17022.3989/T) + 157.65271*np.log(T) - 0.493*T + 2.59506e-4*T**2
+                C_gamma = 553.905988 - (11200.445/T) - 105.239035*np.log(T) + 0.333219*T - 1.773514e-4*T**2
+                D_gamma = -0.15112
+                phi = 1 - (2.303*S_gamma*(sigma/3)*I**(1/2) + B_gamma*I + C_gamma*I**(3/2) + D_gamma*I**2)
+                return phi
+            else:
+                raise ValueError('Missing salinity (`S`) or composition (`composition`) values.')
     
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
