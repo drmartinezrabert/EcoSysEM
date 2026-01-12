@@ -279,9 +279,10 @@ class ThP:
         Returns
         -------
         phi : np.ndarray
-            Osmotic coefficient of water [unitless].
+            Osmotic coefficient of solution [unitless].
 
         """
+        if not isinstance(T, np.ndarray): T = np.array(T)
         if solution == 'seawater':
             if isinstance(S, (float, list, np.ndarray)) or isinstance(composition, dict):
                 if isinstance(S, (float, list, np.ndarray)) and isinstance(composition, dict):
