@@ -2634,7 +2634,7 @@ Here is an example:
 >>> from environments import ISA
 
 # set arguments for CSP.getAllCSP()
->>> paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+>>> paramDB = ['qs_FFAM', 'ArrhCor']
 >>> typeKin = 'MM-Arrhenius'
 >>> typeMetabo = 'metabolisms'
 >>> reaction = 'Mth'
@@ -3021,7 +3021,7 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 > Ct = {'Compound A': 1.0 * np.ones(T.shape);
 >      'Compound B': 2.0 * np.ones(T.shape);
 >      'Compound C': 3.0 * np.ones(T.shape)}
-> Rs, combNames, orderComb = typeKin = 'MM-Arrhenius', paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
+> Rs, combNames, orderComb = typeKin = 'MM-Arrhenius', paramDB = ['qs_FFAM', 'ArrhCor'],
 >               reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
 > ```
 
@@ -3148,7 +3148,7 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Command to select protein turnover rate of the microbial community and the corresponding metabolic shift rate. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  If a float (protein turnover rate, in hours) is given, default turnover rates (see _turnoverRate_) will be ignored.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default strs are ‘fast’ (PTR = 1 h), ‘moderate’ (PTR = 5 h), ‘slow’ (PTR = 14 h). <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **kinDB : _dict_, _optional, default: {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']}** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **kinDB : _dict_, _optional, default: {'MM-Arrhenius': ['qs_FFAM', 'ArrhCor'], 'MM': ['qs_FFAM']}** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of database(s) for kinetic parameters depending on typeKin. Each database must match with csv name in `kinetics\` folder (without '.csv').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeKin : _str_ ('MM' or 'MM-Arrhenius')** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of kinetic equations to choose database(s) from (see _kinDB_).<br>
