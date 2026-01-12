@@ -259,6 +259,9 @@ class ThP:
     def osmotic_coefficient(T, S = None, composition = None, solution = 'seawater'):
         """
         Function to compute osmotic coefficient of a solution.
+        --------------------------------------------------------------------------
+        References: 
+            - For seawater: Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035
 
         Parameters
         ----------
