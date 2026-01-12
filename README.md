@@ -2816,7 +2816,7 @@ Return a n-dimensional array with osmotic coefficient (same shape as temperature
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity (in ppt or g/kg).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of solution (`{'compounds': [concentrations]}`).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solution : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solution : _str_, _optional, default: seawater_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected solution.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Available solutions: 'seawater'.<p>
 **Returns:**<br>
@@ -2834,7 +2834,7 @@ Return a n-dimensional array with water activity (same shape as temperature (`T`
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Absolute temperature (in Kelvin).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of solution in molals (mol/kg). (`{'compounds': [concentrations]}`).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solution : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solution : _str_, _optional, default: seawater_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected solution.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Available solutions: 'seawater'.<p>
 **Returns:**<br>
