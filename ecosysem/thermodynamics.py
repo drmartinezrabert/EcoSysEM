@@ -305,6 +305,39 @@ class ThP:
             else:
                 raise ValueError('Missing salinity (`S`) or composition (`composition`) values.')
     
+    def water_activity(T, composition, solution = 'seawater'):
+        """
+        Function to compute water activity of a solution.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        composition : DICT
+            Composition of solution [mol/kg].
+            {'compound': concentration}
+        solution : STR, optional
+            Selected solution. The default is 'seawater'.
+            Available solutions: 'seawater'
+
+        Returns
+        -------
+        aw : np.ndarray
+            Water activity of solution [unitless].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if solution == 'seawater':
+            if not isinstance(composition, dict):
+                raise TypeError("Argument `composition` must be a dictionary: {'compound': concentration}")
+            Mw = 18.01528/1000 # Molar mass of water [kg/mol]
+            phi = ThP.osmotic_coefficient(T = T, composition = composition, solution = 'seawater')
+            sum_mi = 0
+            for c in composition:
+                sum_mi += composition[c]
+            aw = np.exp(-phi * Mw * sum_mi)
+        return aw
+    
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
         Function to check not available parameters.
