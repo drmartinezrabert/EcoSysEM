@@ -624,7 +624,7 @@ Get average and standard deviation from a group of data. This behaviour is avail
 
 ### Environment.getAttributeNames &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getAttributeNmes()
+Environment.getAttributeNames()
 ```
 Return attribute names of an Environment object as a list. This behaviour is available for all environmental models.<p>
 **Parameters:**<br>
