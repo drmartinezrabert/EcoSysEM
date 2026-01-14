@@ -14,10 +14,16 @@ All notable changes to this project will be documented in this file.
 ## [0.4.1] - yyyy/mm/dd
 ### Added
 - New function for plotting variables of water column: `WaterColumn.plotVariables()`.
+- New functions for estimating thermodynamic parameters: `ThP class` in `thermodynamics.py`.
+  - Surface tension: `ThP.surface_tension()`.
+  - Vapor pressure: `ThP.vapor_pressure()`.
+  - Osmotic coefficient: `ThP.osmotic_coefficient()`.
+  - Water activity: `ThP.water_activity()`.
 ### Fixed
 - _Lorem ipsum..._
 ### Changed
 - README file.
+- Density function moved to `ThP class`: `ThP.density()`.
 
 ## [0.4] - 2025/12/17
 ### Added
