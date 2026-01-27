@@ -3455,7 +3455,6 @@ class WaterColumn(Hydrosphere):
                 indx = var.find('_') + 1
                 comp = var[indx:]
                 var = 'Ci_L'
-                if not varNames: varNames_ += [comp]
             elif var.startswith('DGr_'):
                 indx = var.find('_') + 1
                 rxn = var[indx:]
