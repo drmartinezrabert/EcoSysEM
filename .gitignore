@@ -1,6 +1,6 @@
 *.pyc
 ~*
-test*
+z_test*
 ecosysem/results/*.xlsx
 ecosysem/data/*.xlsx
 *.nc
