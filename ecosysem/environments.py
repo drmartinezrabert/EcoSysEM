@@ -2919,7 +2919,9 @@ class CAMSMERRA2(Atmosphere):
                           'Ci_LFW': ISAMERRA2inst.Ci_LFW,
                           'Ci_LSW': ISAMERRA2inst.Ci_LSW}
         # Get data from CAMSMERRA2
-        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d)
+        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d, 
+                                           target_lats = ISAMERRA2inst.lat, 
+                                           target_lons = ISAMERRA2inst.lon)
         dict_CAMSMERRA2 = CAMSMERRA2._getConcCAMSMERRA2(self, phase = phase, 
                                                         data = data,
                                                         dataType = dataType, 
