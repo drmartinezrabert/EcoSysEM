@@ -3398,7 +3398,7 @@ class WaterColumn(Hydrosphere):
             self.sd = sd
 
     def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
-                      x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.50, 0.5), 
+                      x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5), 
                       set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
                       linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial'):
         """
