@@ -11,3 +11,4 @@ ecosysem/data/*.xlsx
 ecosysem/data/*.txt
 ecosysem/plots
 ThSA calculations.py
+ecosysem/old_code
