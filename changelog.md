@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
   - Osmotic coefficient: `ThP.osmotic_coefficient()`.
   - Water activity: `ThP.water_activity()`.
 ### Fixed
-- _Lorem ipsum..._
+- Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
 ### Changed
 - README file.
 - Density function moved to `ThP class`: `ThP.density()`.
