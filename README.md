@@ -27,6 +27,7 @@ ____________________________
     - How to modify reaction databases | [GO](#how-to-modify-reaction-databases)
     - Formulization of compounds | [GO](#formulization-of-compounds)
 - Instructions to use EcoSysEM platform via Spyder | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-spyder)
+- Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 - EcoSysEM user guide | [GO](#ecosysem-user-guide)
     - EcoSysEM package layout | [GO](#ecosysem-package-layout)
     - Fundamentals and usage | [GO](#fundamentals-and-usage)
@@ -35,7 +36,6 @@ ____________________________
         - Bioenergetics | [GO](#bioenergetics)
         - Ecosystem modeling | [GO](#ecosystem-modeling)
         - Data visualization | [GO](#data-visualization)
--  Instructions to use EcoSysEM platform via Command Line Interface (CLI) | [GO](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli)
 -  Function Navigation | [GO](#function-navigation)
 -  Error List | [GO](#error-list)
 -  Contact | [GO](#contact)
@@ -302,6 +302,79 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_spyder.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
 5. Program your script. For user guide, click [here](#fundamentals-and-usage).
 6. Run `ecosysem_spyder.py` script with Ctrl + Intro, F5 or Play symbol of _Run toolbar_.  
+
+[🔼 Back to **Contents**](#readme-contents)
+
+## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
+1. Download .zip code. Last version: `v0.4.1` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.4.1.zip).
+2. Extract files to a destination (Recommendation - Desktop).
+3. Open **Anaconda Prompt or Terminal**.
+4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
+    &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
+5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
+```
+python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
+```
+Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Available functions: `MERRA2.getDataMERRA2`, `CAMS.getDataCAMS`.
+### Arguments list:
+#### <ins>cmd_getDataMERRA2.py</ins>
+<table border="0">
+   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> _dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
+   <tr><td> _y </td><td> [int] Year of requested data.</td></tr>
+   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> _d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> _product </td><td> [str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).</td></tr>
+   <tr><td> _version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
+   <tr><td> _bbox </td><td> [tuple] (Default: '-180 -90 180 90) Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
+   <tr><td> _var </td><td> [list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.</td></tr>
+</table>
+
+List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
+For example: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dataType cmly mly` => `dataType = ['cmly' 'mly']` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
+
+More examples below:
+```
+python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4
+python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python cmd_getDataMERRA2.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python cmd_getDataMERRA2.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
+```
+
+#### <ins>cmd_getDataCAMS.py</ins>
+<table border="0">
+   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
+   <tr><td> _dataType </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
+   <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
+   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
+   <tr><td> _d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
+   <tr><td> _hr </td><td> [int or list of int] (Default: '0 12') Hour(s) of requested data.</td></tr>
+   <tr><td> _dset </td><td> [str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').</td></tr>
+   <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
+   <tr><td> _mode </td><td> [str] Mode of download ('add').</td></tr> 
+   <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr>
+   <tr><td> _dropvariables </td><td> [str] (Default: None) A variable or list of variables to exclude from being parsed from the dataset.</td></tr> 
+</table>
+
+List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
+For example: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dset cams-global-greenhouse-gas-forecasts` => `dataset = 'cams-global-greenhouse-gas-forecasts'` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_pressure 200 400` => `pressure_levels = [200, 400]` <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
+
+More examples below:
+```
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 _d 1 15
+python cmd_getDataCAMS.py _dataType mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
+```
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -3929,79 +4002,6 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot(s)** or **Plot in `results/` folder**<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
-## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
-1. Download .zip code. Last version: `v0.4.1` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.4.1.zip).
-2. Extract files to a destination (Recommendation - Desktop).
-3. Open **Anaconda Prompt or Terminal**.
-4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
-    &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
-5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
-```
-python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
-```
-Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Available functions: `MERRA2.getDataMERRA2`, `CAMS.getDataCAMS`.
-### Arguments list:
-#### <ins>cmd_getDataMERRA2.py</ins>
-<table border="0">
-   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> _dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
-   <tr><td> _y </td><td> [int] Year of requested data.</td></tr>
-   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
-   <tr><td> _d </td><td> [str or int] (Default: 'All') Last day of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> _product </td><td> [str] (Default: 'M2I1NXASM') Product of data (section of MERRA2 database).</td></tr>
-   <tr><td> _version </td><td> [str] (Default: '5.12.4') Version of data.</td></tr>
-   <tr><td> _bbox </td><td> [tuple] (Default: '-180 -90 180 90) Earths region of data, the bounding box `-bbox lower_left_lon lower_left_lat upper_right_lon upper_right_lat`.</td></tr>
-   <tr><td> _var </td><td> [list of str] (Default: PS T2M TROPT TROPPB) List of requested variables.</td></tr>
-</table>
-
-List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
-For example: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dataType cmly mly` => `dataType = ['cmly' 'mly']` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_var PS T2M TROPT TROPPB` => `var = ['PS', 'T2M', 'TROPT', 'TROPPB']` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox -180 -90 -178.125 -86.5` => `bbox = (-180, -90, -178.125, -86.5)` <br>
-
-More examples below:
-```
-python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4
-python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
-python cmd_getDataMERRA2.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
-python cmd_getDataMERRA2.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
-```
-
-#### <ins>cmd_getDataCAMS.py</ins>
-<table border="0">
-   <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
-   <tr><td> _dataType </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
-   <tr><td> _y </td><td> [int or list] Year(s) of requested data.</td></tr>
-   <tr><td> _m </td><td> [int or list] Month(s) of requested data.</td></tr>
-   <tr><td> _d </td><td> [int or list or str 'All'] (Default: 'All') Day(s) of month of requested data. With 'All' get the whole month.</td></tr>
-   <tr><td> _hr </td><td> [int or list of int] (Default: '0 12') Hour(s) of requested data.</td></tr>
-   <tr><td> _dset </td><td> [str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').</td></tr>
-   <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
-   <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
-   <tr><td> _mode </td><td> [str] Mode of download ('add').</td></tr> 
-   <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr>
-   <tr><td> _dropvariables </td><td> [str] (Default: None) A variable or list of variables to exclude from being parsed from the dataset.</td></tr> 
-</table>
-
-List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
-For example: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_y 2024 2025` => `year = [2024 2025]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_dset cams-global-greenhouse-gas-forecasts` => `dataset = 'cams-global-greenhouse-gas-forecasts'` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_pressure 200 400` => `pressure_levels = [200, 400]` <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`_bbox 90 -180 -90 180` => `bbox = [90, -180, -90, 180]` <br>
-
-More examples below:
-```
-python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4
-python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 _d 1 15
-python cmd_getDataCAMS.py _dataType mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
-python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
-```
-
-[🔼 Back to **Contents**](#readme-contents)
 
 ## Function Navigation
 #### · <ins>General functions for all environmental models (Environment object)</ins>
