@@ -1642,8 +1642,10 @@ Like _MERRA_ object, the _CAMS_ object has two modes: **Downloading** and **Load
 ```python
 from environments import CAMS
 
+newCAMS = CAMS()
+
 # Get monthly data from online databases
-## (Default arguments: pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = ["carbon_dioxide", "carbon_monoxide", "methane"])
+## (Default arguments: pressure_levels = [50, 100, 200, 400, 600, 800, 900, 1000], variables = None)
 newCAMS.getDataCAMS(dataType = 'mly', years = 2024, months = [4, 5], days = 'All', bbox = [90, -180, -90, 180])
 ```
 Once the data is downladed, the user can load the data creating a new _CAMS_ instance in **Loading** mode with, at least, `dataType` and `y` arguments. The user can get the data calling the attributes defined above. Here is an example:
