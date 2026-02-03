@@ -2465,7 +2465,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
