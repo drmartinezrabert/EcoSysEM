@@ -316,6 +316,11 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
 ```
 Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Available functions: `MERRA2.getDataMERRA2`, `CAMS.getDataCAMS`.
+
+> [!TIP]
+> You can run a for loop using CLI. Here is an example:<br>
+> `for /l %m in (1,1,12) do python cmd_getDataCAMS.py _dataType mly _y 2024 _m %m _dset cams-global-atmospheric-composition-forecasts _dropvariables forecast_period`.
+
 ### Arguments list:
 #### <ins>cmd_getDataMERRA2.py</ins>
 <table border="0">
