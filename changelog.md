@@ -15,21 +15,21 @@ All notable changes to this project will be documented in this file.
 
 ## [0.4.1] - yyyy/mm/dd
 ### Added
+- New Command Line Interface (CLI) scripts:
+  - `cmd_getDataMERRA2.py`.
+  - `cmd_getDataCAMS.py`. 
 - New function for plotting variables of water column: `WaterColumn.plotVariables()`.
 - New functions for estimating thermodynamic parameters of water: `ThP class` in `thermodynamics.py`.
   - Surface tension: `ThP.surface_tension()`.
   - Vapor pressure: `ThP.vapor_pressure()`.
   - Osmotic coefficient: `ThP.osmotic_coefficient()`.
   - Water activity: `ThP.water_activity()`.
-- New optional argument in `CAMS.getDataCAMS()` (also included in `ecosysem_cmd.py` - getDataCAMS function): `drop_variables`.
-- New Command Line Interface (CLI) scripts:
-  - `cmd_getDataMERRA2.py`.
-  - `cmd_getDataCAMS.py`. 
+- New optional argument in `CAMS.getDataCAMS()` (also included in `cmd_getDataCAMS.py`): `drop_variables`.
 ### Removed
 - General Command Line Interface script: `ecosysem_cmd.py`. Now each function has its own script (`cmd_functionName.py`).
 ### Fixed
 - Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
-- Bug in `ecosysem_cmd.py` (_getDataCAMS_ function): Now argument `_d` accepts string ('All'), integers and list of integers.
+- Bug in `cmd_getDataCAMS.py`: Now argument `_d` accepts string ('All'), integers and list of integers.
 ### Changed
 - README file.
 - Density function moved to `ThP class`: `ThP.density()`.
