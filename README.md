@@ -319,7 +319,9 @@ Where `_arg#` are the arguments of the funtion and `value#` are the values of `_
 
 > [!TIP]
 > You can run a for loop using CLI. Here is an example:<br>
-> `for /l %m in (1,1,12) do python cmd_getDataCAMS.py _dataType mly _y 2024 _m %m _dset cams-global-atmospheric-composition-forecasts _dropvariables forecast_period`.
+> ```
+> for /l %m in (1,1,12) do python cmd_getDataCAMS.py _dataType mly _y 2024 _m %m _dset cams-global-atmospheric-composition-forecasts _dropvariables forecast_period
+> ```
 
 ### Arguments list:
 #### <ins>cmd_getDataMERRA2.py</ins>
