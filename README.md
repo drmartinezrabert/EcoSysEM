@@ -3941,7 +3941,7 @@ python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
 ```
 Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Available functions: `MERRA2.getDataMERRA2`, `CAMS.getDataCAMS`.
 ### Arguments list:
-#### <ins>cmd_getDataMERRA2</ins>
+#### <ins>cmd_getDataMERRA2.py</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
    <tr><td> _dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
@@ -3969,7 +3969,7 @@ python cmd_getDataMERRA2.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TR
 python cmd_getDataMERRA2.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
 ```
 
-#### <ins>cmd_getDataCAMS</ins>
+#### <ins>cmd_getDataCAMS.py</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
    <tr><td> _dataType </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
