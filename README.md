@@ -381,8 +381,6 @@ python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 1
 ## EcoSysEM user guide
 This section is an overview and explanation of important features of **EcoSysEM platform**.
 
-[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
-
 ### EcoSysEM package layout
 Important modules and how to import functions or classes from them are listed below. Classes names start with a capital letter, functions with a lower letter, and attributes with a dot (.) and lower letter:
 ```python
@@ -584,7 +582,7 @@ ecosysem
 
 ```
 
-[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Contents**](#readme-contents)
 
 ### Fundamentals and usage
 This section clarifies concepts, design decisions and technical details of this package. **EcoSystem platform** is constituted by three main units:
@@ -607,7 +605,7 @@ This section clarifies concepts, design decisions and technical details of this 
 - Data visualization | [GO](#data-visualization)
 <!-- - Bio-Thermodynamic State Analysis (BioThSA) 🚧 | [GO](#bio-thermodynamic-state-analysis-biothsa)
 - Ecosystem Analysis (EcoA) 🚧 | [GO](#ecosystem-analysis-ecoa) -->
-[🔼 Back to **Instructions (EcoSysEM via Spyder)**](#clipboard-instructions-to-use-ecosysem-platform-via-spyder) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
+[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Environment definition and instance calling</ins>
 One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
