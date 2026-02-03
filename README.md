@@ -319,6 +319,7 @@ from ecosysem.module import Class
 ecosysem
   ├── cmd_getDataMERRA2.py
   ├── cmd_getDataCAMS.py
+  ├── ecosysem_spyder.py
   ├── ecosystem.py
   │      └── EcoA
   │           ├── ecoysDirEdges
