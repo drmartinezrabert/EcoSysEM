@@ -2405,7 +2405,7 @@ class CAMS(Atmosphere):
         if os.path.exists(filename): os.remove(filename)
         else: print("The file does not exist")
     
-    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear'):
+    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear', drop_variables = None):
         """
         Process CAMS .nc files and save as .npz format.
 
@@ -2426,7 +2426,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-        
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+            
         """
         input_folder = os.path.join(self.base_path, 'temporary')
         processed_folder = os.path.join(self.base_path, f"{dataType}")
@@ -2597,7 +2599,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
@@ -2725,7 +2727,8 @@ class CAMS(Atmosphere):
                     variables = None,
                     bbox = [90, -180, -90, 180],
                     mode = None,
-                    method = 'linear'):
+                    method = 'linear',
+                    drop_variables = None):
         """
         Download data from CAMS Global Greenhouse Gas Forecasts database.
 
@@ -2758,7 +2761,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-            
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+        
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
@@ -2871,7 +2876,8 @@ class CAMS(Atmosphere):
                         print("Extracted .nc")
                         # Process and clean up
                         for dt in dataTypes:
-                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
+                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, 
+                                                  method=method, drop_variables=drop_variables)
                         self._deleteTempDataCAMS(target_nc)
                     except Exception as e: raise ValueError(f'Failed for {date_range}: {e}')
         print("\nAll downloads completed.")

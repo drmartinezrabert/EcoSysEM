@@ -83,6 +83,8 @@ elif function == 'getDataCAMS':
                         help="[str] Mode of download ('add').")
     parser.add_argument('_method', default='linear', nargs = '+', type = str,
                         help="[str] (Default: 'linear') Method of interpolation in 'add' mode.")
+    parser.add_argument("_dropvariables", default = None, nargs = "+",
+                        help="[str or list of str] (Default: None) A variable or list of variables to exclude from being parsed from the dataset.")
     # Argument definition
     args = parser.parse_args()
     dataType = args.dataType
@@ -100,6 +102,7 @@ elif function == 'getDataCAMS':
     bbox = list(args.bbox)
     mode = args.mode
     method = args.method
+    drop_variables = args.dropvariables
     # Call function
     CAMS = CAMS()
     CAMS.getDataCAMS(dataType = dataType,
@@ -111,4 +114,5 @@ elif function == 'getDataCAMS':
                      pressure_levels = pressure_levels,
                      bbox = bbox,
                      mode = mode,
-                     method = method)
+                     method = method,
+                     drop_variables = drop_variables)
