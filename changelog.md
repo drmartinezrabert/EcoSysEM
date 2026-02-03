@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - yyyy/mm/dd
 ### Added
 - _Lorem ipsum..._
+### Removed
+- _Lorem ipsum..._
 ### Fixed
 - _Lorem ipsum..._
 ### Changed
@@ -20,6 +22,11 @@ All notable changes to this project will be documented in this file.
   - Osmotic coefficient: `ThP.osmotic_coefficient()`.
   - Water activity: `ThP.water_activity()`.
 - New optional argument in `CAMS.getDataCAMS()` (also included in `ecosysem_cmd.py` - getDataCAMS function): `drop_variables`.
+- New Command Line Interface (CLI) scripts:
+  - `cmd_getDataMERRA2.py`.
+  - `cmd_getDataCAMS.py`. 
+### Removed
+- General Command Line Interface script: `ecosysem_cmd.py`. Now each function has its own script (`cmd_functionName.py`).
 ### Fixed
 - Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
 - Bug in `ecosysem_cmd.py` (_getDataCAMS_ function): Now argument `_d` accepts string ('All'), integers and list of integers.
