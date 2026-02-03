@@ -1643,7 +1643,7 @@ newCAMS = CAMS(dataType = 'yly', y = 2020, bbox = (-180, -90, -175, -85))
 ```python
 CAMS.getDataCAMS(dataType, years, months, days='All', hours=[0, 12], dataset=None,
                  pressure_levels=[50, 100, 200, 400, 600, 800, 900, 1000], variables=None,
-                 bbox=[90, -180, -90, 180], mode=None, method='linear')
+                 bbox=[90, -180, -90, 180], mode=None, method='linear', drop_variables=None)
 ```
 Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 **Parameters:**<br>
@@ -1669,7 +1669,9 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mode : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mode for the download of data (Allowed: "add"). If "add", adds variable(s) to downloaded data. If None, downloads new data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **method : _str_, _optional_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation (default: 'linear').<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method of interpolation (default: 'linear').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drop_variables : _str_ or _list_, _optional_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A variable or list of variables to exclude from being parsed from the dataset (default: 'linear').<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\`**<br>
 
@@ -3983,7 +3985,8 @@ python ecosysem_cmd.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -9
    <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
    <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
    <tr><td> _mode </td><td> [str] Mode of download ('add').</td></tr> 
-   <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr> 
+   <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr>
+   <tr><td> _dropvariables </td><td> [str] (Default: None) A variable or list of variables to exclude from being parsed from the dataset.</td></tr> 
 </table>
 
 List and tuples are given without `[]` or `()`, and elements are separated by space. Strings are given without `' '` or `" "`. 
@@ -4120,12 +4123,14 @@ RuntimeError: {"errors":["An Internal Error has occurred."]}
 **· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.
 
 #### <ins>CAMS.getDataCAMS</ins>
-**> _Invalid temporary files_**<br>
+**> _Failed to decode variable X_**<br>
 ```
 [...]
-ValueError: Failed for yyyy-mm-dd: Error occurred: CAMS_yyyy_m_d.nc, Failed to decode variable 'forecast_period': failed to prevent overwriting existing key dtype in attrs on variable 'forecast_period'. This is probably an encoding field used by xarray to describe how a variable is serialized. To proceed, remove this key from the variable's attributes manually.
+ValueError: Failed for yyyy-mm-dd/yyyy-mm-dd: Error occurred: CAMS_yyyy_mm_dd.nc, Failed to decode variable 'X': failed to prevent overwriting existing key dtype in attrs on variable 'X'. This is probably an encoding field used by xarray to describe how a variable is serialized. To proceed, remove this key from the variable's attributes manually.
 ```
-**· Solution**: delete `/temporary` folder in `data/CAMS/` folder.<pr>
+**· Solution**: 
+1. Delete `/temporary` folder in `data/CAMS/` folder.<pr>
+2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`).
 
 [🔼 Back to **Contents**](#readme-contents)
 
