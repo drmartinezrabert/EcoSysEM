@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
   - Vapor pressure: `ThP.vapor_pressure()`.
   - Osmotic coefficient: `ThP.osmotic_coefficient()`.
   - Water activity: `ThP.water_activity()`.
+- New optional argument in `CAMS.getDataCAMS()` (also included in `ecosysem_cmd.py` - getDataCAMS function): `drop_variables`.
 ### Fixed
 - Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
 - Bug in `ecosysem_cmd.py` (_getDataCAMS_ function): Now argument `_d` accepts string ('All'), integers and list of integers.
