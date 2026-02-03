@@ -317,8 +317,8 @@ from ecosysem.module import function
 from ecosysem.module import Class
 
 ecosysem
-  ├── ecosysem_cmd.py
-  ├── ecosysem_spyder.py
+  ├── cmd_getDataMERRA2.py
+  ├── cmd_getDataCAMS.py
   ├── ecosystem.py
   │      └── EcoA
   │           ├── ecoysDirEdges
@@ -3937,15 +3937,11 @@ Plot three dimensional data on a world map (2D data) and different section plots
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
 5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
 ```
-python ecosysem_cmd.py _arg1 value1 _arg2 value2 _arg3 value3
+python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
 ```
-Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Once executed the above command line, an `input()` line will request what function will be executed (see below). The user first gives all the arguments and corresponding values and then select the function.
-```
-> Available functions: getDataMERRA2, getDataCAMS
->> Enter the function:
-```
+Where `_arg#` are the arguments of the funtion and `value#` are the values of `_arg#`. Available functions: `MERRA2.getDataMERRA2`, `CAMS.getDataCAMS`.
 ### Arguments list:
-#### <ins>getDataMERRA2</ins>
+#### <ins>cmd_getDataMERRA2</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
    <tr><td> _dataType </td><td> [str or list] Type of data (dly: daily; mly: monthly; cmly: combined monthly; All: dly mly cmly).</td></tr>
@@ -3967,13 +3963,13 @@ For example: <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py _dataType mly _y 2021 _m 4
-python ecosysem_cmd.py _dataType mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
-python ecosysem_cmd.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
-python ecosysem_cmd.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
+python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4
+python cmd_getDataMERRA2.py _dataType mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python cmd_getDataMERRA2.py _dataType dly mly _y 2021 _m 4 _var PS TROPPB T2M TROPT H TROPH LR
+python cmd_getDataMERRA2.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -180 -90 -178.125 -86.5
 ```
 
-#### <ins>getDataCAMS</ins>
+#### <ins>cmd_getDataCAMS</ins>
 <table border="0">
    <tr><td> _h<br>__help </b></td><td> Show help message and optional arguments.</b></td></tr>
    <tr><td> _dataType </td><td> [str] Type(s) of data ('mly', 'dly').</td></tr>
@@ -3998,10 +3994,10 @@ For example: <br>
 
 More examples below:
 ```
-python ecosysem_cmd.py _dataType mly _y 2024 _m 4
-python ecosysem_cmd.py _dataType mly _y 2024 _m 4 _d 1 15
-python ecosysem_cmd.py _dataType mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
-python ecosysem_cmd.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 _d 1 15
+python cmd_getDataCAMS.py _dataType mly dly _y 2024 _m 4 5 _d 1 15 _pressure 200 300
+python cmd_getDataCAMS.py _dataType mly _y 2024 _m 4 5 6 7 8 _bbox 90 -180 -90 180
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
