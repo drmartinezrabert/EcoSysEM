@@ -4128,7 +4128,7 @@ earthaccess.exceptions.LoginAttemptFailure: Authentication with Earthdata Login 
 RuntimeError: {"errors":["An Internal Error has occurred."]}
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution 1**: accept all _end-user license aggrements_ (EULAs), if not yet done. You can find them after [login](https://urs.earthdata.nasa.gov/home) with your earthaccess account in <ins>EULAs</ins> -> <ins>Accept New EULAs</ins>.<br>
-**· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.
 
 #### <ins>CAMS.getDataCAMS</ins>
 **> _Failed to decode variable X_**<br>
@@ -4136,9 +4136,9 @@ RuntimeError: {"errors":["An Internal Error has occurred."]}
 [...]
 ValueError: Failed for yyyy-mm-dd/yyyy-mm-dd: Error occurred: CAMS_yyyy_mm_dd.nc, Failed to decode variable 'X': failed to prevent overwriting existing key dtype in attrs on variable 'X'. This is probably an encoding field used by xarray to describe how a variable is serialized. To proceed, remove this key from the variable's attributes manually.
 ```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Delete `/temporary` folder in `data/CAMS/` folder.<pr>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`).
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Delete `/temporary` folder in `data/CAMS/` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`). <br>
 
 [🔼 Back to **Contents**](#readme-contents)
 
