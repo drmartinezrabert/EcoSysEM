@@ -210,10 +210,10 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         plt.show()
     
 def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, fontFamily = 'Arial',
-                  fwtl = 'normal', fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, fontsize = 12, 
-                  alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, latitude = None, longitude = None, 
-                  vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, colorbarSize = None, savePlot = False,
-                  cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
+                  fwtl = 'normal', fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, 
+                  fontsize = 12, alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, latitude = None, 
+                  longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, 
+                  colorbarSize = None, savePlot = False, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
     """
     Plot zonal mean of data.
 
