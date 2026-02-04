@@ -17,7 +17,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - New Command Line Interface (CLI) scripts:
   - `cmd_getDataMERRA2.py`.
-  - `cmd_getDataCAMS.py`. 
+  - `cmd_getDataCAMS.py`.
+- New parser argument in `cmd_getDataCAMS.py`: `_variables`. 
 - New function for plotting variables of water column: `WaterColumn.plotVariables()`.
 - New functions for estimating thermodynamic parameters of water: `ThP class` in `thermodynamics.py`.
   - Surface tension: `ThP.surface_tension()`.
