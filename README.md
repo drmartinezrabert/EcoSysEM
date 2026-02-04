@@ -3789,11 +3789,14 @@ Function to plot the multi-state metabolic microbial dynamic for a discrete posi
 #### <ins>Data visualization</ins>
 ### plotVarMap2D &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevels=100, figsize=(5.0, 3.6), formatColorbar='{:0.1f}',
-             fix_aspect=False, fontsize=12, drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None, mlw=0.5,
-             drawMeridians=True, cml='k', colorbar=True, meridiansLabels=[0,0,0,1], meridians=[0., 60., 120., 180., 240., 300.], 
-             parallelsLabels=[1,0,0,0], parallels=[-90, -60, -30, 0, 30, 60, 90], continentColor='darkgrey', lakeColor='darkgrey', 
-             colorbarSize=(10, 4), fontFamily='Arial', fwtl='normal', cbOrientation='horizontal', cbFontSize=12, savePlot=False)
+plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevels=100, fontFamily='Arial',  
+			 figsize=(5.0, 3.6), formatColorbar='{:0.1f}', fix_aspect=False, fontsize=12, fwtl='normal',
+		     drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None,
+	         drawMeridians=True, mlw=0.5, cml='k', colorbar=True, parallelsLabels=[1,0,0,0], 
+			 parallels=[-90, -60, -30, 0, 30, 60, 90], meridians=[0., 60., 120., 180., 240., 300.], 
+			 meridiansLabels=[0,0,0,1], continentColor='darkgrey', lakeColor='darkgrey', logColorbar=False,
+			 cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0, colorbarSize=(10, 4),
+			 cbOrientation='horizontal', cbFontSize=12, savePlot=False)
 ```
 Plot two dimensional data on a world map.<br>
 **Parameters:**<br>
@@ -3808,14 +3811,14 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title of plot.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmin : _float_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set minimum value that the plot covers.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **vmax : _float_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set maximum value that the plot covers.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numlevels : _int_, _optional, default: 100_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **figsize : _(float, float)_, _optional, default: (5.0, 3.6)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Figure size. (Width, Height) in inches.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_**<br>
@@ -3824,6 +3827,8 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fix aspect ratio of plot to match aspect ratio of map projection region.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional, default: 12_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drawCoastLines : _bool_, _optional, default: True_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether drawing coast lines.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **clw : _float_, _optional, default: 0.5_**<br>
@@ -3834,6 +3839,8 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set width of parallel lines.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cpl : _str_, _optional, default: 'k'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color of parallel lines.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title of plot.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **drawMeridians : _bool_, _optional, default: True_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether drawing meridian lines.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mlw : _float_, _optional, default: 0.5_**<br>
@@ -3845,21 +3852,27 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **parallelsLabels : _list_, _optional, default: [1,0,0,0]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether parallels are labelled where they intersect as a list [left, right, top, bottom].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **parallels : _list_, _optional, default: [-90, -60, -30, 0, 30, 60, 90]_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set where parallel lines are drawn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set what parallel lines are drawn.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **meridians : _list_, _optional, default: [0., 60., 120., 180., 240., 300.]_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Set what meridian lines are drawn.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **meridiansLabels : _bool_, _optional, default: [0,0,0,1]_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether meridians are labelled where they intersect as a list [left, right, top, bottom].<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **meridians : _list_, _optional, default: [0., 60., 120., 180., 240., 300.]_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Set where meridian lines are drawn.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **continentColor : _str_, _optional, default: 'darkgrey'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **logColorbar : _bool_, _optional, default: False_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set logarithmic scale on contour colormap. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_minor_ticks : _bool_, _optional, default: False_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether minor ticks are shown or not.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_ticks : _list_, _optional, default: None_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar ticks.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num_cb_ticks : _int_, _optional, default: 8_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set number of ticks of colorbar (if these are not defined by 'cb_ticks').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_labels_rotation : _float_, _optional, default: 0.0_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rotation of colorbar labels.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: (10, 4)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar size. (Width, Height) in inches.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both (see [matplotlib documentation](https://matplotlib.org/stable/users/explain/text/text_props.html#text-props)).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fwtl : _str_, _optional, default: 'normal'_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar orientation: 'horizontal' or 'vertical'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbFontSize : _float_, _optional, default: 12_**<br>
