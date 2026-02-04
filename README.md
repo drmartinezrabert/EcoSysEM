@@ -4137,8 +4137,8 @@ RuntimeError: {"errors":["An Internal Error has occurred."]}
 ValueError: Failed for yyyy-mm-dd/yyyy-mm-dd: Error occurred: CAMS_yyyy_mm_dd.nc, Failed to decode variable 'X': failed to prevent overwriting existing key dtype in attrs on variable 'X'. This is probably an encoding field used by xarray to describe how a variable is serialized. To proceed, remove this key from the variable's attributes manually.
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Delete `/temporary` folder in `data/CAMS/` folder.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Delete `/temporary` folder in `data/CAMS/` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`). <br>
 
 [🔼 Back to **Contents**](#readme-contents)
 
