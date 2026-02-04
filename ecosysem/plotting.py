@@ -32,8 +32,10 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                  drawCoastLines = True, clw = 0.5, drawParallels = True, plw = 0.5, cpl = 'k', title = None,
                  drawMeridians = True, mlw = 0.5, cml = 'k', colorbar = True, parallelsLabels = [1,0,0,0], 
                  parallels = [-90, -60, -30, 0, 30, 60, 90], meridians = [0., 60., 120., 180., 240., 300.], 
-                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey',
-                 colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
+                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', 
+                 logColorbar = False, cb_minor_ticks = False, cb_ticks = None, num_cb_ticks = 8,
+                 cb_labels_rotation = 0.0, colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, 
+                 savePlot = False):
     """
     Plot variable on world map.
 
@@ -58,8 +60,12 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         Set maximum value that the plot covers. The default is None.
     numlevels : INT, optional
         Set the number and positions of the contour lines / regions. The default is 100.
+    fontfamily : STR, optional
+        Set which font family is picked up, either by specifying family names of fonts installed on user's system, or generic-families (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'), or a combination of both.
     figsize : (FLOAT, FLOAT), optional
         Figure size. (Width, Height) in inches. The default is (5.0, 3.6).
+    fwtl : STR, optional
+        Font weight of title. The default is 'normal'.
     formatColorbar : STR, optional
         Set format colorbar. The default is '{:0.1f}'.
     fix_aspect : BOOL, optional
@@ -96,6 +102,16 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         Color of continents. The default is 'darkgrey'.
     lakeColor : STR, optional
         Color of water bodies (lakes and seas). The default is 'darkgrey'.
+    logColorbar : BOOL, optional
+        Set logarithmic scale on contour colormap. The default is False.
+    cb_minor_ticks : BOOL, optional
+        Set whether minor ticks are shown or not. The default is False.
+    cb_ticks : LIST, optional
+        Set colorbar ticks. The default is None.
+    num_cb_ticks : INT, optional
+        Set number of ticks of colorbar (if these are not defined by 'cb_ticks'). The default is 8.
+    cb_labels_rotation : FLOAT, optional
+        Rotation of colorbar labels. The default is 0.0.
     colorbarSize : (FLOAT, FLOAT), optional
         Colorbar size. (Width, Height) in inches. The default is (10, 4).
     cbOrientation : STR, optional
@@ -137,10 +153,17 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         m.drawmeridians(meridians, color = cml, labels=meridiansLabels, fontsize=fontsize, linewidth=mlw)
     m.fillcontinents(color = continentColor, lake_color = lakeColor)
     levels = np.linspace(vmin, vmax, int(numlevels))
-    m.contourf(x, y, data, 
-               levels=levels,
-               norm=plt.Normalize(vmin=vmin, vmax=vmax),
-               cmap=cmap)
+    if logColorbar:
+        mcont = m.contourf(x, y, data, 
+                           levels=levels,
+                           norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax),
+                           cmap=cmap)
+    else:
+        mcont = m.contourf(x, y, data, 
+                           levels=levels,
+                           norm=plt.Normalize(vmin=vmin, vmax=vmax),
+                           cmap=cmap)
+    levels_array = np.array(mcont.levels).reshape(1, -1)
     ax.set_facecolor(lakeColor)
     if title:
         plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
@@ -151,17 +174,35 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     plt.show()
     # Standalone colorbar
     if colorbar:
+        if logColorbar:
+            norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+            if not isinstance(cb_ticks, (list, np.ndarray)):
+                ticks_colorbar = np.logspace(np.log10(np.squeeze(levels_array)[0]), 
+                                             np.log10(np.squeeze(levels_array)[-1]), num_cb_ticks)
+            else:
+                ticks_colorbar = cb_ticks
+        else:
+            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            if not isinstance(cb_ticks, (list, np.ndarray)):
+                ticks_colorbar = np.linspace(np.squeeze(levels_array)[0], np.squeeze(levels_array)[-1], num_cb_ticks)
+            else:
+                ticks_colorbar = cb_ticks
         pl.figure(figsize=colorbarSize)
-        limitVar = np.array([[vmin, vmax]])
-        pl.imshow(limitVar, cmap = cmap)
+        pl.imshow(levels_array, cmap = cmap, norm = norm)
         pl.gca().set_visible(False)
         clb = pl.colorbar(orientation = cbOrientation)
-        ticks_colorbar = np.linspace(np.squeeze(limitVar)[0], np.squeeze(limitVar)[1], 8)
         clb.set_ticks(ticks_colorbar)
         labels_colorbar = [formatColorbar.format(x) for x in ticks_colorbar]
-        clb.set_ticklabels(labels_colorbar)
-        clb.set_label(f'{varName} ({varUnits})', fontsize = cbFontSize)
+        clb.set_ticklabels(labels_colorbar, rotation = cb_labels_rotation)
+        if logColorbar:
+            clb.set_label(f'{varName} ({varUnits})\n[log scale]', fontsize = cbFontSize)
+        else:
+            clb.set_label(f'{varName} ({varUnits})', fontsize = cbFontSize)
         clb.ax.tick_params(labelsize = cbFontSize)
+        if cb_minor_ticks:
+            clb.minorticks_on()
+        else:
+            clb.minorticks_off()
         if savePlot:
             cPlots = 1
             file = f'{savePath}{varName}_varMap2D_cbar'
