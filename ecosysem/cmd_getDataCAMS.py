@@ -29,7 +29,7 @@ parser.add_argument('_variables', default= None, nargs = "+",
                     help = '[str or list of str] (Default: None) A list of variables to download (Allowed: "co", "co2", "ch4").')
 parser.add_argument('_bbox', default=[90, -180, -90, 180], nargs = '+', type = int,
                     help="[list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.")
-parser.add_argument('_mode', nargs = '+', type = str,
+parser.add_argument('_mode', default = None, type = str,
                     help="[str] Mode of download ('add').")
 parser.add_argument('_method', default='linear', nargs = '+', type = str,
                     help="[str] (Default: 'linear') Method of interpolation in 'add' mode.")
@@ -50,7 +50,6 @@ hours = args.hr
 dataset = args.dset
 pressure_levels = args.pressure; pressure_levels.sort()
 variables = args.variables
-print(variables)
 bbox = list(args.bbox)
 mode = args.mode
 method = args.method
