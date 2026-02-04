@@ -4139,7 +4139,7 @@ raise ClientResponseError([...])
 [...]
 await self._waiter aiohttp.client_exceptions.ClientOSError: [...]
 ```
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: rerun the downlading code from the last dowloaded period (day, month or year).<pr>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: rerun the script from the last dowloaded period (day, month or year).<pr>
 
 #### <ins>CAMS.getDataCAMS</ins>
 **> _Failed to decode variable X_**<br>
