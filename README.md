@@ -4128,7 +4128,18 @@ earthaccess.exceptions.LoginAttemptFailure: Authentication with Earthdata Login 
 RuntimeError: {"errors":["An Internal Error has occurred."]}
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution 1**: accept all _end-user license aggrements_ (EULAs), if not yet done. You can find them after [login](https://urs.earthdata.nasa.gov/home) with your earthaccess account in <ins>EULAs</ins> -> <ins>Accept New EULAs</ins>.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution 2**: restart the Anaconda prompt (open a new Anaconda prompt) or Spyder console (Ctrl + D) and run the code again.<p>
+
+**> _Client Response Error or Client OS Error (MERRA-2 server)_**<br>
+```
+[...]
+raise ClientResponseError([...])
+```
+```
+[...]
+await self._waiter aiohttp.client_exceptions.ClientOSError: [...]
+```
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: rerun the downlading code from the last dowloaded period (day, month or year).<pr>
 
 #### <ins>CAMS.getDataCAMS</ins>
 **> _Failed to decode variable X_**<br>
@@ -4138,7 +4149,7 @@ ValueError: Failed for yyyy-mm-dd/yyyy-mm-dd: Error occurred: CAMS_yyyy_mm_dd.nc
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **· Solution**: <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1. Delete `/temporary` folder in `data/CAMS/` folder.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. Use argument `drop_variables` of [CAMS.getDataCAMS](#camsgetdatacams---back-to-function-navigation) or corresponding [CLI](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli) argument (`_dropvariables`).<p>
 
 [🔼 Back to **Contents**](#readme-contents)
 
