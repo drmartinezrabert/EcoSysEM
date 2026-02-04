@@ -25,6 +25,8 @@ parser.add_argument('_dset', type = str,
                     help="[str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').")
 parser.add_argument('_pressure', default=[50, 100, 200, 400, 600, 800, 900, 1000], nargs = '+', type = int,
                     help="[int] (Default: '50 100 200 400 600 800 900 1000') Pressure levels to download.")
+parser.add_argument('_variables', default= None, nargs = "+",
+                    help = '[str or list of str] (Default: None) A list of variables to download (Allowed: "co", "co2", "ch4").')
 parser.add_argument('_bbox', default=[90, -180, -90, 180], nargs = '+', type = int,
                     help="[list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.")
 parser.add_argument('_mode', nargs = '+', type = str,
@@ -47,6 +49,8 @@ else:
 hours = args.hr
 dataset = args.dset
 pressure_levels = args.pressure; pressure_levels.sort()
+variables = args.variables
+print(variables)
 bbox = list(args.bbox)
 mode = args.mode
 method = args.method
@@ -60,6 +64,7 @@ CAMS.getDataCAMS(dataType = dataType,
                  hours = hours,
                  dataset = dataset,
                  pressure_levels = pressure_levels,
+                 variables = variables,
                  bbox = bbox,
                  mode = mode,
                  method = method,
