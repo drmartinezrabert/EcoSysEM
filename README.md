@@ -362,6 +362,7 @@ python cmd_getDataMERRA2.py _dataType All _y 2021 2022 2023 _m 1 4 7 10 _bbox -1
    <tr><td> _hr </td><td> [int or list of int] (Default: '0 12') Hour(s) of requested data.</td></tr>
    <tr><td> _dset </td><td> [str] Name of dataset ('cams-global-greenhouse-gas-forecasts', 'cams-global-ghg-reanalysis-egg4', 'cams-global-atmospheric-composition-forecasts').</td></tr>
    <tr><td> _pressure </td><td> [int or list] (Default: '[50, 100, 200, 400, 600, 800, 900, 1000]') Pressure levels to download.</td></tr>
+   <tr><td> _variables </td><td> [str or list] (Default: None) A list of variables to download (Allowed: "co", "co2", "ch4").</td></tr>
    <tr><td> _bbox </td><td> [list] (Default: '90 -180 -90 180') Earth's region of data, the bounding box `-bbox upper_right_lat lower_left_lon lower_left_lat upper_right_lon`.</td></tr>
    <tr><td> _mode </td><td> [str] Mode of download ('add').</td></tr> 
    <tr><td> _method </td><td> [str] (Default: 'linear') Method of interpolation in 'add' mode.</td></tr>
