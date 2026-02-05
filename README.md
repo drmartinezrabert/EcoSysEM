@@ -1412,7 +1412,7 @@ Combination of International Standard Atmosphere ([ISA](#ISA)) model and Modern-
 
 ### ISAMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_ISAMERRA2 = ISAMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), compound=None, phase='All',
+instance_ISAMERRA2 = ISAMERRA2(dataType, y, m=None, d=None, pH=7.0, bbox=(-180, -90, 180, 90), compound=None, phase='All',
                                altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
 ```
 Create an instance of `ISAMERRA2` object.<p>
@@ -1432,6 +1432,8 @@ Create an instance of `ISAMERRA2` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH of aerosols.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_, _optional_, default: (-180, -90, 180, 90)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)<br>
@@ -1780,7 +1782,7 @@ Combination of Copernicus Atmosphere Monitoring Service ([CAMS](#CAMS)) model an
 
 ### CAMSMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, bbox=(-180, -90, 180, 90), keys='All', phase='All',
+instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, pH=7.0, bbox=(-180, -90, 180, 90), keys='All', phase='All',
                                  altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
 ```
 Create an instance of `CAMSMERRA2` object.<p>
@@ -1800,6 +1802,8 @@ Create an instance of `CAMSMERRA2` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **d : _int_, _optional, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of data.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH of aerosols.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bbox : _tuple_, _optional_, default: (-180, -90, 180, 90)_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Earth's region of data, the bounding box.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude)<br>
