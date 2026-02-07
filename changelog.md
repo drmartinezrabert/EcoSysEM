@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
-## [0.4.1] - yyyy/mm/dd
+## [0.5] - yyyy/mm/dd
 ### Added
 - New Command Line Interface (CLI) scripts:
   - `cmd_getDataMERRA2.py`.
