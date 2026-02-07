@@ -2890,7 +2890,7 @@ class CAMSMERRA2(Atmosphere):
     
     """
     def __init__(self, dataType, y, m = None, d = None, pH = 7.0, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
-                 altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
+                 fillMissing = True, altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
         if showMessage:
             print('  > Creating CAMSMERRA2 instance...')
         # Get data from ISAMERRA2
@@ -2924,6 +2924,14 @@ class CAMSMERRA2(Atmosphere):
                           'MolPct_G': dict_comp_G,
                           'Ci_LFW': ISAMERRA2inst.Ci_LFW,
                           'Ci_LSW': ISAMERRA2inst.Ci_LSW}
+        if not fillMissing:
+            molecules = ['CO2', 'CO', 'CH4']
+            for var in dict_ISAMERRA2:
+                for comp in molecules:
+                    try:
+                        dict_ISAMERRA2[var][comp] = np.nan * np.ones(varShape)
+                    except:
+                        continue
         # Get data from CAMSMERRA2
         data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d, 
                                            target_lats = ISAMERRA2inst.lat, 
