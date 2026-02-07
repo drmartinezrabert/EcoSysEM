@@ -1783,7 +1783,8 @@ Combination of Copernicus Atmosphere Monitoring Service ([CAMS](#CAMS)) model an
 ### CAMSMERRA2 &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 instance_CAMSMERRA2 = CAMSMERRA2(dataType, y, m=None, d=None, pH=7.0, bbox=(-180, -90, 180, 90), keys='All', phase='All',
-                                 altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False, showMessage=True)
+                                 fillMissing=True, altArray=None, numAlt=50, surftrop=None, keysAsAttributes=False,
+								 showMessage=True)
 ```
 Create an instance of `CAMSMERRA2` object.<p>
 **Parameters:**<br>
@@ -1816,6 +1817,8 @@ Create an instance of `CAMSMERRA2` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' - Liquid freshwater. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-SW' - Liquid seawater.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'All' - All phases.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fillMissing : _bool_, _optional_, default: True_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether missing data of air composition is filled with air composition from ISA (`True`) or leave data as np.nan (`False`).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **altArray : _list of float_ or _np.ndarray of floats_, _optional_, default: None_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested altitudes.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numAlt : int_, _optional_, default: 50_**<br>
