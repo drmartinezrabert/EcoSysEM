@@ -1,6 +1,6 @@
 *.pyc
 ~*
-test*
+z_test*
 ecosysem/results/*.xlsx
 ecosysem/data/*.xlsx
 *.nc
@@ -11,3 +11,4 @@ ecosysem/data/*.xlsx
 ecosysem/data/*.txt
 ecosysem/plots
 ThSA calculations.py
+ecosysem/old_code
