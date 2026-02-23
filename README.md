@@ -1,6 +1,6 @@
 # EcoSysEM. EcoSystem Evaluation &amp; Modelling
 
-![Logo](ecosysem/Logo/Logo.png)
+<img src="https://github.com/drmartinezrabert/EcoSysEM/blob/main/Logo.png" height="214" width="688">
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
 
