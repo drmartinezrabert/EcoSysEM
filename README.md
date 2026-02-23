@@ -1,7 +1,6 @@
 # EcoSysEM. EcoSystem Evaluation &amp; Modelling
 
 <img src="https://github.com/drmartinezrabert/EcoSysEM/blob/main/Logo.png" width="516" height="161">
-*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
 
 *· Funded by:*
 
@@ -9,6 +8,7 @@
 <tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>RGY0058/2022</td></tr>
 </table>
 
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.<br>
 ____________________________
 
 ## README Contents
