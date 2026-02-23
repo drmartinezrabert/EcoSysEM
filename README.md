@@ -1,6 +1,6 @@
 # EcoSysEM. EcoSystem Evaluation &amp; Modelling
 
-![Logo](ecosysem/Logo/Logo.tif)
+![Logo](ecosysem/Logo/Logo.png)
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.
 
