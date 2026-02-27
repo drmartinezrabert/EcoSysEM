@@ -4090,7 +4090,7 @@ Plot zonal mean of data.<br>
 plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
                   fontFamily='Arial', fwtl='normal', fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey',
-				  [projection='cyl', logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
+				  projection='cyl', [logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
 				  cbOrientation='horizontal', cbFontSize=12, formatColorbar='{:0.1f}',] savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
