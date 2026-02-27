@@ -149,7 +149,7 @@ class Environment:
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             if not isinstance(m, int):  raise ValueError('Argument \'m\' must be an integer.')
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         elif dataType == 'yly':
@@ -157,7 +157,7 @@ class Environment:
             file = f'{y}_year.npz'
         elif dataType == 'cyly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             file = f'{y[0]}_{y[-1]}.npz'
         else:
             raise ValueError('Unknown dataType ({dataType}). Existing dataType: \'dly\', \'mly\', \'yly\', \'cmly\', \'cyly\'.')
