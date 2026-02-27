@@ -278,10 +278,10 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                  drawCoastLines = True, clw = 0.5, drawParallels = True, plw = 0.5, cpl = 'k', title = None,
                  drawMeridians = True, mlw = 0.5, cml = 'k', colorbar = True, parallelsLabels = [1,0,0,0], 
                  parallels = [-90, -60, -30, 0, 30, 60, 90], meridians = [0., 60., 120., 180., 240., 300.], 
-                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', 
-                 logColorbar = False, cb_minor_ticks = False, cb_ticks = None, num_cb_ticks = 8,
-                 cb_labels_rotation = 0.0, colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, 
-                 savePlot = False):
+                 meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', projection = 'cyl',
+                 logColorbar = False, cb_minor_ticks = False, cb_ticks = None, num_cb_ticks = 8, cb_labels_rotation = 0.0,
+                 colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
+                 
     """
     Plot variable on world map.
 
@@ -348,6 +348,8 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
         Color of continents. The default is 'darkgrey'.
     lakeColor : STR, optional
         Color of water bodies (lakes and seas). The default is 'darkgrey'.
+    projection : STR, optional
+        Map projection. The default is 'cly' (Cylindrical Equidistant Projection).
     logColorbar : BOOL, optional
         Set logarithmic scale on contour colormap. The default is False.
     cb_minor_ticks : BOOL, optional
@@ -385,7 +387,7 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
     ny = data.shape[0]
     nx = data.shape[1]
     fig, ax = plt.subplots(figsize = figsize)
-    m = Basemap(projection='cyl', resolution='c',
+    m = Basemap(projection=projection, resolution='c',
                 llcrnrlon=bbox[0], llcrnrlat=bbox[1],
                 urcrnrlon=bbox[2], urcrnrlat=bbox[3], fix_aspect = fix_aspect)
     lons, lats = m.makegrid(nx, ny)
