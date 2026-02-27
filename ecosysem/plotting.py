@@ -7,8 +7,10 @@ Created on Mon Nov 10 17:12:16 2025
 
 from reactions import Reactions as Rxn
 from thermodynamics import ThEq
-from environments import Atmosphere
+from environments import Atmosphere, ISAMERRA2, CAMSMERRA2
 
+import datetime
+from dateutil.relativedelta import relativedelta
 from mpl_toolkits.basemap import Basemap
 import pylab as pl
 import numpy as np
@@ -26,6 +28,250 @@ def _savePlot(file, cPlots):
         plt.savefig(f'{file}_{cPlots}.tiff', bbox_inches='tight')
     else:
         plt.savefig(f'{file}.tiff', bbox_inches='tight')
+
+def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time = 1, pH = 7.0,
+                     bbox = (-180, -90, 180, 90), compound = None, phase = 'All', altArray = None,
+                     numAlt = 50, surftrop = None, figsize = None, lw = 2.0, color = 'deepskyblue', 
+                     marker = None, ms = 5, logScale = False, alpha_fillbtw = 0.3, date_format = None,
+                     yticks_format = None, xlabel = 'Time', ylabel = 'Variable (Units)', xlabel_rotation = 0.0, 
+                     yLim = [None, None], show_right_labels = True, drl = 1.005, fsrl = 10.0, fontFamily = 'Arial', 
+                     fontSize = 12.0, title = None, cf = 1.0, lines = [True, True, True, True, True], showMessage = False,
+                     fillMissing = False, savePlot = False):
+    """
+    Plot seasonal variability of a variable, including all quartiles (0.0, 0.25, 0.5, 0.75, 1.0).
+
+    Parameters
+    ----------
+    model : STR
+        Environmental model. Available models: 'ISAMERRA2', 'CAMSMERRA2'.
+    dataType : STR
+        Type of data. Available types: 'dly', 'mly', 'yly', 'cmly'
+    start_date : STR
+        Start date of seasonality plot. Format: dly - 'yyyy-mm-dd'; mly - 'yyyy-mm'; cmly - 'yyyy-mm'; yly - 'yyyy'.
+    end_date : STR
+        Last date of seasonality plot. Format: dly - 'yyyy-mm-dd'; mly - 'yyyy-mm'; cmly - 'yyyy-mm'; yly - 'yyyy'.
+    variable : STR
+        Variable to be plotted. Some variables are dictionaries, and compound has to be given: attributeName-compound (e.g., Ci_LSW-CH4).
+    delta_time : INT, optional
+        Set time interval. The default is 1.
+    pH : INT or FLOAT, optional
+        pH value. The default is 7.0.
+    bbox : Tuple
+        Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
+        (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).
+    compound : STR or LIST, optional
+        Interested compounds. The default is None.
+    phase : STR, optional
+        Selection of phase. The default is 'All'.
+            'G' - Gas phase.
+            'L' - Liquid phase.
+            'L-FW' - Liquid freshwater.
+            'L-SW' - Liquid seawater.
+            'All' - All phases.
+    altArray : LIST or np.ndarray, optional
+        Requested altitudes. The default is None.
+    numAlt : INT, optional
+        Number of altitude steps from 0.0 m to maximum tropopause altitude, if list of altitude is not given by the user with `altArray`. The default is 50.
+    surftrop : STR, optional
+        Get concentration from 2-meters air following topography ('surface') or tropopause height ('tropopause').. The default is None.
+    figsize : (FLOAT, FLOAT), optional
+        Figure size in inches. (Width, Height). The default is None.
+    lw : FLOAT, optional
+        Line width. The default is 2.0.
+    color : STR, optional
+        Color of lines and fill between. The default is 'deepskyblue'.
+    marker : STR, optional
+        Set the line marker. The default is None.
+    ms : FLOAT or INT, optional
+        Set the marker size in points. The default is 5.
+    logScale : BOOL, optional
+        Set whether coordinate-y is plotted in logarithmic scale. The default is False.
+    alpha_fillbtw : FLOAT, optional
+        Set alpha blending value, between 0.0 (transparent) and 1.0 (opaque). The default is 0.3.
+    date_format : STR, optional
+        Set date format shown in coordinate x. The default is None.
+    yticks_format : STR, optional
+        Set format of the y-coordinate ticks. The default is None.
+    xlabel : STR, optional
+        Set x-axis title. The default is 'Time'.
+    ylabel : STR, optional
+        Set y-axis title. The default is 'Variable (Units)'.
+    xlabel_rotation : FLOAT, optional
+        Set x-label rotation. The default is 0.0.
+    yLim : [FLOAT, FLOAT], optional
+        Set limits of y-coordinate [bottom, top]. The default is [None, None].
+    show_right_labels : BOOL, optional
+        Set whether quartile lables are shown. The default is True.
+    drl : FLOAT, optional
+        Set distance of right labels (Max, Q3, Q2, Q1, Min). The default is 1.005.
+    fsrl : FLOAT, optional
+        Font size of right labels. The default is 10.0.
+    fontFamily : STR, optional
+        Set font family. The default is 'Arial'.
+    fontSize : FLOAT, optional
+        Set font size. The default is 12.0.
+    title : STR, optional
+        Set plot title. The default is None.
+    cf : FLOAT, optional
+        Set conversion factor for variable. The default is 1.0.
+    lines : [BOOL, BOOL, BOOL, BOOL, BOOL], optional
+        Set what quartiles are plotted: [Max, Q3, Q2, Q1, Min]. The default is [True, True, True, True, True].
+    showMessage : BOOL, optional
+        Boolean to set whether informative messages are displayed in Console. The default is False.
+    fillMissing : BOOL, optional
+        Set whether missing data of air composition is filled with air composition from ISA (True) or leave data as np.nan (False). The default is False.
+    savePlot : BOOL, optional
+        Save resultant plot in `results/` folder. The default is False.
+
+    Returns
+    -------
+    Spyder plot or Plot in 'results/' folder.
+
+    """
+    dict_attributes = {'Pi', 'MolPct_G', 'Ci_G', 'Ci_LFW', 'Ci_LSW', 'DGr'}
+    check_dict_attribute = '-' in variable
+    variable_name = variable
+    if check_dict_attribute:
+        comp = variable[variable.find('-')+1:]
+        variable = variable[0:variable.find('-')]
+    # Check valid models and data types
+    validModels = {'ISAMERRA2', 'CAMSMERRA2'}
+    if not model in validModels:
+        raise ValueError(f'Invalid model ({model}) to plot seasonality of {variable}. Valid models: {validModels}.')
+    validDataTypes = {'dly', 'mly', 'yly', 'cmly'}
+    if not dataType in validDataTypes:
+        raise ValueError(f'Invalid data type ({dataType}) to plot seasonality of {variable}. Valid data types: {validDataTypes}.')
+    print(f'> Plotting seasonality of {variable_name}.')
+    # Define dates
+    if dataType == 'dly':
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+        delta_date = datetime.timedelta(days = delta_time)
+    elif dataType == 'mly':
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m')
+        end_date = datetime.datetime.strptime(end_date, '%Y-%m')
+        delta_date = relativedelta(months = delta_time)
+    elif dataType == 'cmly':
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m')
+        end_date_ = datetime.datetime.strptime(end_date, '%Y-%m')
+        y_ed = int(end_date_.year)
+        y_sd = int(start_date.year)
+        m_ed = int(end_date_.month)
+        end_date = datetime.datetime.strptime(f'{y_sd}-{m_ed}', '%Y-%m')
+        delta_date = relativedelta(months = delta_time)
+    elif dataType == 'yly':
+        start_date = datetime.datetime.strptime(start_date, '%Y')
+        end_date = datetime.datetime.strptime(end_date, '%Y')
+        delta_date = relativedelta(years = delta_time)
+    date = start_date
+    maximum = []
+    Q3 = []
+    median = []
+    Q2 = []
+    minimum = []
+    x_ = 0
+    x = []
+    labels = []
+    while date <= end_date:
+        x_ += 1
+        x += [x_]
+        if not isinstance(date_format, str):
+            if dataType == 'dly':   date_format = '%d-%m-%Y'
+            elif dataType == 'mly': date_format = '%m-%Y'
+            elif dataType == 'yly': date_format = '%Y'
+            elif dataType == 'cmly': date_format = '%b'
+        labels += [date.strftime(date_format)]
+        if dataType == 'cmly':
+            y = [int(date.year), y_ed]
+        else:
+            y = int(date.year)
+        m = int(date.month)
+        d = int(date.day)
+        if dataType == 'cmly':
+            print(f'    > Date: {date.strftime(date_format)} {y_sd}_{y_ed}')
+        else:
+            print(f'    > Date: {date.strftime(date_format)}')
+        if model == 'ISAMERRA2':
+            model_inst = ISAMERRA2(dataType, y, m, d, 
+                                   pH = pH, 
+                                   bbox = bbox,
+                                   compound = compound,
+                                   phase = phase,
+                                   altArray = altArray,
+                                   numAlt = numAlt, 
+                                   surftrop = surftrop,
+                                   keysAsAttributes = True,
+                                   showMessage  = showMessage)
+        elif model == 'CAMSMERRA2':
+            model_inst = CAMSMERRA2(dataType, y, m, d,
+                                    pH = pH,
+                                    bbox = bbox,
+                                    keys = 'All',
+                                    phase = phase,
+                                    altArray = altArray,
+                                    numAlt = numAlt,
+                                    surftrop = surftrop,
+                                    showMessage  = showMessage,
+                                    fillMissing = fillMissing)
+        model_attributes = list(model_inst.__dict__.keys())
+        try:
+            var = getattr(model_inst, variable)
+        except:
+            raise ValueError(f'Variable {variable} not found in {model} model. Available attributes: {model_attributes}.')
+        if variable in dict_attributes:
+            dict_keys = list(var.keys())
+            try:
+                var = var[comp]
+            except:
+                raise ValueError(f'Compound/variable {comp} not found in .{variable} of {model}. Available compounds/variables: {dict_keys}.')
+        var *= cf
+        if lines[0]: maximum += [np.nanmax(var)]
+        if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
+        if lines[2]: median += [np.nanmedian(var)]
+        if lines[3]: Q2 += [np.nanquantile(var, 0.25)]
+        if lines[4]: minimum += [np.nanmin(var)]
+        #-DEBUGGING-#
+        # print(f'   > Median: {median[-1]}')
+        #-----------#
+        date += delta_date
+    #-Plotting
+    plt.rcParams["font.family"] = fontFamily
+    plt.rcParams["font.size"] = fontSize
+    plt.rcParams['figure.dpi'] = 400
+    plt.rcParams['savefig.dpi'] = 400
+    fig, ax = plt.subplots(figsize = figsize)
+    if logScale:
+        if lines[0]: plt.semilogy(x, maximum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[1]: plt.semilogy(x, Q3, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[2]: plt.semilogy(x, median, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
+        if lines[3]: plt.semilogy(x, Q2, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[4]: plt.semilogy(x, minimum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
+    else:
+        if lines[0]: plt.plot(x, maximum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[1]: plt.plot(x, Q3, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[2]: plt.plot(x, median, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
+        if lines[3]: plt.plot(x, Q2, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[4]: plt.plot(x, minimum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
+    plt.fill_between(x, minimum, maximum, alpha = alpha_fillbtw, color = color)
+    if show_right_labels:
+        if lines[0]: plt.text(x[-1]*drl, maximum[-1], 'Max', va = 'center', size = fsrl)
+        if lines[1]: plt.text(x[-1]*drl, Q3[-1], 'Q3', va = 'center', size = fsrl)
+        if lines[2]: plt.text(x[-1]*drl, median[-1], 'Q2', va = 'center', size = fsrl)
+        if lines[3]: plt.text(x[-1]*drl, Q2[-1], 'Q1', va = 'center', size = fsrl)
+        if lines[4]: plt.text(x[-1]*drl, minimum[-1], 'Min', va = 'center', size = fsrl)
+    plt.margins(x=0)
+    plt.title(title)
+    ax.set_xticks(x, labels, rotation = xlabel_rotation)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    if yticks_format:
+        ax.yaxis.set_major_formatter(yticks_format)
+    plt.ylim(yLim[0], yLim[1])
+    if savePlot:
+        cPlots = 1
+        file = f'results/{variable_name}_plotSeasonality'
+        _savePlot(file, cPlots)
+    plt.show()
 
 def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, numlevels = 100, fontFamily = 'Arial',  
                  figsize = (5.0, 3.6), formatColorbar = '{:0.1f}', fix_aspect = False, fontsize = 12, fwtl = 'normal',
