@@ -35,8 +35,8 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                      marker = None, ms = 5, logScale = False, alpha_fillbtw = 0.3, date_format = None,
                      yticks_format = None, xlabel = 'Time', ylabel = 'Variable (Units)', xlabel_rotation = 0.0, 
                      yLim = [None, None], show_right_labels = True, drl = 1.005, fsrl = 10.0, fontFamily = 'Arial', 
-                     fontSize = 12.0, title = None, cf = 1.0, lines = [True, True, True, True, True], showMessage = False,
-                     fillMissing = False, savePlot = False):
+                     fontSize = 12.0, title = None, cf = 1.0, lines = [True, True, True, True, True], 
+                     showMessage = False, fillMissing = False, savePlot = False):
     """
     Plot seasonal variability of a variable, including all quartiles (0.0, 0.25, 0.5, 0.75, 1.0).
 
