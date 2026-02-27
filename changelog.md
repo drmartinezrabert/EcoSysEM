@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - New optional argument in `CAMS.getDataCAMS()` (also included in `cmd_getDataCAMS.py`): `drop_variables`.
 - New optional arguments in `plotVarMap2D()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`.
 - New optional argument in `CAMSMERRA2`: `fillMissing`.
+- New function to plot seasonal variability of a variable in `plotting.py`: `plot_seasonality()`.
 ### Removed
 - General Command Line Interface script: `ecosysem_cmd.py`. Now each function has its own script (`cmd_functionName.py`).
 ### Fixed
