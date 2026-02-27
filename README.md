@@ -3914,9 +3914,9 @@ plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin=None, vmax=None, numlevel
 		     drawCoastLines=True, clw=0.5, drawParallels=True, plw=0.5, cpl='k', title=None,
 	         drawMeridians=True, mlw=0.5, cml='k', colorbar=True, parallelsLabels=[1,0,0,0], 
 			 parallels=[-90, -60, -30, 0, 30, 60, 90], meridians=[0., 60., 120., 180., 240., 300.], 
-			 meridiansLabels=[0,0,0,1], continentColor='darkgrey', lakeColor='darkgrey', logColorbar=False,
-			 cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0, colorbarSize=(10, 4),
-			 cbOrientation='horizontal', cbFontSize=12, savePlot=False)
+			 meridiansLabels=[0,0,0,1], continentColor='darkgrey', lakeColor='darkgrey', projection='cly',
+			 logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
+			 colorbarSize=(10, 4), cbOrientation='horizontal', cbFontSize=12, savePlot=False)
 ```
 Plot two dimensional data on a world map.<br>
 **Parameters:**<br>
@@ -3981,6 +3981,8 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **projection : _str_, _optional, default: 'cly'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Map projection (cly - Cylindrical Equidistant Projection).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **logColorbar : _bool_, _optional, default: False_** <br> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set logarithmic scale on contour colormap. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_minor_ticks : _bool_, _optional, default: False_** <br> 
@@ -4087,7 +4089,9 @@ Plot zonal mean of data.<br>
 ```python
 plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
-                  fontFamily='Arial', fwtl='normal', fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey', savePlot=False)
+                  fontFamily='Arial', fwtl='normal', fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey',
+				  [projection='cyl', logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
+				  cbOrientation='horizontal', cbFontSize=12, formatColorbar='{:0.1f}',] savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
 **Parameters:**<br>
@@ -4141,6 +4145,8 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of continents.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **lakeColor : _str_, _optional, default: 'darkgrey'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **projection : _str_, _optional, default: 'cly'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Map projection (cly - Cylindrical Equidistant Projection).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
 **Returns:**<br>
