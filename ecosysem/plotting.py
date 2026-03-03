@@ -220,9 +220,9 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
             alt = model_inst.altitude
             if alt.ndim != 1: alt = None
             NaN_values = model_inst.temperature
-            weights = wt(lon, lat, alt = alt, NaN_values = NaN_values)
+            grid_weights = wt(lon, lat, alt = alt, NaN_values = NaN_values)
         else:
-            weights = None
+            grid_weights = None
         model_attributes = list(model_inst.__dict__.keys())
         try:
             var = getattr(model_inst, variable)
@@ -237,10 +237,11 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
         var *= cf
         if lines[0]: maximum += [np.nanmax(var)]
         #(v1) if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
-        if lines[1]: Q3 += [np.nanquantile(var, 0.75, method = 'inverted_cdf', weights = weights)]
-        if lines[2]: median += [np.nanmedian(var)]
+        if lines[1]: Q3 += [np.nanquantile(var, 0.75, method = 'inverted_cdf', weights = grid_weights)]
+        #(v1) if lines[2]: median += [np.nanmedian(var)]
+        if lines[2]: median += [np.nanquantile(var, 0.5, method = 'inverted_cdf', weights = grid_weights)]
         #(v1) if lines[3]: Q2 += [np.nanquantile(var, 0.25)]
-        if lines[3]: Q2 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = weights)]
+        if lines[3]: Q2 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = grid_weights)]
         if lines[4]: minimum += [np.nanmin(var)]
         #-DEBUGGING-#
         # print(f'   > Median: {median[-1]}')
