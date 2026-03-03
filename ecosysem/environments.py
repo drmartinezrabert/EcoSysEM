@@ -3129,7 +3129,7 @@ class CAMSMERRA2(Atmosphere):
             Number of altitude steps to generate.
         
         """
-        # from pyatmos import coesa76
+        from pyatmos import coesa76
         
         cams_molecules = ('CO', 'CO2', 'CH4')
         molecule_data = {}
@@ -3160,17 +3160,17 @@ class CAMSMERRA2(Atmosphere):
         self.pressure = p_target
         self.altitude = z_m
         #-v1 (with pyatomos)-#
-        # h_km = cams_alt * 1e-3 # km
-        # rho_kg_m3 = coesa76(h_km).rho # kg/m3
-        # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
-        # rho = rho_kg_L[:, None, None]
-        #-v2 (EcoSysEM)-#
-        cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
-        shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
-        cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
-        rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
+        h_km = cams_alt * 1e-3 # km
+        rho_kg_m3 = coesa76(h_km).rho # kg/m3
         rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
-        rho = rho_kg_L
+        rho = rho_kg_L[:, None, None]
+        #-v2 (EcoSysEM)-#
+        # cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
+        # shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
+        # cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
+        # rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
+        # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        # rho = rho_kg_L
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
