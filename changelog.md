@@ -39,7 +39,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - README file.
 - Density function moved to `ThP class`: `ThP.density()`.
-- Update `CAMSMERRA2()`. Air density is computed using EcoSysEM functions (instead of pyatmos package).
 - Visual improvement in plotting.
 
 ## [0.4] - 2025/12/17
