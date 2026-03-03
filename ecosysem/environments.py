@@ -12,6 +12,7 @@ from reactions import Reactions as Rxns
 from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1269,7 +1270,7 @@ class ISA(Atmosphere):
         self.fluidType = 'ideal'
         self.salinity = None
         self.methods = None
-        if selAlt:
+        if isinstance(selAlt, (list, np.ndarray)):
             self._selectAltitude(selAlt)
         self._getConcISA(phase, selCompounds)
         if showMessage:
@@ -1437,7 +1438,7 @@ class ISA(Atmosphere):
         altitud value.
         
         """
-        if isinstance(selAlt, list):
+        if isinstance(selAlt, (list, np.ndarray)):
             if len(selAlt) > 2: raise ValueError('Argument \'selAlt\' must be an integer, float or list [min_alt, max_alt].')
             elif len(selAlt) == 1:
                 selAlt = [0, selAlt[0]]
@@ -3128,7 +3129,7 @@ class CAMSMERRA2(Atmosphere):
             Number of altitude steps to generate.
         
         """
-        from pyatmos import coesa76
+        # from pyatmos import coesa76
         
         cams_molecules = ('CO', 'CO2', 'CH4')
         molecule_data = {}
@@ -3158,10 +3159,18 @@ class CAMSMERRA2(Atmosphere):
         self.temperature = t_target
         self.pressure = p_target
         self.altitude = z_m
-        h_km = cams_alt * 1e-3 # km
-        rho_kg_m3 = coesa76(h_km).rho # kg/m3
+        #-v1 (with pyatomos)-#
+        # h_km = cams_alt * 1e-3 # km
+        # rho_kg_m3 = coesa76(h_km).rho # kg/m3
+        # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        # rho = rho_kg_L[:, None, None]
+        #-v2 (EcoSysEM)-#
+        cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
+        shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
+        cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
+        rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
         rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
-        rho = rho_kg_L[:, None, None]
+        rho = rho_kg_L
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
