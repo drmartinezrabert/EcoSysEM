@@ -167,8 +167,8 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
     date = start_date
     maximum = []
     Q3 = []
-    median = []
     Q2 = []
+    Q1 = []
     minimum = []
     x_ = 0
     x = []
@@ -238,10 +238,10 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
         if lines[0]: maximum += [np.nanmax(var)]
         #(v1) if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
         if lines[1]: Q3 += [np.nanquantile(var, 0.75, method = 'inverted_cdf', weights = grid_weights)]
-        #(v1) if lines[2]: median += [np.nanmedian(var)]
-        if lines[2]: median += [np.nanquantile(var, 0.5, method = 'inverted_cdf', weights = grid_weights)]
-        #(v1) if lines[3]: Q2 += [np.nanquantile(var, 0.25)]
-        if lines[3]: Q2 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = grid_weights)]
+        #(v1) if lines[2]: Q2 += [np.nanmedian(var)]
+        if lines[2]: Q2 += [np.nanquantile(var, 0.5, method = 'inverted_cdf', weights = grid_weights)]
+        #(v1) if lines[3]: Q1 += [np.nanquantile(var, 0.25)]
+        if lines[3]: Q1 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = grid_weights)]
         if lines[4]: minimum += [np.nanmin(var)]
         #-DEBUGGING-#
         # print(f'   > Median: {median[-1]}')
@@ -256,21 +256,21 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
     if logScale:
         if lines[0]: plt.semilogy(x, maximum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
         if lines[1]: plt.semilogy(x, Q3, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
-        if lines[2]: plt.semilogy(x, median, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
-        if lines[3]: plt.semilogy(x, Q2, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[2]: plt.semilogy(x, Q2, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
+        if lines[3]: plt.semilogy(x, Q1, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
         if lines[4]: plt.semilogy(x, minimum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
     else:
         if lines[0]: plt.plot(x, maximum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
         if lines[1]: plt.plot(x, Q3, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
-        if lines[2]: plt.plot(x, median, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
-        if lines[3]: plt.plot(x, Q2, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
+        if lines[2]: plt.plot(x, Q2, ls = '-', lw = lw, color = color, marker = marker, ms = ms)
+        if lines[3]: plt.plot(x, Q1, ls = '--', lw = lw*0.5, color = color, marker = marker, ms = ms)
         if lines[4]: plt.plot(x, minimum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
     plt.fill_between(x, minimum, maximum, alpha = alpha_fillbtw, color = color)
     if show_right_labels:
         if lines[0]: plt.text(x[-1]*drl, maximum[-1], 'Max', va = 'center', size = fsrl)
         if lines[1]: plt.text(x[-1]*drl, Q3[-1], 'Q3', va = 'center', size = fsrl)
-        if lines[2]: plt.text(x[-1]*drl, median[-1], 'Q2', va = 'center', size = fsrl)
-        if lines[3]: plt.text(x[-1]*drl, Q2[-1], 'Q1', va = 'center', size = fsrl)
+        if lines[2]: plt.text(x[-1]*drl, Q2[-1], 'Q2', va = 'center', size = fsrl)
+        if lines[3]: plt.text(x[-1]*drl, Q1[-1], 'Q1', va = 'center', size = fsrl)
         if lines[4]: plt.text(x[-1]*drl, minimum[-1], 'Min', va = 'center', size = fsrl)
     plt.margins(x=0)
     plt.title(title)
