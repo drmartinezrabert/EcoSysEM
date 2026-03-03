@@ -8,6 +8,7 @@ Created on Mon Nov 10 17:12:16 2025
 from reactions import Reactions as Rxn
 from thermodynamics import ThEq
 from environments import Atmosphere, ISAMERRA2, CAMSMERRA2
+from auxiliaries import _grid_weights as wt
 
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -36,7 +37,7 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                      yticks_format = None, xlabel = 'Time', ylabel = 'Variable (Units)', xlabel_rotation = 0.0, 
                      yLim = [None, None], show_right_labels = True, drl = 1.005, fsrl = 10.0, fontFamily = 'Arial', 
                      fontSize = 12.0, title = None, cf = 1.0, lines = [True, True, True, True, True], 
-                     showMessage = False, fillMissing = False, savePlot = False):
+                     showMessage = False, fillMissing = False, weights = True, savePlot = False):
     """
     Plot seasonal variability of a variable, including all quartiles (0.0, 0.25, 0.5, 0.75, 1.0).
 
@@ -213,6 +214,15 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                                     surftrop = surftrop,
                                     showMessage  = showMessage,
                                     fillMissing = fillMissing)
+        if weights:
+            lon = model_inst.lon
+            lat = model_inst.lat
+            alt = model_inst.altitude
+            if alt.ndim != 1: alt = None
+            NaN_values = model_inst.temperature
+            weights = wt(lon, lat, alt = alt, NaN_values = NaN_values)
+        else:
+            weights = None
         model_attributes = list(model_inst.__dict__.keys())
         try:
             var = getattr(model_inst, variable)
@@ -226,9 +236,11 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                 raise ValueError(f'Compound/variable {comp} not found in .{variable} of {model}. Available compounds/variables: {dict_keys}.')
         var *= cf
         if lines[0]: maximum += [np.nanmax(var)]
-        if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
+        #(v1) if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
+        if lines[1]: Q3 += [np.nanquantile(var, 0.75, method = 'inverted_cdf', weights = weights)]
         if lines[2]: median += [np.nanmedian(var)]
-        if lines[3]: Q2 += [np.nanquantile(var, 0.25)]
+        #(v1) if lines[3]: Q2 += [np.nanquantile(var, 0.25)]
+        if lines[3]: Q2 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = weights)]
         if lines[4]: minimum += [np.nanmin(var)]
         #-DEBUGGING-#
         # print(f'   > Median: {median[-1]}')
