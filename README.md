@@ -147,6 +147,8 @@ pip install python-dateutil
 ```
 pip install geokernels
 ```
+____________________________
+
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
