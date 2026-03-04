@@ -3843,7 +3843,7 @@ plot_seasonality(model, dataType, start_date, end_date, variable, delta_time=1, 
 				 color='deepskyblue', marker=None, ms=5, logScale=False, alpha_fillbtw=0.3, date_format=None,
 				 yticks_format=None, xlabel='Time', ylabel='Variable (Units)', xlabel_rotation=0.0, yLim=[None, None],
 				 show_right_labels=True, drl=1.005, fsrl=10.0, fontFamily='Arial', fontSize=12.0, title=None, cf=1.0,
-				 lines=[True, True, True, True, True], showMessage=False, fillMissing=False, savePlot=False):
+				 lines=[True, True, True, True, True], showMessage=False, fillMissing=False, weights=False, savePlot=False):
 ```
 Plot two dimensional data on a world map.<br>
 **Parameters:**<br>
@@ -3933,6 +3933,8 @@ Plot two dimensional data on a world map.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Boolean to set whether informative messages are displayed in Console.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fillMissing : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether missing data of air composition is filled with air composition from ISA (True) or leave data as np.nan (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **weights : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether grid contribution is considered in statistics.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Save resultant plot in `results/` folder.<p>
 **Returns:**<br>
