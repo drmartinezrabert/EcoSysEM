@@ -8,7 +8,6 @@ Created on Tue Mar  3 08:50:57 2026
 import numpy as np
 from geokernels.distance import geodist
 
-
 def _grid_weights(lon, lat, alt = None, NaN_values = None):
     """
     Compute the contribution (weights) of each grid (2D or 3D) to the statistic (e.g., quantile, mean, median...).
