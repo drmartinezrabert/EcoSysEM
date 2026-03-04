@@ -236,16 +236,10 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                 raise ValueError(f'Compound/variable {comp} not found in .{variable} of {model}. Available compounds/variables: {dict_keys}.')
         var *= cf
         if lines[0]: maximum += [np.nanmax(var)]
-        #(v1) if lines[1]: Q3 += [np.nanquantile(var, 0.75)]
         if lines[1]: Q3 += [np.nanquantile(var, 0.75, method = 'inverted_cdf', weights = grid_weights)]
-        #(v1) if lines[2]: Q2 += [np.nanmedian(var)]
         if lines[2]: Q2 += [np.nanquantile(var, 0.5, method = 'inverted_cdf', weights = grid_weights)]
-        #(v1) if lines[3]: Q1 += [np.nanquantile(var, 0.25)]
         if lines[3]: Q1 += [np.nanquantile(var, 0.25, method = 'inverted_cdf', weights = grid_weights)]
         if lines[4]: minimum += [np.nanmin(var)]
-        #-DEBUGGING-#
-        # print(f'   > Median: {median[-1]}')
-        #-----------#
         date += delta_date
     #-Plotting
     plt.rcParams["font.family"] = fontFamily
