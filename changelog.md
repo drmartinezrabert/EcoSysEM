@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.5] - yyyy/mm/dd
 ### Added
-- Computation of contributions (weights) of each grid to statistics (e.g., quantiles/quartiles). User can disable this with argument `weights = False`.
+- Computation of contributions (weights) of each grid to statistics (e.g., quantiles/quartiles). User can consider the weights with the argument `weights = True` (if possible).
 - New Command Line Interface (CLI) scripts:
   - `cmd_getDataMERRA2.py`.
   - `cmd_getDataCAMS.py`.
