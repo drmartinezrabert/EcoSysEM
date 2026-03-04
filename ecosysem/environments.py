@@ -290,6 +290,7 @@ class Environment:
         None
         
         """
+        validModels = {'CAMS', 'MERRA2'}
         if model == 'CAMS':
             CAMS._combDataCAMS(self, model = model, 
                                dataType = dataType, 
@@ -298,7 +299,7 @@ class Environment:
                                method = method,
                                target_lats = target_lats, 
                                target_lons = target_lons)
-        else:
+        elif model == 'MERRA2':
             # Get all files from `data\`
             if dataType == 'cmly' or dataType == 'yly' or dataType == 'cyly':
                 folder = f'data/{model}/mly/'
@@ -310,8 +311,7 @@ class Environment:
             if dataType == 'cmly':
                 if not isinstance(year, list): raise ValueError('Argument \'y\' must be a list with length > 1')
                 if len(year) <= 1: raise ValueError('Argument \'y\' must be a list with length > 1.')
-                years = np.arange(year[0], year[-1]+1, 1)
-                for y in years:    
+                for y in year:    
                     el = f'{y}_{month}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'mly':
@@ -401,6 +401,8 @@ class Environment:
                 for file in selFiles:
                     path = folder + file
                     os.remove(path)
+        else:
+            raise NameError(f'Invalid model ({model}) to combine data. Valid models: {validModels}.')
     
     def keys(self, model, dataType, y, m = None, d = None):
         """
