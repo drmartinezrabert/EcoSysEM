@@ -2883,6 +2883,62 @@ class CAMS(Atmosphere):
                     except Exception as e: raise ValueError(f'Failed for {date_range}: {e}')
         print("\nAll downloads completed.")
 
+    def fill_missing_levels(self, p_level_target, dataType, y, m = None, d = None):
+        """
+        Fill in the missing data for the target levels with NaN values.
+
+        Parameters
+        ----------
+        p_level_target : LIST or np.ndarray
+            Array of target pressure levels (in Pascals).
+        dataType : STR ('cmly', 'mly', 'yly', 'cyly')
+            Type of data.
+        y : INT
+            Year of data..
+        m : INT, optional
+            Month of data. The default is None.
+        d : INT, optional
+            Day of data. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        data = CAMS.loadData(self, 'CAMS', dataType, y, m, d)
+        p_level_data = data['P_level']
+        lon = data['lon']
+        lat = data['lat']
+        alt_target = CAMS._HfromP(self, np.array(p_level_target))
+        data_shape = (len(p_level_target), len(lat), len(lon))
+        nan_shape = ((len(lat), len(lon)))
+        #-Set keys to be kept, replaced or targeted
+        key_to_keep = ['lat', 'lon']
+        key_target = ['P_level', 'alt']
+        keys_to_check = list(data.keys())
+        for remove_key in key_to_keep + key_target:
+            keys_to_check.remove(remove_key)
+        #-Create a new data dictionary
+        data_new = {}
+        for key in data:
+            if key in key_to_keep:
+                data_new[key] = data[key]
+            elif key == 'P_level':
+                data_new[key] = np.array(p_level_target, dtype='f')
+            elif key == 'alt':
+                data_new[key] = np.array(alt_target, dtype='f')
+            else:
+                data_new[key] = np.zeros(data_shape, dtype='f')
+        #-Complete data dictionary
+        for id_p, p in enumerate(p_level_target):
+            for key in keys_to_check:
+                if p in p_level_data:
+                    index = int(np.argwhere(p_level_data == p))
+                    data_new[key][id_p, ...] = data[key][index, ...]
+                else:
+                    data_new[key][id_p, ...] = np.nan * np.ones(nan_shape, dtype='f')
+        CAMS._saveNPZ(self, data_new, 'CAMS', 'mly', y, m)
+
 class CAMSMERRA2(Atmosphere):
     """
     Combination of Modern-Era Retrospective analysis for Research and 
