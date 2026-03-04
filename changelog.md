@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
 - Bug in `cmd_getDataCAMS.py`: Now argument `_d` accepts string ('All'), integers and list of integers.
 - Bug in `Environment.combData()`: Now multiple years of CAMS data (>2 years) can be combined.
+- Bug in `Environment.combData()`: Now multiple months of MERRA2 data can be defined (before only first and last).
 ### Changed
 - README file.
 - Density function moved to `ThP class`: `ThP.density()`.
