@@ -1787,11 +1787,6 @@ Download data from CAMS Global Greenhouse Gas Forecasts database.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **NPZ file in folder `data\CAMS\mly\` and/or `data\CAMS\dly\`**<br>
 
 ### CAMS.fill_missing_levels &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
-
-> [!NOTE]
-> If a significant amount of data needs to be downloaded, we recommend to run CAMS.getDataCAMS [via Command Line Interface](#clipboard-instructions-to-use-ecosysem-platform-via-command-line-interface-cli).
-> With this, you can download data sets in parallel - one set (_e.g._, one entire month) per Command Prompt.
-
 ```python
 CAMS.fill_missing_levels( p_level_target, dataType, y, m=None, d=None)
 ```
