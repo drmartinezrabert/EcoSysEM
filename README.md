@@ -79,6 +79,7 @@ A **Python package** is a collection of files containing Python code (i.e., modu
 - **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
 - **<ins>basemap</ins>**. Basemap is a matplotlib toolkit for plotting 2D data on maps in Python. It is similar in functionality to GrADS, GMT, the MATLAB Mapping Toolbox and the IDL Mapping Facilities. CDAT and PyNGL are other Python libraries with similar capabilities. For more info and tutorials, click [here](https://matplotlib.org/basemap/stable/index.html).
 - **<ins>python-dateutil</ins>**. Dateutil module provides powerful extensions to the standard datetime module, available in Python. For more info and tutorials, click [here](https://dateutil.readthedocs.io/en/stable/).
+- **<ins>geokernels</ins>**. Geokernels module proides fast geospatial distance computation and geodesic distance kenrels to accelerate geospatial machine learning and distance matrix calculations. For more info and tutorials, click [here](https://github.com/sigmaterra/geokernels).
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -142,6 +143,10 @@ pip install basemap
 ```
 pip install python-dateutil
 ```
+**geokernels**
+```
+pip install geokernels
+```
 #### · <ins>Windows Terminal</ins>
 **NumPy**:
 ```
@@ -194,6 +199,10 @@ python -m pip install basemap
 **python-dateutil**
 ```
 python -m pip install python-dateutil
+```
+**geokernels**
+```
+python -m pip install geokernels
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
