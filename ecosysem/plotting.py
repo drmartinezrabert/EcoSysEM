@@ -37,7 +37,7 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                      yticks_format = None, xlabel = 'Time', ylabel = 'Variable (Units)', xlabel_rotation = 0.0, 
                      yLim = [None, None], show_right_labels = True, drl = 1.005, fsrl = 10.0, fontFamily = 'Arial', 
                      fontSize = 12.0, title = None, cf = 1.0, lines = [True, True, True, True, True], 
-                     showMessage = False, fillMissing = False, weights = True, savePlot = False):
+                     showMessage = False, fillMissing = False, weights = False, savePlot = False):
     """
     Plot seasonal variability of a variable, including all quartiles (0.0, 0.25, 0.5, 0.75, 1.0).
 
@@ -121,6 +121,8 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
         Boolean to set whether informative messages are displayed in Console. The default is False.
     fillMissing : BOOL, optional
         Set whether missing data of air composition is filled with air composition from ISA (True) or leave data as np.nan (False). The default is False.
+    weights : BOOL, optional
+        Set whether grid weight contributions (grid defined by longitude, latitude and altitude arrays) are considered in statistics. The default is False.
     savePlot : BOOL, optional
         Save resultant plot in `results/` folder. The default is False.
 
