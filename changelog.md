@@ -39,7 +39,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `cmd_getDataCAMS.py`: Now argument `_d` accepts string ('All'), integers and list of integers.
 - Bugs in `Environment.combData()`:
   - Multiple years of CAMS data (>2 years) can be combined.
-  - Multiple months of MERRA2 data can be defined (before only first and last).
+  - Multiple years months of MERRA2 data can be defined (before only first and last).
   - Only accepts valid models ('MERRA2' and 'CAMS').
 ### Changed
 - README file.
