@@ -309,7 +309,7 @@ class Environment:
             # Test elements
             tEl = np.empty((0))
             if dataType == 'cmly':
-                if not isinstance(year, list): raise ValueError('Argument \'y\' must be a list with length > 1')
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'y\' must be a list or np.ndarray.')
                 if len(year) <= 1: raise ValueError('Argument \'y\' must be a list with length > 1.')
                 for y in year:    
                     el = f'{y}_{month}_month.npz'
@@ -324,7 +324,7 @@ class Environment:
                     last_day = calendar.monthrange(y, m)[1]
                     first_day = 1
                 else:
-                    if not isinstance(days, list): days = [days]
+                    if not isinstance(days, (list, np.ndarray)): days = [days]
                     days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
                     last_day = max(days)
                     if len(days) > 1:
@@ -336,21 +336,17 @@ class Environment:
                     el = f'{y}_{month}_{d}_day.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'yly':
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                if len(month) != 2: raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
                 if not isinstance(year, int): raise ValueError('Argument \'year\' must be an integer.')
-                months = np.arange(month[0], month[-1]+1, 1)
                 y = year
-                for m in months:
+                for m in month:
                     el = f'{y}_{m}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'cyly':
-                if not isinstance(year, list): raise ValueError('Argument \'year\' must be a list: [start_year, end_year]')
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                years = np.arange(year[0], year[-1]+1, 1)
-                months = np.arange(month[0], month[-1]+1, 1)            
-                for y in years:
-                    for m in months:
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'year\' must be a list or np.ndarray.')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
+                for y in year:
+                    for m in month:
                         el = f'{y}_{m}_month.npz' 
                         tEl = np.append(tEl, el)
             else:
