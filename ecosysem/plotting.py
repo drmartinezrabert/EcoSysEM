@@ -607,7 +607,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             rComp, _, _ = Rxn.getRxnpH(var)
             if rComp:
                 comp = np.intersect1d(rComp, compSpec)
-                if not comp: comp = [var]
+                if len(comp) == 0: comp = [var]
                 if len(comp) > 1: raise ValueError(f'Multiple chemical species have been selected for {var}: {comp}.')
                 dataPlot = ThEq.pHSpeciation(comp[0], pH, T, data[var])
             else:
