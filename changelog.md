@@ -29,7 +29,7 @@ All notable changes to this project will be documented in this file.
 - New function to plot seasonal variability of a variable in `plotting.py`: `plot_seasonality()`.
 - New optional argument in `CAMS.getDataCAMS()` (also included in `cmd_getDataCAMS.py`): `drop_variables`.
 - New optional arguments in `plotVarMap2D()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
-- New optional argument in `plotCrossSections()`: `projection`.
+- New optional argument in `plotCrossSections()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
 - New optional argument in `CAMSMERRA2`: `fillMissing`.
 - New function for `CAMS()` model: `fill_missing_levels()`. Fill in the missing data for the target levels with NaN values.
 ### Removed
