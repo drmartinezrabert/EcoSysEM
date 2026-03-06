@@ -290,7 +290,6 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
                  meridiansLabels = [0,0,0,1], continentColor = 'darkgrey', lakeColor = 'darkgrey', projection = 'cyl',
                  logColorbar = False, cb_minor_ticks = False, cb_ticks = None, num_cb_ticks = 8, cb_labels_rotation = 0.0,
                  colorbarSize = (10, 4), cbOrientation = 'horizontal', cbFontSize = 12, savePlot = False):
-                 
     """
     Plot variable on world map.
 
