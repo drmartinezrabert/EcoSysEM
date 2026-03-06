@@ -4123,8 +4123,8 @@ Plot zonal mean of data.<br>
 plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox=(-180, -90, 180, 90), sections=None, depthArray=[0], fontsize=8,
                   vmin=None, vmax=None, title=None, colorbar=True, xylabels=True, levels=100, sectionFigSize=None, mapsize=(5.8, 4.5), clw=0.5, 
                   fontFamily='Arial', fwtl='normal', fix_aspect=False, numTicks=None, continentColor='darkgrey', lakeColor='darkgrey',
-				  projection='cyl', [logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
-				  cbOrientation='horizontal', cbFontSize=12, formatColorbar='{:0.1f}',] savePlot=False)
+				  projection='cyl', logColorbar=False, cb_minor_ticks=False, cb_ticks=None, num_cb_ticks=8, cb_labels_rotation=0.0,
+				  cbOrientation='horizontal', cbFontSize=12, formatColorbar='{:0.1f}', savePlot=False)
 ```
 Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D).<br> 
 **Parameters:**<br>
@@ -4180,6 +4180,22 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color of water bodies (lakes and seas).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **projection : _str_, _optional, default: 'cly'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Map projection (cly - Cylindrical Equidistant Projection).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **logColorbar : _bool_, _optional, default: False_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set logarithmic scale on contour colormap. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_minor_ticks : _bool_, _optional, default: False_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether minor ticks are shown or not.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_ticks : _list_, _optional, default: None_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar ticks.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num_cb_ticks : _int_, _optional, default: 8_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set number of ticks of colorbar (if these are not defined by 'cb_ticks').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_labels_rotation : _float_, _optional, default: 0.0_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rotation of colorbar labels.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colorbarSize : _(float, float)_, _optional, default: (10, 4)_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar size. (Width, Height) in inches.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbOrientation : _str_, _optional, default: 'horizontal'_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Colorbar orientation: 'horizontal' or 'vertical'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cbFontSize : _float_, _optional, default: 12_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of colorbar.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
 **Returns:**<br>
