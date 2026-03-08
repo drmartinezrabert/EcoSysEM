@@ -478,8 +478,9 @@ def plotVarMap2D(data, varName, varUnits, cmap, bbox, vmin = None, vmax = None, 
 def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T = None, compSpec = None, fontFamily = 'Arial',
                   fwtl = 'normal', fillBetween = True, semiLog = False, title = None, figsize = (5.0, 3.6), lw = 2.0, 
                   fontsize = 12, alpha = 0.4, nticks = 10, legend = True, ncol = 1, legendOrientation = None, latitude = None, 
-                  longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, 
-                  colorbarSize = None, savePlot = False, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}'):
+                  longitude = None, vmin = None, vmax = None, colorbar = None, cbFontSize = 12, xTicks = None, grid_weights = None,
+                  colorbarSize = None, cbOrientation = 'horizontal', formatColorbar = '{:0.1f}', cb_ticks = None, 
+                  num_cb_ticks = 8, numlevels = 100, savePlot = False):
     """
     Plot zonal mean of data.
 
@@ -542,6 +543,8 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
         Set font size of colorbar. The default is 12.
     xTicks : LIST, optional
         Set latitude and longitude tick values (only for zone = 'lat' and 'lon'). The default is None.
+    grid_weights : np.ndarray, optional
+        A matrix of weights associated with the values in a. Each value in a contributes to the quantile according to its associated weight. The default is None.
     colorbarSize : (FLOAT, FLOAT), optional
         Set size of colorbar (width, height). Only for zone = 'lat' and 'lon'. The default is None.
     cbOrientation : STR, optional
@@ -579,7 +582,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             positions = [-90, -60, -30, 0, 30, 60, 90]
             labels = ['90°S', '60°S', '30°S', '0°', '30°N', '60°N', '90°N']
         split_points = [0, 6.0, np.max(altitude)]
-        backgroundColor = ['black', 'lightgrey']
+        backgroundColor = ['black', 'darkgrey']
     elif zone == 'lat':
         axis_ = 1
         if not isinstance(longitude, (list, np.ndarray)): raise ValueError('Argument \'longitude\' must be given as a list or np.ndarray.')
@@ -610,6 +613,8 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
         if isinstance(color_, (list, np.ndarray)):
             levels = len(color_)
             color_ = ListedColormap(color_, name = 'plot_cmap')
+        else:
+            levels = numlevels
         if zone == 'latlon':
             legend_elements += [Line2D([0], [0], color = color_, lw = lw, label = var)]
         # pH speciation
@@ -625,9 +630,14 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
         else:
             dataPlot = data[var]
         # Data stats
-        data_min = np.nanquantile(dataPlot, 0.0, axis = axis_)
-        data_av = np.nanquantile(dataPlot, 0.5, axis = axis_)
-        data_max = np.nanquantile(dataPlot, 1.0, axis = axis_)
+        data_min = np.nanquantile(dataPlot, 0.0, axis = axis_, method = 'inverted_cdf')
+        if isinstance(grid_weights, np.ndarray) and zone == 'latlon':
+            data_av = []
+            for id_alt, _ in enumerate(altitude):
+                data_av += [np.nanquantile(dataPlot[id_alt, ...], 0.5, method = 'inverted_cdf', weights = grid_weights[id_alt, ...])]
+        else:
+            data_av = np.nanquantile(dataPlot, 0.5, axis = axis_, method = 'inverted_cdf')
+        data_max = np.nanquantile(dataPlot, 1.0, axis = axis_, method = 'inverted_cdf')
         #-Plotting
         if zone == 'latlon':
             if semiLog:
@@ -650,7 +660,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             if title:
                 plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
         elif zone == 'lon':
-            ax.contourf(latitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
+            c = ax.contourf(latitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
             ax.set_xlabel('Latitude (°)')
             ax.set_ylabel('Altitude (km)')
             ax.xaxis.set_major_locator(tkr.FixedLocator(positions))
@@ -659,7 +669,7 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
             for i in range(len(split_points) - 1):
                 plt.axhspan(split_points[i], split_points[i+1], facecolor = backgroundColor[i], zorder = 0)
         elif zone == 'lat':
-            ax.contourf(longitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
+            c = ax.contourf(longitude, altitude, data_av, levels = levels, cmap = color_, vmin = vmin, vmax = vmax)
             ax.set_xlabel('Longitude (°)')
             ax.set_ylabel('Altitude (km)')
             ax.xaxis.set_major_locator(tkr.FixedLocator(positions))
@@ -694,10 +704,14 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
         if colorbar:
             pl.figure(figsize=colorbarSize)
             limitVar = np.array([[vmin, vmax]])
+            levels_array = np.array(c.levels).reshape(1, -1)
             pl.imshow(limitVar, cmap = color_)
             pl.gca().set_visible(False)
             clb = pl.colorbar(orientation = cbOrientation)
-            ticks_colorbar = np.linspace(np.squeeze(limitVar)[0], np.squeeze(limitVar)[1], 8)
+            if not isinstance(cb_ticks, (list, np.ndarray)):
+                ticks_colorbar = np.linspace(np.squeeze(levels_array)[0], np.squeeze(levels_array)[-1], num_cb_ticks)
+            else:
+                ticks_colorbar = cb_ticks
             clb.set_ticks(ticks_colorbar)
             labels_colorbar = [formatColorbar.format(x) for x in ticks_colorbar]
             clb.set_ticklabels(labels_colorbar)
