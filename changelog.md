@@ -31,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - New optional arguments in `plotVarMap2D()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
 - New optional argument in `plotCrossSections()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
 - New optional argument in `CAMSMERRA2`: `fillMissing`.
-- New optional arguments in `plotZonalMean()`: `cb_ticks`, `num_cb_ticks`, `numlevels`.
+- New optional arguments in `plotZonalMean()`: `cb_ticks`, `num_cb_ticks`, `numlevels`, `grid_weights`.
 - New function for `CAMS()` model: `fill_missing_levels()`. Fill in the missing data for the target levels with NaN values.
 ### Removed
 - General Command Line Interface script: `ecosysem_cmd.py`. Now each function has its own script (`cmd_functionName.py`).
