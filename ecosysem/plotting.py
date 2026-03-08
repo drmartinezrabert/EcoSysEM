@@ -1016,7 +1016,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
     #-Main plot (global map)
     ny, nx = data2D.shape
     fig, ax = plt.subplots(figsize = mapsize)
-    m = Basemap(projection='cyl', resolution='c',
+    m = Basemap(projection=projection, resolution='c',
                 llcrnrlon=bbox[0], llcrnrlat=bbox[1],
                 urcrnrlon=bbox[2], urcrnrlat=bbox[3], fix_aspect = fix_aspect)
     lons, lats = m.makegrid(nx, ny)
