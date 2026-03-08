@@ -30,7 +30,8 @@ def _savePlot(file, cPlots):
     else:
         plt.savefig(f'{file}.tiff', bbox_inches='tight')
 
-def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time = 1, pH = 7.0,
+def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time = 1, pH = 7.0, 
+                     typeRxn = None, specComp = False, # !!!
                      bbox = (-180, -90, 180, 90), compound = None, phase = 'All', altArray = None,
                      numAlt = 50, surftrop = None, figsize = None, lw = 2.0, color = 'deepskyblue', 
                      marker = None, ms = 5, logScale = False, alpha_fillbtw = 0.3, date_format = None,
@@ -137,6 +138,13 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
     if check_dict_attribute:
         comp = variable[variable.find('-')+1:]
         variable = variable[0:variable.find('-')]
+        if variable == 'DGr':
+            if not isinstance(typeRxn, str): raise ValueError('What reaction(s) type must be defined, matching with csv name.')
+            calc_DGr = True
+            rxn = comp
+            comp += f'_pH:{pH}' 
+        else:
+            calc_DGr = False
     # Check valid models and data types
     validModels = {'ISAMERRA2', 'CAMSMERRA2'}
     if not model in validModels:
@@ -216,6 +224,8 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                                     surftrop = surftrop,
                                     showMessage  = showMessage,
                                     fillMissing = fillMissing)
+        if calc_DGr:
+            model_inst.getDGr(typeRxn, rxn, specComp)
         if weights:
             lon = model_inst.lon
             lat = model_inst.lat
