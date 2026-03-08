@@ -726,8 +726,10 @@ def plotZonalMean(altitude, data, color, varName, varUnits, zone, pH = None, T =
 def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = (-180, -90, 180, 90), fontFamily = 'Arial',
                       fwtl = 'normal', sections = None, depthArray = [0], fontsize = 8, vmin = None, vmax = None, title = None,
                       colorbar = True, xylabels = True, levels = 100, sectionFigSize = None, mapsize = (5.8, 4.5), 
-                      fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', 
-                      lakeColor = 'darkgrey', savePlot = False):
+                      fix_aspect = False, numTicks = None, clw = 0.5, continentColor = 'darkgrey', lakeColor = 'darkgrey',
+                      projection = 'cyl', logColorbar = False, cb_minor_ticks = False, cb_ticks = None, num_cb_ticks = 8, 
+                      colorbarSize = None, cb_labels_rotation = 0.0, cbOrientation = 'horizontal', cbFontSize = 12, 
+                      formatColorbar = '{:0.1f}', savePlot = False):
     """
     Plot three dimensional data on a world map (2D data) and different section plots (meridians and parallels; 3D)
 
@@ -780,6 +782,40 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
         Color of continents. The default is 'darkgrey'.
     lakeColor : STR, optional
         Color of water bodies (lakes and seas). The default is 'darkgrey'.
+    projection : STR, optional
+        Map projection. The default is 'cly' (Cylindrical Equidistant Projection).
+    logColorbar : BOOL, optional
+        Set logarithmic scale on contour colormap. The default is False.
+    cb_minor_ticks : BOOL, optional
+        Set whether minor ticks are shown or not. The default is False.
+    cb_ticks : LIST, optional
+        Set colorbar ticks. The default is None.
+    num_cb_ticks : INT, optional
+        Set number of ticks of colorbar (if these are not defined by 'cb_ticks'). The default is 8.
+    cb_labels_rotation : FLOAT, optional
+        Rotation of colorbar labels. The default is 0.0.
+    cbOrientation : STR, optional
+        Colorbar orientation. The default is 'horizontal'.
+    cbFontSize : FLOAT, optional
+        Set font size of colorbar. The default is 12.
+    formatColorbar : STR, optional
+        Set format colorbar. The default is '{:0.1f}'.
+    logColorbar : BOOL, optional
+        Set logarithmic scale on contour colormap. The default is False.
+    cb_minor_ticks : BOOL, optional
+        Set whether minor ticks are shown or not. The default is False.
+    cb_ticks : LIST, optional
+        Set colorbar ticks. The default is None.
+    num_cb_ticks : INT, optional
+        Set number of ticks of colorbar (if these are not defined by 'cb_ticks'). The default is 8.
+    cb_labels_rotation : FLOAT, optional
+        Rotation of colorbar labels. The default is 0.0.
+    colorbarSize : (FLOAT, FLOAT), optional
+        Colorbar size. (Width, Height) in inches. The default is (10, 4).
+    cbOrientation : STR, optional
+        Colorbar orientation. The default is 'horizontal'.
+    cbFontSize : FLOAT, optional
+        Set font size of colorbar. The default is 12.
     savePlot : BOOL, optional
         Set whether the plot is saved in `/results` folder. The default is False.
 
@@ -952,7 +988,16 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                 depth = np.column_stack((depth, depth[:,0]))
             yCoor = np.hstack((altitude, depthArray))
             fig, ax = plt.subplots(figsize=sectionFigSize[section])
-            ax.contourf(xCoor, yCoor/1000, sectionData, levels = 78, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+            if logColorbar:
+                ax.contourf(xCoor, yCoor/1000, sectionData, 
+                            levels = 78, 
+                            norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax),
+                            cmap = plot_cmap)
+            else:
+                ax.contourf(xCoor, yCoor/1000, sectionData, 
+                            levels = 78, 
+                            norm=plt.Normalize(vmin=vmin, vmax=vmax),
+                            cmap = plot_cmap)
             ax.contourf(xCoor, depthArray/1000, depth, levels = 2, colors = ('k', 'cornflowerblue'))
             ax.set_ylabel('Altitude (km)', fontsize = 10)
             ax.set_xlabel(xLabel, fontsize = 10)
@@ -984,7 +1029,16 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
         ax.set_ylabel('Latitude (°)', size = 10)
         ax.yaxis.set_label_coords(-0.010, 0.12)
     m.drawmapboundary(fill_color='darkgrey')
-    m.contourf(x, y, data2D, levels = levels, cmap = plot_cmap, vmin = vmin, vmax = vmax)
+    if logColorbar:
+        mcont = m.contourf(x, y, data2D, 
+                           levels = levels, 
+                           norm=matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax),
+                           cmap = plot_cmap)
+    else:
+        mcont = m.contourf(x, y, data2D, 
+                           levels = levels,
+                           norm=plt.Normalize(vmin=vmin, vmax=vmax),
+                           cmap = plot_cmap)
     if title:
         plt.title(title, fontweight = fwtl, fontsize = fontsize+2)
     if sections:
@@ -1018,23 +1072,45 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                 plt.plot(x1, y1, x2, y2, marker = '|', color = 'k', ms=12.0, mew=2.0, zorder = 3.5, linestyle = '-')
                 ax.text(x1 - 5, y1 + 6, letterLabel1, size = 12, weight = 'bold')
                 ax.text(x2 - 5, y1 + 6, letterLabel2, size = 12, weight = 'bold')
+    levels_array = np.array(mcont.levels).reshape(1, -1)
     if savePlot:
         cPlots = 1
         file = f'{savePath}{varName}_worldMap2D'
         _savePlot(file, cPlots)
     plt.show()
+    # Standalone colorbar
     if colorbar:
-        # Standalone colorbar
-        limitData = np.array([[vmin, vmax]])
-        pl.imshow(limitData, cmap = plot_cmap)
+        if logColorbar:
+            norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+            if not isinstance(cb_ticks, (list, np.ndarray)):
+                ticks_colorbar = np.logspace(np.log10(np.squeeze(levels_array)[0]), 
+                                             np.log10(np.squeeze(levels_array)[-1]), num_cb_ticks)
+            else:
+                ticks_colorbar = cb_ticks
+        else:
+            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            if not isinstance(cb_ticks, (list, np.ndarray)):
+                ticks_colorbar = np.linspace(np.squeeze(levels_array)[0], np.squeeze(levels_array)[-1], num_cb_ticks)
+            else:
+                ticks_colorbar = cb_ticks
+        pl.figure(figsize=colorbarSize)
+        pl.imshow(levels_array, cmap = plot_cmap, norm = norm)
         pl.gca().set_visible(False)
-        ticks_colorbar = np.linspace(np.squeeze(limitData)[0], np.squeeze(limitData)[1], 8)
-        labels_colorbar = ["{:0.1f}".format(x) for x in ticks_colorbar]
-        clb = pl.colorbar(orientation = 'horizontal')
-        clb.set_label(f'{varName} ({varUnits})')
+        clb = pl.colorbar(orientation = cbOrientation)
         clb.set_ticks(ticks_colorbar)
-        clb.set_ticklabels(labels_colorbar)
+        labels_colorbar = [formatColorbar.format(x) for x in ticks_colorbar]
+        clb.set_ticklabels(labels_colorbar, rotation = cb_labels_rotation)
+        if logColorbar:
+            clb.set_label(f'{varName} ({varUnits})\n[log scale]', fontsize = cbFontSize)
+        else:
+            clb.set_label(f'{varName} ({varUnits})', fontsize = cbFontSize)
+        clb.ax.tick_params(labelsize = cbFontSize)
+        if cb_minor_ticks:
+            clb.minorticks_on()
+        else:
+            clb.minorticks_off()
         if savePlot:
             cPlots = 1
-            file = f'{savePath}{varName}_worldMap2D_cbar'
+            file = f'{savePath}{varName}_varMap2D_cbar'
             _savePlot(file, cPlots)
+        plt.show()
