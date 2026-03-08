@@ -4048,7 +4048,8 @@ Plot two dimensional data on a world map.<br>
 plotZonalMean(altitude, data, color, varName, varUnits, zone, pH=None, T=None, compSpec=None, fillBetween=True, semiLog=False, title=None,
               figsize=(5.0, 3.6), lw=2.0, fontsize=12, alpha=0.4, nticks=10, legend=True, ncol=1, legendOrientation=None, latitude=None,
               longitude=None, vmin=None, vmax=None, colorbar=None, cbFontSize=12, xTicks=None, grid_weights=None, colorbarSize=None,
-			  cbOrientation='horizontal', fontFamily='Arial', fwtl='normal', formatColorbar='{:0.1f}', savePlot=False)
+			  cbOrientation='horizontal', fontFamily='Arial', fwtl='normal', formatColorbar='{:0.1f}', cb_ticks=None, num_cb_ticks=8,
+			  numlevels=100, savePlot=False)
 ```
 Plot zonal mean of data.<br> 
 **Parameters:**<br>
@@ -4121,6 +4122,12 @@ Plot zonal mean of data.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font weight of title ['normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight'].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **formatColorbar : _str_, _optional, default: '{:0.1f}'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set format of tick values of colorbar.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **cb_ticks : _list_, _optional, default: None_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set colorbar ticks.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **num_cb_ticks : _int_, _optional, default: 8_** <br> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set number of ticks of colorbar (if these are not defined by 'cb_ticks').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **numlevels : _int_, _optional, default: 100_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the number and positions of the contour lines / regions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **savePlot : _bool_, _optional, default: False_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the plot is saved in `/results` folder.<p>
 **Returns:**<br>
