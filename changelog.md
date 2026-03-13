@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
-## [0.5] - yyyy/mm/dd
+## [0.5] - 2026/03/13
 ### Added
 - Computation of contributions (weights) of each grid (defined by longitude, latitude and altitude arrays) to statistics (e.g., quantiles/quartiles). User can consider the weights with the argument `weights = True`, if statistics is involved in the function.
 - New Command Line Interface (CLI) scripts:
