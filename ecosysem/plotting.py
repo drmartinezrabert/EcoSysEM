@@ -30,9 +30,8 @@ def _savePlot(file, cPlots):
     else:
         plt.savefig(f'{file}.tiff', bbox_inches='tight')
 
-def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time = 1, pH = 7.0, 
-                     typeRxn = None, specComp = False, # !!!
-                     bbox = (-180, -90, 180, 90), compound = None, phase = 'All', altArray = None,
+def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time = 1, pH = 7.0, typeRxn = None,
+                     specComp = False, bbox = (-180, -90, 180, 90), compound = None, phase = 'All', altArray = None,
                      numAlt = 50, surftrop = None, figsize = None, lw = 2.0, color = 'deepskyblue', 
                      marker = None, ms = 5, logScale = False, alpha_fillbtw = 0.3, date_format = None,
                      yticks_format = None, xlabel = 'Time', ylabel = 'Variable (Units)', xlabel_rotation = 0.0, 
@@ -58,6 +57,11 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
         Set time interval. The default is 1.
     pH : INT or FLOAT, optional
         pH value. The default is 7.0.
+    typeRxn : STR
+        What reaction(s) type are requested, matching with csv name. E.g.:
+            - 'metabolisms': metabolic activities.
+    specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+        Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
     bbox : Tuple
         Earths region of data, the bounding box. The default is (-180, -90, 180, 90).
         (lower_left_longitude, lower_left_latitude, upper_right_longitude, upper_right_latitude).
