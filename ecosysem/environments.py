@@ -8,9 +8,11 @@ Created on Fri Aug 29 12:00:06 2025
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
 from reactions import KinRates
+from reactions import Reactions as Rxns
 from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -148,7 +150,7 @@ class Environment:
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             if not isinstance(m, int):  raise ValueError('Argument \'m\' must be an integer.')
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         elif dataType == 'yly':
@@ -156,7 +158,7 @@ class Environment:
             file = f'{y}_year.npz'
         elif dataType == 'cyly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             file = f'{y[0]}_{y[-1]}.npz'
         else:
             raise ValueError('Unknown dataType ({dataType}). Existing dataType: \'dly\', \'mly\', \'yly\', \'cmly\', \'cyly\'.')
@@ -288,6 +290,7 @@ class Environment:
         None
         
         """
+        validModels = {'CAMS', 'MERRA2'}
         if model == 'CAMS':
             CAMS._combDataCAMS(self, model = model, 
                                dataType = dataType, 
@@ -296,7 +299,7 @@ class Environment:
                                method = method,
                                target_lats = target_lats, 
                                target_lons = target_lons)
-        else:
+        elif model == 'MERRA2':
             # Get all files from `data\`
             if dataType == 'cmly' or dataType == 'yly' or dataType == 'cyly':
                 folder = f'data/{model}/mly/'
@@ -306,10 +309,9 @@ class Environment:
             # Test elements
             tEl = np.empty((0))
             if dataType == 'cmly':
-                if not isinstance(year, list): raise ValueError('Argument \'y\' must be a list with length > 1')
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'y\' must be a list or np.ndarray.')
                 if len(year) <= 1: raise ValueError('Argument \'y\' must be a list with length > 1.')
-                years = np.arange(year[0], year[-1]+1, 1)
-                for y in years:    
+                for y in year:    
                     el = f'{y}_{month}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'mly':
@@ -322,7 +324,7 @@ class Environment:
                     last_day = calendar.monthrange(y, m)[1]
                     first_day = 1
                 else:
-                    if not isinstance(days, list): days = [days]
+                    if not isinstance(days, (list, np.ndarray)): days = [days]
                     days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
                     last_day = max(days)
                     if len(days) > 1:
@@ -334,21 +336,17 @@ class Environment:
                     el = f'{y}_{month}_{d}_day.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'yly':
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                if len(month) != 2: raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
                 if not isinstance(year, int): raise ValueError('Argument \'year\' must be an integer.')
-                months = np.arange(month[0], month[-1]+1, 1)
                 y = year
-                for m in months:
+                for m in month:
                     el = f'{y}_{m}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'cyly':
-                if not isinstance(year, list): raise ValueError('Argument \'year\' must be a list: [start_year, end_year]')
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                years = np.arange(year[0], year[-1]+1, 1)
-                months = np.arange(month[0], month[-1]+1, 1)            
-                for y in years:
-                    for m in months:
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'year\' must be a list or np.ndarray.')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
+                for y in year:
+                    for m in month:
                         el = f'{y}_{m}_month.npz' 
                         tEl = np.append(tEl, el)
             else:
@@ -399,6 +397,8 @@ class Environment:
                 for file in selFiles:
                     path = folder + file
                     os.remove(path)
+        else:
+            raise NameError(f'Invalid model ({model}) to combine data. Valid models: {validModels}.')
     
     def keys(self, model, dataType, y, m = None, d = None):
         """
@@ -645,7 +645,7 @@ class Environment:
         if not isinstance(specComp, list): specComp = [specComp]
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         #check DGr
-        _DGr = getattr(self,'DGr', None)
+        _DGr = getattr(self, 'DGr', None)
         if _DGr is None:
             self.getDGr(typeMetabo, reactions, specComp)
             _DGr = self.DGr.copy()
@@ -1268,7 +1268,7 @@ class ISA(Atmosphere):
         self.fluidType = 'ideal'
         self.salinity = None
         self.methods = None
-        if selAlt:
+        if isinstance(selAlt, (list, np.ndarray)):
             self._selectAltitude(selAlt)
         self._getConcISA(phase, selCompounds)
         if showMessage:
@@ -1436,7 +1436,7 @@ class ISA(Atmosphere):
         altitud value.
         
         """
-        if isinstance(selAlt, list):
+        if isinstance(selAlt, (list, np.ndarray)):
             if len(selAlt) > 2: raise ValueError('Argument \'selAlt\' must be an integer, float or list [min_alt, max_alt].')
             elif len(selAlt) == 1:
                 selAlt = [0, selAlt[0]]
@@ -2404,14 +2404,14 @@ class CAMS(Atmosphere):
         if os.path.exists(filename): os.remove(filename)
         else: print("The file does not exist")
     
-    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear'):
+    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear', drop_variables = None):
         """
         Process CAMS .nc files and save as .npz format.
 
         Parameters
         ----------
         dataType : STR 
-            Type of data ('dly', 'mly', or 'cmly'). 
+            Type of data ('dly', 'mly', or 'cmly').
         dataset : STR
             CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
                                "cams-global-ghg-reanalysis-egg4", or 
@@ -2425,7 +2425,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-        
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+            
         """
         input_folder = os.path.join(self.base_path, 'temporary')
         processed_folder = os.path.join(self.base_path, f"{dataType}")
@@ -2462,7 +2464,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
@@ -2596,7 +2598,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
@@ -2724,7 +2726,8 @@ class CAMS(Atmosphere):
                     variables = None,
                     bbox = [90, -180, -90, 180],
                     mode = None,
-                    method = 'linear'):
+                    method = 'linear',
+                    drop_variables = None):
         """
         Download data from CAMS Global Greenhouse Gas Forecasts database.
 
@@ -2757,7 +2760,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-            
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+        
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
@@ -2870,10 +2875,67 @@ class CAMS(Atmosphere):
                         print("Extracted .nc")
                         # Process and clean up
                         for dt in dataTypes:
-                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
+                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, 
+                                                  method=method, drop_variables=drop_variables)
                         self._deleteTempDataCAMS(target_nc)
                     except Exception as e: raise ValueError(f'Failed for {date_range}: {e}')
         print("\nAll downloads completed.")
+
+    def fill_missing_levels(self, p_level_target, dataType, y, m = None, d = None):
+        """
+        Fill in the missing data for the target levels with NaN values.
+
+        Parameters
+        ----------
+        p_level_target : LIST or np.ndarray
+            Array of target pressure levels (in Pascals).
+        dataType : STR ('cmly', 'mly', 'yly', 'cyly')
+            Type of data.
+        y : INT
+            Year of data..
+        m : INT, optional
+            Month of data. The default is None.
+        d : INT, optional
+            Day of data. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        data = CAMS.loadData(self, 'CAMS', dataType, y, m, d)
+        p_level_data = data['P_level']
+        lon = data['lon']
+        lat = data['lat']
+        alt_target = CAMS._HfromP(self, np.array(p_level_target))
+        data_shape = (len(p_level_target), len(lat), len(lon))
+        nan_shape = ((len(lat), len(lon)))
+        #-Set keys to be kept, replaced or targeted
+        key_to_keep = ['lat', 'lon']
+        key_target = ['P_level', 'alt']
+        keys_to_check = list(data.keys())
+        for remove_key in key_to_keep + key_target:
+            keys_to_check.remove(remove_key)
+        #-Create a new data dictionary
+        data_new = {}
+        for key in data:
+            if key in key_to_keep:
+                data_new[key] = data[key]
+            elif key == 'P_level':
+                data_new[key] = np.array(p_level_target, dtype='f')
+            elif key == 'alt':
+                data_new[key] = np.array(alt_target, dtype='f')
+            else:
+                data_new[key] = np.zeros(data_shape, dtype='f')
+        #-Complete data dictionary
+        for id_p, p in enumerate(p_level_target):
+            for key in keys_to_check:
+                if p in p_level_data:
+                    index = int(np.argwhere(p_level_data == p))
+                    data_new[key][id_p, ...] = data[key][index, ...]
+                else:
+                    data_new[key][id_p, ...] = np.nan * np.ones(nan_shape, dtype='f')
+        CAMS._saveNPZ(self, data_new, 'CAMS', 'mly', y, m)
 
 class CAMSMERRA2(Atmosphere):
     """
@@ -2883,7 +2945,7 @@ class CAMSMERRA2(Atmosphere):
     
     """
     def __init__(self, dataType, y, m = None, d = None, pH = 7.0, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
-                 altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
+                 fillMissing = True, altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
         if showMessage:
             print('  > Creating CAMSMERRA2 instance...')
         # Get data from ISAMERRA2
@@ -2917,8 +2979,18 @@ class CAMSMERRA2(Atmosphere):
                           'MolPct_G': dict_comp_G,
                           'Ci_LFW': ISAMERRA2inst.Ci_LFW,
                           'Ci_LSW': ISAMERRA2inst.Ci_LSW}
+        if not fillMissing:
+            molecules = ['CO2', 'CO', 'CH4']
+            for var in dict_ISAMERRA2:
+                for comp in molecules:
+                    try:
+                        dict_ISAMERRA2[var][comp] = np.nan * np.ones(varShape)
+                    except:
+                        continue
         # Get data from CAMSMERRA2
-        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d)
+        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d, 
+                                           target_lats = ISAMERRA2inst.lat, 
+                                           target_lons = ISAMERRA2inst.lon)
         dict_CAMSMERRA2 = CAMSMERRA2._getConcCAMSMERRA2(self, phase = phase, 
                                                         data = data,
                                                         dataType = dataType, 
@@ -3141,10 +3213,18 @@ class CAMSMERRA2(Atmosphere):
         self.temperature = t_target
         self.pressure = p_target
         self.altitude = z_m
+        #-v1 (with pyatomos)-#
         h_km = cams_alt * 1e-3 # km
         rho_kg_m3 = coesa76(h_km).rho # kg/m3
         rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
         rho = rho_kg_L[:, None, None]
+        #-v2 (EcoSysEM)-#
+        # cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
+        # shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
+        # cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
+        # rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
+        # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        # rho = rho_kg_L
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
@@ -3393,6 +3473,143 @@ class WaterColumn(Hydrosphere):
             self.Ci_L = Ct
         if bool(sd):
             self.sd = sd
+
+    def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
+                      x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5), 
+                      set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
+                      linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial'):
+        """
+        Plotting variables of water column (x-coor: variable; y-coor: depth).
+
+        Parameters
+        ----------
+        variables : LIST
+            List of variables.
+        pH_speciation : BOOL, optional
+            Set whether pH speciation is compute on compound concentrations. The default is False.
+        specComp : LIST, optional
+            List of requested compounds for pH speciation. The default is None.
+        varNames : LIST, optional
+            List of variable names used in plot legend. The default is None.
+        xLog : BOOL, optional
+            Set whether variables are plotted in logarithmic scale (x-coordinate). The default is False.
+        x_label_name : STR, optional
+            Set label name of x-coordinate. The default is 'Variable(s) [-]'.
+        legend : BOOL, optional
+            Set whether plot legend is displayed. The default is True.
+        legend_pos : (FLOAT, FLOAT), optional
+            Set legend position (X, Y). The default is (1.50, 0.5).
+        set_x_limits : (FLOAT, FLOAT), optional
+            Set limits of x-coordinate (left, right). The default is (None, None).
+        set_y_limits : (FLOAT, FLOAT), optional
+            Set limits of y-coordinate (bottom, top). The default is (None, 0).
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (3, 5).
+        marker : STR or LIST, optional
+            Set marker(s) style. The default is 'o'.
+        linestyle : STR or LIST, optional
+            Set line(s) style. The default is '-'.
+        ms : FLOAT, optional
+            Set marker size. The default is 4.
+        fs : TYPE, optional
+            Set font size. The default is 12.
+        fontFamily : TYPE, optional
+            Set font family. The default is 'Arial'.
+
+        Returns
+        -------
+        Plot in Spyder.
+
+        """
+        font = {'size': fs,
+                'family': fontFamily}
+        plt.rc('font', **font)
+        y = self.depth
+        x = None
+        if not varNames: varNames_ = []
+        for idVar, var in enumerate(variables):
+            if var.startswith('conc_'):
+                indx = var.find('_') + 1
+                comp = var[indx:]
+                var = 'Ci_L'
+            elif var.startswith('DGr_'):
+                indx = var.find('_') + 1
+                rxn = var[indx:]
+                var = 'DGr'
+            #-Legend names
+            if not varNames:
+                if var == 'pH':
+                    varNames_ += [var]
+                elif var == 'Ci_L':
+                    varNames_ += [f'[{comp}]']
+                elif var == 'DGr':
+                    varNames_ += [rxn]
+                else:
+                    varNames_ += [var[0].upper() + var[1:]]
+            try:
+                val = getattr(self, var, None)
+            except:
+                raise ValueError(f'Attribute {var} not found in WaterColumn() object.')
+            else:
+                if var == 'Ci_L':
+                    val = val[comp]
+                    if pH_speciation:
+                        if not isinstance(specComp, (list, np.ndarray)):
+                            raise ValueError('Missing chosen compounds for pH speciation - specComp : LIST or np.ndarray')
+                        rComp, _, _ = Rxns.getRxnpH(comp)
+                        check_pH_speciation = np.array([np.isin(c, rComp) for c in specComp])
+                        if check_pH_speciation.any():
+                            comp_ = np.array(specComp)[check_pH_speciation]
+                            if len(comp_) > 1:
+                                raise ValueError(f'More than one compound for pH speciation have been given: {comp}: {comp_}')
+                            else:
+                                comp_ = np.squeeze(comp_)
+                        else:
+                            comp_ = comp
+                        val_ = val.copy()
+                        for idVal, iVal in enumerate(val_):
+                            val_[idVal] = eQ.pHSpeciation(comp_, self.pH[idVal], self.temperature[idVal], iVal, 
+                                                          rAllConc = False)
+                        val = val_.copy()
+                elif var == 'DGr':
+                    try:
+                        val = val[rxn]
+                    except:
+                        raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
+                if not isinstance(x, np.ndarray):
+                    x = np.array(val)
+                else:
+                    x = np.vstack((x, val))
+        if not varNames: varNames = varNames_
+        #-Plotting
+        if isinstance(marker, str):
+            marker = [marker] * len(variables)
+        else:
+            if len(marker) != len(variables): 
+                raise ValueError(f'Variables length ({len(variables)}) and marker length ({len(marker)}) must match.')
+        if isinstance(linestyle, str):
+            linestyle = [linestyle] * len(variables)
+        else:
+            if len(linestyle) != len(variables):
+                raise ValueError(f'Variables length ({len(variables)}) and linestyle length ({len(linestyle)}) must match.')                
+        fig, ax = plt.subplots(figsize = figsize)
+        for idVar, _ in enumerate(variables):
+            if xLog:
+                plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                             ms = ms)
+            else:
+                plt.plot(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                         ms = ms)
+        ax.yaxis.set_inverted(True)
+        ax.set_xlim(set_x_limits[0], set_x_limits[1])
+        ax.set_ylim(set_y_limits[0], set_y_limits[1])
+        ax.set_ylabel('Depth (m)')
+        ax.set_xlabel(x_label_name)
+        plt.minorticks_on()
+        if legend:
+            plt.legend(varNames, loc = 'center right', bbox_to_anchor = legend_pos)
+        plt.show()
+            
 class Ocean(Hydrosphere):
     pass
 
