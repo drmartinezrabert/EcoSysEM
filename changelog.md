@@ -1,13 +1,51 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<!--
 ## [Unreleased] - yyyy/mm/dd
 ### Added
+- _Lorem ipsum..._
+### Removed
 - _Lorem ipsum..._
 ### Fixed
 - _Lorem ipsum..._
 ### Changed
 - _Lorem ipsum..._
+-->
+
+## [0.5] - 2026/03/13
+### Added
+- Computation of contributions (weights) of each grid (defined by longitude, latitude and altitude arrays) to statistics (e.g., quantiles/quartiles). User can consider the weights with the argument `weights = True`, if statistics is involved in the function.
+- New Command Line Interface (CLI) scripts:
+  - `cmd_getDataMERRA2.py`.
+  - `cmd_getDataCAMS.py`.
+- New parser argument in `cmd_getDataCAMS.py`: `_variables`.
+- New function for plotting variables of water column: `WaterColumn.plotVariables()`.
+- New functions for estimating thermodynamic parameters of water: `ThP class` in `thermodynamics.py`.
+  - Surface tension: `ThP.surface_tension()`.
+  - Vapor pressure: `ThP.vapor_pressure()`.
+  - Osmotic coefficient: `ThP.osmotic_coefficient()`.
+  - Water activity: `ThP.water_activity()`.
+- New function to plot seasonal variability of a variable in `plotting.py`: `plot_seasonality()`.
+- New optional argument in `CAMS.getDataCAMS()` (also included in `cmd_getDataCAMS.py`): `drop_variables`.
+- New optional arguments in `plotVarMap2D()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
+- New optional argument in `plotCrossSections()`: `logColorbar`, `cb_minor_ticks`, `cb_ticks`, `num_cb_ticks`, `cb_label_rotation`, `projection`.
+- New optional argument in `CAMSMERRA2`: `fillMissing`.
+- New optional arguments in `plotZonalMean()`: `cb_ticks`, `num_cb_ticks`, `numlevels`, `grid_weights`.
+- New function for `CAMS()` model: `fill_missing_levels()`. Fill in the missing data for the target levels with NaN values.
+### Removed
+- General Command Line Interface script: `ecosysem_cmd.py`. Now each function has its own script (`cmd_functionName.py`).
+### Fixed
+- Bug in `CAMSMERRA2()`: Missing key parameters when calling `CAMSMERRA2._interpolateCAMS()` (`target_lats` and `target_lons`).
+- Bug in `cmd_getDataCAMS.py`: Now argument `_d` accepts string ('All'), integers and list of integers.
+- Bugs in `Environment.combData()`:
+  - Multiple years of CAMS data (>2 years) can be combined.
+  - Multiple years months of MERRA2 data can be defined (before only first and last).
+  - Only accepts valid models ('MERRA2' and 'CAMS').
+### Changed
+- README file.
+- Density function moved to `ThP class`: `ThP.density()`.
+- Visual improvement in plotting.
 
 ## [0.4] - 2025/12/17
 ### Added
@@ -37,7 +75,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThEq.pHSpeciation()`: Now the function handle nan values when all caompounds are requested (`rAllConc = True`).
 - Bug in `ThP.getThP()`: Now the function return empty Param if parameter(s) are not available for a compound.
 - Bug in `ThSA.getDeltaGr()`: Now the function handle HCO3- or other speciation compounds of CO2 as a reaction product.
-- Warning in `ThSA.local_sa_DeltaGr()`. Decrecation NumPy 1.25 solved. More information [here](https://github.com/pybamm-team/PyBaMM/issues/3052).
+- Warning in `ThSA.local_sa_DeltaGr()`. Deprecation NumPy 1.25 solved. More information [here](https://github.com/pybamm-team/PyBaMM/issues/3052).
 ### Changed
 - README file.
 - Rename the '2D compound sensitivity analysis (contourf plot)'.

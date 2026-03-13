@@ -8,6 +8,7 @@ ecosysem/data/*.xlsx
 *.npz
 *.png
 *.tiff
+*.zip
 ecosysem/data/*.txt
 ecosysem/plots
 ThSA calculations.py
