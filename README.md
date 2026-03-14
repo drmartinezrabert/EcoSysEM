@@ -429,6 +429,7 @@ ecosysem
   │      │    ├── loadData
   │      │    ├── getAttributeNames
   │      │    ├── combData
+  │      │    ├── getDHr
   │      │    ├── getDGr
   │      │    ├── getRs
   │      │    ├── getCSP
@@ -451,6 +452,7 @@ ecosysem
   │      │    ├── .layers
   │      │    ├── .resolution
   │      │    ├── .DGr (if ISA.getDGr() is called)
+  │      │    ├── .DHr (if ISA.getDHr() is called)
   │      │    ├── setComposition
   │      │    ├── plotTandP
   │      │    └── plotCompsProfilesISA
@@ -481,6 +483,7 @@ ecosysem
   │      │    ├── .compounds
   │      │    ├── .compositions
   │      │    ├── .DGr (if ISAMERRA2.getDGr() is called)
+  │      │    ├── .DHr (if ISAMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
   │      │    ├── .altitude
@@ -505,6 +508,7 @@ ecosysem
   │      │    ├── .lon
   │      │    ├── .compounds
   │      │    ├── .DGr (if CAMSMERRA2.getDGr() is called)
+  │      │    ├── .DHr (if CAMSMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      │── GWB
   │      │    ├── .temperature
@@ -515,6 +519,7 @@ ecosysem
   │      │    ├── .fluidType
   │      │    ├── .compounds
   │      │    ├── .DGr (if GWB.getDGr() is called)
+  │      │    ├── .DHr (if GWB.getDGr() is called)
   │      │    └── .sobol_DGr (if GWB.sobol_indices_DGr() is called)
   │      └── WaterColumn
   │           ├── .depth
@@ -527,6 +532,7 @@ ecosysem
   │           ├── .methods
   │           ├── .fluidType
   │           ├── .DGr (if WaterColumn.getDGr() is called)
+  │           ├── .DHr (if WaterColumn.getDGr() is called)
   │           ├── .sd (if standard deviations is given using 'sd' argument or in .csv file)
   │           ├── # Extra attributes (if more parameters is given using 'extraParam' argument)
   │           └── plotVariables
@@ -559,6 +565,7 @@ ecosysem
   │      │    └── plotpHSpeciation
   │      └── ThSA
   │           ├── exportDeltaGr
+  │           ├── getDeltaHr
   │           ├── getDeltaGr
   │           ├── smmryDeltaGr
   │           ├── conc_var_DeltaGr
@@ -736,9 +743,29 @@ Return attribute names of an Environment object as a list. This behaviour is ava
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **attributes : _list of str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Attribute names of Environment object.<br>
 
+### Environment.getDHr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+Environment.getDHr(typeRxn, input_, specComp=False)
+```
+Compute (non-)stadard enthalpy of reaction(s) using the information from environmental models (e.g., temperature). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<p>
+**Returns:** <br>
+**New attribute (`.DHr`) is created in object instance.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DHr : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName: [DHr]}`<br>
+
 ### Environment.getDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getDGr(typeRxn, input_, specComp)
+Environment.getDGr(typeRxn, input_, specComp=False)
 ```
 Compute (non-)stadard Gibbs free energy using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
 **Parameters:**<br>
@@ -2446,6 +2473,37 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Excel file in `results\` folder** (if _modeExport='Excel'_)<br>
+
+### ThSA.getDeltaHr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.getDeltaHr(typeRxn, input_, phase, specComp=False, T=298.15, warnings=False, printDH0r=False)
+```
+Compute the nonstandard enthalpy of reaction(s) (ΔH<sub>r</sub>) along the given conditions.<br> 
+Return a n-dimension array with ΔG<sub>r</sub> values.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **warnings : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Display function warnings.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDH0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard enthalpy of reactions.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Hr : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard enthalpy of reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(reactions)_.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
 
 ### ThSA.getDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4223,6 +4281,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.loadData](#environmentloaddata---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.combData](#environmentcombdata---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getAttributeNames](#environmentgetattributenames---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDHr](#environmentgetdhr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDGr](#environmentgetdgr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getRs](#environmentgetrs---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getCSP](#environmentgetcsp---back-to-function-navigation)<br>
@@ -4280,6 +4339,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 
 #### · <ins>Thermodynamic State Analysis (ThSA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.exportDeltaGr](#thsaexportdeltagr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaHr](#thsagetdeltahr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaGr](#thsagetdeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.smmryDeltaGr](#thsasmmrydeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.conc_var_DeltaGr](#thsaconc_var_deltagr---back-to-function-navigation)<br>
