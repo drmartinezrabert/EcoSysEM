@@ -15,7 +15,9 @@ All notable changes to this project will be documented in this file.
 
 ## [0.5.1] - yyyy/mm/dd
 ### Added
-- New function in `thermodynamics.py`: `ThSA.getDeltaHr()`.
+- New functions in `thermodynamics.py`:
+  - `ThSA.getDeltaHr()`.
+  - `ThEq.get_concentrations_Henry()`.
 - New function in `environments.py` > `Environment class`: `Environment.getDHr()`.
 ### Fixed
 - Bug in `Environment.getDGr()`: Argument 'specComp' wasn't optional. Now, default value is _False_.
