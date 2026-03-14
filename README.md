@@ -561,6 +561,7 @@ ecosysem
   │      │    └── getKeq
   │      ├── ThEq
   │      │    ├── solubilityHenry
+  │      │    ├── get_concentrations_Henry
   │      │    ├── pHSpeciation
   │      │    └── plotpHSpeciation
   │      └── ThSA
@@ -2938,6 +2939,27 @@ Return a n-dimension array with Henry's law solubility constant(s) and an array 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **notNaN : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The `compounds` indices of parameters that are available.<br>
 
+### ThEq.get_concentrations_Henry &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThEq.get_concentrations_Henry(gas_composition, P, T=None, liquid_type='FW')
+```
+Compute equilibrium concentrations in liquid using Henry's law based on gas composition.<br> 
+Return a dictionary with liquid concentrations.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **gas_composition : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Gas composition [%vol or %mol]. {'compound_symbol': [composition values]}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **P : _float_ or _ndarray of floats_, _optional, default: None** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pressure value(s) [Pa].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_ or _ndarray of floats_, _optional, default: None** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature value(s). [K]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **liquid_type : _str ('FW' or 'SW')_, _optional, default: 'FW'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set liquid type.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'FW' - Freshwater.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SW' - Seawater.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dict_Ci : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of compounds in liquid phase [mol/L]. {'compound_symbol': [concentration values]}.<br>
+
 ### ThP.density &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.density(T, S, compound='H2O')
@@ -4322,6 +4344,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.plotpHSpeciation](#theqplotphspeciation---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.pHSpeciation](#theqphspeciation---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.solubilityHenry](#theqsolubilityhenry---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThEq.get_concentrations_Henry](#theqget_concentrations_Henry---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic parameters (ThP)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.density](#thpdensity---back-to-function-navigation)<br>
