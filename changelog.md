@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - New function in `thermodynamics.py`: `ThSA.getDeltaHr()`.
 - New function in `environments.py` > `Environment class`: `Environment.getDHr()`.
+### Fixed
+- Bug in `Environments.getDGr()`: 'specComp' wasn't an optional argument (_default: False_).
 ### Changed
 - README file.
 
