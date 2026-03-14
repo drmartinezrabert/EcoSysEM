@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 ## [0.5.1] - yyyy/mm/dd
 ### Added
 - New function in `thermodynamics.py`: `ThSA.getDeltaHr()`.
+- New function in `environments.py` > `Environment class`: `Environment.getDHr()`.
 ### Changed
 - README file.
 
