@@ -2651,6 +2651,9 @@ class ThSA:
         if showMessage:
             print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
         #-Checking arguments
+        if isinstance(T_sv, list) and len(T_sv) == 1: T_sv = T_sv[0]
+        if isinstance(pH_sv, list) and len(pH_sv) == 1: pH_sv = pH_sv[0]
+        if isinstance(S_sv, list) and len(S_sv) == 1: S_sv = S_sv[0]
         ThSA._check_arguments(('list_var', 'T_sv', 'pH_sv', 'S_sv'), 
                               (list_var, T_sv, pH_sv, S_sv),
                               (list, (int, float), (int, float), (int, float)))
