@@ -1014,6 +1014,8 @@ class ThEq:
         """
         if not isinstance(gas_composition, dict): 
             raise TypeError("Gas composition (`gas_composition`) must be a dictionary: gas_composition = {'compound_symbol': [%vol or %mol values]}")
+        if isinstance(P, (float, int)): T = [P]
+        if isinstance(P, list): T = np.array(P)
         if isinstance(T, (float, int)): T = [T]
         if isinstance(T, list): T = np.array(T)
         compounds = list(gas_composition.keys())
