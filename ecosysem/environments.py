@@ -459,6 +459,7 @@ class Environment:
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
 
+    def getDGr(self, typeRxn, input_, specComp = False):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
