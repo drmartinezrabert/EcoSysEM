@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file.
 - New functions in `thermodynamics.py`:
   - `ThSA.getDeltaHr()`.
   - `ThEq.get_concentrations_Henry()`.
-- New function in `environments.py` > `Environment class`: `Environment.getDHr()`.
+- New function in `environments.py`: `Environment.getDHr()`.
 ### Fixed
 - Bug in `Environment.getDGr()`: Argument 'specComp' wasn't optional. Now, default value is _False_.
 - Bug in `ThSA.sobol_indices_DeltaGr`. A `TypeError` occurred when it shouldn't have.
