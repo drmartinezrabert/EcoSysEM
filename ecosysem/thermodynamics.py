@@ -986,6 +986,49 @@ class ThEq:
               '                 \'SW\'      - Sew Water.')
             return None, None
     
+    def get_concentrations_Henry(gas_composition, P, T = None, liquid_type = 'FW'):
+        """
+        Compute equilibrium concentrations in liquid using Henry's law based on gas composition.
+
+        Parameters
+        ----------
+        gas_composition : DICT
+            Gas composition. {'compound_symbol': [%vol or %mol values]}
+        P : FLOAT, LIST or np.ndarray
+            Set of pressures.
+        T : FLOAT, LIST or np.ndarray, optional
+            Set temperature for Henry's law solubility constant(s). The default is None.
+        liquid_type : STR, optional
+            Set liquid type: FW - freshwater; SW - seawater. The default is 'FW'.
+
+        Raises
+        ------
+        TypeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        dict_Ci : TYPE
+            DESCRIPTION.
+
+        """
+        if not isinstance(gas_composition, dict): 
+            raise TypeError("Gas composition (`gas_composition`) must be a dictionary: gas_composition = {'compound_symbol': [%vol or %mol values]}")
+        if isinstance(T, (float, int)): T = [T]
+        if isinstance(T, list): T = np.array(T)
+        compounds = list(gas_composition.keys())
+        # Get Henry's law solubility constants (Hs)
+        Hs, notNaN = ThEq.solubilityHenry(compounds, liquid_type, T)
+        dict_Ci = {}
+        for id_compound, compound in enumerate(compounds):
+            Pi = P * gas_composition[compound] # [Pa]
+            if notNaN[id_compound]:
+                Ci = Pi * Hs[..., id_compound] * (1/1000) # [mol/L]
+            else:
+                Ci = None
+            dict_Ci[compound] = Ci
+        return dict_Ci
+    
     def pHSpeciation(iCompound, pH, t, Ct, rAllConc = False):
         """
         Calculate pH (or ion) speciation of selected compounds.
