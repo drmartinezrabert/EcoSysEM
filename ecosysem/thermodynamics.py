@@ -986,6 +986,49 @@ class ThEq:
               '                 \'SW\'      - Sew Water.')
             return None, None
     
+    def get_concentrations_Henry(gas_composition, P, T = None, liquid_type = 'FW'):
+        """
+        Compute equilibrium concentrations in liquid using Henry's law based on gas composition.
+
+        Parameters
+        ----------
+        gas_composition : DICT
+            Gas composition. {'compound_symbol': [%vol or %mol values]}
+        P : FLOAT, LIST or np.ndarray
+            Set of pressures.
+        T : FLOAT, LIST or np.ndarray, optional
+            Set temperature for Henry's law solubility constant(s). The default is None.
+        liquid_type : STR, optional
+            Set liquid type: FW - freshwater; SW - seawater. The default is 'FW'.
+
+        Raises
+        ------
+        TypeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        dict_Ci : TYPE
+            DESCRIPTION.
+
+        """
+        if not isinstance(gas_composition, dict): 
+            raise TypeError("Gas composition (`gas_composition`) must be a dictionary: gas_composition = {'compound_symbol': [%vol or %mol values]}")
+        if isinstance(T, (float, int)): T = [T]
+        if isinstance(T, list): T = np.array(T)
+        compounds = list(gas_composition.keys())
+        # Get Henry's law solubility constants (Hs)
+        Hs, notNaN = ThEq.solubilityHenry(compounds, liquid_type, T)
+        dict_Ci = {}
+        for id_compound, compound in enumerate(compounds):
+            Pi = P * gas_composition[compound] # [Pa]
+            if notNaN[id_compound]:
+                Ci = Pi * Hs[..., id_compound] * (1/1000) # [mol/L]
+            else:
+                Ci = None
+            dict_Ci[compound] = Ci
+        return dict_Ci
+    
     def pHSpeciation(iCompound, pH, t, Ct, rAllConc = False):
         """
         Calculate pH (or ion) speciation of selected compounds.
@@ -1105,6 +1148,109 @@ class ThSA:
             varType = varTypes[idVar]
             varType_str = str(varType).replace('<class \'','').replace('\'>', '').replace(',', ' or').replace('(', '').replace(')','')
             if not isinstance(varValue, varType): raise TypeError(f'Argument `{varName}` must be {varType_str}.')
+    
+    def getDeltaHr(typeRxn, input_, phase, specComp = False, T = 298.15, printDH0r = False, warnings = False):
+        """
+        Calculate DeltaHr in function of temperature.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
+        
+        Returns
+        -------
+        DHr : np.array
+            Non-standard enthalpy of reaction values.
+            Shape: (Z)x(Y)x(X)x(reactions).
+        infoRxn : LIST
+            Name of reactions given by the user (see reaction/{typeRxn}.csv).
+        
+        """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): T = [T]
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        # Get reactions
+        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+        nRxn = infoRxn.size
+        # Initialize variables
+        Ts = 298.15                                                             # Standard temperature [K]
+        # Initialize DHr matrix
+        DHr = np.empty(T.shape)
+        DHr = DHr[..., np.newaxis]
+        DHr = np.repeat(DHr, len(input_), axis = -1)
+        if specComp:
+            if specComp == True:
+                tSpecComp = 'compounds'
+                specComp = input_.copy()
+                for iSpecComp in specComp:
+                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
+            else:
+                tSpecComp = 'reactions'
+                if isinstance(specComp, str): specComp = [specComp]
+                n_specComp = len(specComp)
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+        # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
+        for idRxn, iRxn in enumerate(infoRxn):
+            # iVariables definition
+            i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
+            cNonZ = np.nonzero(i_mRxn)[:][0]
+            i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
+            i_mRxn = i_mRxn[cNonZ]              # mRxn_aux
+            if specComp:
+                vSelected = 0
+                if tSpecComp == 'compounds':
+                    for specComp_aux in specComp:
+                        c_specComp = np.squeeze(np.where(i_rComp == specComp_aux))
+                        if c_specComp.size > 0:
+                            if vSelected == 0:
+                                i_specComp = specComp_aux
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
+                else:
+                    i_specComp = specComp[idRxn]
+                    # Check if i_specComp are in reaction
+                    c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
+                # Stoichiometric parameter of selected compound
+                id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
+            else:
+                vSelected = 1.0
+            # Calculate DeltaH0r
+            deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
+            deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
+            deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
+            if printDH0r:
+                print(f'· DH0r of {iRxn}: {deltaH0r}.')
+                print('')
+            # Calculate DeltaHr (if necessary)
+            Cpi, notNan_Cpi = ThP.getThP('Cpi', i_rComp, phase)                 # J/mol-i/K
+            check_Cpi = notNan_Cpi.all()
+            if check_Cpi:
+               deltaCp = ThP.getDeltaCp(Cpi, i_mRxn) / 1000                     # kJ/mol-i/K
+               deltaHr = deltaH0r + deltaCp * (T - Ts)                          # kJ/mol-i (if specDGr)
+            else:
+               deltaHr = deltaH0r
+            DHr[..., idRxn] = deltaHr
+        return DHr, infoRxn
     
     def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
                    fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
@@ -2505,6 +2651,9 @@ class ThSA:
         if showMessage:
             print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
         #-Checking arguments
+        if isinstance(T_sv, list) and len(T_sv) == 1: T_sv = T_sv[0]
+        if isinstance(pH_sv, list) and len(pH_sv) == 1: pH_sv = pH_sv[0]
+        if isinstance(S_sv, list) and len(S_sv) == 1: S_sv = S_sv[0]
         ThSA._check_arguments(('list_var', 'T_sv', 'pH_sv', 'S_sv'), 
                               (list_var, T_sv, pH_sv, S_sv),
                               (list, (int, float), (int, float), (int, float)))

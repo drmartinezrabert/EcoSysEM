@@ -13,6 +13,18 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
+## [0.5.1] - 2026/03/16
+### Added
+- New functions in `thermodynamics.py`:
+  - `ThSA.getDeltaHr()`.
+  - `ThEq.get_concentrations_Henry()`.
+- New function in `environments.py`: `Environment.getDHr()`.
+### Fixed
+- Bug in `Environment.getDGr()`: Argument 'specComp' wasn't optional. Now, default value is _False_.
+- Bug in `ThSA.sobol_indices_DeltaGr`. A `TypeError` occurred when it shouldn't have.
+### Changed
+- README file.
+
 ## [0.5] - 2026/03/13
 ### Added
 - Computation of contributions (weights) of each grid (defined by longitude, latitude and altitude arrays) to statistics (e.g., quantiles/quartiles). User can consider the weights with the argument `weights = True`, if statistics is involved in the function.
