@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
-## [0.5.1] - yyyy/mm/dd
+## [0.5.1] - 2026/03/16
 ### Added
 - New functions in `thermodynamics.py`:
   - `ThSA.getDeltaHr()`.
