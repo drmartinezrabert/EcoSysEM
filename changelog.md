@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.sobol_indices_DeltaGr`. A `TypeError` occurred when it shouldn't have.
 ### Changed
 - README file.
+- Update thermodynamic date.
+  - Specific heat capacity.
 
 ## [0.5] - 2026/03/13
 ### Added
