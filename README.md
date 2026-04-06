@@ -2264,22 +2264,24 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
 
 ### WaterColumn.plotVariables &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-WaterColumn.plotVariables(variables, pH_speciation=False, specComp=None, varNames=None, xLog=False, x_label_name='Variable(s) [-]',
-						  legend=True, legend_pos=(1.50, 0.5), set_x_limits=(None, None), set_y_limits=(None, 0), figsize=(3, 5), 
-						  marker='o', linestyle='-', ms=4, fs=12, fontFamily='Arial')
+WaterColumn.plotVariables(variables, pH_speciation=False, specComp=None, varNames=None, xLog=False, colors=None, x_label_name='Variable(s) [-]',
+						  legend=True, legend_pos=(1.50, 0.5), set_x_limits=(None, None), set_y_limits=(None, 0), figsize=(3, 5), marker='o',
+						  linestyle='-', ms=4, fs=12, fontFamily='Arial', title=None, title_fs=12)
 ``` 
 Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr and so on). Variables are in _x-coordinate_ and depth (meters) in _y-coorindate_.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str or list_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH_speciation : _bool_, _optional, default: False_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether pH speciation is compute on compound concentrations.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _list_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of requested compounds for pH speciation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **varNames : _list_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variable names used in plot legend.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xLog : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether variables are plotted in logarithmic scale (x-coordinate).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colors : _str or list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color(s) of line(s) and marker(s). If None, `matplotlib` set default colors.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _str_, _optional, default: 'Variable(s) [-]'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend : _str_, _optional, default: True_** <br>
@@ -2302,6 +2304,10 @@ Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontFamily : _str_, _optional, default: 'Arial'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font family.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set title of plot.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title_fs : _float_, _optional, default: 12_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of title.<br>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 
