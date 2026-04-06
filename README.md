@@ -2280,6 +2280,8 @@ Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variable names used in plot legend.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xLog : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether variables are plotted in logarithmic scale (x-coordinate).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **colors : _str or list_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set color(s) of line(s) and marker(s). If None, `matplotlib` set default colors.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _str_, _optional, default: 'Variable(s) [-]'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend : _str_, _optional, default: True_** <br>
