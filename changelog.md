@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - _Lorem ipsum..._
 ### Changed
-- _Lorem ipsum..._
+- README file.
 
 ## [0.5.1] - 2026/03/16
 ### Added
