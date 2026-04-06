@@ -1,6 +1,7 @@
 *.pyc
 ~*
 z_test*
+ecosysem/reactions/*
 ecosysem/results/*.xlsx
 ecosysem/data/*.xlsx
 *.nc
