@@ -3508,9 +3508,9 @@ class WaterColumn(Hydrosphere):
             self.sd = sd
 
     def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
-                      x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5), 
+                      colors = None, x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5),
                       set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
-                      linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial'):
+                      linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial', title = None, title_fs = 12):
         """
         Plotting variables of water column (x-coor: variable; y-coor: depth).
 
@@ -3518,6 +3518,7 @@ class WaterColumn(Hydrosphere):
         ----------
         variables : LIST
             List of variables.
+                
         pH_speciation : BOOL, optional
             Set whether pH speciation is compute on compound concentrations. The default is False.
         specComp : LIST, optional
@@ -3526,6 +3527,8 @@ class WaterColumn(Hydrosphere):
             List of variable names used in plot legend. The default is None.
         xLog : BOOL, optional
             Set whether variables are plotted in logarithmic scale (x-coordinate). The default is False.
+        colors : STR or LIST, optional
+            Set color(s) of line(s) and marker(s). The default is None (matplotlib set default colors).
         x_label_name : STR, optional
             Set label name of x-coordinate. The default is 'Variable(s) [-]'.
         legend : BOOL, optional
@@ -3544,16 +3547,23 @@ class WaterColumn(Hydrosphere):
             Set line(s) style. The default is '-'.
         ms : FLOAT, optional
             Set marker size. The default is 4.
-        fs : TYPE, optional
+        fs : FLOAT, optional
             Set font size. The default is 12.
-        fontFamily : TYPE, optional
+        fontFamily : STR, optional
             Set font family. The default is 'Arial'.
+        title : STR, optional
+            Set title of plot. The default is None.
+        title_fs : FLOAT, optional
+            Set font size of title. The default is 12.
 
         Returns
         -------
         Plot in Spyder.
 
         """
+        if not isinstance(variables, (list, np.ndarray)): variables = [variables]
+        if colors:
+            if not isinstance(colors, (list, np.ndarray)): colors = [colors]
         font = {'size': fs,
                 'family': fontFamily}
         plt.rc('font', **font)
@@ -3575,6 +3585,8 @@ class WaterColumn(Hydrosphere):
                     varNames_ += [var]
                 elif var == 'Ci_L':
                     varNames_ += [f'[{comp}]']
+                elif var == 'temperature':
+                    varNames_ += ['T']
                 elif var == 'DGr':
                     varNames_ += [rxn]
                 else:
@@ -3610,7 +3622,7 @@ class WaterColumn(Hydrosphere):
                     except:
                         raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
                 if not isinstance(x, np.ndarray):
-                    x = np.array(val)
+                    x = np.array([val])
                 else:
                     x = np.vstack((x, val))
         if not varNames: varNames = varNames_
@@ -3627,17 +3639,29 @@ class WaterColumn(Hydrosphere):
                 raise ValueError(f'Variables length ({len(variables)}) and linestyle length ({len(linestyle)}) must match.')                
         fig, ax = plt.subplots(figsize = figsize)
         for idVar, _ in enumerate(variables):
+            if colors:
+                color = colors[idVar]
             if xLog:
-                plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
-                             ms = ms)
+                if colors:
+                    plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                                 ms = ms, c = color)
+                else:
+                    plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                                 ms = ms)
             else:
-                plt.plot(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
-                         ms = ms)
+                if colors:
+                    plt.plot(x.T[:, idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                             ms = ms, c = color)
+                else:
+                    plt.plot(x.T[:, idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                             ms = ms)
         ax.yaxis.set_inverted(True)
         ax.set_xlim(set_x_limits[0], set_x_limits[1])
         ax.set_ylim(set_y_limits[0], set_y_limits[1])
         ax.set_ylabel('Depth (m)')
         ax.set_xlabel(x_label_name)
+        if title:
+            plt.title(title, fontdict = {'fontsize': title_fs})
         plt.minorticks_on()
         if legend:
             plt.legend(varNames, loc = 'center right', bbox_to_anchor = legend_pos)
