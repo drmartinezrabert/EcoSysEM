@@ -459,7 +459,7 @@ class Environment:
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
 
-    def getDGr(self, typeRxn, input_, specComp = False):
+    def getDGr(self, typeRxn, input_, specComp = False, printDG0r = False, printDH0r = False):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
@@ -506,7 +506,7 @@ class Environment:
         if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
             for pH_ in pH:
                 DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
-                                               fluidType = fluidType, methods = methods)
+                                               fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         elif self.model in {'WaterColumn'}:
@@ -514,7 +514,7 @@ class Environment:
                 C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
                 DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
                                                T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
-                                               fluidType = fluidType, methods = methods)
+                                               fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     try:
                         DGr_dict[f'{rxn}'] = np.append(DGr_dict[f'{rxn}'], DGr[..., idRxn])
