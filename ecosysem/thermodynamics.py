@@ -555,7 +555,8 @@ class ThP:
                     for c in composition_:
                         I_s = ThP._sumI({c: composition_[c]})
                         I_ += I_s
-            I += I_
+            if not np.isnan(I_):
+                I += I_
         return I
     
     def ionicStrength(composition):
