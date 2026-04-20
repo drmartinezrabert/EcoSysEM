@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.ionicStrength()`. Now it handels NaN value in compound concentration. 
 ### Changed
 - README file.
+- Update thermodynamic data.
+  - Standard Gibbs free energy of formation.
+  - Standard Enthalpy of formation
 
 ## [0.5.1] - 2026/03/16
 ### Added
@@ -35,7 +38,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.sobol_indices_DeltaGr`. A `TypeError` occurred when it shouldn't have.
 ### Changed
 - README file.
-- Update thermodynamic date.
+- Update thermodynamic data.
   - Specific heat capacity.
 
 ## [0.5] - 2026/03/13
