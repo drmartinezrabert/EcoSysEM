@@ -13,14 +13,14 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
-## [0.5.2] - yyyy/mm/dd
+## [0.6] - yyyy/mm/dd
 ### Added
 - New optional arguments in `WaterColumn.plotVariables()`: `colors`, `title`, `title_fs`.
 - New optional arguments in `Environments.getDGr()`: `printDG0r`,`printDH0r`.
 ### Removed
 - _Lorem ipsum..._
 ### Fixed
-- _Lorem ipsum..._
+- Bug in `ThSA.ionicStrength()`. Now it handels NaN value in compound concentration. 
 ### Changed
 - README file.
 
