@@ -44,12 +44,11 @@ Sulfur dioxide,SO2,L,-300.708,Thauer1997
 Sulfur (rhombic),S0,G,0,Kleerebezem2010
 Sulfur (rhombic),S0,L,0,Kleerebezem2010
 Sulfur (rhombic),S0,S,0,Kleerebezem2010
-Formic acid,HCOOH,L,-361.4,Speight2005
+Formic acid,HCOOH,L,-424.7,Speight2005
 Formate,HCOO-,L,-351,Kleerebezem2010
 Glycine,NH2CH2COOH,L,-372.59,Gucker1940
 Glycine anion,NH2CH2COO-,L,-315,Speight2005
 Acetic acid,CH3COOH,L,-396.48,Amend2001
 Acetate,CH3COO-,L,-369.41,Thauer1997
 Dinitrogen,N2,L,18.8,Amend2001
-Electron,e-,L,0,Kleerebezem2010
-Glucose,C6H12O6,L,-919.8,Kleerebezem2010
+Biomass,CH1.8O0.5N0.2,S,-67,Kleerebezem2010
