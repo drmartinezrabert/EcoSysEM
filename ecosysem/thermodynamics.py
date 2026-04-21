@@ -363,7 +363,7 @@ class ThP:
         """
         if type(compounds) != 'numpy.ndarray':
             compounds = np.array(compounds)
-        db_check = list(db.loc[db['Phase'] == phase, 'Formula'])
+        db_check = list(db.loc[(db['Phase'] == phase) | (db['Phase'] == 'S'), 'Formula'])
         findNaN = np.isin(compounds, list(set(compounds) - set(db_check)))
         compNaN = compounds[findNaN]
         notNaN = np.logical_not(findNaN)
@@ -372,7 +372,8 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
-            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f': raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
+                raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -407,7 +408,7 @@ class ThP:
         except:
             Param = np.empty(0)
         else:
-            Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
+            Param = np.array(dParam.loc[(dParam['Phase'] == phase) | (dParam['Phase'] == 'S'), 'Value'])
         notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         return Param, notNaN
     
@@ -900,7 +901,8 @@ class ThP:
         if selComp is not None:
             try:
                 composition[selComp]
-            except: raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
+            except: 
+                raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH reaction is not defined (if {selComp} is a pH-related chemical species) or {selComp} is a solid (must be added in `solids` argument as a list or a np.ndarray).')
             else:
                 selCompounds = [selComp]
         else:
@@ -1253,8 +1255,8 @@ class ThSA:
             DHr[..., idRxn] = deltaHr
         return DHr, infoRxn
     
-    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
-                   fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+    def getDeltaGr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
+                   Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    warnings = False, printDG0r = False, printDH0r = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
@@ -1269,6 +1271,8 @@ class ThSA:
             Name(s) of requested compound(s) or reaction(s).
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        solids : LIST or np.ndarray
+            Name(s) of compound(s) in solid phase. The default is None.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         T : FLOAT or LIST, optional
@@ -1404,55 +1408,58 @@ class ThSA:
                 if specComp:
                     findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
                 for idComp, iComp in enumerate(i_rComp):
-                    findComp = np.argwhere(uComp == iComp)
-                    vi = i_mRxn[idComp] / vSelected
-                    if fluidType == 'ideal':
-                        if findComp.size == 0:
-                            if iComp == 'H+':
-                                iConc = 10**(-pH) * np.ones(T.shape)
-                            elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
-                                iConc = 1.0 * np.ones(T.shape)
-                            else:
-                                # Check if product is a species of iComp
-                                rComp_pH, _, _ = Rxn.getRxnpH(iComp)
-                                if 'H2CO3' in rComp_pH:
-                                    rComp_pH += ['CO2']
-                                uIComp = np.isin(uComp, rComp_pH)
-                                if not any(uIComp):
-                                    if asm == 'stoich': 
-                                        # [P] is calculated based on stoichiometry.
-                                        if specComp:
-                                            iConc = (vi) * Ct[uComp[findSpecComp]]
-                                        else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
+                    if isinstance(solids, (list, np.ndarray)) and iComp in solids:
+                        Qr += 0
+                    else:
+                        findComp = np.argwhere(uComp == iComp)
+                        vi = i_mRxn[idComp] / vSelected
+                        if fluidType == 'ideal':
+                            if findComp.size == 0:
+                                if iComp == 'H+':
+                                    iConc = 10**(-pH) * np.ones(T.shape)
+                                elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
+                                    iConc = 1.0 * np.ones(T.shape)
                                 else:
-                                    rxn_iComp =  uComp[uIComp][0]
-                                    iConc = Ct[rxn_iComp]
-                        else:
-                            iConc = Ct[iComp]
-                        # pH speciation
-                        if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                            # Only pH speciation in liquid
-                            if phase == 'L':
-                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
-                        iAct = iConc
-                    elif fluidType == 'non-ideal':
-                        if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
-                        if iComp == 'H+':
-                            Ct[iComp] = 10**(-pH) * np.ones(T.shape)
-                        # Activity estimation
-                        if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
-                            iAct = 1.0 * np.ones(T.shape)
-                        else:
-                            if phase == 'G':
-                                iAct = iConc
-                                print(f"!EcoSysEM.Warning: Estimation of fugacities not included. Ideal behaviour of {iComp} is assumed.")
-                            elif phase == 'L':
-                                activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
-                                iAct = activity[iComp]
-                    else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
-                    # Calculation of reaction quotient (Qr)
-                    Qr += vi * np.log(iAct)
+                                    # Check if product is a species of iComp
+                                    rComp_pH, _, _ = Rxn.getRxnpH(iComp)
+                                    if 'H2CO3' in rComp_pH:
+                                        rComp_pH += ['CO2']
+                                    uIComp = np.isin(uComp, rComp_pH)
+                                    if not any(uIComp):
+                                        if asm == 'stoich': 
+                                            # [P] is calculated based on stoichiometry.
+                                            if specComp:
+                                                iConc = (vi) * Ct[uComp[findSpecComp]]
+                                            else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
+                                    else:
+                                        rxn_iComp =  uComp[uIComp][0]
+                                        iConc = Ct[rxn_iComp]
+                            else:
+                                iConc = Ct[iComp]
+                            # pH speciation
+                            if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                                # Only pH speciation in liquid
+                                if phase == 'L':
+                                    if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                                    iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                            iAct = iConc
+                        elif fluidType == 'non-ideal':
+                            if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
+                            if iComp == 'H+':
+                                Ct[iComp] = 10**(-pH) * np.ones(T.shape)
+                            # Activity estimation
+                            if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
+                                iAct = 1.0 * np.ones(T.shape)
+                            else:
+                                if phase == 'G':
+                                    iAct = iConc
+                                    print(f"!EcoSysEM.Warning: Estimation of fugacities not included. Ideal behaviour of {iComp} is assumed.")
+                                elif phase == 'L':
+                                    activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
+                                    iAct = activity[iComp]
+                        else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
+                        # Calculation of reaction quotient (Qr)
+                        Qr += vi * np.log(iAct)
                 # Activity/Concentration influence (Nernst equation)
                 deltaGr = deltaGTr + R * T * Qr
                 rDGr = deltaGr
