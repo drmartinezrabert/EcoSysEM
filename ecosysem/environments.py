@@ -3519,8 +3519,12 @@ class WaterColumn(Hydrosphere):
         Parameters
         ----------
         variables : LIST
-            List of variables.
-                
+            List of variables, corresponding to attributes of `WaterColumn` instance. For example:
+                'temperature' - Temperature profile.
+                'pH' - pH profile.
+                'conc_NH3' - Profile of ammonia concentration.
+                'DGr_AO' - Profile of the Gibbs free energy of AO reaction.
+                'dict_eta_DissMetAO' - Created attribute (eta) in dictionary form (multiple reactions in attribute `.eta` named 'DissMet{reaction name}'.
         pH_speciation : BOOL, optional
             Set whether pH speciation is compute on compound concentrations. The default is False.
         specComp : LIST, optional
@@ -3577,10 +3581,19 @@ class WaterColumn(Hydrosphere):
                 indx = var.find('_') + 1
                 comp = var[indx:]
                 var = 'Ci_L'
+                var_dict = False
             elif var.startswith('DGr_'):
                 indx = var.find('_') + 1
                 rxn = var[indx:]
                 var = 'DGr'
+                var_dict = False
+            elif var.startswith('dict_'):
+                indx = var.find('_') + 1
+                variable = var[indx:]
+                indx_ = variable.find('_') + 1
+                var = variable[:indx_-1]
+                key = variable[indx_:]
+                var_dict = True
             #-Legend names
             if not varNames:
                 if var == 'pH':
@@ -3598,31 +3611,37 @@ class WaterColumn(Hydrosphere):
             except:
                 raise ValueError(f'Attribute {var} not found in WaterColumn() object.')
             else:
-                if var == 'Ci_L':
-                    val = val[comp]
-                    if pH_speciation:
-                        if not isinstance(specComp, (list, np.ndarray)):
-                            raise ValueError('Missing chosen compounds for pH speciation - specComp : LIST or np.ndarray')
-                        rComp, _, _ = Rxns.getRxnpH(comp)
-                        check_pH_speciation = np.array([np.isin(c, rComp) for c in specComp])
-                        if check_pH_speciation.any():
-                            comp_ = np.array(specComp)[check_pH_speciation]
-                            if len(comp_) > 1:
-                                raise ValueError(f'More than one compound for pH speciation have been given: {comp}: {comp_}')
-                            else:
-                                comp_ = np.squeeze(comp_)
-                        else:
-                            comp_ = comp
-                        val_ = val.copy()
-                        for idVal, iVal in enumerate(val_):
-                            val_[idVal] = eQ.pHSpeciation(comp_, self.pH[idVal], self.temperature[idVal], iVal, 
-                                                          rAllConc = False)
-                        val = val_.copy()
-                elif var == 'DGr':
+                if var_dict:
                     try:
-                        val = val[rxn]
+                        val = val[key]
                     except:
-                        raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
+                        raise ValueError(f'Key {key} not found in .{var} attribute.')
+                else:
+                    if var == 'Ci_L':
+                        val = val[comp]
+                        if pH_speciation:
+                            if not isinstance(specComp, (list, np.ndarray)):
+                                raise ValueError('Missing chosen compounds for pH speciation - specComp : LIST or np.ndarray')
+                            rComp, _, _ = Rxns.getRxnpH(comp)
+                            check_pH_speciation = np.array([np.isin(c, rComp) for c in specComp])
+                            if check_pH_speciation.any():
+                                comp_ = np.array(specComp)[check_pH_speciation]
+                                if len(comp_) > 1:
+                                    raise ValueError(f'More than one compound for pH speciation have been given: {comp}: {comp_}')
+                                else:
+                                    comp_ = np.squeeze(comp_)
+                            else:
+                                comp_ = comp
+                            val_ = val.copy()
+                            for idVal, iVal in enumerate(val_):
+                                val_[idVal] = eQ.pHSpeciation(comp_, self.pH[idVal], self.temperature[idVal], iVal, 
+                                                              rAllConc = False)
+                            val = val_.copy()
+                    elif var == 'DGr':
+                        try:
+                            val = val[rxn]
+                        except:
+                            raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
                 if not isinstance(x, np.ndarray):
                     x = np.array([val])
                 else:
