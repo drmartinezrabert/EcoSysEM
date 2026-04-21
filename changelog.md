@@ -17,10 +17,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - New optional arguments in `WaterColumn.plotVariables()`: `colors`, `title`, `title_fs`.
 - New optional arguments in `Environments.getDGr()`: `printDG0r`,`printDH0r`.
-### Removed
-- _Lorem ipsum..._
 ### Fixed
-- Bug in `ThSA.ionicStrength()`. Now it handels NaN value in compound concentration. 
+- Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration. 
 ### Changed
 - README file.
 - Update thermodynamic data.
