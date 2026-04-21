@@ -459,7 +459,7 @@ class Environment:
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
 
-    def getDGr(self, typeRxn, input_, specComp = False, printDG0r = False, printDH0r = False):
+    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
@@ -473,6 +473,8 @@ class Environment:
             Name(s) of requested compound(s) or reaction(s).
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        solids : LIST or np.ndarray
+            Name(s) of compound(s) in solid phase. The default is None.
 
         Returns
         -------
@@ -505,14 +507,14 @@ class Environment:
         DGr_dict = {}
         if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
             for pH_ in pH:
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, solids = solids, T = T, pH = pH_, S = S, Ct = Ct,
                                                fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         elif self.model in {'WaterColumn'}:
             for idDepth, iDepth in enumerate(self.depth):
                 C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, solids = solids,
                                                T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
                                                fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
