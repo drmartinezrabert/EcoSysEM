@@ -16,6 +16,7 @@ from molmass import Formula
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
 import earthaccess
 import itertools
 import xarray as xr
@@ -3509,6 +3510,195 @@ class WaterColumn(Hydrosphere):
         if bool(sd):
             self.sd = sd
 
+    def poly_fit(self, variables, deg, rcond = None, w = None, new_depth = None, replace_data = False, plot_fitting = False, 
+                 figsize = None, show_equation = False, loc_legend = 'best', legend_bbox_to_anchor = None, x_label_name = None,
+                 set_x_limits = None, set_y_limits = (None, 0), plot_title = None, fontfamily = 'Arial', fontsize = 12,
+                 xlabel_tick_format = None, xlog_format = None, show_legend = True):
+        """
+        Least squares polynomial fit of attributes of a `WaterColumn` instance based on `numpy.polyfit()`.
+
+        Parameters
+        ----------
+       variables : LIST of STR
+           List of variables, corresponding to attributes of `WaterColumn` instance. For example:
+               'temperature' - Temperature profile.
+               'pH' - pH profile.
+               'conc_NH3' - Profile of ammonia concentration.
+        deg : DICT
+            Degree of the fitting polynomial. E.g., {'variable name': [INT]}. 
+        rcond : FLOAT, optional
+            Relative condition number of the fit. Singular values smaller than this relative to the largest singular value will be ignored. The default is None.
+        w : LIST or np.ndarray, optional
+            Weights. The default is None.
+        new_depth : LIST or np.ndarray, optional
+            New depth array to evaluate the polynomial result. The default is None.
+        replace_data : BOOL, optional
+            Set whether the original data is replaced with polynomial results. The default is False.
+        plot_fitting : BOOL, optional
+            Set whether fitting plot is shown. The default is False.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size in inches. (Width, Height). The default is None.
+        show_equation : BOOL, optional
+            Set whether the resultant fitting polynomial is shown in Console. The default is False.
+        loc_legend : STR, optional
+            The location of the legend. For more info, see 'matplotlib' documentation. The default is 'best'.
+        legend_bbox_to_anchor : 2-tuple or 4-tuple of FLOATS, optional
+            Box that is used to position the legend in conjunction with loc. For more info, see 'matplotlib' documentation. The default is None.
+        x_label_name : DICT, optional
+            Set label name of x-coordinate. E.g., {'variable name': STR}. The default is None.
+        set_x_limits : DICT, optional
+            Set limits of x-coordinate (left, right). E.g., {'variable name': (FLOAT, FLOAT)}. The default is None.
+        set_y_limits : (FLOAT, FLOAT), optional
+            Set limits of y-coordinate (bottom, top). The default is (None, 0).
+        plot_title : STR, optional
+            Set title of plot. The default is None.
+        fontfamily : STR, optional
+            Set font family. The default is 'Arial'.
+        fontsize : FLOAT, optional
+            Set font size. The default is 12.
+        xlabel_tick_format : DICT, optional
+            Set tick format. E.g., {'variable name': '{x:0.1f}'} The default is None.
+        xlog_format : DICT, optional
+            If True, variable is plotted using symmetrical log coordinate. E.g., {'variable name': True/False}. The default is None.
+        show_legend : BOOL, optional
+            Set whether if the plot legend is shown. The default is True.
+        
+        Returns
+        -------
+        Update attribute(s) in WaterColumn instance, info in Console and/or Spyder plot.
+
+        """
+        #-Plot properties
+        plt.rcParams["font.family"] = fontfamily
+        plt.rcParams["font.size"] = fontsize
+        plt.rcParams['figure.dpi'] = 400
+        plt.rcParams['savefig.dpi'] = 400
+        if not isinstance(variables, (list, np.ndarray)): variables = [variables]
+        current_depth = self.depth
+        dict_conc = self.Ci_L.copy()
+        for variable in variables:
+            legend = []
+            if xlog_format:
+                xlog_variable = xlog_format[variable]
+            else:
+                xlog_variable = False
+            if show_equation:
+                print(f'  > {variable}')
+            mainAttributes = {'Depth', 'depth', 'Temperature', 'temperature', 'pH', 'ph', 'Salinity', 'salinity'}
+            if variable in mainAttributes:
+                if variable == 'ph':
+                    varAttr = 'pH'
+                else:
+                    varAttr = variable[0].lower() + variable[1:]
+            elif variable.startswith('conc_'):
+                indx = variable.find('_') + 1
+                comp = variable[indx:]
+                varAttr = 'Ci_L'
+            else:
+                varAttr = variable
+            try:
+                values = getattr(self, varAttr, None)
+            except:
+                raise ValueError(f'Attribute {variable} not found in WaterColumn() object.')
+            else:
+                if varAttr == 'Ci_L':
+                    values = values[comp]
+            #-Clean data
+            id_clean_data = np.isfinite(current_depth) & np.isfinite(values)
+            clean_depth = current_depth[id_clean_data]
+            clean_values = values[id_clean_data]
+            #-Plot measured data
+            if plot_fitting:
+                fig, ax = plt.subplots(figsize = figsize)
+                if xlog_variable:
+                    plt.semilogx(clean_values, clean_depth, 'o', mec = 'k', mfc = 'k')
+                else:
+                    plt.plot(clean_values, clean_depth, 'o', mec = 'k', mfc = 'k')
+                legend += ['Measured']
+            if isinstance(deg, dict):
+                degrees = deg[variable]
+            else:
+                raise TypeError("Argument `deg` must be a dictionary: {'variable name': [INT]}")
+            if not isinstance(degrees, (list, np.ndarray)): degrees = [degrees]
+            for d in degrees:
+                p = np.polyfit(clean_depth, clean_values, deg = d, rcond = rcond, w = w)
+                pol_formula = ''
+                for id_n, n in enumerate(p):
+                    if d-id_n > 1:
+                        x_part = f'·x^{d-id_n}'
+                    elif d-id_n == 1:
+                        x_part = '·x'
+                    else:
+                        x_part = ''
+                    if id_n == 0:
+                        pol_formula += f' {"{:0.5e}".format(n)}' + x_part
+                    else:
+                       if n > 0: 
+                           pol_formula += f' + {"{:0.5e}".format(n)}' + x_part
+                       elif n < 0:
+                           pol_formula += f' {"- {:0.5e}".format(abs(n))}' + x_part
+                       else:
+                           pol_formula += ''
+                if show_equation:
+                    p_ = np.poly1d(p)
+                    yhat = p_(clean_depth)
+                    ybar = np.sum(clean_values)/len(clean_values)
+                    ssreg = np.sum((yhat - ybar)**2)
+                    sstot = np.sum((clean_values - ybar)**2)
+                    r2 = ssreg / sstot
+                    print(f'      > Polynomial formula (order {d}; r2: {"{:0.4f}".format(r2)}): {pol_formula}')
+                #-Plot fitting formulas
+                if all(new_depth):
+                    new_depth = np.sort(np.unique(np.concatenate((current_depth, new_depth))))
+                    if np.nanmax(new_depth) > np.nanmax(clean_depth):
+                        plot_depth = np.where(new_depth <= np.nanmax(clean_depth), new_depth, np.nan)
+                    else:
+                        plot_depth = new_depth.copy()
+                    save_depth = new_depth.copy()
+                else:
+                    plot_depth = current_depth.copy()
+                    save_depth = current_depth.copy()
+                values_fitting = np.polyval(p, plot_depth)
+                if plot_fitting:
+                    if xlog_variable:
+                        plt.semilogx(values_fitting.T, plot_depth, '--')
+                    else:
+                        plt.plot(values_fitting.T, plot_depth, '--')
+                    if d == 1:
+                        legend += ['Model (lineal)']
+                    else:
+                        legend += [f'Model (order {d})']
+            if plot_fitting:
+                if show_legend:
+                    ax.legend(legend, loc = loc_legend, bbox_to_anchor = legend_bbox_to_anchor)
+                if x_label_name:
+                    ax.set_xlabel(x_label_name[variable], labelpad = 7.5)
+                else:
+                    ax.set_xlabel('Variable [-]', labelpad = 7.5)
+                ax.set_ylabel('Depth (m)')
+                if isinstance(set_x_limits, dict):
+                    ax.set_xlim(set_x_limits[variable][0], set_x_limits[variable][1])
+                else:
+                    ax.set_xlim(None, None)
+                ax.set_ylim(set_y_limits[0], set_y_limits[1])
+                ax.yaxis.set_inverted(True)
+                if isinstance(xlabel_tick_format, dict):
+                    ax.xaxis.set_major_formatter(StrMethodFormatter(xlabel_tick_format[variable]))
+                ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+                ax.xaxis.set_label_position('top') 
+                if plot_title:
+                    plt.title(plot_title)
+            #-Replace data
+            if replace_data:
+                if len(degrees) > 1:
+                    raise ValueError(f'Select one degree of the fitting polynomial of {variable} to replace data.')
+                self.depth = save_depth
+                if varAttr == 'Ci_L':
+                    dict_conc[comp] = values_fitting
+                else:
+                    setattr(self, varAttr, values_fitting)
+        self.Ci_L = dict_conc
+        
     def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
                       colors = None, x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5),
                       set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
