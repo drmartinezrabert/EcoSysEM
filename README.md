@@ -2284,9 +2284,9 @@ Least squares polynomial fit of attributes of a `WaterColumn` instance based on 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deg : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Degree of the fitting polynomial. E.g., `{'variable 1': [1, 2, 3], 'variable 2': [0, 1]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rcond : _float_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative condition number of the fit. For more info, check 'numpy.polyfit()' documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative condition number of the fit. For more info, check `numpy.polyfit()` documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **w : _list or np.ndarray_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Weights. For more info, check 'numpy.polyfit()' documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Weights. For more info, check `numpy.polyfit()` documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **new_depth : _list or np.ndarray_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New depth array to evaluate the polynomial result.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **replace_data : _bool_, _optional, default: False_** <br>
@@ -2298,9 +2298,9 @@ Least squares polynomial fit of attributes of a `WaterColumn` instance based on 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **show_equation : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the resultant fitting polynomial is shown in Console.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc_legend : _str_, _optional, default: 'best'_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the location of the legend. For more info, see 'matplotlib' documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the location of the legend. For more info, see `matplotlib` documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend_bbox_to_anchor : _2- or 4-tuple of floats_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Box that is used to position the legend in conjunction with loc. For more info, see 'matplotlib' documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Box that is used to position the legend in conjunction with loc. For more info, see `matplotlib` documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate. E.g., `{'variable 1': 'name 1', 'variable 2': 'name 2'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_x_limits : _dict_, _optional, default: None_** <br>
