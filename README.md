@@ -2282,7 +2282,7 @@ Least squares polynomial fit of attributes of a `WaterColumn` instance based on 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'pH' - pH profile.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'conc_NH3' - Profile of ammonia concentration.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deg : _dict_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Degree of the fitting polynomial. E.g., {'variable 1': [1, 2, 3], 'variable 2': [0, 1]}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Degree of the fitting polynomial. E.g., `{'variable 1': [1, 2, 3], 'variable 2': [0, 1]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rcond : _float_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative condition number of the fit. For more info, check 'numpy.polyfit()' documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **w : _list or np.ndarray_, _optional, default: None_** <br>
@@ -2302,9 +2302,9 @@ Least squares polynomial fit of attributes of a `WaterColumn` instance based on 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend_bbox_to_anchor : _2- or 4-tuple of floats_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Box that is used to position the legend in conjunction with loc. For more info, see 'matplotlib' documentation.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _dict_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate. E.g., {'variable 1': 'name 1', 'variable 2': 'name 2'}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate. E.g., `{'variable 1': 'name 1', 'variable 2': 'name 2'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_x_limits : _dict_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of x-coordinate (left, right). E.g., {'variable 1': (0, 100), 'variable 2': (200, 300)}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of x-coordinate (left, right). E.g., `{'variable 1': (0, 100), 'variable 2': (200, 300)}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_y_limits : _(float, float)_, _optional, default: (None, 0)_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of y-coordinate (bottom, top).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **plot_title : _str_, _optional, default: None_** <br>
@@ -2314,9 +2314,9 @@ Least squares polynomial fit of attributes of a `WaterColumn` instance based on 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional, default: 12.0_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of plots.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xlabel_tick_format : _dict_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set tick format. E.g., {'variable 1': '{x:0.1f}', 'variable 2': '{x:0.1e}'}. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set tick format. E.g., `{'variable 1': '{x:0.1f}', 'variable 2': '{x:0.1e}'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xlog_format : _dict_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If True, variable is plotted using symmetrical log coordinate. E.g., {'variable 1': True, 'variable 2': False}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If True, variable is plotted using symmetrical log coordinate. E.g., `{'variable 1': True, 'variable 2': False}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **show_legend : _bool_, _optional, default: True_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether if the legend of plot is shown. <p>
 **Returns:** <br>
