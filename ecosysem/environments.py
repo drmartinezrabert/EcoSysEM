@@ -3524,7 +3524,7 @@ class WaterColumn(Hydrosphere):
                 'pH' - pH profile.
                 'conc_NH3' - Profile of ammonia concentration.
                 'DGr_AO' - Profile of the Gibbs free energy of AO reaction.
-                'dict_eta_DissMetAO' - Created attribute (eta) in dictionary form (multiple reactions in attribute `.eta` named 'DissMet{reaction name}'.
+                'dict_{attribute name}_{key name}' - Created attribute in dictionary form.
         pH_speciation : BOOL, optional
             Set whether pH speciation is compute on compound concentrations. The default is False.
         specComp : LIST, optional
