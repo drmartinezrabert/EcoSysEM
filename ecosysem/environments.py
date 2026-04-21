@@ -3541,7 +3541,7 @@ class WaterColumn(Hydrosphere):
         show_equation : BOOL, optional
             Set whether the resultant fitting polynomial is shown in Console. The default is False.
         loc_legend : STR, optional
-            The location of the legend. For more info, see 'matplotlib' documentation. The default is 'best'.
+            Set the location of the legend. For more info, see 'matplotlib' documentation. The default is 'best'.
         legend_bbox_to_anchor : 2-tuple or 4-tuple of FLOATS, optional
             Box that is used to position the legend in conjunction with loc. For more info, see 'matplotlib' documentation. The default is None.
         x_label_name : DICT, optional
@@ -3551,11 +3551,11 @@ class WaterColumn(Hydrosphere):
         set_y_limits : (FLOAT, FLOAT), optional
             Set limits of y-coordinate (bottom, top). The default is (None, 0).
         plot_title : STR, optional
-            Set title of plot. The default is None.
+            Set title of fitting plot. The default is None.
         fontfamily : STR, optional
-            Set font family. The default is 'Arial'.
+            Set font family of plots. The default is 'Arial'.
         fontsize : FLOAT, optional
-            Set font size. The default is 12.
+            Set font size of plots. The default is 12.
         xlabel_tick_format : DICT, optional
             Set tick format. E.g., {'variable name': '{x:0.1f}'} The default is None.
         xlog_format : DICT, optional
