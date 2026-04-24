@@ -25,7 +25,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
@@ -147,7 +147,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
@@ -340,7 +340,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.

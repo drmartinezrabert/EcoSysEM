@@ -26,7 +26,7 @@ class MSMM:
                  actMethods = None, molality = True, asm = 'stoich',
                  dataType = None, years = None, month = None, day = None,
                  turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
-                 kinDB = {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']},
+                 kinDB = {'MM-Arrhenius': ['qs_FFAM', 'ArrhCor'], 'MM': ['qs_FFAM']},
                  typeKin = 'MM-Arrhenius', eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
                  microCommunity = {'Mth': 'Methanotrophs','HOB': 'Hydrogen-oxidizing bacteria','COOB': 'CO-oxidizing bacteria'}):
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
