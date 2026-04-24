@@ -20,7 +20,8 @@ All notable changes to this project will be documented in this file.
 - New optional argument in `ThSA.getDeltaGr()`: `solids`.
 - New function in `WaterColumn` class: `WaterColumn.poly_fit()`.
 ### Fixed
-- Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration. 
+- Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
+- Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
 ### Changed
 - README file.
 - Update thermodynamic data.
