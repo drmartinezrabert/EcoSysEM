@@ -569,7 +569,7 @@ class Environment:
                 MM - 'Michaelis-Menten equation'.
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeMetabo : STR
             Requested metabolism type, matching with csv name. E.g.:
                 - 'metabolisms' : aerobic metabolisms
