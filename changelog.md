@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - New optional arguments in `Environments.getDGr()`: `solids`, `printDG0r`,`printDH0r`.
 - New optional argument in `ThSA.getDeltaGr()`: `solids`.
 - New function in `WaterColumn` class: `WaterColumn.poly_fit()`.
+- New thermodynamic database: Entropy of compounds.
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
@@ -27,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Update thermodynamic data.
   - Standard Gibbs free energy of formation.
   - Standard Enthalpy of formation
+  - Specific heat capacity
 
 ## [0.5.1] - 2026/03/16
 ### Added
