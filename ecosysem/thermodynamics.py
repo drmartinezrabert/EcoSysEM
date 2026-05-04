@@ -20,8 +20,6 @@ from scipy.stats import qmc
 import warnings
 import time
 
-import sys
-
 class MinorSymLogLocator(Locator):
     """
     Dynamically find minor tick positions based on the positions of
