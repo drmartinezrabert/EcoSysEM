@@ -402,7 +402,7 @@ class ThP:
         """
         dParam = pd.read_csv(ThP.path + typeParam + '.csv')
         try:
-            dParam = dParam.set_index('Formula').loc[compounds].reset_index()
+            dParam = dParam.set_index('Formula').loc[compounds].drop_duplicates().reset_index()
         except:
             Param = np.empty(0)
         else:
