@@ -470,6 +470,26 @@ class ThP:
         deltaCpi = Cpi @ mRxn
         return deltaCpi
     
+    def getDeltaS0(S0i, mRxn):
+        """
+        Function to get entropy change of reaction from S0i.
+
+        Parameters
+        ----------
+        S0i : LIST or np.array
+            Standard entropy of compound.
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+
+        Returns
+        -------
+        deltaS : np.array
+            Entropy of reaction.
+    
+        """
+        deltaS0 = S0i @ mRxn
+        return deltaS0
+    
     def getKeq(compounds, mRxn, t, phase):
         """
         Function to get equilibrium constants from DeltaG0f.
