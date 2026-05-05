@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - New thermodynamic database: Entropy of compounds.
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
-- Now `ThP.getThP()` drop duplicate values.
+- Now `ThP.getThP()` drops duplicate values.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
 ### Changed
 - README file.
