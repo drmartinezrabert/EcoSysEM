@@ -525,6 +525,70 @@ class Environment:
                         DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
+    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False):
+        """
+        Compute (non-)standard entropy change using information from environmental models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        solids : LIST or np.ndarray
+            Name(s) of compound(s) in solid phase. The default is None.
+
+        Returns
+        -------
+        Results are saved as an attribute of model instances (modelName.DSr) as a dictionary.
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        S = self.salinity
+        if self.model in {'GWB', 'WaterColumn'}:
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+                phase = 'L'
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+                phase = 'L'
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        fluidType = self.fluidType
+        methods = self.methods
+        DSr_dict = {}
+        if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
+            for pH_ in pH:
+                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                for idRxn, rxn in enumerate(infoRxn):
+                    DSr_dict[f'{rxn}_pH:{pH_}'] = DSr[..., idRxn]
+        elif self.model in {'WaterColumn'}:
+            for idDepth, iDepth in enumerate(self.depth):
+                C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
+                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids,
+                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
+                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                for idRxn, rxn in enumerate(infoRxn):
+                    try:
+                        DSr_dict[f'{rxn}'] = np.append(DSr_dict[f'{rxn}'], DSr[..., idRxn])
+                    except:
+                        DSr_dict[f'{rxn}'] = DSr[..., idRxn]
+        self.DSr = DSr_dict
+    
     def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
         """
         Compute reaction rates using information from environmental models.
