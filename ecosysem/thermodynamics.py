@@ -1289,6 +1289,136 @@ class ThSA:
             varType_str = str(varType).replace('<class \'','').replace('\'>', '').replace(',', ' or').replace('(', '').replace(')','')
             if not isinstance(varValue, varType): raise TypeError(f'Argument `{varName}` must be {varType_str}.')
     
+    def getDeltaSr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
+                   Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+                   printDS0r = False, warnings = False):
+        """
+        Calculate DeltaSr in function of temperature and compound concentrations.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        printDS0r : BOOL, optional
+            Print in console the values of standard entropy change of reactions. The default is False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
+
+        Returns
+        -------
+        DGr : np.array
+            Non-standard entropy change values.
+            Shape: (Z)x(Y)x(X)x(reactions).
+        infoRxn : LIST
+            Name of reactions given by the user (see reaction/{typeRxn}.csv).
+
+        """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): T = [T]
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+        nRxn = infoRxn.size
+        # Initialize variables
+        Ts = 298.15                                                             # Standard temperature [K]
+        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        # Initialize DHr matrix
+        DSr = np.empty(T.shape)
+        DSr = DSr[..., np.newaxis]
+        DSr = np.repeat(DSr, len(input_), axis = -1)
+        if specComp:
+            if specComp == True:
+                tSpecComp = 'compounds'
+                specComp = input_.copy()
+                for iSpecComp in specComp:
+                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
+            else:
+                tSpecComp = 'reactions'
+                if isinstance(specComp, str): specComp = [specComp]
+                n_specComp = len(specComp)
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+        for idRxn, iRxn in enumerate(infoRxn):
+            # iVariables definition
+            i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
+            cNonZ = np.nonzero(i_mRxn)[:][0]
+            i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
+            i_mRxn = i_mRxn[cNonZ]              # mRxn_aux
+            if specComp:
+                vSelected = 0
+                if tSpecComp == 'compounds':
+                    for specComp_aux in specComp:
+                        c_specComp = np.squeeze(np.where(i_rComp == specComp_aux))
+                        if c_specComp.size > 0:
+                            if vSelected == 0:
+                                i_specComp = specComp_aux
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
+                else:
+                    i_specComp = specComp[idRxn]
+                    # Check if i_specComp are in reaction
+                    c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
+                # Stoichiometric parameter of selected compound
+                id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
+            else:
+                vSelected = 1.0
+            # Calculate DeltaS0r
+            S0i = ThP.getThP('S0', i_rComp, phase)[0]                           # [J/mol-i/K]
+            deltaS0r = ThP.getDeltaS0r(S0i, i_mRxn) / 1000                      # [kJ/mol/K]
+            deltaS0r = deltaS0r / vSelected                                     # [kJ/mol-i/K] (if specDGr)
+            if printDS0r:
+                print(f'· DS0r of {iRxn}: {deltaS0r}.')
+                print('')
+            # Calculate DeltaSr (if necessary)
+            Cpi, notNan_Cpi = ThP.getThP('Cpi', i_rComp, phase)                 # [J/mol-i/K]
+            check_Cpi = notNan_Cpi.all()
+            if check_Cpi:
+                deltaCp = ThP.getDeltaCp(Cpi, i_mRxn) / 1000                    # [kJ/mol-i/K]
+                deltaSr = deltaS0r + deltaCp * np.log(T / Ts)                   # [kJ/mol-i/K]
+            else:
+                deltaSr = deltaS0r
+            if isinstance(Ct, dict):
+                Qr = ThP.Qr(Ct = Ct, phase = phase, rComp = i_rComp, mRxn = i_mRxn, T = T, pH = pH, S = S, specComp = i_specComp, 
+                            fluidType = fluidType, methods = methods, molality = molality, solvent = solvent, asm = asm, solids = solids)
+                deltaSr -= R * np.log(Qr)
+            DSr[..., idRxn] = deltaSr
+        return DSr, infoRxn
+            
     def getDeltaHr(typeRxn, input_, phase, specComp = False, T = 298.15, printDH0r = False, warnings = False):
         """
         Calculate DeltaHr in function of temperature.
