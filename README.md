@@ -3214,7 +3214,7 @@ Return a n-dimensional array with water activity (same shape as temperature (`T`
 
 ### ThP.Qr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidType='ideal', methods=None, molality=True, 	   solvent='H2O', asm='stoich', solids=None)
+ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidType='ideal', methods=None, molality=True, solvent='H2O', asm='stoich', solids=None)
 ```
 Compute the reaction quotient of a single reaction (Q<sub>r</sub>).<br>
 Return the value of reaction quotient in function of composition (concentrations or pressures).<p>
