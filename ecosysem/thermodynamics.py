@@ -470,7 +470,7 @@ class ThP:
         deltaCpi = Cpi @ mRxn
         return deltaCpi
     
-    def getDeltaS0(S0i, mRxn):
+    def getDeltaS0r(S0i, mRxn):
         """
         Function to get entropy change of reaction from S0i.
 
@@ -483,12 +483,12 @@ class ThP:
 
         Returns
         -------
-        deltaS : np.array
+        deltaS0r : np.array
             Entropy of reaction.
     
         """
-        deltaS0 = S0i @ mRxn
-        return deltaS0
+        deltaS0r = S0i @ mRxn
+        return deltaS0r
     
     def getKeq(compounds, mRxn, t, phase):
         """
