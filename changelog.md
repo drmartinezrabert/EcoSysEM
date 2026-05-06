@@ -20,7 +20,9 @@ All notable changes to this project will be documented in this file.
 - New optional argument in `ThSA.getDeltaGr()`: `solids`.
 - New function in `WaterColumn` class (`environments.py`): `WaterColumn.poly_fit()`.
 - New thermodynamic database: Entropy of compounds.
-- New function in `ThP` class (`thermodynamics.py`): `ThP.getDeltaS0()`.
+- New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()` and `ThP.getDeltaS0r()`.
+- New function in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()`.
+- New function in `environments.py`: `Environment.getDSr()`.
 - New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
