@@ -3214,7 +3214,8 @@ Return a n-dimensional array with water activity (same shape as temperature (`T`
 
 ### ThP.Qr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidType='ideal', methods=None, molality=True, solvent='H2O', asm='stoich', solids=None)
+ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidType='ideal', methods=None, molality=True, solvent='H2O', asm='stoich',
+	   solids=None, elude_compounds=[])
 ```
 Compute the reaction quotient of a single reaction (Q<sub>r</sub>).<br>
 Return the value of reaction quotient in function of composition (concentrations or pressures).<p>
@@ -3248,7 +3249,9 @@ Return the value of reaction quotient in function of composition (concentrations
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **elude_compounds : _list or np.ndarray_, _optional, default: []** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compoound(s) to be eluded in Qr calculations.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Qr : _FLOAT or np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value(s) of reaction quotient(s). Same shape as T, pH, salinity and Ct.<br>
