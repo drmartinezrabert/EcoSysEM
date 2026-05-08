@@ -522,7 +522,7 @@ class ThP:
         return np.squeeze(Keq)
     
     def Qr(Ct, phase, rComp, mRxn, T = 298.15, pH = 7.0, S = None, specComp = False, fluidType = 'ideal', methods = None,
-           molality = True, solvent = 'H2O', asm = 'stoich', solids = None):
+           molality = True, solvent = 'H2O', asm = 'stoich', solids = None, elude_compounds = []):
         """
         Function to calculate the reaction quotient (Qr)
 
@@ -560,6 +560,8 @@ class ThP:
             The default is 'stoich' (stoichiometric concentrations).
         solids : LIST or np.ndarray, optional
             Name(s) of compound(s) in solid phase. The default is None.
+        elude_compounds : LIST or np.ndarray, optional
+            Name(s) of compoound(s) to be eluded in Qr calculations. The default is [].
 
         Returns
         -------
@@ -569,8 +571,9 @@ class ThP:
         """
         Qr = 1
         uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
-        
+        if not isinstance(elude_compounds, (list, np.ndarray)): elude_compounds = [elude_compounds]
         if specComp:
+            if not isinstance(specComp, np.ndarray): specComp = np.array(specComp)
             findSpecComp = np.argwhere(uComp == specComp).squeeze()
             # Stoichiometric parameter of selected compound
             id_specComp = np.squeeze(np.where(rComp == specComp))
@@ -581,6 +584,8 @@ class ThP:
             if isinstance(solids, (list, np.ndarray)) and iComp in solids:
                 Qr *= 1
             else:
+                if len(elude_compounds) > 0:
+                    if iComp in elude_compounds: continue
                 findComp = np.argwhere(uComp == iComp)
                 vi = mRxn[idComp] / vSelected
                 if fluidType == 'ideal':
