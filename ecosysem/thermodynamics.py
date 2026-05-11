@@ -1099,7 +1099,7 @@ class ThP:
         act = {}
         if selComp is not None:
             try:
-                composition[selComp]
+                composition_aux[selComp]
             except: 
                 raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH reaction is not defined (if {selComp} is a pH-related chemical species) or {selComp} is a solid (must be added in `solids` argument as a list or a np.ndarray).')
             else:
