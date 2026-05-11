@@ -698,7 +698,7 @@ class ThP:
                     for c in composition_:
                         I_s = ThP._sumI({c: composition_[c]})
                         I_ += I_s
-            if not np.all(np.isnan(I_)):
+            if not np.any(np.isnan(I_)):
                 I += I_
         return I
     
