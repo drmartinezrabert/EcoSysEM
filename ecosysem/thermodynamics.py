@@ -1030,7 +1030,7 @@ class ThP:
     
     def activity(methods, composition, T = None, pH = None, salinity = None, molality = True, solvent = 'H2O', selComp = None):
         """
-        Function to compute activities of compounds.
+        Function to estimate activities of compounds.
 
         Parameters
         ----------
@@ -1055,7 +1055,7 @@ class ThP:
             
         Returns
         -------
-        act : TYPE
+        act : DICT
             Activity of compounds.
 
         """
@@ -1069,9 +1069,9 @@ class ThP:
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
         rho_solv = ThP.density(T, salinity, solvent)
+        # pH speciation (if necessary)
         if pH is not None:
             composition_aux = {}
-            methods_aux = {}
             for iComp in composition:
                 if iComp == 'CO2': 
                     iComp_ = 'H2CO3'
@@ -1081,9 +1081,8 @@ class ThP:
                 rComp, _, _ = Rxn.getRxnpH(iComp_)
                 if rComp is not None:
                     rComp = rComp[1:]
-                    C = composition[iComp]
                     if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                        cSpec = ThEq.pHSpeciation(iComp, pH, T, C, True)
+                        cSpec = ThEq.pHSpeciation(iComp, pH, T, composition[iComp], True)
                         for idC, C in enumerate(rComp):
                             composition_aux[C] = cSpec[..., idC]
                             if C == 'H2CO3':
@@ -1092,11 +1091,11 @@ class ThP:
                                 methods[C]
                             except:
                                 # By default, Debye-Hückel theory to estimate activity coefficient
-                                methods_aux[C] = 'DH-ext'
+                                methods[C] = 'DH-ext'
                             else:
                                 continue
-            composition = {**composition, **composition_aux}
-            methods = {**methods, **methods_aux}
+            composition_aux = {**composition, **composition_aux}
+        #-Activity of compounds
         act = {}
         if selComp is not None:
             try:
@@ -1106,29 +1105,16 @@ class ThP:
             else:
                 selCompounds = [selComp]
         else:
-            selCompounds = list(composition.keys())
+            selCompounds = list(composition_aux.keys())
         for comp in selCompounds:
+            act_coeff = ThP.activity_coefficient(methods, composition_aux, T, pH, salinity, molality, solvent, comp)
             if molality:
-                c = composition[comp] * (1/rho_solv)
+                c = composition_aux[comp] * (1/rho_solv)
             else:
-                c = composition[comp]
-            try:
-                methods[comp]
-            except:
-                # By default, Debye Huckel theory is used to estimate coefficient activity
-                actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
-                act[comp] = c * actCoeff[comp]
-            else:
-                if methods[comp] == 'DH-ext':
-                    actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
-                elif methods[comp] == 'SS':
-                    actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
-                elif methods[comp] == 'ideal':
-                    actCoeff = {comp: 1.0 * np.ones(T.shape)}
-                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
-                act[comp] = c * actCoeff[comp]
+                c = composition_aux[comp]
+            act[comp] = c * act_coeff[comp]
         return act
-    
+
 class ThEq:
     """
     Class for calulation of chemical, ion and interphase (G-L) equilibriums.
