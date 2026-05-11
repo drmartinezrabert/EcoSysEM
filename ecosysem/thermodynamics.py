@@ -969,7 +969,65 @@ class ThP:
                 Yn = 1.0 * np.ones(T.shape)
             actCoeff[comp] = Yn
         return actCoeff
-        
+    
+    def activity_coefficient(methods, composition, T = None, pH = None, salinity = None, molality = True, solvent = 'H2O', selComp = None):
+        """
+        Function to estimate activity coefficients of compounds.
+
+        Parameters
+        ----------
+        methods : DICT
+            Method for coefficient activity estimation.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        composition : DICT [mol/L; molarity]
+            Composition of environment {'compound': concentration} [mol/L].
+        T : FLOAT, LIST or np.ndarray, optional
+            Temperature [K]. The default is None.
+        pH : FLOAT, optional
+            pH [-]. The default is None.
+        salinity : FLOAT, LIST or np.ndarray, optional
+            Salinity of solvent [ppt or g/L]. The default is None.
+        molality : BOOL, optional
+            Select if activity calculation in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        selComp : STRING, optional
+            Selected compound (must be in `methods` and `composition`). The default is None.
+
+        Returns
+        -------
+        activity_coefficient : DICT
+            Activity coefficients of compounds.
+
+        """
+        if selComp is not None:
+            try:
+                composition[selComp]
+            except: 
+                raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH reaction is not defined (if {selComp} is a pH-related chemical species) or {selComp} is a solid (must be added in `solids` argument as a list or a np.ndarray).')
+            else:
+                selCompounds = [selComp]
+        else:
+            selCompounds = list(composition.keys())
+        activity_coefficient = {}
+        for comp in selCompounds:
+            try:
+                methods[comp]
+            except:
+                # By default, Debye Huckel theory is used to estimate coefficient activity
+                actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
+            else:
+                if methods[comp] == 'DH-ext':
+                    actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
+                elif methods[comp] == 'SS':
+                    actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
+                elif methods[comp] == 'ideal':
+                    actCoeff = {comp: 1.0 * np.ones(T.shape)}
+                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
+            activity_coefficient[comp] = actCoeff[comp]
+        return activity_coefficient
+    
     def activity(methods, composition, T = None, pH = None, salinity = None, molality = True, solvent = 'H2O', selComp = None):
         """
         Function to compute activities of compounds.
