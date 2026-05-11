@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - New optional argument in `ThSA.getDeltaGr()`: `solids`.
 - New function in `WaterColumn` class (`environments.py`): `WaterColumn.poly_fit()`.
 - New thermodynamic database: Entropy of compounds.
-- New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()` and `ThP.getDeltaS0r()`.
+- New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()`, `ThP.activity_coefficient()` and `ThP.getDeltaS0r()`.
 - New function in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()`.
 - New function in `environments.py`: `Environment.getDSr()`.
 - New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
 ### Changed
 - README file.
+- Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
 - Update thermodynamic data.
   - Standard Gibbs free energy of formation.
   - Standard Enthalpy of formation
