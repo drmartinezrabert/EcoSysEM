@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file.
 - New function in `WaterColumn` class (`environments.py`): `WaterColumn.poly_fit()`.
 - New thermodynamic database: Entropy of compounds.
 - New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()`, `ThP.activity_coefficient()` and `ThP.getDeltaS0r()`.
-- New function in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()`.
+- New functions in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()` and `ThSA.thermodynamic_limits()`.
 - New function in `environments.py`: `Environment.getDSr()`.
 - New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
 ### Fixed
