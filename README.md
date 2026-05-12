@@ -576,9 +576,10 @@ ecosysem
   │      │    └── plotpHSpeciation
   │      └── ThSA
   │           ├── exportDeltaGr
+  │           ├── getDeltaSr
   │           ├── getDeltaHr
   │           ├── getDeltaGr
-  │           ├── getDeltaSr
+  │           ├── thermodynamic_limits
   │           ├── smmryDeltaGr
   │           ├── conc_var_DeltaGr
   │           ├── local_sa_DeltaGr
@@ -2580,6 +2581,58 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Excel file in `results\` folder** (if _modeExport='Excel'_)<br>
 
+### ThSA.getDeltaSr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.getDeltaSr(typeRxn, input_, phase, solids=None, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal',
+				molality=True, methods=None, solvent='H2O', asm='stoich', printDS0r=False, warnings=False)
+```
+Compute the nonstandard entropy change of reaction (ΔS<sub>r</sub>) along the given conditions.<br> 
+Return a n-dimension array with ΔS<sub>r</sub> values.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDS0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard entropy change of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **warnings : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Display function warnings.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DSr : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nonstandard entropy change of reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(reactions)_.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
+
 ### ThSA.getDeltaHr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThSA.getDeltaHr(typeRxn, input_, phase, specComp=False, T=298.15, warnings=False, printDH0r=False)
@@ -2665,57 +2718,52 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
 
-### ThSA.getDeltaSr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+### ThSA.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.getDeltaSr(typeRxn, input_, phase, solids=None, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal',
-				molality=True, methods=None, solvent='H2O', asm='stoich', printDS0r=False, warnings=False)
+ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, T=298.15, pH=7.0, S=None, variables='All',  specComp=None, fluidType='ideal', methods=None,
+						  molality=True, solvent='H2O', asm='stoich', solids=None, standard_enthalpy=False)
 ```
-Compute the nonstandard entropy change of reaction (ΔS<sub>r</sub>) along the given conditions.<br> 
-Return a n-dimension array with ΔS<sub>r</sub> values.<p>
+Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.<br> 
+Return a dictionary with thermodynamic limits for each reaction `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rxns : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested reaction(s).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_, _optional, default: 1.0_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_, _list of strs_, _ndarray of strs_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _str_, _list of strs_, _ndarray of strs_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDS0r : _bool_, _optional, default: False_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard entropy change of reactions.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **warnings : _bool_, _optional, default: False_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Display function warnings.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **standard_enthalpy : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the standard (True) or non-standard (False) enthalpy is used in estimations.<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DSr : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nonstandard entropy change of reaction.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(reactions)_.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **limit_value : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with thermodynamic limits.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
 
 ### ThSA.smmryDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4612,9 +4660,10 @@ Plot three dimensional data on a world map (2D data) and different section plots
 
 #### · <ins>Thermodynamic State Analysis (ThSA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.exportDeltaGr](#thsaexportdeltagr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaSr](#thsagetdeltasr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaHr](#thsagetdeltahr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaGr](#thsagetdeltagr---back-to-function-navigation)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaSr](#thsagetdeltasr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.thermodynamic_limits](#thsathermodynamic_limits---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.smmryDeltaGr](#thsasmmrydeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.conc_var_DeltaGr](#thsaconc_var_deltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.local_sa_DeltaGr](#thsalocal_sa_deltagr---back-to-function-navigation)<br>
