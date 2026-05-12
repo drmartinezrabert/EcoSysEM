@@ -2763,7 +2763,7 @@ Return a dictionary with thermodynamic limits for each reaction `{'rxn_1': {'var
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **limit_value : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with thermodynamic limits.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
 
 ### ThSA.smmryDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
