@@ -1727,6 +1727,182 @@ class ThSA:
             DGr[..., idRxn] = rDGr
         return DGr, infoRxn
     
+    def thermodynamic_limits(typeRxn, rxns, phase, Ct, T = 298.15, pH = 7.0, S = None, variables = 'All',  specComp = None, fluidType = 'ideal', methods = None,
+                             molality = True, solvent = 'H2O', asm = 'stoich', solids = None, standard_enthalpy = False):
+        """
+        Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        rxns : STR or LIST
+            Name(s) of requested reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
+        variables : STR or LIST, optional
+            Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'. The default is 'All'.
+        specComp : STR or LIST, optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is None.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        standard_enthalpy : BOOL, optional
+            Set whether the standard (True) or non-standard (False) enthalpy is used in estimations. The default is False.
+
+        Returns
+        -------
+        limit_value : DICT
+            Dictionary with thermodynamic limits. {'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}
+
+        """
+        if not isinstance(variables, list): variables = [variables]
+        valid_variables = ['Temperature', 'pH', 'Concentrations', 'All']
+        for variable in variables:
+            if not (variable in valid_variables): 
+                raise ValueError(f'Invalid variable ({variable}) to get thermodynamic limits. Valid variables: {valid_variables}.')
+        if variables == 'All': variables = ['Temperature', 'pH', 'Concentrations']
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        # Constants
+        Ts = 298.15                                                             # Standard temperature [K]
+        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        # Get reactions
+        rComp, mRxn, _ = Rxn.getRxn(typeRxn, rxns)
+        # Initialize results matrix
+        limit_value = np.empty(T.shape)
+        limit_value = limit_value[..., np.newaxis]
+        limit_value = np.repeat(limit_value, len(rxns), axis = -1)
+        # Initialize dictionary
+        limit_value = {}
+        for id_rxn, rxn in enumerate(rxns):
+            i_mRxn = np.squeeze(mRxn[:, id_rxn])
+            if not specComp is None:
+                if isinstance(specComp, str): specComp = [specComp]
+                i_specComp = specComp[id_rxn]
+                id_comp = np.where(np.array(rComp) == i_specComp)
+                if len(id_comp[0]) == 0:
+                    vSelected = 1.0
+                else:
+                    id_comp = int(id_comp[0])
+                    vSelected = abs(i_mRxn[id_comp])
+            else:
+                i_specComp = None
+                vSelected = 1.0
+            # Calculate DG0r
+            deltaG0f = ThP.getThP('DeltaG0f', rComp, phase)
+            DG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)[0]
+            deltaG0r = (DG0r / vSelected) * np.ones(np.shape(T))
+            # Calculate DHr
+            deltaH0f = ThP.getThP('DeltaH0f', rComp, phase)
+            DH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)[0]
+            deltaH0r = (DH0r / vSelected) * np.ones(np.shape(T))
+            if standard_enthalpy:
+                deltaHr = deltaH0r
+            else:
+                deltaHr_, _ = ThSA.getDeltaHr(typeRxn, rxn, phase, specComp = i_specComp, T = T)
+                deltaHr = np.squeeze(deltaHr_)
+            # Create reaction key
+            limit_value_rxn = {}
+            for variable in variables:
+                if variable == 'Temperature':
+                    elude_compounds = []
+                    # Calculate Qr
+                    Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compounds)
+                    # Calculate thermodynamic limits
+                    limit_value_rxn['Temperature'] = (deltaHr * Ts) / (deltaHr - deltaG0r - R*Ts*np.log(Qr))
+                else:
+                    if variable == 'pH':
+                        elude_compounds = ['H+']
+                    elif variable == 'Concentrations':
+                        rComp_rxn, _, _ = Rxn.getRxn(typeRxn, rxn)
+                        # Remove water (activity_water = 1.0)
+                        try:
+                            rComp_rxn.remove('H2O')
+                        except:
+                            pass
+                        # Remove H+ (It is considered pH influence)
+                        try:
+                            rComp_rxn.remove('H+')
+                        except:
+                            pass
+                        if not solids is None:
+                            for solid in solids:
+                                try:
+                                    rComp_rxn.remove(solid)
+                                except:
+                                    pass
+                        elude_compounds = rComp_rxn
+                    for elude_compound in elude_compounds:
+                        # Calculate Qr
+                        Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compound)
+                        if elude_compound == 'H+':
+                            variable_name = 'pH'
+                        else:
+                            variable_name = elude_compound
+                        id_comp = np.where(np.array(rComp) == elude_compound)
+                        if len(id_comp[0]) == 0:
+                            limit_value_rxn[variable_name] = np.nan * np.ones(np.shape(T))
+                            continue
+                        id_comp = int(id_comp[0])
+                        vi = i_mRxn[id_comp]
+                        # Calculate thermodynamic limits
+                        if vi != 0:
+                            limit_value_rxn_ = np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaHr * ((Ts - T) / T) - R*Ts*np.log(Qr)))
+                            if variable == 'Concentrations':
+                                limit_value_rxn[variable_name] = limit_value_rxn_
+                            elif variable == 'pH':
+                                limit_value_rxn[variable_name] = -np.log10(limit_value_rxn_)
+                        else:
+                            limit_value_rxn[variable_name] = np.nan * np.ones(np.shape(T))
+            limit_value[rxn] = limit_value_rxn
+        return limit_value
+    
+    
+        #     if variable == 'Temperature' or variable == 'All':
+        #         Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, [])
+        #         limit_value_ = (deltaH0r * Ts) / (deltaH0r - deltaG0r - R*Ts*np.log(Qr))
+        #         limit_value[rxn]['Temperature'] = limit_value_
+        #     if variable == 'pH' or variable == 'All':
+        #         r = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, ['H+'])
+        #     elif variable.startswith('conc_'):
+        #         limit_compound = variable[variable.find('_')+1:]
+        #         elude_compounds = [limit_compound]
+        #     Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compounds)          
+        #     if variable == 'Temperature':
+        #         limit_value_ = (deltaH0r * Ts) / (deltaH0r - deltaG0r - R*Ts*np.log(Qr))
+        #     elif variable == 'pH' or variable.startswith('conc_'):
+        #         id_comp = np.where(np.array(rComp) == elude_compounds[0])
+        #         id_comp = int(id_comp[0])
+        #         vi = i_mRxn[id_comp]
+        #         if vi != 0:
+        #             limit_value_ = np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaH0r * ((Ts - T) / T) - R*Ts*np.log(Qr)))
+        #         else:
+        #             limit_value_ = np.nan * np.ones(np.shape(T))
+        #     limit_value[..., id_rxn] = limit_value_
+        # return limit_value
+    
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
                       methods = None, solvent = 'H2O', asm = 'stoich', warnings = False,
