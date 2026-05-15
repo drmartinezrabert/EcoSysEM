@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file.
 - New thermodynamic database: Entropy of compounds.
 - New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()`, `ThP.activity_coefficient()` and `ThP.getDeltaS0r()`.
 - New functions in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()` and `ThSA.thermodynamic_limits()`.
-- New function in `environments.py`: `Environment.getDSr()`.
+- New functions in `Environment` class (`environments.py`): `Environment.getDSr()` and `Environment.thermodynamic_limits()`.
 - New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
