@@ -1842,7 +1842,7 @@ class ThSA:
                             rComp_rxn.remove('H2O')
                         except:
                             pass
-                        # Remove H+ (It is considered pH influence)
+                        # Remove H+ (it is considered pH influence)
                         try:
                             rComp_rxn.remove('H+')
                         except:
@@ -1878,30 +1878,6 @@ class ThSA:
                             limit_value_rxn[variable_name] = np.nan * np.ones(np.shape(T))
             limit_value[rxn] = limit_value_rxn
         return limit_value
-    
-    
-        #     if variable == 'Temperature' or variable == 'All':
-        #         Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, [])
-        #         limit_value_ = (deltaH0r * Ts) / (deltaH0r - deltaG0r - R*Ts*np.log(Qr))
-        #         limit_value[rxn]['Temperature'] = limit_value_
-        #     if variable == 'pH' or variable == 'All':
-        #         r = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, ['H+'])
-        #     elif variable.startswith('conc_'):
-        #         limit_compound = variable[variable.find('_')+1:]
-        #         elude_compounds = [limit_compound]
-        #     Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compounds)          
-        #     if variable == 'Temperature':
-        #         limit_value_ = (deltaH0r * Ts) / (deltaH0r - deltaG0r - R*Ts*np.log(Qr))
-        #     elif variable == 'pH' or variable.startswith('conc_'):
-        #         id_comp = np.where(np.array(rComp) == elude_compounds[0])
-        #         id_comp = int(id_comp[0])
-        #         vi = i_mRxn[id_comp]
-        #         if vi != 0:
-        #             limit_value_ = np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaH0r * ((Ts - T) / T) - R*Ts*np.log(Qr)))
-        #         else:
-        #             limit_value_ = np.nan * np.ones(np.shape(T))
-        #     limit_value[..., id_rxn] = limit_value_
-        # return limit_value
     
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
