@@ -1727,7 +1727,7 @@ class ThSA:
             DGr[..., idRxn] = rDGr
         return DGr, infoRxn
     
-    def thermodynamic_limits(typeRxn, rxns, phase, Ct, T = 298.15, pH = 7.0, S = None, variables = 'All',  specComp = None, fluidType = 'ideal', 
+    def thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i = 1.0, T = 298.15, pH = 7.0, S = None, variables = 'All', specComp = None, fluidType = 'ideal', 
                              methods = None, molality = True, solvent = 'H2O', asm = 'stoich', solids = None, standard_enthalpy = False):
         """
         Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.
@@ -1744,6 +1744,8 @@ class ThSA:
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
+        C0i : FLOAT, optional
+            Standard concentration. The default is 1.0.
         T : FLOAT or LIST, optional
             Set of temperature [K]. The default is 298.15 K (standard temperature).
         pH : INT or FLOAT, optional
@@ -1778,6 +1780,7 @@ class ThSA:
             Dictionary with thermodynamic limits. {'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}
 
         """
+        print(variables)
         if not isinstance(variables, list): variables = [variables]
         valid_variables = ['Temperature', 'pH', 'Concentrations', 'All']
         for variable in variables:
@@ -1857,6 +1860,13 @@ class ThSA:
                     for elude_compound in elude_compounds:
                         # Calculate Qr
                         Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compound)
+                        # Calculate activity coefficient
+                        if fluidType == 'ideal':
+                            Yi = 1.0 * np.ones(np.shape(T))
+                        elif fluidType == 'non-ideal':
+                            Yi_ = ThP.activity_coefficient(methods, Ct, T, pH, S, molality, solvent, elude_compound)
+                            Yi = Yi_[elude_compound]
+                        # Variable name
                         if elude_compound == 'H+':
                             variable_name = 'pH'
                         else:
@@ -1869,7 +1879,7 @@ class ThSA:
                         vi = i_mRxn[id_comp]
                         # Calculate thermodynamic limits
                         if vi != 0:
-                            limit_value_rxn_ = np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaHr * ((Ts - T) / T) - R*Ts*np.log(Qr)))
+                            limit_value_rxn_ = (C0i / Yi) * np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaHr * ((Ts - T) / T) - R*Ts*np.log(Qr)))
                             if variable == 'Concentrations':
                                 limit_value_rxn[variable_name] = limit_value_rxn_
                             elif variable == 'pH':

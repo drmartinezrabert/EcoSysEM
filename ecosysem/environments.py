@@ -525,7 +525,7 @@ class Environment:
                         DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
-    def thermodynamic_limits(self, typeRxn, rxns, variables = 'All', specComp = None, molality = True, solvent = 'H2O', 
+    def thermodynamic_limits(self, typeRxn, rxns, C0i = 1.0, variables = 'All', specComp = None, molality = True, solvent = 'H2O', 
                              asm = 'stoich', solids = None, standard_enthalpy = False):
         """
         Estimate thermodynamic limit(s) using information from environmental models.
@@ -538,6 +538,8 @@ class Environment:
         rxns : STR or LIST
             Name(s) of requested reaction(s).
             Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'. The default is 'All'.
+        C0i : FLOAT, optional
+            Standard concentration. The default is 1.0.
         specComp : STR or LIST, optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is None.
         molality : BOOL, optional
@@ -582,7 +584,8 @@ class Environment:
                 raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
         fluidType = self.fluidType
         methods = self.methods
-        limit_value = ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, T, pH, S, variables, specComp, fluidType, methods, 
+        print(f'> "variables" in Environment.thermodynamic_limits(): {variables}')
+        limit_value = ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i, T, pH, S, variables, specComp, fluidType, methods, 
                                                 molality, solvent, asm, solids, standard_enthalpy)
         self.limits = limit_value
     
