@@ -1727,8 +1727,8 @@ class ThSA:
             DGr[..., idRxn] = rDGr
         return DGr, infoRxn
     
-    def thermodynamic_limits(typeRxn, rxns, phase, Ct, T = 298.15, pH = 7.0, S = None, variables = 'All',  specComp = None, fluidType = 'ideal', methods = None,
-                             molality = True, solvent = 'H2O', asm = 'stoich', solids = None, standard_enthalpy = False):
+    def thermodynamic_limits(typeRxn, rxns, phase, Ct, T = 298.15, pH = 7.0, S = None, variables = 'All',  specComp = None, fluidType = 'ideal', 
+                             methods = None, molality = True, solvent = 'H2O', asm = 'stoich', solids = None, standard_enthalpy = False):
         """
         Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.
 
