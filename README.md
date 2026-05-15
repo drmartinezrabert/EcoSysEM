@@ -810,7 +810,7 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 
 ### Environment.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.thermodynamic_limits(typeRxn, rxns, variables='All', specComp=None, molality=True, solvent='H2O', asm='stoich',
+Environment.thermodynamic_limits(typeRxn, rxns, C0i=1.0, variables='All', specComp=None, molality=True, solvent='H2O', asm='stoich',
 								 solids=None, standard_enthalpy=False)
 ```
 Estimate thermodynamic limit(s) using information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
@@ -819,6 +819,8 @@ Estimate thermodynamic limit(s) using information from environmental models (e.g
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rxns : _str_ or _list of strs_ or _ndarray of strs_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C0i : _float_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard concentration.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_, _list of strs_, _ndarray of strs_, _optional, default: 'All'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _str_, _list of strs_, _ndarray of strs_, _optional, default: None_** <br>
@@ -2757,7 +2759,7 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 
 ### ThSA.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, T=298.15, pH=7.0, S=None, variables='All',  specComp=None, fluidType='ideal', methods=None,
+ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i=1.0, T=298.15, pH=7.0, S=None, variables='All',  specComp=None, fluidType='ideal', methods=None,
 						  molality=True, solvent='H2O', asm='stoich', solids=None, standard_enthalpy=False)
 ```
 Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.<br> 
@@ -2771,6 +2773,8 @@ Return a dictionary with thermodynamic limits for each reaction `{'rxn_1': {'var
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C0i : _float_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard concentration.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
