@@ -525,6 +525,67 @@ class Environment:
                         DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
     
+    def thermodynamic_limits(self, typeRxn, rxns, variables = 'All', specComp = None, molality = True, solvent = 'H2O', 
+                             asm = 'stoich', solids = None, standard_enthalpy = False):
+        """
+        Estimate thermodynamic limit(s) using information from environmental models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        rxns : STR or LIST
+            Name(s) of requested reaction(s).
+            Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'. The default is 'All'.
+        specComp : STR or LIST, optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is None.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        standard_enthalpy : BOOL, optional
+            Set whether the standard (True) or non-standard (False) enthalpy is used in estimations. The default is False.
+
+        Returns
+        -------
+        limit_value : DICT
+            Results are saved as an attribute of model instances (modelName.limits) as a dictionary.
+            Format: {'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        S = self.salinity
+        if self.model in {'GWB', 'WaterColumn'}:
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+                phase = 'L'
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+                phase = 'L'
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        fluidType = self.fluidType
+        methods = self.methods
+        limit_value = ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, T, pH, S, variables, specComp, fluidType, methods, 
+                                                molality, solvent, asm, solids, standard_enthalpy)
+        self.limits = limit_value
+    
     def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False):
         """
         Compute (non-)standard entropy change using information from environmental models.
