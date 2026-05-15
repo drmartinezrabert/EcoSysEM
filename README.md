@@ -431,6 +431,7 @@ ecosysem
   │      │    ├── combData
   │      │    ├── getDHr
   │      │    ├── getDGr
+  │      │    ├── thermodynamic_limits
   │      │    ├── getDSr
   │      │    ├── getRs
   │      │    ├── getCSP
@@ -454,6 +455,7 @@ ecosysem
   │      │    ├── .resolution
   │      │    ├── .DSr (if ISA.getDSr() is called)
   │      │    ├── .DGr (if ISA.getDGr() is called)
+  │      │    ├── .limits (if ISA.thermodynamic_limits() is called)
   │      │    ├── .DHr (if ISA.getDHr() is called)
   │      │    ├── setComposition
   │      │    ├── plotTandP
@@ -486,6 +488,7 @@ ecosysem
   │      │    ├── .compositions
   │      │    ├── .DSr (if ISAMERRA2.getDSr() is called)
   │      │    ├── .DGr (if ISAMERRA2.getDGr() is called)
+  │      │    ├── .limits (if ISAMERRA2.thermodynamic_limits() is called)
   │      │    ├── .DHr (if ISAMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
@@ -512,6 +515,7 @@ ecosysem
   │      │    ├── .compounds
   │      │    ├── .DSr (if CAMSMERRA2.getDSr() is called)
   │      │    ├── .DGr (if CAMSMERRA2.getDGr() is called)
+  │      │    ├── .limits (if CAMSMERRA2.thermodynamic_limits() is called)
   │      │    ├── .DHr (if CAMSMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      │── GWB
@@ -524,7 +528,8 @@ ecosysem
   │      │    ├── .compounds
   │      │    ├── .DSr (if GWB.getDSr() is called)
   │      │    ├── .DGr (if GWB.getDGr() is called)
-  │      │    ├── .DHr (if GWB.getDGr() is called)
+  │      │    ├── .limits (if GWB.thermodynamic_limits() is called)
+  │      │    ├── .DHr (if GWB.getDHr() is called)
   │      │    └── .sobol_DGr (if GWB.sobol_indices_DGr() is called)
   │      └── WaterColumn
   │           ├── .depth
@@ -538,6 +543,7 @@ ecosysem
   │           ├── .fluidType
   │           ├── .DSr (if WaterColumn.getDSr() is called)
   │           ├── .DGr (if WaterColumn.getDGr() is called)
+  │           ├── .limits (if WaterColumn.thermodynamic_limits() is called)
   │           ├── .DHr (if WaterColumn.getDGr() is called)
   │           ├── .sd (if standard deviations is given using 'sd' argument or in .csv file)
   │           ├── # Extra attributes (if more parameters is given using 'extraParam' argument)
@@ -801,6 +807,37 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 **New attribute (`.DGr`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': [DGr]}` or `{'rxnName: [DGr]}`<br>
+
+### Environment.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+Environment.thermodynamic_limits(typeRxn, rxns, variables='All', specComp=None, molality=True, solvent='H2O', asm='stoich',
+								 solids=None, standard_enthalpy=False)
+```
+Estimate thermodynamic limit(s) using information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rxns : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_, _list of strs_, _ndarray of strs_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _str_, _list of strs_, _ndarray of strs_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **standard_enthalpy : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the standard (True) or non-standard (False) enthalpy is used in estimations.<p>
+**Returns:** <br>
+**New attribute (`.limits`) is created in object instance.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **limit_value : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with thermodynamic limits.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
 
 ### Environment.getDSr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4598,6 +4635,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getAttributeNames](#environmentgetattributenames---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDHr](#environmentgetdhr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDGr](#environmentgetdgr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.thermodynamic_limit](#environmentthermodynamic_limit---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDSr](#environmentgetdsr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getRs](#environmentgetrs---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getCSP](#environmentgetcsp---back-to-function-navigation)<br>
