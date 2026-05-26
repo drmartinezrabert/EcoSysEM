@@ -1,28 +1,34 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
+Hydrogen,H2,G,28.84,Speight2005
 Hydrogen,H2,L,20.53,Engineering ToolBox
-Oxygen,O2,L,21.00,Engineering ToolBox
+Oxygen,O2,G,29.4,Speight2005
+Oxygen,O2,L,21,Engineering ToolBox
+Water,H2O,G,33.6,Speight2005
 Water,H2O,L,75.35,Speight2005
-Proton,H+,L,0.00,Speight2005
-Sulfuric acid,H2SO4,L,293.00,Speight2005
-Hydrogen sulfate,HSO4-,L,-84.00,Speight2005
-Sulphate,SO4-2,L,-293.00,Speight2005
-Hydrogen sulfide,H2S,L,76.50,Engineering ToolBox
+Proton,H+,L,0,Speight2005
+Sulfuric acid,H2SO4,L,293,Speight2005
+Hydrogen sulfate,HSO4-,L,-84,Speight2005
+Sulphate,SO4-2,L,-293,Speight2005
+Hydrogen sulfide,H2S,L,76.5,Engineering ToolBox
 Bisulfide,HS-,L,-57.74,doi: 10.1021/ic50097a036
 Sulfide,S-2,L,-204.18,doi: 10.1021/ic50097a036
-Formic acid,HCOOH,L,98.10,Domalski1995
-Formate,HCOO-,L,-87.90,Speight2005
-Acetic acid,CH3COOH,L,137.00,Domalski1995
-Acetate,CH3COO-,L,-6.30,Speight2005
+Formic acid,HCOOH,L,98.1,Domalski1995
+Formate,HCOO-,L,-87.9,Speight2005
+Acetic acid,CH3COOH,L,137,Domalski1995
+Acetate,CH3COO-,L,-6.3,Speight2005
+Carbon dioxide,CO2,G,37.13,Speight2005
 Carbon dioxide,CO2,L,37.13,Speight2005
+Carbon monoxide,CO,G,29.14,Speight2005
 Carbon monoxide,CO,L,29.15,Engineering ToolBox
 Bicarbonate,HCO3-,L,-200.83,doi: 10.1021/ja01078a004
 Carbonate,CO3-2,L,-631.78,doi: 10.1021/ja01078a004
-Glycine,NH?CH?COOH ,L,99.20,Speight2005
+Glycine,NH₂CH₂COOH ,L,99.2,Speight2005
 Ammonia,NH3,L,81.47,Engineering ToolBox
-Ammonium,NH4+,L,79.90,Speight2005
-Methane,CH4,L,27.40,Engineering ToolBox
-Nitric acid,HNO3,L,109.90,Speight2005
-Nitrate,NO3-,L,-86.60,Speight2005
-Nitrous acid,HNO2,L,27.30,Engineering ToolBox
-Nitrite,NO2-,L,-97.50,Speight2005
+Ammonium,NH4+,L,79.9,Speight2005
+Methane,CH4,L,27.4,Engineering ToolBox
+Nitric acid,HNO3,L,109.9,Speight2005
+Nitrate,NO3-,L,-86.6,Speight2005
+Nitrous acid,HNO2,L,27.3,Engineering ToolBox
+Nitrite,NO2-,L,-97.5,Speight2005
 Dinitrogen,N2,L,29.12,Speight2005
+Methane,CH4,G,35.7,Speight2005

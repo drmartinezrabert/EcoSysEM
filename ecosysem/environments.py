@@ -8,12 +8,15 @@ Created on Fri Aug 29 12:00:06 2025
 from thermodynamics import ThEq as eQ
 from thermodynamics import ThSA
 from reactions import KinRates
+from reactions import Reactions as Rxns
 from bioenergetics import CSP
 from scipy.interpolate import RegularGridInterpolator
 from molmass import Formula
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
 import earthaccess
 import itertools
 import xarray as xr
@@ -148,7 +151,7 @@ class Environment:
             file = f'{y}_{m}_month.npz'
         elif dataType == 'cmly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             if not isinstance(m, int):  raise ValueError('Argument \'m\' must be an integer.')
             file = f'{y[0]}_{y[-1]}_{m}.npz'
         elif dataType == 'yly':
@@ -156,7 +159,7 @@ class Environment:
             file = f'{y}_year.npz'
         elif dataType == 'cyly':
             if not isinstance(y, list): raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
-            if len(y) != 2: raise ValueError('Argument \'y\' must be a list: [start_year, end_year].')
+            if len(y) < 2: raise ValueError('Argument \'y\' must be a list.')
             file = f'{y[0]}_{y[-1]}.npz'
         else:
             raise ValueError('Unknown dataType ({dataType}). Existing dataType: \'dly\', \'mly\', \'yly\', \'cmly\', \'cyly\'.')
@@ -288,6 +291,7 @@ class Environment:
         None
         
         """
+        validModels = {'CAMS', 'MERRA2'}
         if model == 'CAMS':
             CAMS._combDataCAMS(self, model = model, 
                                dataType = dataType, 
@@ -296,7 +300,7 @@ class Environment:
                                method = method,
                                target_lats = target_lats, 
                                target_lons = target_lons)
-        else:
+        elif model == 'MERRA2':
             # Get all files from `data\`
             if dataType == 'cmly' or dataType == 'yly' or dataType == 'cyly':
                 folder = f'data/{model}/mly/'
@@ -306,10 +310,9 @@ class Environment:
             # Test elements
             tEl = np.empty((0))
             if dataType == 'cmly':
-                if not isinstance(year, list): raise ValueError('Argument \'y\' must be a list with length > 1')
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'y\' must be a list or np.ndarray.')
                 if len(year) <= 1: raise ValueError('Argument \'y\' must be a list with length > 1.')
-                years = np.arange(year[0], year[-1]+1, 1)
-                for y in years:    
+                for y in year:    
                     el = f'{y}_{month}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'mly':
@@ -322,7 +325,7 @@ class Environment:
                     last_day = calendar.monthrange(y, m)[1]
                     first_day = 1
                 else:
-                    if not isinstance(days, list): days = [days]
+                    if not isinstance(days, (list, np.ndarray)): days = [days]
                     days = [calendar.monthrange(y, m)[1] if d == -1 else d for d in days]
                     last_day = max(days)
                     if len(days) > 1:
@@ -334,21 +337,17 @@ class Environment:
                     el = f'{y}_{month}_{d}_day.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'yly':
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                if len(month) != 2: raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
                 if not isinstance(year, int): raise ValueError('Argument \'year\' must be an integer.')
-                months = np.arange(month[0], month[-1]+1, 1)
                 y = year
-                for m in months:
+                for m in month:
                     el = f'{y}_{m}_month.npz'
                     tEl = np.append(tEl, el)
             elif dataType == 'cyly':
-                if not isinstance(year, list): raise ValueError('Argument \'year\' must be a list: [start_year, end_year]')
-                if not isinstance(month, list): raise ValueError('Argument \'month\' must be a list: [start_month, end_month]')
-                years = np.arange(year[0], year[-1]+1, 1)
-                months = np.arange(month[0], month[-1]+1, 1)            
-                for y in years:
-                    for m in months:
+                if not isinstance(year, (list, np.ndarray)): raise ValueError('Argument \'year\' must be a list or np.ndarray.')
+                if not isinstance(month, (list, np.ndarray)): raise ValueError('Argument \'month\' must be a list or np.ndarray.')
+                for y in year:
+                    for m in month:
                         el = f'{y}_{m}_month.npz' 
                         tEl = np.append(tEl, el)
             else:
@@ -399,6 +398,8 @@ class Environment:
                 for file in selFiles:
                     path = folder + file
                     os.remove(path)
+        else:
+            raise NameError(f'Invalid model ({model}) to combine data. Valid models: {validModels}.')
     
     def keys(self, model, dataType, y, m = None, d = None):
         """
@@ -426,7 +427,40 @@ class Environment:
         npz.close()
         return keys
 
-    def getDGr(self, typeRxn, input_, specComp):
+    def getDHr(self, typeRxn, input_, specComp = False):
+        """
+        Compute (non-)standard enthaly of reaction using information from
+        environmental models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+
+        Returns
+        -------
+        Results are saved as an attribute of model instances (modelName.DHr) as a dictionary.
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        if phase == 'L-FW' or 'L-SW':
+            phase = 'L'
+        T = self.temperature.copy()
+        DHr_dict = {}
+        DHr, infoRxn = ThSA.getDeltaHr(typeRxn, input_, phase, specComp = specComp, T = T)
+        for idRxn, rxn in enumerate(infoRxn):
+            DHr_dict[f'{rxn}'] = DHr[..., idRxn]
+        self.DHr = DHr_dict
+
+    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
@@ -440,6 +474,8 @@ class Environment:
             Name(s) of requested compound(s) or reaction(s).
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        solids : LIST or np.ndarray
+            Name(s) of compound(s) in solid phase. The default is None.
 
         Returns
         -------
@@ -472,22 +508,150 @@ class Environment:
         DGr_dict = {}
         if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
             for pH_ in pH:
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, T = T, pH = pH_, S = S, Ct = Ct,
-                                               fluidType = fluidType, methods = methods)
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, solids = solids, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     DGr_dict[f'{rxn}_pH:{pH_}'] = DGr[..., idRxn]
         elif self.model in {'WaterColumn'}:
             for idDepth, iDepth in enumerate(self.depth):
                 C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
-                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, 
+                DGr, infoRxn = ThSA.getDeltaGr(typeRxn, input_, phase, specComp = specComp, solids = solids,
                                                T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
-                                               fluidType = fluidType, methods = methods)
+                                               fluidType = fluidType, methods = methods, printDG0r = printDG0r, printDH0r = printDH0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     try:
                         DGr_dict[f'{rxn}'] = np.append(DGr_dict[f'{rxn}'], DGr[..., idRxn])
                     except:
                         DGr_dict[f'{rxn}'] = DGr[..., idRxn]
         self.DGr = DGr_dict
+    
+    def thermodynamic_limits(self, typeRxn, rxns, C0i = 1.0, variables = 'All', specComp = None, molality = True, solvent = 'H2O', 
+                             asm = 'stoich', solids = None, standard_enthalpy = False):
+        """
+        Estimate thermodynamic limit(s) using information from environmental models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        rxns : STR or LIST
+            Name(s) of requested reaction(s).
+            Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'. The default is 'All'.
+        C0i : FLOAT, optional
+            Standard concentration. The default is 1.0.
+        specComp : STR or LIST, optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is None.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        standard_enthalpy : BOOL, optional
+            Set whether the standard (True) or non-standard (False) enthalpy is used in estimations. The default is False.
+
+        Returns
+        -------
+        limit_value : DICT
+            Results are saved as an attribute of model instances (modelName.limits) as a dictionary.
+            Format: {'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        S = self.salinity
+        if self.model in {'GWB', 'WaterColumn'}:
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+                phase = 'L'
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+                phase = 'L'
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        fluidType = self.fluidType
+        methods = self.methods
+        print(f'> "variables" in Environment.thermodynamic_limits(): {variables}')
+        limit_value = ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i, T, pH, S, variables, specComp, fluidType, methods, 
+                                                molality, solvent, asm, solids, standard_enthalpy)
+        self.limits = limit_value
+    
+    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False):
+        """
+        Compute (non-)standard entropy change using information from environmental models.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        solids : LIST or np.ndarray
+            Name(s) of compound(s) in solid phase. The default is None.
+
+        Returns
+        -------
+        Results are saved as an attribute of model instances (modelName.DSr) as a dictionary.
+
+        """
+        validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
+        if not self.model in validModels:
+            raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
+        phase = self.phase
+        T = self.temperature.copy()
+        pH = self.pH.copy()
+        if not isinstance(pH, (list, np.ndarray)): pH = [pH]
+        S = self.salinity
+        if self.model in {'GWB', 'WaterColumn'}:
+            Ct = self.Ci_L.copy()
+        elif self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2'}:
+            if phase == 'G':
+                Ct = self.Ci_G.copy()
+            elif phase == 'L-FW':
+                Ct = self.Ci_LFW.copy()
+                phase = 'L'
+            elif phase == 'L-SW':
+                Ct = self.Ci_LSW.copy()
+                phase = 'L'
+            else:
+                raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate non-standard Gibbs free energy.')
+        fluidType = self.fluidType
+        methods = self.methods
+        DSr_dict = {}
+        if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
+            for pH_ in pH:
+                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids, T = T, pH = pH_, S = S, Ct = Ct,
+                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                for idRxn, rxn in enumerate(infoRxn):
+                    DSr_dict[f'{rxn}_pH:{pH_}'] = DSr[..., idRxn]
+        elif self.model in {'WaterColumn'}:
+            for idDepth, iDepth in enumerate(self.depth):
+                C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
+                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids,
+                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
+                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                for idRxn, rxn in enumerate(infoRxn):
+                    try:
+                        DSr_dict[f'{rxn}'] = np.append(DSr_dict[f'{rxn}'], DSr[..., idRxn])
+                    except:
+                        DSr_dict[f'{rxn}'] = DSr[..., idRxn]
+        self.DSr = DSr_dict
     
     def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
         """
@@ -645,7 +809,7 @@ class Environment:
         if not isinstance(specComp, list): specComp = [specComp]
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
         #check DGr
-        _DGr = getattr(self,'DGr', None)
+        _DGr = getattr(self, 'DGr', None)
         if _DGr is None:
             self.getDGr(typeMetabo, reactions, specComp)
             _DGr = self.DGr.copy()
@@ -949,7 +1113,150 @@ class Environment:
                               printDG0r = printDG0r, 
                               printDH0r = printDH0r, 
                               showMessage = showMessage)
-            
+    
+    def sobol_indices_DGr(self, typeRxn, input_, specComp, list_var, molality = True, rangeType = None, 
+                          range_ = None, num = 64, rng = None, sobol_simpl = 'saltelli', check_negatives = True, 
+                          stat_sign_method = 'kendall', plotMode = False, renameRxn = None, cb_limit = False, 
+                          cb_orientation = 'horizontal', cb_fontsize = 12, vmin = None, vmax = None, 
+                          figsize = (12.0, 8.0), marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, 
+                          showMessage = True):
+        """
+        Perform the global sensitivity analysis (variance-based sensitivity analysis or Sobol' indices) of Gibbs free 
+        energy for a set of reactions at a specific range of temperature, pH and concentrations of substrates and products.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'. The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 64.
+        rng : INT, optional
+            Pseudorandom number generator state (rng seed). The default is None.
+            When rng is None, a new numpy.random.Generator is created using entropy from the operating system.
+        sobol_simpl : STR, optional
+            Estimator method to calculate Sobol' indices. The default is 'saltelli'.
+                'saltelli'    - Estimators from Saltelli et al. (2010), doi: 10.1016/j.cpc.2009.09.018
+        check_negatives : BOOL, optional
+            Boolean to set whether negative Sobol' indices are displayed in Console (if any). The default is True.
+        stat_sign_method : STR, optional
+            Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
+        plotMode : BOOL, optional
+            Boolean to set whether color mesh plot is created. The default is False.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        showMessage : BOOL, optional
+            Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        .sobol_DGr['reactions'] : LIST
+            List of reactions.
+        .sobol_DGr['variables'] : LIST
+            List of variables.
+        .sobol_DGr['first order'] : np.ndarray
+            Matrix of first order indices. Shape: (reactions, variables).
+        .sobol_DGr['total order'] : np.ndarray
+            Matrix of total indices. Shape: (reactions, variables).
+        .sobol_DGr['stat_sign'] : np.ndarray
+            Matrix of statistical sign. Shape: (reactions, variables).
+                If positive (+1), DGr and variable are positively correlated (both increase or decrease together).
+                If negative (-1), DGr and variable are negatively correlated (one increase and the other decrease or vice versa).
+                If zero (0), DGr and variable are not correlated.
+        .sobol_DGr['eqch'] : np.ndarray
+            Matrix of equilbirum change (endergonic <-> exergonic). Shape: (reactions, variables).
+                If one (1), an equilibrium change is observed in the range of values of variables.
+                If zero (0), no equilibrium change is observed in the range of values of variables.
+        Plot in Spyder if 'plotMode = True'.
+
+        """
+        validModels = {'GWB'}
+        if not self.model in validModels:
+            raise ValueError(f'Invalid model ({self.model}) to perform the summary of non-standard Gibbs free energy. Valid models: {validModels}.')
+        T_sv = self.temperature[0]
+        pH_sv = self.pH
+        S_sv = self.salinity[0]
+        phase = self.phase
+        if self.model == 'GWB':
+            Ct = self.Ci_L.copy()
+        fluidType = self.fluidType
+        methods = self.methods
+        si, st, stat_sign, eqch = ThSA.sobol_indices_DeltaGr(typeRxn = typeRxn,
+                                                             input_ = input_,
+                                                             specComp = specComp,
+                                                             list_var = list_var,
+                                                             Ct = Ct, T_sv = T_sv,
+                                                             pH_sv = pH_sv, S_sv = S_sv,
+                                                             phase = phase,
+                                                             fluidType = fluidType,
+                                                             methods = methods,
+                                                             molality = molality,
+                                                             rangeType = rangeType,
+                                                             range_ = range_,
+                                                             num = num, rng = rng,
+                                                             sobol_simpl = sobol_simpl,
+                                                             check_negatives = check_negatives,
+                                                             stat_sign_method = stat_sign_method,
+                                                             plotMode = plotMode,
+                                                             renameRxn = renameRxn, 
+                                                             cb_limit = cb_limit, 
+                                                             cb_orientation = cb_orientation, 
+                                                             cb_fontsize = cb_fontsize, 
+                                                             vmin = vmin, vmax = vmax, 
+                                                             figsize = figsize, 
+                                                             marker = marker, 
+                                                             mec = mec, mew = mew, 
+                                                             mfc = mfc, ms = ms, 
+                                                             showMessage = showMessage)
+        self.sobol_DGr = {'reactions': input_,
+                          'variables': list_var,
+                          'first order': si,
+                          'total order': st,
+                          'stat_sign': stat_sign,
+                          'eqch': eqch}
+    
 # Atmosphere ------------------------------------------------------------------
 class Atmosphere(Environment):
     def _HfromP(self, P):
@@ -1125,7 +1432,7 @@ class ISA(Atmosphere):
         self.fluidType = 'ideal'
         self.salinity = None
         self.methods = None
-        if selAlt:
+        if isinstance(selAlt, (list, np.ndarray)):
             self._selectAltitude(selAlt)
         self._getConcISA(phase, selCompounds)
         if showMessage:
@@ -1293,7 +1600,7 @@ class ISA(Atmosphere):
         altitud value.
         
         """
-        if isinstance(selAlt, list):
+        if isinstance(selAlt, (list, np.ndarray)):
             if len(selAlt) > 2: raise ValueError('Argument \'selAlt\' must be an integer, float or list [min_alt, max_alt].')
             elif len(selAlt) == 1:
                 selAlt = [0, selAlt[0]]
@@ -2261,14 +2568,14 @@ class CAMS(Atmosphere):
         if os.path.exists(filename): os.remove(filename)
         else: print("The file does not exist")
     
-    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear'):
+    def _processDataCAMS(self, dataType, dataset, molecules, month = None, mode = None, method = 'linear', drop_variables = None):
         """
         Process CAMS .nc files and save as .npz format.
 
         Parameters
         ----------
         dataType : STR 
-            Type of data ('dly', 'mly', or 'cmly'). 
+            Type of data ('dly', 'mly', or 'cmly').
         dataset : STR
             CAMS dataset name (e.g., "cams-global-greenhouse-gas-forecasts",
                                "cams-global-ghg-reanalysis-egg4", or 
@@ -2282,7 +2589,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-        
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+            
         """
         input_folder = os.path.join(self.base_path, 'temporary')
         processed_folder = os.path.join(self.base_path, f"{dataType}")
@@ -2319,7 +2628,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
@@ -2453,7 +2762,7 @@ class CAMS(Atmosphere):
                 path_file = os.path.join(input_folder, nc_file)
                 print(f"Processing: {path_file}")
                 try:
-                    ds = xr.open_dataset(path_file)
+                    ds = xr.open_dataset(path_file, drop_variables = drop_variables)
                     # Time dimension
                     if ("forecast_reference_time" in ds.dims) or ("forecast_reference_time" in ds.coords):
                         time_dim = "forecast_reference_time"
@@ -2581,7 +2890,8 @@ class CAMS(Atmosphere):
                     variables = None,
                     bbox = [90, -180, -90, 180],
                     mode = None,
-                    method = 'linear'):
+                    method = 'linear',
+                    drop_variables = None):
         """
         Download data from CAMS Global Greenhouse Gas Forecasts database.
 
@@ -2614,7 +2924,9 @@ class CAMS(Atmosphere):
             If "add", adds variable(s) to downloaded data. If None, downloads new data.
         method : STR, optional
             Method of interpolation (default: 'linear').
-            
+        drop_variables : STR or LIST of STR, optional
+            A variable or list of variables to exclude from being parsed from the dataset. (default: None)
+        
         """
         # Normalize inputs
         dataTypes = [dataType] if isinstance(dataType, str) else list(dataType)
@@ -2727,10 +3039,67 @@ class CAMS(Atmosphere):
                         print("Extracted .nc")
                         # Process and clean up
                         for dt in dataTypes:
-                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, method=method)
+                            self._processDataCAMS(dt, dataset=dataset, molecules=selected_mols, month=m, mode=mode, 
+                                                  method=method, drop_variables=drop_variables)
                         self._deleteTempDataCAMS(target_nc)
                     except Exception as e: raise ValueError(f'Failed for {date_range}: {e}')
         print("\nAll downloads completed.")
+
+    def fill_missing_levels(self, p_level_target, dataType, y, m = None, d = None):
+        """
+        Fill in the missing data for the target levels with NaN values.
+
+        Parameters
+        ----------
+        p_level_target : LIST or np.ndarray
+            Array of target pressure levels (in Pascals).
+        dataType : STR ('cmly', 'mly', 'yly', 'cyly')
+            Type of data.
+        y : INT
+            Year of data..
+        m : INT, optional
+            Month of data. The default is None.
+        d : INT, optional
+            Day of data. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        data = CAMS.loadData(self, 'CAMS', dataType, y, m, d)
+        p_level_data = data['P_level']
+        lon = data['lon']
+        lat = data['lat']
+        alt_target = CAMS._HfromP(self, np.array(p_level_target))
+        data_shape = (len(p_level_target), len(lat), len(lon))
+        nan_shape = ((len(lat), len(lon)))
+        #-Set keys to be kept, replaced or targeted
+        key_to_keep = ['lat', 'lon']
+        key_target = ['P_level', 'alt']
+        keys_to_check = list(data.keys())
+        for remove_key in key_to_keep + key_target:
+            keys_to_check.remove(remove_key)
+        #-Create a new data dictionary
+        data_new = {}
+        for key in data:
+            if key in key_to_keep:
+                data_new[key] = data[key]
+            elif key == 'P_level':
+                data_new[key] = np.array(p_level_target, dtype='f')
+            elif key == 'alt':
+                data_new[key] = np.array(alt_target, dtype='f')
+            else:
+                data_new[key] = np.zeros(data_shape, dtype='f')
+        #-Complete data dictionary
+        for id_p, p in enumerate(p_level_target):
+            for key in keys_to_check:
+                if p in p_level_data:
+                    index = int(np.argwhere(p_level_data == p))
+                    data_new[key][id_p, ...] = data[key][index, ...]
+                else:
+                    data_new[key][id_p, ...] = np.nan * np.ones(nan_shape, dtype='f')
+        CAMS._saveNPZ(self, data_new, 'CAMS', 'mly', y, m)
 
 class CAMSMERRA2(Atmosphere):
     """
@@ -2740,7 +3109,7 @@ class CAMSMERRA2(Atmosphere):
     
     """
     def __init__(self, dataType, y, m = None, d = None, pH = 7.0, bbox = (-180, -90, 180, 90), keys = 'All', phase = 'All', 
-                 altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
+                 fillMissing = True, altArray = None, numAlt = 50, surftrop = None, keysAsAttributes = False, showMessage = True):
         if showMessage:
             print('  > Creating CAMSMERRA2 instance...')
         # Get data from ISAMERRA2
@@ -2774,8 +3143,18 @@ class CAMSMERRA2(Atmosphere):
                           'MolPct_G': dict_comp_G,
                           'Ci_LFW': ISAMERRA2inst.Ci_LFW,
                           'Ci_LSW': ISAMERRA2inst.Ci_LSW}
+        if not fillMissing:
+            molecules = ['CO2', 'CO', 'CH4']
+            for var in dict_ISAMERRA2:
+                for comp in molecules:
+                    try:
+                        dict_ISAMERRA2[var][comp] = np.nan * np.ones(varShape)
+                    except:
+                        continue
         # Get data from CAMSMERRA2
-        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d)
+        data = CAMSMERRA2._interpolateCAMS(self, dataType, y, m, d, 
+                                           target_lats = ISAMERRA2inst.lat, 
+                                           target_lons = ISAMERRA2inst.lon)
         dict_CAMSMERRA2 = CAMSMERRA2._getConcCAMSMERRA2(self, phase = phase, 
                                                         data = data,
                                                         dataType = dataType, 
@@ -2998,10 +3377,18 @@ class CAMSMERRA2(Atmosphere):
         self.temperature = t_target
         self.pressure = p_target
         self.altitude = z_m
+        #-v1 (with pyatomos)-#
         h_km = cams_alt * 1e-3 # km
         rho_kg_m3 = coesa76(h_km).rho # kg/m3
         rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
         rho = rho_kg_L[:, None, None]
+        #-v2 (EcoSysEM)-#
+        # cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
+        # shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
+        # cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
+        # rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
+        # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
+        # rho = rho_kg_L
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
@@ -3250,6 +3637,375 @@ class WaterColumn(Hydrosphere):
             self.Ci_L = Ct
         if bool(sd):
             self.sd = sd
+
+    def poly_fit(self, variables, deg, rcond = None, w = None, new_depth = None, replace_data = False, plot_fitting = False, 
+                 figsize = None, show_equation = False, loc_legend = 'best', legend_bbox_to_anchor = None, x_label_name = None,
+                 set_x_limits = None, set_y_limits = (None, 0), plot_title = None, fontfamily = 'Arial', fontsize = 12,
+                 xlabel_tick_format = None, xlog_format = None, show_legend = True):
+        """
+        Least squares polynomial fit of attributes of a `WaterColumn` instance based on `numpy.polyfit()`.
+
+        Parameters
+        ----------
+       variables : LIST of STR
+           List of variables, corresponding to attributes of `WaterColumn` instance. For example:
+               'temperature' - Temperature profile.
+               'pH' - pH profile.
+               'conc_NH3' - Profile of ammonia concentration.
+        deg : DICT
+            Degree of the fitting polynomial. E.g., {'variable name': [INT]}. 
+        rcond : FLOAT, optional
+            Relative condition number of the fit. Singular values smaller than this relative to the largest singular value will be ignored. The default is None.
+        w : LIST or np.ndarray, optional
+            Weights. The default is None.
+        new_depth : LIST or np.ndarray, optional
+            New depth array to evaluate the polynomial result. The default is None.
+        replace_data : BOOL, optional
+            Set whether the original data is replaced with polynomial results. The default is False.
+        plot_fitting : BOOL, optional
+            Set whether fitting plot is shown. The default is False.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size in inches. (Width, Height). The default is None.
+        show_equation : BOOL, optional
+            Set whether the resultant fitting polynomial is shown in Console. The default is False.
+        loc_legend : STR, optional
+            Set the location of the legend. For more info, see 'matplotlib' documentation. The default is 'best'.
+        legend_bbox_to_anchor : 2-tuple or 4-tuple of FLOATS, optional
+            Box that is used to position the legend in conjunction with loc. For more info, see 'matplotlib' documentation. The default is None.
+        x_label_name : DICT, optional
+            Set label name of x-coordinate. E.g., {'variable name': STR}. The default is None.
+        set_x_limits : DICT, optional
+            Set limits of x-coordinate (left, right). E.g., {'variable name': (FLOAT, FLOAT)}. The default is None.
+        set_y_limits : (FLOAT, FLOAT), optional
+            Set limits of y-coordinate (bottom, top). The default is (None, 0).
+        plot_title : STR, optional
+            Set title of fitting plot. The default is None.
+        fontfamily : STR, optional
+            Set font family of plots. The default is 'Arial'.
+        fontsize : FLOAT, optional
+            Set font size of plots. The default is 12.
+        xlabel_tick_format : DICT, optional
+            Set tick format. E.g., {'variable name': '{x:0.1f}'} The default is None.
+        xlog_format : DICT, optional
+            If True, variable is plotted using symmetrical log coordinate. E.g., {'variable name': True/False}. The default is None.
+        show_legend : BOOL, optional
+            Set whether if the plot legend is shown. The default is True.
+        
+        Returns
+        -------
+        Update attribute(s) in WaterColumn instance, info in Console and/or Spyder plot.
+
+        """
+        #-Plot properties
+        plt.rcParams["font.family"] = fontfamily
+        plt.rcParams["font.size"] = fontsize
+        plt.rcParams['figure.dpi'] = 400
+        plt.rcParams['savefig.dpi'] = 400
+        if not isinstance(variables, (list, np.ndarray)): variables = [variables]
+        current_depth = self.depth
+        dict_conc = self.Ci_L.copy()
+        for variable in variables:
+            legend = []
+            if xlog_format:
+                xlog_variable = xlog_format[variable]
+            else:
+                xlog_variable = False
+            if show_equation:
+                print(f'  > {variable}')
+            mainAttributes = {'Depth', 'depth', 'Temperature', 'temperature', 'pH', 'ph', 'Salinity', 'salinity'}
+            if variable in mainAttributes:
+                if variable == 'ph':
+                    varAttr = 'pH'
+                else:
+                    varAttr = variable[0].lower() + variable[1:]
+            elif variable.startswith('conc_'):
+                indx = variable.find('_') + 1
+                comp = variable[indx:]
+                varAttr = 'Ci_L'
+            else:
+                varAttr = variable
+            try:
+                values = getattr(self, varAttr, None)
+            except:
+                raise ValueError(f'Attribute {variable} not found in WaterColumn() object.')
+            else:
+                if varAttr == 'Ci_L':
+                    values = values[comp]
+            #-Clean data
+            id_clean_data = np.isfinite(current_depth) & np.isfinite(values)
+            clean_depth = current_depth[id_clean_data]
+            clean_values = values[id_clean_data]
+            #-Plot measured data
+            if plot_fitting:
+                fig, ax = plt.subplots(figsize = figsize)
+                if xlog_variable:
+                    plt.semilogx(clean_values, clean_depth, 'o', mec = 'k', mfc = 'k')
+                else:
+                    plt.plot(clean_values, clean_depth, 'o', mec = 'k', mfc = 'k')
+                legend += ['Measured']
+            if isinstance(deg, dict):
+                degrees = deg[variable]
+            else:
+                raise TypeError("Argument `deg` must be a dictionary: {'variable name': [INT]}")
+            if not isinstance(degrees, (list, np.ndarray)): degrees = [degrees]
+            for d in degrees:
+                p = np.polyfit(clean_depth, clean_values, deg = d, rcond = rcond, w = w)
+                pol_formula = ''
+                for id_n, n in enumerate(p):
+                    if d-id_n > 1:
+                        x_part = f'·x^{d-id_n}'
+                    elif d-id_n == 1:
+                        x_part = '·x'
+                    else:
+                        x_part = ''
+                    if id_n == 0:
+                        pol_formula += f' {"{:0.5e}".format(n)}' + x_part
+                    else:
+                       if n > 0: 
+                           pol_formula += f' + {"{:0.5e}".format(n)}' + x_part
+                       elif n < 0:
+                           pol_formula += f' {"- {:0.5e}".format(abs(n))}' + x_part
+                       else:
+                           pol_formula += ''
+                if show_equation:
+                    p_ = np.poly1d(p)
+                    yhat = p_(clean_depth)
+                    ybar = np.sum(clean_values)/len(clean_values)
+                    ssreg = np.sum((yhat - ybar)**2)
+                    sstot = np.sum((clean_values - ybar)**2)
+                    r2 = ssreg / sstot
+                    print(f'      > Polynomial formula (order {d}; r2: {"{:0.4f}".format(r2)}): {pol_formula}')
+                #-Plot fitting formulas
+                if all(new_depth):
+                    new_depth = np.sort(np.unique(np.concatenate((current_depth, new_depth))))
+                    if np.nanmax(new_depth) > np.nanmax(clean_depth):
+                        plot_depth = np.where(new_depth <= np.nanmax(clean_depth), new_depth, np.nan)
+                    else:
+                        plot_depth = new_depth.copy()
+                    save_depth = new_depth.copy()
+                else:
+                    plot_depth = current_depth.copy()
+                    save_depth = current_depth.copy()
+                values_fitting = np.polyval(p, plot_depth)
+                if plot_fitting:
+                    if xlog_variable:
+                        plt.semilogx(values_fitting.T, plot_depth, '--')
+                    else:
+                        plt.plot(values_fitting.T, plot_depth, '--')
+                    if d == 1:
+                        legend += ['Model (lineal)']
+                    else:
+                        legend += [f'Model (order {d})']
+            if plot_fitting:
+                if show_legend:
+                    ax.legend(legend, loc = loc_legend, bbox_to_anchor = legend_bbox_to_anchor)
+                if x_label_name:
+                    ax.set_xlabel(x_label_name[variable], labelpad = 7.5)
+                else:
+                    ax.set_xlabel('Variable [-]', labelpad = 7.5)
+                ax.set_ylabel('Depth (m)')
+                if isinstance(set_x_limits, dict):
+                    ax.set_xlim(set_x_limits[variable][0], set_x_limits[variable][1])
+                else:
+                    ax.set_xlim(None, None)
+                ax.set_ylim(set_y_limits[0], set_y_limits[1])
+                ax.yaxis.set_inverted(True)
+                if isinstance(xlabel_tick_format, dict):
+                    ax.xaxis.set_major_formatter(StrMethodFormatter(xlabel_tick_format[variable]))
+                ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+                ax.xaxis.set_label_position('top') 
+                if plot_title:
+                    plt.title(plot_title)
+            #-Replace data
+            if replace_data:
+                if len(degrees) > 1:
+                    raise ValueError(f'Select one degree of the fitting polynomial of {variable} to replace data.')
+                self.depth = save_depth
+                if varAttr == 'Ci_L':
+                    dict_conc[comp] = values_fitting
+                else:
+                    setattr(self, varAttr, values_fitting)
+        self.Ci_L = dict_conc
+        
+    def plotVariables(self, variables, pH_speciation = False, specComp = None, varNames = None, xLog = False, 
+                      colors = None, x_label_name = 'Variable(s) [-]', legend = True, legend_pos = (1.55, 0.5),
+                      set_x_limits = (None, None), set_y_limits = (None, 0), figsize = (3, 5), marker = 'o', 
+                      linestyle = '-', ms = 4, fs = 12, fontFamily = 'Arial', title = None, title_fs = 12):
+        """
+        Plotting variables of water column (x-coor: variable; y-coor: depth).
+
+        Parameters
+        ----------
+        variables : LIST
+            List of variables, corresponding to attributes of `WaterColumn` instance. For example:
+                'temperature' - Temperature profile.
+                'pH' - pH profile.
+                'conc_NH3' - Profile of ammonia concentration.
+                'DGr_AO' - Profile of the Gibbs free energy of AO reaction.
+                'dict_{attribute name}_{key name}' - Created attribute in dictionary form.
+        pH_speciation : BOOL, optional
+            Set whether pH speciation is compute on compound concentrations. The default is False.
+        specComp : LIST, optional
+            List of requested compounds for pH speciation. The default is None.
+        varNames : LIST, optional
+            List of variable names used in plot legend. The default is None.
+        xLog : BOOL, optional
+            Set whether variables are plotted in logarithmic scale (x-coordinate). The default is False.
+        colors : STR or LIST, optional
+            Set color(s) of line(s) and marker(s). The default is None (matplotlib set default colors).
+        x_label_name : STR, optional
+            Set label name of x-coordinate. The default is 'Variable(s) [-]'.
+        legend : BOOL, optional
+            Set whether plot legend is displayed. The default is True.
+        legend_pos : (FLOAT, FLOAT), optional
+            Set legend position (X, Y). The default is (1.50, 0.5).
+        set_x_limits : (FLOAT, FLOAT), optional
+            Set limits of x-coordinate (left, right). The default is (None, None).
+        set_y_limits : (FLOAT, FLOAT), optional
+            Set limits of y-coordinate (bottom, top). The default is (None, 0).
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (3, 5).
+        marker : STR or LIST, optional
+            Set marker(s) style. The default is 'o'.
+        linestyle : STR or LIST, optional
+            Set line(s) style. The default is '-'.
+        ms : FLOAT, optional
+            Set marker size. The default is 4.
+        fs : FLOAT, optional
+            Set font size. The default is 12.
+        fontFamily : STR, optional
+            Set font family. The default is 'Arial'.
+        title : STR, optional
+            Set title of plot. The default is None.
+        title_fs : FLOAT, optional
+            Set font size of title. The default is 12.
+
+        Returns
+        -------
+        Plot in Spyder.
+
+        """
+        if not isinstance(variables, (list, np.ndarray)): variables = [variables]
+        if colors:
+            if not isinstance(colors, (list, np.ndarray)): colors = [colors]
+        font = {'size': fs,
+                'family': fontFamily}
+        plt.rc('font', **font)
+        y = self.depth
+        x = None
+        if not varNames: varNames_ = []
+        for idVar, var in enumerate(variables):
+            if var.startswith('conc_'):
+                indx = var.find('_') + 1
+                comp = var[indx:]
+                var = 'Ci_L'
+                var_dict = False
+            elif var.startswith('DGr_'):
+                indx = var.find('_') + 1
+                rxn = var[indx:]
+                var = 'DGr'
+                var_dict = False
+            elif var.startswith('dict_'):
+                indx = var.find('_') + 1
+                variable = var[indx:]
+                indx_ = variable.find('_') + 1
+                var = variable[:indx_-1]
+                key = variable[indx_:]
+                var_dict = True
+            #-Legend names
+            if not varNames:
+                if var == 'pH':
+                    varNames_ += [var]
+                elif var == 'Ci_L':
+                    varNames_ += [f'[{comp}]']
+                elif var == 'temperature':
+                    varNames_ += ['T']
+                elif var == 'DGr':
+                    varNames_ += [rxn]
+                else:
+                    varNames_ += [var[0].upper() + var[1:]]
+            try:
+                val = getattr(self, var, None)
+            except:
+                raise ValueError(f'Attribute {var} not found in WaterColumn() object.')
+            else:
+                if var_dict:
+                    try:
+                        val = val[key]
+                    except:
+                        raise ValueError(f'Key {key} not found in .{var} attribute.')
+                else:
+                    if var == 'Ci_L':
+                        val = val[comp]
+                        if pH_speciation:
+                            if not isinstance(specComp, (list, np.ndarray)):
+                                raise ValueError('Missing chosen compounds for pH speciation - specComp : LIST or np.ndarray')
+                            rComp, _, _ = Rxns.getRxnpH(comp)
+                            check_pH_speciation = np.array([np.isin(c, rComp) for c in specComp])
+                            if check_pH_speciation.any():
+                                comp_ = np.array(specComp)[check_pH_speciation]
+                                if len(comp_) > 1:
+                                    raise ValueError(f'More than one compound for pH speciation have been given: {comp}: {comp_}')
+                                else:
+                                    comp_ = np.squeeze(comp_)
+                            else:
+                                comp_ = comp
+                            val_ = val.copy()
+                            for idVal, iVal in enumerate(val_):
+                                val_[idVal] = eQ.pHSpeciation(comp_, self.pH[idVal], self.temperature[idVal], iVal, 
+                                                              rAllConc = False)
+                            val = val_.copy()
+                    elif var == 'DGr':
+                        try:
+                            val = val[rxn]
+                        except:
+                            raise ValueError(f'Reaction {rxn} not found in .DGr attribute.')
+                if not isinstance(x, np.ndarray):
+                    x = np.array([val])
+                else:
+                    x = np.vstack((x, val))
+        if not varNames: varNames = varNames_
+        #-Plotting
+        if isinstance(marker, str):
+            marker = [marker] * len(variables)
+        else:
+            if len(marker) != len(variables): 
+                raise ValueError(f'Variables length ({len(variables)}) and marker length ({len(marker)}) must match.')
+        if isinstance(linestyle, str):
+            linestyle = [linestyle] * len(variables)
+        else:
+            if len(linestyle) != len(variables):
+                raise ValueError(f'Variables length ({len(variables)}) and linestyle length ({len(linestyle)}) must match.')                
+        fig, ax = plt.subplots(figsize = figsize)
+        for idVar, _ in enumerate(variables):
+            if colors:
+                color = colors[idVar]
+            if xLog:
+                if colors:
+                    plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                                 ms = ms, c = color)
+                else:
+                    plt.semilogx(x.T[:,idVar], y, marker = marker[idVar], linestyle = linestyle[idVar],
+                                 ms = ms)
+            else:
+                if colors:
+                    plt.plot(x.T[:, idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                             ms = ms, c = color)
+                else:
+                    plt.plot(x.T[:, idVar], y, marker = marker[idVar], linestyle = linestyle[idVar], 
+                             ms = ms)
+        ax.yaxis.set_inverted(True)
+        ax.set_xlim(set_x_limits[0], set_x_limits[1])
+        ax.set_ylim(set_y_limits[0], set_y_limits[1])
+        ax.set_ylabel('Depth (m)')
+        ax.set_xlabel(x_label_name)
+        if title:
+            plt.title(title, fontdict = {'fontsize': title_fs})
+        plt.minorticks_on()
+        if legend:
+            plt.legend(varNames, loc = 'center right', bbox_to_anchor = legend_pos)
+        plt.show()
+            
 class Ocean(Hydrosphere):
     pass
 

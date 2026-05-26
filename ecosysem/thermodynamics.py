@@ -16,6 +16,9 @@ import matplotlib.ticker as tkr
 import os.path
 from itertools import combinations
 from scipy import stats
+from scipy.stats import qmc
+import warnings
+import time
 
 class MinorSymLogLocator(Locator):
     """
@@ -54,69 +57,6 @@ class MinorSymLogLocator(Locator):
         raise NotImplementedError('Cannot get tick locations for a '
                                   '%s type.' % type(self))
 
-def _rhoWater(T, S):
-    """
-    Density of water.
-    --------------------------------------------------------------------------
-    References: 
-        - Millero & Chen (1973). doi: 10.1016/0198-0149(80)90016-3
-
-    Parameters
-    ----------
-    T : FLOAT, LIST or np.ndarray
-        Temperature [K].
-    S : FLOAT, LIST or np.ndarray
-        Salinity [ppt or g/L].
-
-    Returns
-    -------
-    rho : FLOAT, LIST or np.ndarray
-        Density of water [kg/L].
-
-    """
-    if not isinstance(T, np.ndarray): T = np.array(T)
-    if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
-    T = T - 273.15 # [°C]
-    rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
-           6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
-           3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - 1.6871e-8 * T**2 + 2.83258e-10 * T **3) * S**(3/2) + \
-          (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
-    return rho
-
-def _rhoSCWater(T, S):
-    """
-    Density of supercooled water.
-    --------------------------------------------------------------------------
-    References: 
-        - Hare & Sorensen (1987). doi: 10.1063/1.453710
-
-    Parameters
-    ----------
-    T : FLOAT, LIST or np.ndarray
-        Temperature [K].
-    S : FLOAT, LIST or np.ndarray
-        Salinity [ppt or g/L].
-
-    Returns
-    -------
-    rho : FLOAT, LIST or np.ndarray
-        Density of water [kg/L].
-
-    """
-    if not isinstance(T, np.ndarray): T = np.array(T)
-    if not isinstance(S, np.ndarray): S = np.array(S)
-    if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
-    rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
-         (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
-          1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
-    return rho
-
-def density(T, S, compound = 'H2O'):
-    if compound == 'H2O':
-        rho = np.where(T >= 0, _rhoWater(T, S), _rhoSCWater(T, S))
-    return rho
-
 class ThP:
     """
     Class for thermodynamic parameters.
@@ -124,6 +64,277 @@ class ThP:
     """
     # Directory of databases
     path = 'db/'
+    
+    # Density ()
+    def _rhoWater(T, S):
+        """
+        Density of water.
+        --------------------------------------------------------------------------
+        References: 
+            - Millero & Chen (1973). doi: 10.1016/0198-0149(80)90016-3
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        rho : FLOAT, LIST or np.ndarray
+            Density of water [kg/L].
+
+        """
+        T = T - 273.15 # [°C]
+        rho = (0.999841594 + 6.793952e-5 * T - 9.095290e-6 * T**2 + 1.001685e-7 * T**3 - 1.120083e-9 * T**4 + \
+               6.536332e-12 * T**5) + (8.25917e-4 - 4.4490e-6 * T + 1.0485e-7 * T**2 - 1.2580e-9 * T**3 + \
+               3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - 1.6871e-8 * T**2 + 2.83258e-10 * T **3) * S**(3/2) + \
+              (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
+        return rho
+
+    def _rhoSCWater(T, S):
+        """
+        Density of supercooled water.
+        --------------------------------------------------------------------------
+        References: 
+            - Hare & Sorensen (1987). doi: 10.1063/1.453710
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        rho : FLOAT, LIST or np.ndarray
+            Density of water [kg/L].
+
+        """
+        T = T - 273.15 # [°C]
+        rho = 0.99986 + 6.69e-5 * T - 8.486e-6 * T**2 + 1.518e-7 * T**3 - 6.9484e-9 * T**4 - 3.6449e-10 * T**5 - 7.497e-12 * T**6 + \
+             (8.25917e-4 - 4.449e-6 * T + 1.0485e-7 * T**2 - 1.258e-9 * T**3 + 3.315e-12 * T**4) * S + (-6.33761e-6 + 2.8441e-7 * T - \
+              1.6871e-8 * T**2 + 2.83258e-10 * T**3) * S**(3/2) + (5.4705e-7 - 1.97975e-8 * T + 1.6641e-9 * T**2 - 3.1203e-11 * T**3) * S**2
+        return rho
+
+    def density(T, S, compound = 'H2O'):
+        """
+        Function to compute density of compound.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        rho : np.ndarray
+            Density of compound [kg/L].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        if compound == 'H2O':
+            rho = np.where(T >= 0, ThP._rhoWater(T, S), ThP._rhoSCWater(T, S))
+        return rho
+    
+    def surface_tension(T, S, compound = 'H2O'):
+        """
+        Function to compute surface tension of compound.
+        --------------------------------------------------------------------------
+        References: 
+            - Vinš et al. (2019), doi: 10.1016/j.marchem.2019.05.001
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        gamma : np.ndarray
+            Surface tension of compound [N/m].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        if compound == 'H2O':
+            T = T - 273.15 # [°C]
+            Tau = (373.946 - T) / (373.946 + 273.15)
+            gamma_w = 233.58 * Tau**1.2527 * (1 - 0.61594 * Tau)
+            gamma = (gamma_w * (1 + 3.710e-4 * S + 2.595e-6 * S * T)) * (1/1000) # [from mN/m to N/m]
+        return gamma
+    
+    def _ps_water(T, S):
+        """
+        Vapor pressure of water.
+        --------------------------------------------------------------------------
+        References: 
+            - Roll H. (1965), doi: 10.1002/qj.49709239233
+            - Kulkarni et al. (2011), doi: 10.1002/9781118001684
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of water [Pa].
+
+        """
+        ps = (1 - 0.000537 * S) * np.exp(16.7 - (4060)/(T - 37)) * (1000)
+        return ps
+    
+    def _ps_SCwater(T, S):
+        """
+        Vapor pressure of supercooled water.
+        --------------------------------------------------------------------------
+        References: 
+            - Roll H. (1965), doi: 10.1002/qj.49709239233
+            - Sippola & Taskinen (2018), doi: 10.1021/acs.jced.8b00251
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of water [Pa].
+
+        """
+        ps = (1 - 0.000537 * S) * np.exp(24.09249 - (4301.08)/(T - 29.8418))
+        return ps
+    
+    def vapor_pressure(T, S, compound = 'H2O'):
+        """
+        Function to compute vapor pressure of compound.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray
+            Salinity [ppt or g/kg].
+        compound : STR, optional
+            Selected compound. The default is 'H2O'.
+            Available compounds: 'H2O'.
+
+        Returns
+        -------
+        ps : np.ndarray
+            Vapor pressure of compound [Pa].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if not isinstance(S, np.ndarray): S = np.array(S)
+        if not np.shape(T) == np.shape(S): raise ValueError(f' Argument T ({T.shape}) and argument S ({S.shape}) must have the same shape.')
+        if compound == 'H2O':
+            ps = np.where(T >= 0, ThP._ps_water(T, S), ThP._ps_SCwater(T, S))
+        return ps
+    
+    def osmotic_coefficient(T, S = None, composition = None, solution = 'seawater'):
+        """
+        Function to compute osmotic coefficient of a solution.
+        --------------------------------------------------------------------------
+        References: 
+            - For seawater: Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        S : FLOAT, LIST or np.ndarray, optional
+            Salinity [ppt or g/kg]. The default is None.
+        composition : DICT, optional
+            Composition of solution [mol/kg]. The default is None.
+            {'compound': concentration}
+        solution : STR, optional
+            Selected solution. The default is 'seawater'.
+            Available solutions: 'seawater'
+
+        Returns
+        -------
+        phi : np.ndarray
+            Osmotic coefficient of solution [unitless].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if solution == 'seawater':
+            if isinstance(S, (float, list, np.ndarray)) or isinstance(composition, dict):
+                if isinstance(S, (float, list, np.ndarray)) and isinstance(composition, dict):
+                    raise ValueError('Both salinity (`S`) and composition (`composition`) values are provided. Please define only one of them.')
+                if isinstance(composition, dict):
+                    I = ThP.ionicStrength(composition)
+                else:
+                    if isinstance(S, (float, list, np.ndarray)):
+                        # From Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035 -> Eq. 23
+                        I = 19.9201 * S / (1000 - 1.004880*S)
+                    else:
+                        raise TypeError('Salinity must be float, list or np.ndarray.')
+                S_gamma = 20.660673 - (432.578663/T) - 3.711944*np.log(T) + 8.637627e-3*T
+                sigma = (3/(I**(3/2)))*((1+I**(1/2)) - 1/(1+I**(1/2)) - 2*np.log(1+I**(1/2)))
+                B_gamma = -831.658611 + (17022.3989/T) + 157.65271*np.log(T) - 0.493*T + 2.59506e-4*T**2
+                C_gamma = 553.905988 - (11200.445/T) - 105.239035*np.log(T) + 0.333219*T - 1.773514e-4*T**2
+                D_gamma = -0.15112
+                phi = 1 - (2.303*S_gamma*(sigma/3)*I**(1/2) + B_gamma*I + C_gamma*I**(3/2) + D_gamma*I**2)
+                return phi
+            else:
+                raise ValueError('Missing salinity (`S`) or composition (`composition`) values.')
+    
+    def water_activity(T, composition, solution = 'seawater'):
+        """
+        Function to compute water activity of a solution.
+
+        Parameters
+        ----------
+        T : FLOAT, LIST or np.ndarray
+            Absolute temperature [K].
+        composition : DICT
+            Composition of solution [mol/kg].
+            {'compound': concentration}
+        solution : STR, optional
+            Selected solution. The default is 'seawater'.
+            Available solutions: 'seawater'
+
+        Returns
+        -------
+        aw : np.ndarray
+            Water activity of solution [unitless].
+
+        """
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        if solution == 'seawater':
+            if not isinstance(composition, dict):
+                raise TypeError("Argument `composition` must be a dictionary: {'compound': concentration}")
+            Mw = 18.01528/1000 # Molar mass of water [kg/mol]
+            phi = ThP.osmotic_coefficient(T = T, composition = composition, solution = 'seawater')
+            sum_mi = 0
+            for c in composition:
+                sum_mi += composition[c]
+            aw = np.exp(-phi * Mw * sum_mi)
+        return aw
     
     def checkThP(typeParam, db, compounds, phase, warnings = False):
         """
@@ -150,7 +361,7 @@ class ThP:
         """
         if type(compounds) != 'numpy.ndarray':
             compounds = np.array(compounds)
-        db_check = list(db.loc[db['Phase'] == phase, 'Formula'])
+        db_check = list(db.loc[(db['Phase'] == phase) | (db['Phase'] == 'S'), 'Formula'])
         findNaN = np.isin(compounds, list(set(compounds) - set(db_check)))
         compNaN = compounds[findNaN]
         notNaN = np.logical_not(findNaN)
@@ -159,7 +370,8 @@ class ThP:
             if warnings:
                 print(f'!EcoSysEM.Warning: {typeParam} for {phase} not found for: {compNaN}.')
                 print(f'>> Returned compounds: {compnotNaN}.\n')
-            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f': raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
+            if typeParam == 'deltaG0f' or typeParam == 'deltaH0f':
+                raise ValueError(f'{typeParam} for {phase} phase not found for: {compNaN}.')
         return notNaN
     
     def getThP(typeParam, compounds, phase):
@@ -189,8 +401,12 @@ class ThP:
 
         """
         dParam = pd.read_csv(ThP.path + typeParam + '.csv')
-        dParam = dParam.set_index('Formula').loc[compounds].reset_index()
-        Param = np.array(dParam.loc[dParam['Phase'] == phase, 'Value'])
+        try:
+            dParam = dParam.set_index('Formula').loc[compounds].drop_duplicates().reset_index()
+        except:
+            Param = np.empty(0)
+        else:
+            Param = np.array(dParam.loc[(dParam['Phase'] == phase) | (dParam['Phase'] == 'S'), 'Value'])
         notNaN = ThP.checkThP(typeParam, dParam, compounds, phase)
         return Param, notNaN
     
@@ -254,6 +470,26 @@ class ThP:
         deltaCpi = Cpi @ mRxn
         return deltaCpi
     
+    def getDeltaS0r(S0i, mRxn):
+        """
+        Function to get entropy change of reaction from S0i.
+
+        Parameters
+        ----------
+        S0i : LIST or np.array
+            Standard entropy of compound.
+        mRxn : np.array
+            Reaction matrix. (compounds)x(reactions)
+
+        Returns
+        -------
+        deltaS0r : np.array
+            Entropy of reaction.
+    
+        """
+        deltaS0r = S0i @ mRxn
+        return deltaS0r
+    
     def getKeq(compounds, mRxn, t, phase):
         """
         Function to get equilibrium constants from DeltaG0f.
@@ -284,6 +520,130 @@ class ThP:
         Keq = np.stack(Keq_, axis = -1)
         Keq = np.nan_to_num(Keq, nan = 0.0)
         return np.squeeze(Keq)
+    
+    def Qr(Ct, phase, rComp, mRxn, T = 298.15, pH = 7.0, S = None, specComp = False, fluidType = 'ideal', methods = None,
+           molality = True, solvent = 'H2O', asm = 'stoich', solids = None, elude_compounds = []):
+        """
+        Function to calculate the reaction quotient (Qr)
+
+        Parameters
+        ----------
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        rComp : LIST or np.ndarray
+            Compoounds of reaction.
+        mRxn : LIST or np.ndarray
+            Reaction array/matrix with stoichiometric coefficients, following order of rComp.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        methods : DICT, optional
+           Method for coefficient activity estimation. The default is None.
+               'DH-ext'    - Debye-Hückel equation extended version.
+               'SS'        - Setschenow-Shumpe equation.
+        molality : BOOL, optional
+             Select if activity units are in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        elude_compounds : LIST or np.ndarray, optional
+            Name(s) of compoound(s) to be eluded in Qr calculations. The default is [].
+
+        Returns
+        -------
+        Qr : FLOAT or np.ndarray
+            Value(s) of reaction quotient(s). Same shape as T, pH, salinity and Ct.
+
+        """
+        Qr = 1
+        uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
+        if not isinstance(elude_compounds, (list, np.ndarray)): elude_compounds = [elude_compounds]
+        if specComp:
+            if not isinstance(specComp, np.ndarray): specComp = np.array(specComp)
+            findSpecComp = np.argwhere(uComp == specComp).squeeze()
+            # Stoichiometric parameter of selected compound
+            id_specComp = np.squeeze(np.where(rComp == specComp))
+            vSelected = abs(np.squeeze(mRxn[id_specComp]))
+        else:
+            vSelected = 1.0
+        for idComp, iComp in enumerate(rComp):
+            if isinstance(solids, (list, np.ndarray)) and iComp in solids:
+                Qr *= 1
+            else:
+                if len(elude_compounds) > 0:
+                    if iComp in elude_compounds: continue
+                findComp = np.argwhere(uComp == iComp)
+                vi = mRxn[idComp] / vSelected
+                if fluidType == 'ideal':
+                    if findComp.size == 0:
+                        if iComp == 'H+':
+                            iConc = 10**(-pH) * np.ones(T.shape)
+                        elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
+                            iConc = 1.0 * np.ones(T.shape)
+                        else:
+                            # Check if product is a species of iComp
+                            rComp_pH, _, _ = Rxn.getRxnpH(iComp)
+                            if 'H2CO3' in rComp_pH:
+                                rComp_pH += ['CO2']
+                            uIComp = np.isin(uComp, rComp_pH)
+                            if not any(uIComp):
+                                if asm == 'stoich': 
+                                    # [P] is calculated based on stoichiometry.
+                                    if specComp:
+                                        iConc = (vi) * Ct[uComp[findSpecComp]]
+                                    else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
+                            else:
+                                rxn_iComp =  uComp[uIComp][0]
+                                iConc = Ct[rxn_iComp]
+                    else:
+                        iConc = Ct[iComp]
+                    # pH speciation
+                    if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
+                        # Only pH speciation in liquid
+                        if phase == 'L':
+                            if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
+                            iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
+                    #-DEBUGGING-#
+                    if iComp == 'e-':
+                        iConc = np.exp(-(96485.3365 * Ct['e-']) / (2.303 * 8.314 * T))
+                    #-----------#
+                    iAct = iConc
+                elif fluidType == 'non-ideal':
+                    if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
+                    if iComp == 'H+':
+                        Ct[iComp] = 10**(-pH) * np.ones(T.shape)
+                    # Activity estimation
+                    if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
+                        iAct = 1.0 * np.ones(T.shape)
+                    #-DEBUGGING-#
+                    elif iComp == 'e-':
+                        iAct = np.exp(-(96485.3365 * Ct['e-']) / (2.303 * 8.314 * T))
+                    #-----------#
+                    else:
+                        if phase == 'G':
+                            iAct = iConc
+                            print(f"!EcoSysEM.Warning: Estimation of fugacities not included. Ideal behaviour of {iComp} is assumed.")
+                        elif phase == 'L':
+                            activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
+                            iAct = activity[iComp]
+                else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
+                # Calculation of reaction quotient (Qr)
+                Qr *= iAct ** vi
+        return Qr
 
     def _sumI(composition):
         """
@@ -338,7 +698,8 @@ class ThP:
                     for c in composition_:
                         I_s = ThP._sumI({c: composition_[c]})
                         I_ += I_s
-            I += I_
+            if not np.any(np.isnan(I_)):
+                I += I_
         return I
     
     def ionicStrength(composition):
@@ -393,7 +754,7 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
         a = 4.6 # Effective ionic radius (Å)
         if molality:
             # Constants of solvents (unit weight of solvent)
@@ -542,7 +903,7 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
         # Electrolyte contributions
         dict_hi = {}
         dict_ci = {}
@@ -608,10 +969,68 @@ class ThP:
                 Yn = 1.0 * np.ones(T.shape)
             actCoeff[comp] = Yn
         return actCoeff
-        
+    
+    def activity_coefficient(methods, composition, T = None, pH = None, salinity = None, molality = True, solvent = 'H2O', selComp = None):
+        """
+        Function to estimate activity coefficients of compounds.
+
+        Parameters
+        ----------
+        methods : DICT
+            Method for coefficient activity estimation.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        composition : DICT [mol/L; molarity]
+            Composition of environment {'compound': concentration} [mol/L].
+        T : FLOAT, LIST or np.ndarray, optional
+            Temperature [K]. The default is None.
+        pH : FLOAT, optional
+            pH [-]. The default is None.
+        salinity : FLOAT, LIST or np.ndarray, optional
+            Salinity of solvent [ppt or g/L]. The default is None.
+        molality : BOOL, optional
+            Select if activity calculation in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        selComp : STRING, optional
+            Selected compound (must be in `methods` and `composition`). The default is None.
+
+        Returns
+        -------
+        activity_coefficient : DICT
+            Activity coefficients of compounds.
+
+        """
+        if selComp is not None:
+            try:
+                composition[selComp]
+            except: 
+                raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH reaction is not defined (if {selComp} is a pH-related chemical species) or {selComp} is a solid (must be added in `solids` argument as a list or a np.ndarray).')
+            else:
+                selCompounds = [selComp]
+        else:
+            selCompounds = list(composition.keys())
+        activity_coefficient = {}
+        for comp in selCompounds:
+            try:
+                methods[comp]
+            except:
+                # By default, Debye Huckel theory is used to estimate coefficient activity
+                actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
+            else:
+                if methods[comp] == 'DH-ext':
+                    actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
+                elif methods[comp] == 'SS':
+                    actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
+                elif methods[comp] == 'ideal':
+                    actCoeff = {comp: 1.0 * np.ones(T.shape)}
+                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
+            activity_coefficient[comp] = actCoeff[comp]
+        return activity_coefficient
+    
     def activity(methods, composition, T = None, pH = None, salinity = None, molality = True, solvent = 'H2O', selComp = None):
         """
-        Function to compute activities of compounds.
+        Function to estimate activities of compounds.
 
         Parameters
         ----------
@@ -636,7 +1055,7 @@ class ThP:
             
         Returns
         -------
-        act : TYPE
+        act : DICT
             Activity of compounds.
 
         """
@@ -649,10 +1068,10 @@ class ThP:
         if not isinstance(T, np.ndarray): T = np.array(T)
         if salinity is None:
             salinity = 0.0 * np.ones(T.shape)
-        rho_solv = density(T, salinity, solvent)
+        rho_solv = ThP.density(T, salinity, solvent)
+        # pH speciation (if necessary)
         if pH is not None:
             composition_aux = {}
-            methods_aux = {}
             for iComp in composition:
                 if iComp == 'CO2': 
                     iComp_ = 'H2CO3'
@@ -662,9 +1081,8 @@ class ThP:
                 rComp, _, _ = Rxn.getRxnpH(iComp_)
                 if rComp is not None:
                     rComp = rComp[1:]
-                    C = composition[iComp]
                     if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                        cSpec = ThEq.pHSpeciation(iComp, pH, T, C, True)
+                        cSpec = ThEq.pHSpeciation(iComp, pH, T, composition[iComp], True)
                         for idC, C in enumerate(rComp):
                             composition_aux[C] = cSpec[..., idC]
                             if C == 'H2CO3':
@@ -673,42 +1091,30 @@ class ThP:
                                 methods[C]
                             except:
                                 # By default, Debye-Hückel theory to estimate activity coefficient
-                                methods_aux[C] = 'DH-ext'
+                                methods[C] = 'DH-ext'
                             else:
                                 continue
-            composition = {**composition, **composition_aux}
-            methods = {**methods, **methods_aux}
+            composition_aux = {**composition, **composition_aux}
+        #-Activity of compounds
         act = {}
         if selComp is not None:
             try:
-                composition[selComp]
-            except: raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH is not defined (if {selComp} is a pH-related chemical species).')
+                composition_aux[selComp]
+            except: 
+                raise ValueError(f'Selected compound ({selComp}) was not found in `composition` argument, or pH reaction is not defined (if {selComp} is a pH-related chemical species) or {selComp} is a solid (must be added in `solids` argument as a list or a np.ndarray).')
             else:
                 selCompounds = [selComp]
         else:
-            selCompounds = list(composition.keys())
+            selCompounds = list(composition_aux.keys())
         for comp in selCompounds:
+            act_coeff = ThP.activity_coefficient(methods, composition_aux, T, pH, salinity, molality, solvent, comp)
             if molality:
-                c = composition[comp] * (1/rho_solv)
+                c = composition_aux[comp] * (1/rho_solv)
             else:
-                c = composition[comp]
-            try:
-                methods[comp]
-            except:
-                # By default, Debye Huckel theory is used to estimate coefficient activity
-                actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
-                act[comp] = c * actCoeff[comp]
-            else:
-                if methods[comp] == 'DH-ext':
-                    actCoeff = ThP._debyeHuckel(composition, T, salinity, molality, solvent, selComp = comp)
-                elif methods[comp] == 'SS':
-                    actCoeff = ThP._setschenowShumpe(composition, T, salinity, molality, solvent, selComp = comp)
-                elif methods[comp] == 'ideal':
-                    actCoeff = {comp: 1.0 * np.ones(T.shape)}
-                else: raise ValueError(f'Method to estimate activity coefficient of {comp} not defined.')
-                act[comp] = c * actCoeff[comp]
+                c = composition_aux[comp]
+            act[comp] = c * act_coeff[comp]
         return act
-    
+
 class ThEq:
     """
     Class for calulation of chemical, ion and interphase (G-L) equilibriums.
@@ -768,6 +1174,49 @@ class ThEq:
               '                 \'FW\'      - Fresh Water.\n'+
               '                 \'SW\'      - Sew Water.')
             return None, None
+    
+    def get_concentrations_Henry(gas_composition, P, T = None, liquid_type = 'FW'):
+        """
+        Compute equilibrium concentrations in liquid using Henry's law based on gas composition.
+
+        Parameters
+        ----------
+        gas_composition : DICT
+            Gas composition. {'compound_symbol': [%vol or %mol values]}
+        P : FLOAT, LIST or np.ndarray
+            Set of pressures.
+        T : FLOAT, LIST or np.ndarray, optional
+            Set temperature for Henry's law solubility constant(s). The default is None.
+        liquid_type : STR, optional
+            Set liquid type: FW - freshwater; SW - seawater. The default is 'FW'.
+
+        Raises
+        ------
+        TypeError
+            DESCRIPTION.
+
+        Returns
+        -------
+        dict_Ci : TYPE
+            DESCRIPTION.
+
+        """
+        if not isinstance(gas_composition, dict): 
+            raise TypeError("Gas composition (`gas_composition`) must be a dictionary: gas_composition = {'compound_symbol': [%vol or %mol values]}")
+        if isinstance(T, (float, int)): T = [T]
+        if isinstance(T, list): T = np.array(T)
+        compounds = list(gas_composition.keys())
+        # Get Henry's law solubility constants (Hs)
+        Hs, notNaN = ThEq.solubilityHenry(compounds, liquid_type, T)
+        dict_Ci = {}
+        for id_compound, compound in enumerate(compounds):
+            Pi = P * gas_composition[compound] # [Pa]
+            if notNaN[id_compound]:
+                Ci = Pi * Hs[..., id_compound] * (1/1000) # [mol/L]
+            else:
+                Ci = None
+            dict_Ci[compound] = Ci
+        return dict_Ci
     
     def pHSpeciation(iCompound, pH, t, Ct, rAllConc = False):
         """
@@ -882,9 +1331,248 @@ class ThSA:
     Class for thermodynamic state analysis of environment.
     
     """
+    def _check_arguments(varNames, varValues, varTypes):
+        for idVar, varName in enumerate(varNames):
+            varValue = varValues[idVar]
+            varType = varTypes[idVar]
+            varType_str = str(varType).replace('<class \'','').replace('\'>', '').replace(',', ' or').replace('(', '').replace(')','')
+            if not isinstance(varValue, varType): raise TypeError(f'Argument `{varName}` must be {varType_str}.')
+    
+    def getDeltaSr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
+                   Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+                   printDS0r = False, warnings = False):
+        """
+        Calculate DeltaSr in function of temperature and compound concentrations.
 
-    def getDeltaGr(typeRxn, input_, phase, specComp = False, T = 298.15, pH = 7.0, S = None, Ct = 1.0,
-                   fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        printDS0r : BOOL, optional
+            Print in console the values of standard entropy change of reactions. The default is False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
+
+        Returns
+        -------
+        DGr : np.array
+            Non-standard entropy change values.
+            Shape: (Z)x(Y)x(X)x(reactions).
+        infoRxn : LIST
+            Name of reactions given by the user (see reaction/{typeRxn}.csv).
+
+        """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): T = [T]
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+        nRxn = infoRxn.size
+        # Initialize variables
+        Ts = 298.15                                                             # Standard temperature [K]
+        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        # Initialize DHr matrix
+        DSr = np.empty(T.shape)
+        DSr = DSr[..., np.newaxis]
+        DSr = np.repeat(DSr, len(input_), axis = -1)
+        if specComp:
+            if specComp == True:
+                tSpecComp = 'compounds'
+                specComp = input_.copy()
+                for iSpecComp in specComp:
+                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
+            else:
+                tSpecComp = 'reactions'
+                if isinstance(specComp, str): specComp = [specComp]
+                n_specComp = len(specComp)
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+        for idRxn, iRxn in enumerate(infoRxn):
+            # iVariables definition
+            i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
+            cNonZ = np.nonzero(i_mRxn)[:][0]
+            i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
+            i_mRxn = i_mRxn[cNonZ]              # mRxn_aux
+            if specComp:
+                vSelected = 0
+                if tSpecComp == 'compounds':
+                    for specComp_aux in specComp:
+                        c_specComp = np.squeeze(np.where(i_rComp == specComp_aux))
+                        if c_specComp.size > 0:
+                            if vSelected == 0:
+                                i_specComp = specComp_aux
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
+                else:
+                    i_specComp = specComp[idRxn]
+                    # Check if i_specComp are in reaction
+                    c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
+                # Stoichiometric parameter of selected compound
+                id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
+            else:
+                vSelected = 1.0
+            # Calculate DeltaS0r
+            S0i = ThP.getThP('S0', i_rComp, phase)[0]                           # [J/mol-i/K]
+            deltaS0r = ThP.getDeltaS0r(S0i, i_mRxn) / 1000                      # [kJ/mol/K]
+            deltaS0r = deltaS0r / vSelected                                     # [kJ/mol-i/K] (if specDGr)
+            if printDS0r:
+                print(f'· DS0r of {iRxn}: {deltaS0r}.')
+                print('')
+            # Calculate DeltaSr (if necessary)
+            Cpi, notNan_Cpi = ThP.getThP('Cpi', i_rComp, phase)                 # [J/mol-i/K]
+            check_Cpi = notNan_Cpi.all()
+            if check_Cpi:
+                deltaCp = ThP.getDeltaCp(Cpi, i_mRxn) / 1000                    # [kJ/mol-i/K]
+                deltaSr = deltaS0r + deltaCp * np.log(T / Ts)                   # [kJ/mol-i/K]
+            else:
+                deltaSr = deltaS0r
+            if isinstance(Ct, dict):
+                Qr = ThP.Qr(Ct = Ct, phase = phase, rComp = i_rComp, mRxn = i_mRxn, T = T, pH = pH, S = S, specComp = i_specComp, 
+                            fluidType = fluidType, methods = methods, molality = molality, solvent = solvent, asm = asm, solids = solids)
+                deltaSr -= R * np.log(Qr)
+            DSr[..., idRxn] = deltaSr
+        return DSr, infoRxn
+            
+    def getDeltaHr(typeRxn, input_, phase, specComp = False, T = 298.15, printDH0r = False, warnings = False):
+        """
+        Calculate DeltaHr in function of temperature.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        printDH0r : BOOL, optional
+            Print in console the values of standard enthalpy of reactions. The default is False.
+        warnings : BOOL, optional
+            Display function warnings. The default is False.
+        
+        Returns
+        -------
+        DHr : np.array
+            Non-standard enthalpy of reaction values.
+            Shape: (Z)x(Y)x(X)x(reactions).
+        infoRxn : LIST
+            Name of reactions given by the user (see reaction/{typeRxn}.csv).
+        
+        """
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        if not isinstance(input_, list): input_ = [input_]
+        if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
+        if isinstance(T, int): T = float(T)
+        if isinstance(T, float): T = [T]
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        # Get reactions
+        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+        nRxn = infoRxn.size
+        # Initialize variables
+        Ts = 298.15                                                             # Standard temperature [K]
+        # Initialize DHr matrix
+        DHr = np.empty(T.shape)
+        DHr = DHr[..., np.newaxis]
+        DHr = np.repeat(DHr, len(input_), axis = -1)
+        if specComp:
+            if specComp == True:
+                tSpecComp = 'compounds'
+                specComp = input_.copy()
+                for iSpecComp in specComp:
+                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                    if c_specComp.size == 0: 
+                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
+            else:
+                tSpecComp = 'reactions'
+                if isinstance(specComp, str): specComp = [specComp]
+                n_specComp = len(specComp)
+                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+        # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
+        for idRxn, iRxn in enumerate(infoRxn):
+            # iVariables definition
+            i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
+            cNonZ = np.nonzero(i_mRxn)[:][0]
+            i_rComp = np.array(rComp)[cNonZ]    # rComp_aux
+            i_mRxn = i_mRxn[cNonZ]              # mRxn_aux
+            if specComp:
+                vSelected = 0
+                if tSpecComp == 'compounds':
+                    for specComp_aux in specComp:
+                        c_specComp = np.squeeze(np.where(i_rComp == specComp_aux))
+                        if c_specComp.size > 0:
+                            if vSelected == 0:
+                                i_specComp = specComp_aux
+                            else: raise ValueError('More than one specific compound has been used. Only one compound per reaction.')
+                else:
+                    i_specComp = specComp[idRxn]
+                    # Check if i_specComp are in reaction
+                    c_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                    if c_specComp.size == 0: raise ValueError(f'{i_specComp} was not found in reaction {iRxn}.')
+                # Stoichiometric parameter of selected compound
+                id_specComp = np.squeeze(np.where(i_rComp == i_specComp))
+                vSelected = abs(np.squeeze(i_mRxn[id_specComp]))
+            else:
+                vSelected = 1.0
+            # Calculate DeltaH0r
+            deltaH0f = ThP.getThP('deltaH0f', i_rComp, phase)[0]
+            deltaH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)                        # kJ
+            deltaH0r = deltaH0r / vSelected                                     # kJ/mol-i (if specDGr)
+            if printDH0r:
+                print(f'· DH0r of {iRxn}: {deltaH0r}.')
+                print('')
+            # Calculate DeltaHr (if necessary)
+            Cpi, notNan_Cpi = ThP.getThP('Cpi', i_rComp, phase)                 # J/mol-i/K
+            check_Cpi = notNan_Cpi.all()
+            if check_Cpi:
+               deltaCp = ThP.getDeltaCp(Cpi, i_mRxn) / 1000                     # kJ/mol-i/K
+               deltaHr = deltaH0r + deltaCp * (T - Ts)                          # kJ/mol-i (if specDGr)
+            else:
+               deltaHr = deltaH0r
+            DHr[..., idRxn] = deltaHr
+        return DHr, infoRxn
+    
+    def getDeltaGr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
+                   Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    warnings = False, printDG0r = False, printDH0r = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
@@ -899,6 +1587,8 @@ class ThSA:
             Name(s) of requested compound(s) or reaction(s).
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         T : FLOAT or LIST, optional
@@ -967,7 +1657,7 @@ class ThSA:
         if specComp:
             if specComp == True:
                 tSpecComp = 'compounds'
-                specComp = input_
+                specComp = input_.copy()
                 for iSpecComp in specComp:
                     c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
                     if c_specComp.size == 0: 
@@ -1028,66 +1718,176 @@ class ThSA:
                deltaHr = deltaH0r
             deltaGTr = deltaG0r * (T / Ts) + deltaHr * ((Ts - T) / Ts)
             if isinstance(Ct, dict):
-                # Calculate reaction quotient (Qr)
-                Qr = 0
-                uComp = np.array(list(Ct.keys()))                       # Compounds given by user (Ct)
-                if specComp:
-                    findSpecComp = np.argwhere(uComp == i_specComp).squeeze()
-                for idComp, iComp in enumerate(i_rComp):
-                    findComp = np.argwhere(uComp == iComp)
-                    vi = i_mRxn[idComp] / vSelected
-                    if fluidType == 'ideal':
-                        if findComp.size == 0:
-                            if iComp == 'H+':
-                                iConc = 10**(-pH) * np.ones(T.shape)
-                            elif iComp == 'H2O':                # It is assumed a water activity of 1.0, as a pure liquid (it can be less).
-                                iConc = 1.0 * np.ones(T.shape)
-                            else:
-                                # Check if product is a species of iComp
-                                rComp_pH, _, _ = Rxn.getRxnpH(iComp)
-                                uIComp = np.isin(uComp, rComp_pH)
-                                if (rComp is None) or (any(uIComp) == False):
-                                    if asm == 'stoich': # [P] is calculated based on stoichiometry.
-                                        if specComp:
-                                            iConc = (vi) * Ct[uComp[findSpecComp]]
-                                        else: raise ValueError('`specComp` must be given to calculate the stoichiometric concentration of {iComp}.')
-                                else:
-                                    rxn_iComp =  uComp[uIComp][0]
-                                    # uComp = np.char.replace(uComp, rxn_iComp, iComp)
-                                    iConc = Ct[rxn_iComp]
-                        else:
-                            iConc = Ct[iComp]
-                        # pH speciation
-                        if iComp != 'H+' and iComp != 'H2O' and iComp != 'OH-':
-                            # Only pH speciation in liquid
-                            if phase == 'L':
-                                if iComp == 'CO2': iComp = 'H2CO3'      # Simplification hydration/dehydration equil.: [(CO2)aq] >>>> [H2CO3]
-                                iConc = ThEq.pHSpeciation(iComp, pH, T, iConc)
-                        iAct = iConc
-                    elif fluidType == 'non-ideal':
-                        if methods is None: raise ValueError('Argument `methods` must be defined to calculate activities of species.')
-                        if iComp == 'H+':
-                            Ct[iComp] = 10**(-pH) * np.ones(T.shape)
-                        # Activity estimation
-                        if (iComp == 'H2O' and solvent == 'H2O') or ('(s)' in iComp):
-                            iAct = 1.0 * np.ones(T.shape)
-                        else:
-                            if phase == 'G':
-                                iAct = iConc
-                                print(f"!EcoSysEM.Warning: Estimation of fugacities not included. Ideal behaviour of {iComp} is assumed.")
-                            elif phase == 'L':
-                                activity = ThP.activity(methods, Ct, T, pH, S, molality, solvent, iComp)
-                                iAct = activity[iComp]
-                    else: raise ValueError(f'Unknown fluidType ({fluidType}). Existing fluidType: \'ideal\' or \'non-ideal\'.')
-                    # Calculation of reaction quotient (Qr)
-                    Qr += vi * np.log(iAct)
-                # Activity/Concentration influence (Nernst equation)
-                deltaGr = deltaGTr + R * T * Qr
+                Qr = ThP.Qr(Ct = Ct, phase = phase, rComp = i_rComp, mRxn = i_mRxn, T = T, pH = pH, S = S, specComp = i_specComp, 
+                            fluidType = fluidType, methods = methods, molality = molality, solvent = solvent, asm = asm, solids = solids)
+                deltaGr = deltaGTr + R * T * np.log(Qr)
                 rDGr = deltaGr
             else:
                 rDGr = deltaGTr
             DGr[..., idRxn] = rDGr
         return DGr, infoRxn
+    
+    def thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i = 1.0, T = 298.15, pH = 7.0, S = None, variables = 'All', specComp = None, fluidType = 'ideal', 
+                             methods = None, molality = True, solvent = 'H2O', asm = 'stoich', solids = None, standard_enthalpy = False):
+        """
+        Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        rxns : STR or LIST
+            Name(s) of requested reaction(s).
+        phase: STR
+            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations.
+        C0i : FLOAT, optional
+            Standard concentration. The default is 1.0.
+        T : FLOAT or LIST, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH : INT or FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S : FLOAT, LIST or np.array
+            Salinity [ppt]. The default is None.
+        variables : STR or LIST, optional
+            Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'. The default is 'All'.
+        specComp : STR or LIST, optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is None.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        solvent : STRING, optional
+            Solvent name. The default is 'H2O' (water).
+        asm : STRING, optional
+            Assumption when products are not present in the environment.
+            The default is 'stoich' (stoichiometric concentrations).
+        solids : LIST or np.ndarray, optional
+            Name(s) of compound(s) in solid phase. The default is None.
+        standard_enthalpy : BOOL, optional
+            Set whether the standard (True) or non-standard (False) enthalpy is used in estimations. The default is False.
+
+        Returns
+        -------
+        limit_value : DICT
+            Dictionary with thermodynamic limits. {'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}
+
+        """
+        print(variables)
+        if not isinstance(variables, list): variables = [variables]
+        valid_variables = ['Temperature', 'pH', 'Concentrations', 'All']
+        for variable in variables:
+            if not (variable in valid_variables): 
+                raise ValueError(f'Invalid variable ({variable}) to get thermodynamic limits. Valid variables: {valid_variables}.')
+        if variables == 'All': variables = ['Temperature', 'pH', 'Concentrations']
+        if not isinstance(T, np.ndarray): T = np.array(T)
+        # Constants
+        Ts = 298.15                                                             # Standard temperature [K]
+        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        # Get reactions
+        rComp, mRxn, _ = Rxn.getRxn(typeRxn, rxns)
+        # Initialize results matrix
+        limit_value = np.empty(T.shape)
+        limit_value = limit_value[..., np.newaxis]
+        limit_value = np.repeat(limit_value, len(rxns), axis = -1)
+        # Initialize dictionary
+        limit_value = {}
+        for id_rxn, rxn in enumerate(rxns):
+            i_mRxn = np.squeeze(mRxn[:, id_rxn])
+            if not specComp is None:
+                if isinstance(specComp, str): specComp = [specComp]
+                i_specComp = specComp[id_rxn]
+                id_comp = np.where(np.array(rComp) == i_specComp)
+                if len(id_comp[0]) == 0:
+                    vSelected = 1.0
+                else:
+                    id_comp = int(id_comp[0])
+                    vSelected = abs(i_mRxn[id_comp])
+            else:
+                i_specComp = None
+                vSelected = 1.0
+            # Calculate DG0r
+            deltaG0f = ThP.getThP('DeltaG0f', rComp, phase)
+            DG0r = ThP.getDeltaG0r(deltaG0f, i_mRxn)[0]
+            deltaG0r = (DG0r / vSelected) * np.ones(np.shape(T))
+            # Calculate DHr
+            deltaH0f = ThP.getThP('DeltaH0f', rComp, phase)
+            DH0r = ThP.getDeltaH0r(deltaH0f, i_mRxn)[0]
+            deltaH0r = (DH0r / vSelected) * np.ones(np.shape(T))
+            if standard_enthalpy:
+                deltaHr = deltaH0r
+            else:
+                deltaHr_, _ = ThSA.getDeltaHr(typeRxn, rxn, phase, specComp = i_specComp, T = T)
+                deltaHr = np.squeeze(deltaHr_)
+            # Create reaction key
+            limit_value_rxn = {}
+            for variable in variables:
+                if variable == 'Temperature':
+                    elude_compounds = []
+                    # Calculate Qr
+                    Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compounds)
+                    # Calculate thermodynamic limits
+                    limit_value_rxn['Temperature'] = (deltaHr * Ts) / (deltaHr - deltaG0r - R*Ts*np.log(Qr))
+                else:
+                    if variable == 'pH':
+                        elude_compounds = ['H+']
+                    elif variable == 'Concentrations':
+                        rComp_rxn, _, _ = Rxn.getRxn(typeRxn, rxn)
+                        # Remove water (activity_water = 1.0)
+                        try:
+                            rComp_rxn.remove('H2O')
+                        except:
+                            pass
+                        # Remove H+ (it is considered pH influence)
+                        try:
+                            rComp_rxn.remove('H+')
+                        except:
+                            pass
+                        if not solids is None:
+                            for solid in solids:
+                                try:
+                                    rComp_rxn.remove(solid)
+                                except:
+                                    pass
+                        elude_compounds = rComp_rxn
+                    for elude_compound in elude_compounds:
+                        # Calculate Qr
+                        Qr = ThP.Qr(Ct, phase, rComp, i_mRxn, T, pH, S, i_specComp, fluidType, methods, molality, solvent, asm, solids, elude_compound)
+                        # Calculate activity coefficient
+                        if fluidType == 'ideal':
+                            Yi = 1.0 * np.ones(np.shape(T))
+                        elif fluidType == 'non-ideal':
+                            Yi_ = ThP.activity_coefficient(methods, Ct, T, pH, S, molality, solvent, elude_compound)
+                            Yi = Yi_[elude_compound]
+                        # Variable name
+                        if elude_compound == 'H+':
+                            variable_name = 'pH'
+                        else:
+                            variable_name = elude_compound
+                        id_comp = np.where(np.array(rComp) == elude_compound)
+                        if len(id_comp[0]) == 0:
+                            limit_value_rxn[variable_name] = np.nan * np.ones(np.shape(T))
+                            continue
+                        id_comp = int(id_comp[0])
+                        vi = i_mRxn[id_comp]
+                        # Calculate thermodynamic limits
+                        if vi != 0:
+                            limit_value_rxn_ = (C0i / Yi) * np.exp((1 / (vi*Ts*R)) * (-deltaG0r - deltaHr * ((Ts - T) / T) - R*Ts*np.log(Qr)))
+                            if variable == 'Concentrations':
+                                limit_value_rxn[variable_name] = limit_value_rxn_
+                            elif variable == 'pH':
+                                limit_value_rxn[variable_name] = -np.log10(limit_value_rxn_)
+                        else:
+                            limit_value_rxn[variable_name] = np.nan * np.ones(np.shape(T))
+            limit_value[rxn] = limit_value_rxn
+        return limit_value
     
     def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
@@ -1689,9 +2489,9 @@ class ThSA:
             Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
         cb_limit : BOOL, optional
             Active/inactive limits of colorbar. The default is False.
-        cb_vmin : FLOAT or None, optional
+        vmin : FLOAT or None, optional
             Set minimum value of colorbar. The default is None.
-        cb_vmax : FLOAT or None, optional
+        vmax : FLOAT or None, optional
             Set maximum value of colorbar. The default is None.
         cb_fontsize : FLOAT, optional
             Set size of colorbar font. The default is 12.
@@ -1712,7 +2512,7 @@ class ThSA:
         printDH0r : BOOL, optional
             Print in console the values of standard enthalpy of reactions. The default is False.
         showMessage : BOOL, optional
-             Boolean to set whether informative messages are displayed in Console. The default is True.
+            Boolean to set whether informative messages are displayed in Console. The default is True.
 
         Returns
         -------
@@ -1723,12 +2523,12 @@ class ThSA:
         plt.rc('font', **font)
         sensitivity_methods = ('local', 'sigma-norm', 'ref-norm', 'var-based', 'pearson')
         if showMessage:
-            print('  > Running complete sensitivity analysis of Gibbs free energy...')
-        if not isinstance(T_sv, (int,float)) and (isinstance(T_sv, (list, np.ndarray)) and len(T_sv) > 1):
+            print('  > Running local sensitivity analysis of Gibbs free energy...')
+        if not isinstance(T_sv, (int,float)) or (isinstance(T_sv, (list, np.ndarray)) and len(T_sv) > 1):
             raise ValueError('Temperature (argument \'T_sv\') must be an integer or float.')
-        if not isinstance(pH_sv, (int,float)) and (isinstance(pH_sv, (list, np.ndarray)) and len(pH_sv) > 1):
+        if not isinstance(pH_sv, (int,float)) or (isinstance(pH_sv, (list, np.ndarray)) and len(pH_sv) > 1):
             raise ValueError('pH (argument \'pH_sv\') must be an integer or float.')
-        if not isinstance(S_sv, (int,float)) and (isinstance(S_sv, (list, np.ndarray)) and len(S_sv) > 1):
+        if not isinstance(S_sv, (int,float)) or (isinstance(S_sv, (list, np.ndarray)) and len(S_sv) > 1):
             raise ValueError('Salinity (argument \'S_sv\') must be an integer or float.')
         if vmin and vmax and cb_limit == False:
             cb_limit = True
@@ -1766,10 +2566,13 @@ class ThSA:
         res_pH = num_pH
         # Matrix initialization
         m_eqch = np.empty((len(input_), len(list_var))) 
-        m_diff = np.empty((len(input_), len(list_var))) 
+        m_diff = np.empty((len(input_), len(list_var)))
         for idRxn, rxn in enumerate(input_):
             print(f'  {idRxn+1}.{rxn}')
             specCp_ = specComp[idRxn]
+            C = Ct.copy()
+            for c in Ct:
+                C[c] = np.array([C[c]])
             DGr_ref, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
                                          input_ = rxn, 
                                          phase = phase, 
@@ -1777,7 +2580,7 @@ class ThSA:
                                          T = [T_sv],
                                          pH = pH_sv,
                                          S = [S_sv], 
-                                         Ct = Ct.copy(),
+                                         Ct = C,
                                          fluidType = fluidType,
                                          methods = methods,
                                          printDG0r = printDG0r,
@@ -1853,8 +2656,10 @@ class ThSA:
                                              printDG0r = printDG0r,
                                              printDH0r = printDH0r)
                 else:
-                    DGr = np.empty(np.array(pH).shape)
+                    DGr = []
                     C = Ct.copy()
+                    for c in C:
+                        C[c] = np.array([C[c]])
                     for idpH, pH_ in enumerate(pH):
                         DGr_pH, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
                                                     input_ = rxn, 
@@ -1868,31 +2673,31 @@ class ThSA:
                                                     methods = methods,
                                                     printDG0r = printDG0r,
                                                     printDH0r = printDH0r)
-                        DGr[idpH] = DGr_pH
+                        DGr += [DGr_pH]
                 if sensitivity_method == 'local':
                     sa_method = 'Local sensitivity analysis'
-                    m_diff[idRxn, idVar] = (DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])
+                    m_diff[idRxn, idVar] = np.squeeze((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
                 elif sensitivity_method == 'sigma-norm':
                     sa_method = 'Sigma-normalized Derivative'
                     sigma_x = np.nanstd(list_val)
                     sigma_y = np.nanstd(DGr)
-                    m_diff[idRxn, idVar] = (sigma_x / sigma_y) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((sigma_x / sigma_y) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'ref-norm':
                     sa_method = 'Reference-normalized Derivative'
-                    m_diff[idRxn, idVar] = (ref_val / DGr_ref) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((ref_val / DGr_ref) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'var-based':
                     sa_method = 'Variance-normalized Derivative'
                     N = len(DGr)
                     varEDGr_X = np.sum(abs(DGr - DGr_ref)**2) / N
                     varEX = np.sum(abs(list_val - ref_val)**2) / N
-                    m_diff[idRxn, idVar] =  (varEX / varEDGr_X) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0]))
+                    m_diff[idRxn, idVar] = np.squeeze((varEX / varEDGr_X) * ((DGr[-1] - DGr[0]) / (list_val[-1] - list_val[0])))
                 elif sensitivity_method == 'pearson':
                     sa_method = 'Pearson\'s correlation'
                     cov_xy = np.cov(list_val, DGr) # np.cov(a,b) = [[cov(a,a), cov(a,b)][cov(a,b), cov(b,b)]]
                     Sxy = cov_xy[0][1]
                     sigma_x = np.nanstd(list_val)
                     sigma_y = np.nanstd(DGr)
-                    m_diff[idRxn, idVar] = (Sxy / (sigma_x * sigma_y))
+                    m_diff[idRxn, idVar] = np.squeeze((Sxy / (sigma_x * sigma_y)))
                 else:
                     raise ValueError(f'Unknown sensitivity method ({sensitivity_method}). Existing sensitivity methods: {sensitivity_methods}')
                 if min(DGr) < 0 and max(DGr) > 0:
@@ -1903,8 +2708,463 @@ class ThSA:
                     print(f'    ·[{comp}] done.')
                 else:
                     print(f'    ·{var} done.')
-        #-Plotting local_sa_DGr
+        # #-Plotting local_sa_DGr
+        ThSA._plot_mesh_sa(input_, list_var, m_diff, m_eqch, None, sa_method , cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                           renameRxn, marker, mec, mew, mfc, ms)
+        if showMessage:
+            print('  > Done.')
+    
+    def sobol_indices_DeltaGr(typeRxn, input_, specComp, list_var, Ct = 1.0, T_sv = 298.15, pH_sv = 7.0, S_sv = 0.0, 
+                              phase = 'L', fluidType = 'ideal', methods = None, molality = True, rangeType = 'VR', 
+                              range_ = None, num = 64, rng = None, sobol_simpl = 'saltelli', check_negatives = True, 
+                              stat_sign_method = 'kendall', plotMode = False, renameRxn = None, cb_limit = False, 
+                              cb_orientation = 'horizontal', cb_fontsize = 12, vmin = None, vmax = None, figsize = (12.0, 8.0),
+                               marker = '*', mec = 'k', mew = 0.75, mfc = 'gold', ms = 8, showMessage = True):
+        """
+        Perform the global sensitivity analysis (variance-based sensitivity analysis or Sobol' indices) of Gibbs free 
+        energy for a set of reactions at a specific range of temperature, pH and concentrations of substrates and products.
+
+        Parameters
+        ----------
+        typeRxn : STR
+            What reaction(s) type are requested, matching with csv name. E.g.:
+                - 'metabolisms': metabolic activities.
+        input_ : STR or LIST
+            Name(s) of requested compound(s) or reaction(s).
+        specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
+            Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).
+        list_var : LIST of STR
+            List of variables. Temperature as 'T', pH as 'pH' and concentrations as 'conc_compoundSymbol'
+            (e.g., 'conc_H2').
+        Ct : DICT
+            Total concentrations of compounds {'compounds': [concentrations]}.
+            All compounds of a reaction with the same number of concentrations. The default is 1.0.
+        T_sv : FLOAT, optional
+            Set of temperature [K]. The default is 298.15 K (standard temperature).
+        pH_sv : FLOAT, optional
+            Set of pH. The default is 7.0 (neutral pH).
+        S_sv : FLOAT
+            Salinity [ppt]. The default is 0.0.
+        phase : STR, optional
+            Phase of fluid. The default is 'L'.
+        fluidType : STR, optional
+            Type of fluid (ideal or non-ideal). The default is ideal.
+        methods : DICT, optional
+            Method for coefficient activity estimation. The default is None.
+                'DH-ext'    - Debye-Hückel equation extended version.
+                'SS'        - Setschenow-Shumpe equation.
+        molality : BOOL, optional
+            Select if activity units are in molality (True) or molarity (False). The default is True.
+        rangeType : STR ('DR' or 'VR'), optional
+            Type of range. 'DR' means 'defined range' and the user gives the maximum and minimum values of
+            each variable. 'VR' measn 'value range' and the range are defined based on original values. 
+            The default is 'VR'. The default is 'VR'.
+        range_ : DICT, optional
+            Range of values or upper and lower order of magnitudes/difference. The default is None.
+            If rangeType = 'DR': {'var': [min_val, max_val]}
+            If rangeType = 'VR': {'T' or 'pH': [lower_diff, upper_diff]}; {'conc_compound': [lower_oom, upper_oom]}
+        num : INT, optional
+            Number of temperature and concentration to generate between min_value and max_value. The default is 64.
+        rng : INT, optional
+            Pseudorandom number generator state (rng seed). The default is None.
+            When rng is None, a new numpy.random.Generator is created using entropy from the operating system.
+        sobol_simpl : STR, optional
+            Estimator method to calculate Sobol' indices. The default is 'saltelli'.
+                'saltelli'    - Estimators from Saltelli et al. (2010), doi: 10.1016/j.cpc.2009.09.018
+        check_negatives : BOOL, optional
+            Boolean to set whether negative Sobol' indices are displayed in Console (if any). The default is True.
+        stat_sign_method : STR, optional
+            Set statistical method to compute correlation between variable and DGr and to obtain statistical sign. The default is 'kendall'.
+        plotMode : BOOL, optional
+            Boolean to set whether color mesh plot is created. The default is False.
+        renameRxn : None or DICT, optional
+            If it's a DICT, change de name of reactions of .csv file in the plot. {'originalName': 'newName'}
+            The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        cb_limit : BOOL, optional
+            Active/inactive limits of colorbar. The default is False.
+        cb_orientation : STR ('vertical', 'horizontal'), optional
+            Set orientation of colorbar. The default is 'horizontal'.
+        cb_fontsize : FLOAT, optional
+            Set size of colorbar font. The default is 12.
+        vmin : FLOAT or None, optional
+            Set minimum value of colorbar. The default is None.
+        vmax : FLOAT or None, optional
+            Set maximum value of colorbar. The default is None.
+        figsize : (FLOAT, FLOAT), optional
+            Figure size. (Width, Height) in inches. The default is (12.0, 8.0).
+        marker : STR, optional
+            Set the line marker. The default is '*'.
+        mec : STR, optional
+            Set the marker edge color. The default is 'k'.
+        mew : FLOAT, optional
+            Set the marker edge width in points. The default is 0.75.
+        mfc : STR, optional
+            Set the marker face color. The default is 'gold'.
+        ms : FLOAT, optional
+            Set the marker size in points. The default is 8.
+        showMessage : BOOL, optional
+            Boolean to set whether informative messages are displayed in Console. The default is True.
+
+        Returns
+        -------
+        si : np.ndarray
+            Matrix of first order indices. Shape: (reactions, variables).
+        st : np.ndarray
+            Matrix of total indices. Shape: (reactions, variables).
+        stat_sign : np.ndarray
+            Matrix of statistical sign. Shape: (reactions, variables).
+                If positive (+1), DGr and variable are positively correlated (both increase or decrease together).
+                If negative (-1), DGr and variable are negatively correlated (one increase and the other decrease or vice versa).
+                If zero (0), DGr and variable are not correlated.
+        eqch : np.ndarray
+            Matrix of equilbirum change (endergonic <-> exergonic). Shape: (reactions, variables).
+                If one (1), an equilibrium change is observed in the range of values of variables.
+                If zero (0), no equilibrium change is observed in the range of values of variables.
+        Plot in Spyder if 'plotMode = True'.
+        
+        """
+        #-Private functions
+        def _N_power_of_two(num, maxN = 15):
+            power_of_two = np.array([int(2**n) for n in list(np.linspace(0, maxN, maxN+1))])
+            indx = np.argmin(abs(power_of_two - num))
+            return power_of_two[indx]
+            
+        def _u_l_bounds(list_var, rangeType, range_, sv):
+            Ct = sv['Ct'].copy()
+            T_sv = sv['T']
+            pH_sv = sv['pH']
+            S_sv = sv['S']
+            if rangeType:
+                l_bounds = np.nan * np.ones(len(list_var))
+                u_bounds = np.nan * np.ones(len(list_var))
+                if rangeType == 'VR':
+                    if not range_:
+                        for idVar, var in enumerate(list_var):
+                            if var == 'T':
+                                l_bounds[idVar] = float(T_sv) - 10
+                                u_bounds[idVar] = float(T_sv) + 10
+                            elif var == 'pH':
+                                l_bounds[idVar] = max(float(pH_sv)-5, 0.0)
+                                u_bounds[idVar] = min(float(pH_sv)+5, 14.0)
+                            elif var == 'S':
+                                l_bounds[idVar] = max(float(S_sv)-10, 0.0)
+                                u_bounds[idVar] = float(S_sv) + 10
+                            elif 'conc_' in var:
+                                indx = var.find('_') + 1
+                                comp = var[indx:]
+                                try:
+                                    l_bounds[idVar] = float(Ct[comp]) / 100
+                                    u_bounds[idVar] = float(Ct[comp]) * 100
+                                except:
+                                    raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                    else:
+                        for idVar, var in enumerate(list_var):
+                            lower_oom = range_[var][0]
+                            upper_oom = range_[var][1]
+                            if var == 'T':
+                                l_bounds[idVar] = float(T_sv) - lower_oom
+                                u_bounds[idVar] = float(T_sv) + upper_oom
+                            elif var == 'pH':
+                                l_bounds[idVar] = max(float(pH_sv)-lower_oom, 0.0)
+                                u_bounds[idVar] = min(float(pH_sv)+upper_oom, 14.0)
+                            elif 'conc_' in var:
+                                indx = var.find('_') + 1
+                                comp = var[indx:]
+                                try:
+                                    l_bounds[idVar] = float(Ct[comp]) / lower_oom
+                                    u_bounds[idVar] = float(Ct[comp]) * upper_oom
+                                except:
+                                    raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                elif rangeType == 'DR':
+                    if not range_:
+                        raise ValueError('Range values must be defined with \'range_\' argument. {\'variable\': [lower_value, upper_value]}.')
+                    else:
+                        for idVar, var in enumerate(list_var):
+                            l_bounds[idVar] = range_[var][0]
+                            u_bounds[idVar] = range_[var][1]
+                else: raise ValueError(f'Unknown rangeType ({rangeType}). Existing rangeType: \'VR\' (Value Range) and \'DR\' (Defined Range).')
+            else:
+                l_bounds = None
+                u_bounds = None
+            return l_bounds, u_bounds
+        
+        def _sample_A_B_AB(N, k, l_bounds = None, u_bounds = None, rng = None):
+            A_B = qmc.Sobol(d = 2*k, seed = rng, bits = 64).random(N)
+            if (l_bounds is not None) and (u_bounds is not None):
+                if ~np.isnan(l_bounds).any() and ~np.isnan(u_bounds).any():
+                    l_bounds = np.log10(l_bounds)
+                    u_bounds = np.log10(u_bounds)
+                    l_bounds = np.tile(l_bounds, 2)
+                    u_bounds = np.tile(u_bounds, 2)
+                    A_B = qmc.scale(A_B, l_bounds, u_bounds)
+                    A_B = 10 ** A_B
+                else:
+                    warnings.warn(f'NaN value(s) present in \'l_bounds\' ({l_bounds}) and/or \'u_bounds\' ({u_bounds}).')
+            A = A_B[:, 0:k]
+            B = A_B[:, k:]
+            AB = np.tile(A, (k, 1, 1))
+            for i in np.arange(k):
+                AB[i, :, i] = B[:, i]
+            return A, B, AB
+        
+        def _sobol_DGr(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, list_var, sample, AB = False):
+            if AB:
+                d, k, d = sample.shape
+                sample = sample.reshape(-1, sample.shape[-1])
+            warnMessage = False
+            non_DGr_parameters = []
+            N, _ = sample.shape
+            C = sv['Ct'].copy()
+            T_ = sv['T']
+            pH_ = sv['pH']
+            S_ = sv['S']
+            f = []
+            for n in range(N):
+                for idVar, var in enumerate(list_var):
+                    if var == 'T':
+                        T_ = sample[n, idVar]
+                    elif var == 'pH':
+                        pH_ = sample[n, idVar]
+                    elif var == 'S':
+                        S_ = sample[n, idVar]
+                    elif var.startswith('conc_'):
+                        indx = var.find('_') + 1
+                        comp = var[indx:]
+                        try:
+                            C[comp] = sample[n, idVar]
+                        except:
+                            raise ValueError(f'Compound {comp} was not included in Ct dictionary:'+' Ct = {\'compound\': concentration}.')
+                    else:
+                        warnMessage = True
+                        if not var in non_DGr_parameters:
+                            non_DGr_parameters += var
+                DGr, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                         input_ = rxn,
+                                         specComp = specComp, 
+                                         phase = phase,
+                                         T = [T_],
+                                         pH = pH_,
+                                         S = [S_],
+                                         Ct = C,
+                                         fluidType = fluidType,
+                                         methods = methods,
+                                         molality = molality)
+                f += [np.squeeze(DGr)]
+            f = np.array(f).T
+            if warnMessage:
+                warnings.warn(f'Some variables given in \'list_var\' are not used for DGr calculations: {non_DGr_parameters}.')
+            if AB:
+                f = f.reshape((-1, k))
+            else:
+                f = np.squeeze(f)
+            return f
+        
+        def _indices(f_A, f_B, f_AB, method):
+            valid_methods = {'saltelli'}
+            I, _ = f_AB.shape
+            first_order = []
+            total_order = []
+            var = np.nanvar([f_A, f_B], axis = (0, -1))
+            for i in range(I):
+                fi_AB = f_AB[i, :]
+                method = method.lower()
+                if not method in valid_methods:
+                    raise NameError(f'Invalid method ({method}) to compute sobol\' indices. Valid methods: {valid_methods}.')
+                if method == 'saltelli':
+                    first_order += [np.nanmean(f_B * (fi_AB - f_A)) / var]
+                    total_order += [0.5 * np.nanmean((f_A - fi_AB) ** 2) / var]
+            return np.array(first_order), np.array(total_order)
+        
+        def _stat_sign(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, sample, list_var, stat_sign_method):
+            valid_methods = {'kendall', 'spearman', 'pearson'}
+            if not stat_sign_method in valid_methods:
+                raise NameError(f'Invalid method ({stat_sign_method}) to compute sobol\' indices. Valid methods: {valid_methods}.')
+            N, _ = sample.shape
+            Ct = sv['Ct'].copy()
+            T_sv = sv['T']
+            pH_sv = sv['pH']
+            S_sv = sv['S']
+            # Matrix initialization
+            eqch = np.nan * np.ones((len(input_), len(list_var))) 
+            stat_sign = np.nan * np.ones((len(input_), len(list_var)))
+            for idRxn, rxn in enumerate(input_):
+                specC_ = specComp[idRxn]
+                for idVar, var in enumerate(list_var):
+                    var_values = sample[:, idVar]
+                    shape_var = var_values.shape
+                    if var == 'T':
+                        T = var_values
+                        pH = pH_sv
+                        S = S_sv * np.ones(shape_var)
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = C[c] * np.ones(shape_var)
+                    elif var == 'pH':
+                        T = T_sv
+                        pH = var_values
+                        S = S_sv
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = np.array(C[c])
+                    elif var == 'S':
+                        T = T_sv * np.ones(shape_var)
+                        pH = pH_sv
+                        S = sample[:, idVar]
+                        C = Ct.copy()
+                        for c in C:
+                            C[c] = C[c] * np.ones(shape_var)
+                    elif var.startswith('conc_'):
+                        indx = var.find('_') + 1
+                        comp = var[indx:]
+                        rxn_comp, _, _ = Rxn.getRxn(typeRxn, rxn)
+                        all_comp = rxn_comp.copy()
+                        for c in all_comp:
+                            if c == 'CO2': c = 'H2CO3'
+                            pH_comp, _, _ = Rxn.getRxnpH(c)
+                            if pH_comp and c != 'H+' and c != 'H2O':
+                                if 'CO2' in pH_comp:
+                                    pH_comp = [w.replace('H2CO3', 'CO2') for w in pH_comp]
+                                all_comp = np.unique(np.hstack((all_comp, pH_comp)))
+                        if not comp in all_comp:
+                            stat_sign[idRxn, idVar] = np.nan
+                            eqch[idRxn, idVar] = np.nan
+                            continue
+                        C = Ct.copy()
+                        for c in C:
+                            if c == comp:
+                                C[comp] = var_values
+                            else:
+                                C[c] = C[c] * np.ones(shape_var)
+                    if var != 'pH':
+                        DGr, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                                 input_ = rxn, 
+                                                 phase = phase, 
+                                                 specComp = specC_,
+                                                 T = T,
+                                                 pH = pH,
+                                                 S = S, 
+                                                 Ct = C,
+                                                 fluidType = fluidType,
+                                                 methods = methods)
+                    else:
+                        DGr = np.empty(shape_var)
+                        for idpH, pH_ in enumerate(pH):
+                            DGr_pH, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
+                                                        input_ = rxn, 
+                                                        phase = phase, 
+                                                        specComp = specC_,
+                                                        T = [T],
+                                                        pH = pH_,
+                                                        S = [S], 
+                                                        Ct = C,
+                                                        fluidType = fluidType,
+                                                        methods = methods)
+                            DGr[idpH] = np.squeeze(DGr_pH)
+                    # Thermodynamic change analysis (endergonic <-> exergonic)
+                    if np.nanmin(DGr) < 0 and np.nanmax(DGr) > 0:
+                        eqch[idRxn, idVar] = 1
+                    else:
+                        eqch[idRxn, idVar] = 0
+                    # Statistical sign from DGr = f(var)
+                    if stat_sign_method == 'kendall':
+                        stat, _ = stats.kendalltau(var_values, DGr)
+                    elif stat_sign_method == 'spearman':
+                        stat, _ = stats.spearmanr(var_values, DGr)
+                    elif stat_sign_method == 'pearson':
+                        stat, _ = stats.pearsonr(var_values, DGr)
+                    stat_sign[idRxn, idVar] = np.squeeze(np.sign(stat))
+            return stat_sign, eqch
+        
+        if showMessage:
+            print('  > Running variance-based sensitivity analysis (Sobol\' method) of Gibbs free energy...')
+        #-Checking arguments
+        if isinstance(T_sv, list) and len(T_sv) == 1: T_sv = T_sv[0]
+        if isinstance(pH_sv, list) and len(pH_sv) == 1: pH_sv = pH_sv[0]
+        if isinstance(S_sv, list) and len(S_sv) == 1: S_sv = S_sv[0]
+        ThSA._check_arguments(('list_var', 'T_sv', 'pH_sv', 'S_sv'), 
+                              (list_var, T_sv, pH_sv, S_sv),
+                              (list, (int, float), (int, float), (int, float)))
+        sv = {'Ct': Ct.copy(),
+              'T': T_sv,
+              'pH': pH_sv,
+              'S': S_sv}
+        #-Definiion of `l_bounds` and `u_bounds` based on rangeType ('VR' or 'DR') and range_. Shape: (k,)
+        k = len(list_var)
+        l_bounds, u_bounds = _u_l_bounds(list_var, rangeType, range_, sv)
+        #-The balance properties of Sobol' points require N to be a power of 2.
+        N = _N_power_of_two(num, maxN = 15)
+        # Creation of sampling matrices (N, k)
+        A, B, AB = _sample_A_B_AB(N, k, l_bounds, u_bounds, rng)
+        # Variable initialization
+        si = np.zeros((len(input_), len(list_var)))
+        st = np.zeros((len(input_), len(list_var)))
+        if check_negatives:
+            rxns_negative_first_order = []
+            negatives_first_order = []
+            rxns_negative_total_order = []
+            negatives_total_order = []
+        for idRxn, rxn in enumerate(input_):
+            print(f'  {idRxn+1}.{rxn}')
+            specC_ = specComp[idRxn]
+            start_time = time.time()
+            #-Calculation of DGr with samples A, B and AB: f(A), f(B), f(AB)
+            f_A = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, A, AB = False)
+            print('    ·Sample matrix A done (%s seconds).' % (time.time() - start_time))
+            start_time = time.time()
+            f_B = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, B, AB = False)
+            print('    ·Sample matrix B done (%s seconds).' % (time.time() - start_time))
+            start_time = time.time()
+            f_AB = _sobol_DGr(typeRxn, input_, specC_, phase, fluidType, methods, molality, sv, list_var, AB, AB = True)
+            print('    ·Sample matrix AB done (%s seconds).' % (time.time() - start_time))
+            #-Normalization by mean - empirically centered function (for sake of stability)
+            mean = np.nanmean([f_A, f_B], axis = (0, -1))
+            f_A -= mean
+            f_B -= mean
+            f_AB -= mean
+            #-Compute indices
+            s_i, s_t = _indices(f_A = f_A, f_B = f_B, f_AB = f_AB, method = sobol_simpl)
+            if check_negatives: 
+                if (s_i < 0).any():
+                    rxns_negative_first_order += [rxn]
+                    negatives_first_order += [np.nanmin(s_i)]
+                if (s_t < 0).any():
+                    rxns_negative_total_order += [rxn]
+                    negatives_total_order += [np.nanmin(s_t)]
+            si[idRxn, :] = s_i
+            st[idRxn, :] = s_t
+        print('')
+        if check_negatives:
+            if rxns_negative_first_order:
+                zip_negative_first_order = zip(rxns_negative_first_order, np.round(negatives_first_order, decimals = 5))
+                print(f'[!] Reactions with negative first order indices [\'reaction\', min(index)]: {list(zip_negative_first_order)}.')
+                print('')
+            if rxns_negative_total_order:
+                zip_negative_total_order = zip(rxns_negative_total_order, np.round(negatives_total_order, decimals = 5))
+                print(f'[!] Reactions with negative total order indices [\'reaction\', min(index)]: {list(zip_negative_total_order)}.')
+                print('')
+        # Thermodynamic change analysis (endergonic <-> exergonic) & Statistical sign from DGr = f(var)
+        print('  Executing thermodynamic change analysis & correlation analysis between DGr and variables...')
+        stat_sign, eqch = _stat_sign(typeRxn, input_, specComp, phase, fluidType, methods, molality, sv, A, list_var, stat_sign_method)
+        print('  Done.')
+        if plotMode:
+            ThSA._plot_mesh_sa(input_, list_var, st, eqch, stat_sign, "[±] Sobol' indices" , cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                               renameRxn, marker, mec, mew, mfc, ms)
+        return si, st, stat_sign, eqch
+    
+    def _plot_mesh_sa(input_, list_var, si, m_eqch, stat_sign, sa_method, cb_limit, cb_orientation, cb_fontsize, vmin, vmax, figsize, 
+                      renameRxn, marker, mec, mew, mfc, ms, fontFamily = 'Arial'):
+        plt.rcParams["font.family"] = fontFamily
         fig, ax = plt.subplots(figsize = figsize)
+        xLabels = []
+        for idVar, var in enumerate(list_var):
+            if 'conc_' in var:
+                indx = var.find('_') + 1
+                comp = var[indx:]
+                xLabels += [f'[{comp}]']
+            else:
+                xLabels += [var]
         yLabels = input_.copy()
         if renameRxn:
             for rxn_rename in renameRxn:
@@ -1916,11 +3176,22 @@ class ThSA:
                     yLabels[ind] = renameRxn[rxn_rename] 
         x = np.arange(-0.5, len(list_var), 1)
         y = np.arange(-0.5, len(yLabels), 1)
-        z = m_diff
+        if isinstance(stat_sign, np.ndarray):
+            z = np.where(stat_sign != 0, stat_sign * si, si)
+        else:
+            z = si
         if cb_limit:
             pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True, vmin = vmin, vmax = vmax,
                                cmap = 'coolwarm_r')
-            clb = fig.colorbar(pc, extend='both', orientation = cb_orientation)
+            if (np.nanmin(z) < vmin) and (np.nanmax(z) > vmax):
+                extend_ = 'both'
+            elif (np.nanmin(z) < vmin) and not (np.nanmax(z) > vmax):
+                extend_ = 'min'
+            elif (np.nanmax(z) > vmax) and not (np.nanmin(z) < vmin):
+                extend_ = 'max'
+            else:
+                extend_ = 'neither'
+            clb = fig.colorbar(pc, extend=extend_, orientation = cb_orientation)
         else:
             pc = ax.pcolormesh(x, y, z, edgecolor = 'k', snap = True,
                                norm = clr.CenteredNorm(), cmap = 'coolwarm_r')
@@ -1946,8 +3217,6 @@ class ThSA:
         fig.tight_layout()
         plt.gca().set_aspect('equal', adjustable='box')  # Ensures equal aspect ratio
         plt.show()
-        if showMessage:
-            print('  > Done.')
     
     def _writeExcel(DGr, infoRxn, fullPathSave, Ct, pH, y, altitude = False):
         """
