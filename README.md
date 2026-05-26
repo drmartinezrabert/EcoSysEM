@@ -327,12 +327,10 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 [🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
-1. Download .zip code. Last version: `v0.5.1` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.5.1.zip).
-2. Extract files to a destination (Recommendation - Desktop).
-3. Open **Anaconda Prompt or Terminal**.
-4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
+1. Open **Anaconda Prompt or Terminal**.
+2. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
-5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
+3. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
 ```
 python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
 ```
