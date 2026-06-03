@@ -15,7 +15,7 @@ class KinP:
     
     """
     # Direction of kinetic parameters
-    path = 'kinetics\\'
+    path = 'kinetics//'
     # Parameters associated to Compound (like 'Km', 'Ks' or 'Ki')
     assocParamComp = ['Km', 'Ks', 'Ki']
     
@@ -295,7 +295,7 @@ class KinRates:
 
 class Reactions:
     # Directory of reactions
-    path = 'reactions\\'
+    path = 'reactions//'
     
     def getRxn(typeRxn, input_ = 'All', warnings = False):
         """
