@@ -8,7 +8,7 @@
 <tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>RGY0058/2022</td></tr>
 </table>
 
-*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.<br>
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney*.<br>
 ____________________________
 
 ## README Contents
@@ -46,7 +46,7 @@ ____________________________
 > To open the links in a new tab: right click on the link + "Open link in new tab".
 
 ### :gear: Anaconda Python installation
-EcoSysEM platform is built up in Python. To execute this Python scripts is recommended the installation of **Anaconda**. **Anaconda Python** is a free, open-source platform that allows to write and execute code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, managment and development, and alos comes with a large number of libraries/packages that can be you for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download teh installer for your operating system.
+EcoSysEM platform is built up in Python. To execute these Python scripts it is recommended to install **Anaconda**. **Anaconda Python** is a free, open-source platform that allows writing and execution of code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, management and development, and also comes with a large number of libraries/packages that can be used for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download the installer for your operating system.
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -69,27 +69,27 @@ Spyder is a Python development environment with many features for working with P
 A **Python package** is a collection of files containing Python code (i.e., modules). To execute **EcoSysEM platform**, the following packages must to be installed:
 - **<ins>NumPy</ins>**. NumPy is the fundamental package for scientific computing in Python. It is a Python library that provides a multidimensional array object, various derived objects (such as masked arrays and matrices), and an assortment of routines for fast operations on arrays, including mathematical, logical, shape manipulation, sorting, selecting, I/O, discrete Fourier transforms, basic linear algebra, basic statistical operations, random simulation and much more. For more info and tutorials, click [here](https://numpy.org/).
 - **<ins>Pandas</ins>**. Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of the Python programming language. For more info and tutorials, click [here](https://pandas.pydata.org/).
-- **<ins>Matplotlib</ins>**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
-- **<ins>SciPy</ins>**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
-- **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
-- **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info ant tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
+- **<ins>Matplotlib</ins>**. Matplotlib is a library for creating static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
+- **<ins>SciPy</ins>**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy. It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
+- **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iterators and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
+- **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info and tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
 - **<ins>Earthaccess</ins>**. Earthaccess is a python library to search for, and download or stream NASA Earth science data with just a few lines of code. For more info and tutorials, click [here](https://earthaccess.readthedocs.io/en/latest/).
 - **<ins>cdsapi</ins>**. The Climate Data Store (CDS) Application Program Interface (API) is a service providing programmatic access to CDS and ADS data. For more info and tutorials, click [here](https://cds.climate.copernicus.eu/how-to-api).
 - **<ins>molmass</ins>**. Molmass is a Python library, console script, and web application to calculate the molecular mass (average, nominal, and isotopic pure), the elemental composition, and the mass distribution spectrum of a molecule given by its chemical formula, relative element weights, or sequence. For more info and tutorials, click [here](https://pypi.org/project/molmass/).
-- **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
 - **<ins>basemap</ins>**. Basemap is a matplotlib toolkit for plotting 2D data on maps in Python. It is similar in functionality to GrADS, GMT, the MATLAB Mapping Toolbox and the IDL Mapping Facilities. CDAT and PyNGL are other Python libraries with similar capabilities. For more info and tutorials, click [here](https://matplotlib.org/basemap/stable/index.html).
 - **<ins>python-dateutil</ins>**. Dateutil module provides powerful extensions to the standard datetime module, available in Python. For more info and tutorials, click [here](https://dateutil.readthedocs.io/en/stable/).
-- **<ins>geokernels</ins>**. Geokernels module proides fast geospatial distance computation and geodesic distance kenrels to accelerate geospatial machine learning and distance matrix calculations. For more info and tutorials, click [here](https://github.com/sigmaterra/geokernels).
+- **<ins>geokernels</ins>**. Geokernels module provides fast geospatial distance computation and geodesic distance kernels to accelerate geospatial machine learning and distance matrix calculations. For more info and tutorials, click [here](https://github.com/sigmaterra/geokernels).
+- **<ins>openpyxl</ins>**. Openpyxl is a Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files. For more info, click [here] (https://pypi.org/project/openpyxl)
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### Installation of packages using Anaconda Navigator
-You can install any Python package using the **Anaconda Navigator**. For this, execute the navigator and click to **Environments**. In this section you can install new packages and delete the already installed. For more info, click [here](https://docs.anaconda.com/free/navigator/).
+You can install any Python package using the **Anaconda Navigator**. For this, execute the navigator and click on **Environments**. In this section you can install new packages and delete those already installed. For more info, click [here](https://docs.anaconda.com/free/navigator/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### Installation of packages using pip
-**pip** is the package installer for Python. In general, pip installs the minimal instalation requirements automatically, but not the optionals requirements. To install the mentioned packages using pip, you have only to write the following command lines in **Anaconda Prompt or Terminal**:
+**pip** is the package installer for Python. In general, pip installs the minimal installation requirements automatically, but not the optional requirements. To install the mentioned packages using pip, you have only to write the following command lines in **Anaconda Prompt or Terminal**:
 #### · <ins>Anaconda Prompt</ins>
 **NumPy**:
 ```
@@ -127,10 +127,6 @@ pip install cdsapi
 ```
 pip install -U "molmass[all]"
 ```
-**pyatmos**:
-```
-pip install pyatmos
-```
 **netCDF4 (h5netcdf)**
 ```
 pip install netCDF4 h5netcdf
@@ -146,6 +142,10 @@ pip install python-dateutil
 **geokernels**
 ```
 pip install geokernels
+```
+**openpyxl**
+```
+pip install openpyxl
 ```
 ____________________________
 
@@ -186,10 +186,6 @@ python -m pip install cdsapi
 ```
 python -m pip install -U "molmass[all]"
 ```
-**pyatmos**:
-```
-python -m pip install pyatmos
-```
 **netCDF4 (h5netcdf)**
 ```
 python -m pip install netCDF4 h5netcdf
@@ -205,6 +201,10 @@ python -m pip install python-dateutil
 **geokernels**
 ```
 python -m pip install geokernels
+```
+**openpyxl**
+```
+python -m pip install openpyxl
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
@@ -227,7 +227,7 @@ All important parameters are saved using local databases in .csv format (read by
 - Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
 - Temperature dependence of Henry's law constant of solubility (B).
 
-To modify existing databases (_i.e.,_ include new parameter values), open de .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
+To modify existing databases (_i.e.,_ include new parameter values), open the .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
 
 |  IUPAC  |  Formula  |  Phase  |  Value  |  REF  |
 | ------- | --------- | ------- | ------- | ----- |
@@ -263,11 +263,11 @@ The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have 
 [🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify reaction databases
-Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
+Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stoichiometric matrix of reactions is defined. For now, the following reaction databases are included:
 - pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
 - Metabolisms. Stoichiometrix matrix of metabolic reactions.
 
-To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
+To modify existing databases open the .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
 
 |  Compounds  |  Reaction n<sup>o</sup> 1  |  Reaction n<sup>o</sup> 2  |  ...  |  Reaction n<sup>o</sup> N  |
 | ----------- | -------------------------- | -------------------------- | ----- | -------------------------- |
@@ -309,7 +309,7 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 
 · Guidelines for formulating compounds:
 - Use the same chemical symbol of elements. For example: _H_ for hydrogen, _O_ for oxygen, _Ar_ for argon, _Na_ for sodium...
-- If the compound is charged (like ion ammonium, NH<sub>4</sub><sup>+</sup>; or sulphate, SO<sub>4</sub><sup>2-</sup>), the charge sign (+ or -) is always precedes the number of charges of the ion, that is, in reverse of the normal formulizaton of ions. **Use only '+' and '-' to represent the charge of the ion.** For example: _SO4-2_ for sulphate (SO<sub>4</sub><sup>2-</sup>), _SO3-2_ for sulfite (SO<sub>3</sub><sup>2-</sup>) or _CO3-2_ for carbonate (CO<sub>3</sub><sup>2-</sup>.
+- If the compound is charged (like ion ammonium, NH<sub>4</sub><sup>+</sup>; or sulphate, SO<sub>4</sub><sup>2-</sup>), the charge sign (+ or -) always precedes the number of charges of the ion, that is, in reverse of the normal formulizaton of ions. **Use only '+' and '-' to represent the charge of the ion.** For example: _SO4-2_ for sulphate (SO<sub>4</sub><sup>2-</sup>), _SO3-2_ for sulfite (SO<sub>3</sub><sup>2-</sup>) or _CO3-2_ for carbonate (CO<sub>3</sub><sup>2-</sup>.
 - For free radicals, the compound formulization starts with 'rad' and followed by the symbol of element/compound. For example: _radOH_ for hydroxyl radical (OH·), _radBr_ for bromine radical (Br·), or _radCH3_ for methyl radical (CH<sub>3</sub>·).
 - For organic compounds, you can use the chemical formula or an abbreviation. For example: _CH3COOH_ or _AcOH_ for acetic acid, _C3H7COOH_ or _ButyOH_ for butyric acid or _C6H1206_ or _Glc_ for glucose.
 
@@ -664,12 +664,12 @@ This section clarifies concepts, design decisions and technical details of this 
 
 #### <ins>Environment definition and instance calling</ins>
 One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
-- _Encapsulation_ principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
+- _Encapsulation_ principle allows one to hide the internal state and behaviour of an object, and the object can only be accessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code that uses the object.
 - _Inheritance_ principle allows a new class to be defined based on an existing class, inheriting its attributes and methods.
-- _Abstraction_ principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
+- _Abstraction_ principle makes it possible to work with objects of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
 - _Polymorphism_ principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class.
 
-The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
+The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of procedure and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
 #
 
@@ -3208,7 +3208,7 @@ Return a dictionary with liquid concentrations.<p>
 ```python
 ThP.density(T, S, compound='H2O')
 ```
-Compute density of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute density of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Millero et al. (1980), doi: 10.1016/0198-0149(80)90016-3; Hare & Sorensen (1987), doi: 10.1063/1.453710.<br>
 Return a n-dimensional array with density values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -3227,7 +3227,7 @@ Return a n-dimensional array with density values (same shape as temperature (`T`
 ```python
 ThP.surface_tension(T, S, compound='H2O')
 ```
-Compute surface tension of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute surface tension of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Vinš et al. (2019), doi: 10.1016/j.marchem.2019.05.001.<br>
 Return a n-dimensional array with surface tension values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -3246,7 +3246,7 @@ Return a n-dimensional array with surface tension values (same shape as temperat
 ```python
 ThP.vapor_pressure(T, S, compound='H2O')
 ```
-Compute vapor pressure of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute vapor pressure of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Roll H. (1965), doi: 10.1002/qj.49709239233; Kulkarni et al. (2011), doi: 10.1002/9781118001684; Sippola & Taskinen (2018), doi: 10.1021/acs.jced.8b00251.<br>
 Return a n-dimensional array with vapor pressure values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -3265,7 +3265,7 @@ Return a n-dimensional array with vapor pressure values (same shape as temperatu
 ```python
 ThP.osmotic_coefficient(T, S=None, composition=None, solution='seawater')
 ```
-Compute osmotic coefficient of water in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg) or composition (molality; mol/kg).<br>
+Compute osmotic coefficient of water as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg) or composition (molality; mol/kg).<br>
 **References:** Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035.<br>
 Return a n-dimensional array with osmotic coefficient (same shape as temperature (`T`) and salinity (`S`) or concentration (`composition`)).<p>
 **Parameters:**<br>
@@ -3286,7 +3286,7 @@ Return a n-dimensional array with osmotic coefficient (same shape as temperature
 ```python
 ThP.water_activity(T, composition, solution='seawater')
 ```
-Compute water activity in function of temperature (`T`, in K) and composition (molality; mol/kg).<br>
+Compute water activity as a function of temperature (`T`, in K) and composition (molality; mol/kg).<br>
 Return a n-dimensional array with water activity (same shape as temperature (`T`) and concentration (`composition`)).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or np.ndarray_** <br>
@@ -3306,7 +3306,7 @@ ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidTy
 	   solids=None, elude_compounds=[])
 ```
 Compute the reaction quotient of a single reaction (Q<sub>r</sub>).<br>
-Return the value of reaction quotient in function of composition (concentrations or pressures).<p>
+Return the value of reaction quotient as a function of composition (concentrations or pressures).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
@@ -3516,7 +3516,7 @@ Return a dictionary with activities of compound(s) in solution and their chemica
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Bioenergetics</ins>
-With the <ins>Bioenergetics</ins> module, the user can evaluate the dynamic energy yield of reactions (_i.e.,_ the amount of energy produce per cell per time) considering the environmental conditions. Moreover, the cellular requirments for growth, maintenance and survival can be estimated in function of temperature based on literature values. The functions to obtain the required cell-specific powers (CSP) are found in `bioenergetics.py` module, more specifically under the class `CSP` . The main function is `CSP.getAllCSP`.
+With the <ins>Bioenergetics</ins> module, the user can evaluate the dynamic energy yield of reactions (_i.e.,_ the amount of energy produced per cell per time) considering the environmental conditions. Moreover, the cellular requirements for growth, maintenance and survival can be estimated as a function of temperature based on literature values. The functions to obtain the required cell-specific powers (CSP) are found in `bioenergetics.py` module, more specifically under the class `CSP`. The main function is `CSP.getAllCSP`.
 > [!NOTE]
 > CSP can only be calculated for one metabolism (and specific compound) at a time.
 > When required, non-standard Gibbs free energy and uptake rates can either be given as float (or np.ndarray of floats) or set to None.
@@ -3963,7 +3963,7 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 #### <ins>Ecosystem modeling</ins>
 <a name="MSMM">**Multi State Metabolic Model**</a><br>
 A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
-Here, four distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_), survival (_B<sub>S</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance, which is more demanding than survival. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in survival state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
+Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in maintenance state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
 <img width="867" height="309" alt="image" src="https://github.com/user-attachments/assets/83897c5a-8eb1-4d29-a246-0f34a4b6bcaf" />
 
@@ -3995,12 +3995,12 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **K : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Carrying capacity of the microbial community [cell/volume unity].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mortality : _float or list_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state, mortality in the survival state).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all states have the same mortality rate. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DeltaGsynth : _float_, _optional, default: 9.54E-11_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy requirement for cell synthesis in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **steepness : _float or list_, _optional, default: 0.2_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the switch function used to calculate metabolic shifts controls (in the order: Growth-Mainteance shift's steepness, Maintenance-Survival shift's steepness, Survival to Death shift's steepness).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the switch function used to calculate metabolic shifts controls (in the order: Growth-Mainteance shift's steepness, Maintenance to Death shift's steepness).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all shift controls have the same steepness parameter. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity :  _float, list or np.ndarray of floats_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt]. If None is given, salinity set to 0.0 .<br>
@@ -4084,7 +4084,7 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.typeMtb : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of metabolism.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolism : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed  by the microbial community.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed by the microbial community.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mtbRates : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Qualitative speed of metabolic processes based on the protein turnover rate of the strain.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.specMSrate : _float_**<br>
@@ -4105,7 +4105,7 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Carrying capacity of the microbial community in cell/unit volume.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mortality : _list_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of mortality rates for each metabolic state in 1/hours.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; State indexing : [m_growth, m_maintenance, m_survival] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; State indexing : [m_growth, m_maintenance] <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGsynth: _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Energy requirement for cell synthesis in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.st : _list of floats_**<br>
@@ -4120,11 +4120,10 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MSctrls : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of metabolic shifts controls (floats between 0 and 1) based on local environment conditions. Available only after running .solveODE().<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘GxM’] : Control of the shifts between growth and maintenance states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘MxS’] : Control of the shifts between maintenance and survival states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘S-RIP’] : Control of the survival to death shift <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘M-RIP’] : Control of the maintenance to death shift <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume. Available only after running .solveODE(). <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, survival, death], tSpan+1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, death], tSpan+1).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityName : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community name based on metabolism. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotTitle : _str_**<br>
@@ -4201,16 +4200,15 @@ Once an MSMM instance has been created, it is possible to solve the correspondin
 > Done.
 
 # solve ODE system over 10 days (240 hours) with initial state biomass in cell/m3 of:
-# Growth = 5, Maintenance = 30, Survival = 15, Dead cells = 0
->>> newMSMM.solveODE([5,30,15,0], 240, solExport = True)
+# Growth = 5, Maintenance = 45, Dead cells = 0
+>>> newMSMM.solveODE([5,45,0], 240, solExport = True)
 # => Excel document of solutions is created
 
 # print solutions (first 5 hours are shown here)
 >>> print(newMSMM.Bsol)
-array([[ 5.000e+00,  1.015e+01,  1.477e+01,  1.889e+01,  2.253e+01, 2.572e+01, …], 
-	[3.000e+01,  2.755e+01,  2.514e+01,  2.283e+01,  2.066e+01, 1.867e+01, …], 
-	[1.500e+01,  1.228e+01,  1.005e+01,  8.220e+00,  6.730e+00, 5.510e+00, …],
-	[0.000e+00,  2.000e-02,  4.000e-02,  6.000e-02,  8.000e-02, 1.000e-01, …]])
+array([[ 5.000e+00,  1.298e+01,  1.950e+01,  2.483e+01,  2.920e+01,  3.276e+01, …], 
+	[4.500e+01,  3.700e+01,  3.046e+01,  2.510e+01,  2.072e+01,  1.713e+01, …], 
+	[0.000e+00,  2.000e-02,  4.000e-02,  6.000e-02,  8.000e-02,  1.000e-01, …]])
 
 # plot solutions
 >>> newMSMM.plotMSMM()
@@ -4224,7 +4222,7 @@ MSMM.solveODE(Bini, tSpan, dt = 1, solExport = False)
 Function to solve the MSMM ODE system and export the results as Excel document if needed.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Bini : _list of ints_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Survival).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Dead cells).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **tSpan : _list or np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time range over which the microbial dynamic is computed (in hours).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dt : _int or float_, _optional, default: 1_**<br>
