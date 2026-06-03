@@ -12,8 +12,6 @@ import os.path
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 
-# Test (Eloi)
-
 # Import environment classes
 from environments import ISA, ISAMERRA2, CAMSMERRA2
 
@@ -21,7 +19,7 @@ class MSMM:
     """
     Class for Multi-State Metabolic Model
     """
-# Test same line (Eloi)
+
     def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
                  DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
                  Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
