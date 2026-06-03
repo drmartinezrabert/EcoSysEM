@@ -3377,7 +3377,7 @@ class CAMSMERRA2(Atmosphere):
         self.temperature = t_target
         self.pressure = p_target
         self.altitude = z_m
-        #-v1 (with pyatomos)-#
+        #-v1 (with pyatmos)-#
         # h_km = cams_alt * 1e-3 # km
         # rho_kg_m3 = coesa76(h_km).rho # kg/m3
         # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
