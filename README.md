@@ -3965,7 +3965,7 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
 Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in maintenance state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
-<img width="867" height="309" alt="image" src="https://github.com/user-attachments/assets/83897c5a-8eb1-4d29-a246-0f34a4b6bcaf" />
+<img width="629" height="325" alt="schematic_updated" src="https://github.com/user-attachments/assets/fc020132-fb6d-4ba7-8691-70fa5754119b" />
 
 **Figure 1. Schematic representation of the simulated metabolic states of cells, the associated metabolic processes and the interaction with the environment** <br>
 _Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).
@@ -4213,7 +4213,7 @@ array([[ 5.000e+00,  1.298e+01,  1.950e+01,  2.483e+01,  2.920e+01,  3.276e+01, 
 # plot solutions
 >>> newMSMM.plotMSMM()
 ```
-<img width="945" height="494" alt="image" src="https://github.com/user-attachments/assets/086fc83f-1908-49f9-8bbc-5a36431c3900" />
+<img width="776" height="383" alt="Sol" src="https://github.com/user-attachments/assets/24f06b0a-470b-44b4-af43-09b4f2016b67" />
 
 ### MSMM.solveODE &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
