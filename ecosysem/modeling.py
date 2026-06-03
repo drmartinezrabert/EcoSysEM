@@ -40,7 +40,7 @@ class MSMM:
         if not isinstance(degradPace, str):
             if isinstance(degradPace, (int, float)):
                 self.specMSrate = 1 / degradPace #specific metabolic shift rate [1/h]
-            else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {degradPace}.')
+            else : raise TypeError(f'Degradation pace must be a float/int or str. Current type : {type(degradPace)}.')
         elif isinstance(degradPace, str):
             if not degradPace in ['fast', 'moderate', 'slow'] :
                 raise NameError('Invalid str input for degradPace. Valid inputs : fast, moderate, slow.')
@@ -48,7 +48,7 @@ class MSMM:
                 self.specMSrate = 1 / (turnoverRate[degradPace]) #specific metabolic shift rate [1/h]
         self.mtbRates = degradPace      #'fast', 'moderate', 'slow' or float/int.
         if not isinstance(typeMetabo, str):
-            raise TypeError(f'typeMetabo must be a str. Current type: {typeMetabo}.')
+            raise TypeError(f'typeMetabo must be a str. Current type: {type(typeMetabo)}.')
         self.typeMtb = typeMetabo       #metabolism type (STR), e.g. 'AnMetabolisms'
         if not isinstance(metabolism, list): metabolism = [metabolism]
         if not len(metabolism) == 1:
@@ -81,14 +81,14 @@ class MSMM:
             if not len(salinity) == 1:
                 raise AttributeError(f'A single salinity value must be given, current salinity: {salinity}.')
             if not isinstance(salinity[0], (float, int)):
-                raise TypeError(f'Given salinity value must be float or int, current type: {salinity[0]}.')
+                raise TypeError(f'Given salinity value must be float or int, current type: {type(salinity[0])}.')
         else: salinity = [0.0]
         if isinstance(pH, list):
             if not len(pH) == 1:
                 raise AttributeError(f'A single pH value must be given, current pH: {pH}.')
             else: pH = pH[0]
         if not isinstance(pH, (float, int)):
-            raise TypeError(f'Given pH value must be float or int, current type: {pH}.')
+            raise TypeError(f'Given pH value must be float or int, current type: {type(pH)}.')
         self.dataType = dataType        #(STR)
         self.dataYear = years #(INT or LIST)
         self.dataMonth = month #(INT)
@@ -97,9 +97,9 @@ class MSMM:
             raise TypeError(f'Carrying capacity (K) must be a float or an int. Current type: {type(K)}.')
         self.K = K     #(INT or FLOAT), carrying capacity [cell/unit volume]
         if not isinstance(mortality, list): mortality = [mortality]
-        if len(mortality) == 1: mortality *= 3
-        elif len(mortality) != 3:
-            raise AttributeError(f'Mortality rates must be either the same for all 3 states (Growth, Maintenance, Survival) or a list of 3 ordered Floats. Current input: {mortality}.')
+        if len(mortality) == 1: mortality *= 2
+        elif len(mortality) != 2:
+            raise AttributeError(f'Mortality rates must be either the same for both active states (Growth, Maintenance) or a list of 2 ordered Floats. Current input: {mortality}.')
         self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
         if not isinstance(DeltaGsynth, (float,int)):
             raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
@@ -107,9 +107,9 @@ class MSMM:
         if not isinstance(steepness, list): steepness = [steepness]
         if not all(isinstance(k, (float,int)) for k in steepness):
             raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
-        if len(steepness) == 1: steepness *= 3
-        elif len(steepness) != 3:
-            raise AttributeError(f'Steepness parameter in the shift control functions must be either the same for all 3 types of shift (GxM, MxS, S-RIP) or a list of 3 ordered Floats. Current input: {steepness}.')
+        if len(steepness) == 1: steepness *= 2
+        elif len(steepness) != 2:
+            raise AttributeError(f'Steepness parameter in the shift control functions must be either the same for both types of shift (GxM, M-RIP) or a list of 2 ordered Floats. Current input: {steepness}.')
         self.st = steepness             # [-]
         if not isinstance(fluidType, str):
             raise TypeError(f'fluidType must be a str. Current type: {type(fluidType)}.')
@@ -230,7 +230,7 @@ class MSMM:
 
     def _ODEsystem_MSMM(self, t, y):
         """
-        Function for the differential equations system of the model.
+        Function for the model's system of differential equations.
         
         Parameters
         ----------
@@ -243,33 +243,32 @@ class MSMM:
         Returns
         -------
         dB : LIST of FLOAT
-            Biomass variation [cell/h] in each metabolic state (Growth, Maintenance, Survival, Death).
+            Biomass variation [cell/h] in each metabolic state (Growth, Maintenance, Death).
         
         """
         Bg = y[0]
         Bm = y[1]
-        Bs = y[2]
-        Blist = [Bg, Bm, Bs]
+        Blist = [Bg, Bm]
         Btot = sum(Blist)
         
         #import self.attributes
         mortality = self.mortality.copy()
         mG = mortality[0]   #mortality in growth state
         mM = mortality[1]   #mortality in maintenance state
-        mS = mortality[2]   #mortality in survival state
         K = self.K
         DGr = self.DGr.copy()
         Rs = self.Rs.copy()
         Yx = -(DGr * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
         
         # Compute biomass transfer between metabolic states
-        Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip = MSMM._Bflux(self, Blist)
+        Rm_g, Rg_m, Rm_rip = MSMM._Bflux(self, Blist)
         # Compute biomass variation       
         dBg = Yx * Rs * Bg * (1 - (Btot / K)) + Rm_g - Rg_m - mG * Bg    
-        dBm = Rg_m + Rs_m - Rm_g - Rm_s - mM * Bm                     
-        dBs = Rm_s - Rs_m - Rs_rip - mS * Bs                          
-        dBrip = mG * Bg + mM * Bm + mS * Bs + Rs_rip  
-        dB = [dBg, dBm, dBs, dBrip]
+        dBm = Rg_m - Rm_g - mM * Bm - Rm_rip                 
+        dBrip = mG * Bg + mM * Bm + Rm_rip  
+        dB = [np.squeeze(dBg), 
+              np.squeeze(dBm), 
+              np.squeeze(dBrip)]
         return dB
 
     def _Bflux(self, Blist):
@@ -280,10 +279,10 @@ class MSMM:
         ----------
 
         Blist : LIST
-            List of 3 floats corresponding to biomass (e.g. [cell/m^3 air])
-            in each state (growth, maintenance and survival) at time t.
+            List of 2 floats corresponding to biomass (e.g. [cell/m^3 air])
+            in each state (growth and maintenance) at time t.
             First element of the list must be for growth,
-            second for maintenance and third for survival.
+            second for maintenance.
         
         Returns
         -------
@@ -291,27 +290,23 @@ class MSMM:
              List of computed biomass transfer [cell/h] for each kind of metabolic shift:
                  - Rm_g : transfer from maintenance to growth
                  - Rg_m : transfer from growth to maintenance
-                 - ...
-                 - Rs_rip : transfer from survival to dead cells
+                 - Rm_rip : transfer from maintenance to dead cells
         """
-        if len(Blist) != 3:
-            raise ValueError(f'Blist must contain 3 elements (Bg, Bm, Bs), current Blist: {Blist}.')
+        if len(Blist) != 2:
+            raise ValueError(f'Blist must contain 2 elements (Bg, Bm), current Blist: {Blist}.')
         #Create shift control dict in MSMM attributes
         self._stShifts()
         #Biomass in each metabolic state
         Bg = Blist[0] 
         Bm = Blist[1]
-        Bs = Blist[2]
         #import metabolic shift controls and rates
         theta = self.MSctrls.copy()
         eta = self.specMSrate
         #compute biomass transfers
         Rm_g = Bm * eta * theta['GxM']
         Rg_m = Bg * eta * (1 - theta['GxM'])
-        Rs_m = Bs * eta * theta['MxS']
-        Rm_s = Bm * eta * (1 - theta['MxS'])
-        Rs_rip = Bs * eta * (1 - theta['S-RIP'])
-        Rlist = [Rm_g, Rg_m, Rs_m, Rm_s, Rs_rip]
+        Rm_rip = Bm * eta * (1 - theta['M-RIP'])
+        Rlist = [Rm_g, Rg_m, Rm_rip]
         return Rlist
     
     def _stShifts(self):
@@ -323,14 +318,12 @@ class MSMM:
         st = self.st
         #Compute cell specific powers
         Pcat = CSPdict['Pcat']
-        Pm = CSPdict['Pm0']
         Ps = CSPdict['Ps']
         Pcell = CSPdict['Pcell']
         #Initialize thetaDict before shift controls (theta) calculations
         thetaDict = {}
         thetaDict['GxM'] = 1 / (np.exp((-Pcat + Pcell)/(st[0] * Pcell)) +1)
-        thetaDict['MxS'] = 1 / (np.exp((-Pcat + Pm)/(st[1] * Pm)) +1)
-        thetaDict['S-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st[2] * Ps)) +1)
+        thetaDict['M-RIP'] = 1 / (np.exp((-Pcat + Ps)/(st[1] * Ps)) +1)
         self.MSctrls = thetaDict
 
     def solveODE(self, Bini, tSpan, dt = 1, solExport = False):
@@ -341,7 +334,7 @@ class MSMM:
         ----------
         
         Bini : LIST of INT
-            Initial biomass in each state (Growth, Maintenance, Survival, Death)
+            Initial biomass in each state (Growth, Maintenance, Death)
         tSpan : LIST or np.array
             Time range over which the microbial dynamic is computed, in hours
         dt : INT or FLOAT, optional (default : 1h)
@@ -353,19 +346,19 @@ class MSMM:
         -------
         
         None 
-        ODE solutions (numpy.ndarray of shape [4, tSpan+1]) are saved as MSMM attribute ('Bsol')
+        ODE solutions (numpy.ndarray of shape [3, tSpan+1]) are saved as MSMM attribute ('Bsol')
         If solExport is set to True, creates an Excel document of the results.
         
         """
         # check Bini
         if not isinstance(Bini, np.ndarray): Bini = np.array(Bini)
-        if len(Bini) != 4:
-            raise ValueError(f'Bini must contain 4 elements, current length: {len(Bini)}.')
+        if len(Bini) != 3:
+            raise ValueError(f'Bini must contain 3 elements, current length: {len(Bini)}.')
         # create time array for later plotting
         self.t_plot = np.linspace(0, tSpan, int(tSpan/dt)+1)
         #Initialize Bint matrix
-        Bint = np.empty(4)
-        Bint = Bint[..., np.newaxis]
+        Bint = np.empty(3)
+        Bint = Bint[..., np.newaxis]    
         Bint = np.repeat(Bint, tSpan+1, axis = -1)
         Bint[:,0] = Bini
         #create ode instance & set initial values & integration method
@@ -395,11 +388,11 @@ class MSMM:
         Write calculated metabolic state biomass in Excel document.
 
         """
-        Bstates = ['Growth', 'Maintenance', 'Survival', 'Death']
+        Bstates = ['Growth', 'Maintenance', 'Death']
         nameSheet_B = 'MSMM biomass'
         # import solutions of the ODE and time array from MSMM attributes
         time = pd.DataFrame(self.t_plot, columns = ['time (h)| states :'])
-        Bdf = pd.DataFrame({Bstates[i]: self.Bsol[i] for i in range(4)})
+        Bdf = pd.DataFrame({Bstates[i]: self.Bsol[i] for i in range(3)})
         # adapt header to environment model
         if self.envModel == 'ISA':
             alt = self.coord[0]
