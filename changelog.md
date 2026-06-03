@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
 - Now `ThP.getThP()` drops duplicate values.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
+- Fixed plot display in `MSMM.plotMSMM`
 ### Changed
 - README file.
 - Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
@@ -35,6 +36,8 @@ All notable changes to this project will be documented in this file.
   - Standard Gibbs free energy of formation.
   - Standard Enthalpy of formation
   - Specific heat capacity
+- Remove 'Survival' state from `modeling.py` 
+- Update `CAMSMERRA2._getConcCAMSMERRA2` to calculate rho directly without using pyatmos
 
 ## [0.5.1] - 2026/03/16
 ### Added
