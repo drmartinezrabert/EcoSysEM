@@ -3339,7 +3339,7 @@ Return the value of reaction quotient as a function of composition (concentratio
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **elude_compounds : _list or np.ndarray_, _optional, default: []** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compoound(s) to be eluded in Qr calculations.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to be eluded in Qr calculations.<p>
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Qr : _FLOAT or np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value(s) of reaction quotient(s). Same shape as T, pH, salinity and Ct.<br>
