@@ -421,14 +421,18 @@ class MSMM:
         if Bplot is None:
             raise AttributeError('MSMM attribute "Bsol" could not be found. Please first use MSMM.solveODE().')
         # plotting of metabolic state curves
-        plt.plot(self.t_plot, Bplot[0,:],'g-', linewidth=2.0)    #growth state curve
-        plt.plot(self.t_plot, Bplot[1,:],'k-', linewidth=2.0)    #maintenance state curve
-        plt.plot(self.t_plot, Bplot[2,:],'b-', linewidth=2.0)    #survival state curve
-        plt.plot(self.t_plot, Bplot[3,:],'r--', linewidth=2.0)   #death state curve
-        plt.xlabel('time (hours)')
-        plt.ylabel(self.plotYlabel)
-        plt.title(self.plotTitle)
-        plt.legend(['Growth', 'Maintenance', 'Survival', 'Dead cells'], bbox_to_anchor = (1.42, 1.0), borderaxespad = 1, title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
-        plt.grid() 
+        
+        fig, ax=plt.subplots(layout='tight')
+        fig.set_size_inches(8.3, 4)
+        ax.plot(self.t_plot, Bplot[0,:],'g-', linewidth=2.0, label='Growth')    #growth state curve
+        ax.plot(self.t_plot, Bplot[1,:],'k-', linewidth=2.0, label='Maintenance')    #maintenance state curve
+        ax.plot(self.t_plot, Bplot[2,:],'r--', linewidth=2.0 ,label='Dead cells')  #death state curve
+        ax.set_xlim(0)
+        #ax.set_ylim(0)
+        ax.set_xlabel('time (hours)')
+        ax.set_ylabel(self.plotYlabel)
+        ax.set_title(self.plotTitle)
+        ax.grid() 
+        ax.legend(bbox_to_anchor = (1.35, 0.8), title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
         plt.show()
         return
