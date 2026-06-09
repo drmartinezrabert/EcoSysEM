@@ -3377,16 +3377,17 @@ class CAMSMERRA2(Atmosphere):
         self.temperature = t_target
         self.pressure = p_target
         self.altitude = z_m
-        #-v1 (with pyatmos)-#
+        #-v1 (with pyatomos)-#
         # h_km = cams_alt * 1e-3 # km
         # rho_kg_m3 = coesa76(h_km).rho # kg/m3
         # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
         # rho = rho_kg_L[:, None, None]
         #-v2 (EcoSysEM)-#
-        cams_t, cams_P, cams_alt_merra2 = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
-        rho_g_m3 = (cams_P * 28.9644) / (8.31432 * cams_t) # g/m3
+        h_km = cams_alt * 1e-3 # km
+        cams_t_plev = 288.15 - 6.5 * (h_km - 0)
+        rho_g_m3 = (cams_plev * 28.9644) / (8.31432 * cams_t_plev) # g/m3
         rho_kg_L = rho_g_m3 * 1e-6
-        rho = np.squeeze(rho_kg_L[:, None, None])
+        rho = rho_kg_L[:, None, None]
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
