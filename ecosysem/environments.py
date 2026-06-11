@@ -429,7 +429,7 @@ class Environment:
 
     def getDHr(self, typeRxn, input_, specComp = False):
         """
-        Compute (non-)standard enthaly of reaction using information from
+        Compute (non-)standard enthalpy of reaction using information from
         environmental models.
 
         Parameters
