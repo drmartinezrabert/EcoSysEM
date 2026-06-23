@@ -38,7 +38,8 @@ All notable changes to this project will be documented in this file.
   - Standard Enthalpy of formation
   - Specific heat capacity
 - Remove 'Survival' state from `modeling.py` 
-- Update `CAMSMERRA2._getConcCAMSMERRA2` to calculate rho directly without using pyatmos
+- Update `CAMSMERRA2._getConcCAMSMERRA2()` to calculate rho directly without using pyatmos
+- Update `MSMM` object: generalize to model simulate multiple metabolisms concurrently (changes to `MSMM.__init__()`, `MSMM._callEnvP()`, `MSMM._ODEsystem_MSMM()`, `MSMM._stShifts()`, `MSMM.solveODE`, `MSMM._writeExcel`, `MSMM.plotMSMM`)
 
 ## [0.5.1] - 2026/03/16
 ### Added
