@@ -457,6 +457,9 @@ class MSMM:
                 axs[i].plot(self.t_plot, Bplot[2+3*i,:],'r--', linewidth=2.0 ,label='Dead cells')  #death state curve
                 axs[i].set_xlim(0)
                 #axs[i].set_ylim(0)
+                theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['GxM']),8)
+                theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['M-RIP']),8)
+                axs[i].set_title(f'{self.communityNames[self.metabolisms[i]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
                 axs[i].grid()
             axs[max(len(self.metabolisms)-2,0)].set_ylabel(self.plotYlabel)
             axs[len(self.metabolisms)-1].legend(bbox_to_anchor = (1.35, 0.8), title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
@@ -469,6 +472,9 @@ class MSMM:
             ax.plot(self.t_plot, Bplot[2,:],'r--', linewidth=2.0 ,label='Dead cells')  #death state curve
             ax.set_xlim(0)
             #ax.set_ylim(0)
+            theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['GxM']),8)
+            theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['M-RIP']),8)            
+            ax.set_title(f'{self.communityNames[self.metabolisms[i]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
             ax.grid()
             ax.set_ylabel(self.plotYlabel)
             ax.legend(bbox_to_anchor = (1.35, 0.8), title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
