@@ -29,7 +29,6 @@ All notable changes to this project will be documented in this file.
 - Bug in `_ODEsystem_MSMM_()` after upgrade from Scipy 1.16.3, needed `np.squeeze` in return array.
 - Now `ThP.getThP()` drops duplicate values.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
-- Fixed plot display in `MSMM.plotMSMM`; added theta1 & 2 values to plot titles
 ### Changed
 - README file.
 - Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
@@ -40,6 +39,7 @@ All notable changes to this project will be documented in this file.
 - Remove 'Survival' state from `modeling.py` 
 - Update `CAMSMERRA2._getConcCAMSMERRA2()` to calculate rho directly without using pyatmos
 - Update `MSMM` object: generalize to model simulate multiple metabolisms concurrently (changes to `MSMM.__init__()`, `MSMM._callEnvP()`, `MSMM._ODEsystem_MSMM()`, `MSMM._stShifts()`, `MSMM.solveODE`, `MSMM._writeExcel`, `MSMM.plotMSMM`)
+- Add theta 1 & 2 values to plot titles.
 
 ## [0.5.1] - 2026/03/16
 ### Added
