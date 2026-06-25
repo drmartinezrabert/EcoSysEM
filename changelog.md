@@ -29,6 +29,8 @@ All notable changes to this project will be documented in this file.
 - Bug in `_ODEsystem_MSMM_()` after upgrade from Scipy 1.16.3, needed `np.squeeze` in return array.
 - Now `ThP.getThP()` drops duplicate values.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
+- Fix plot display in `MSMM.plotMSMM`; 
+- Fix bug in `KinRates.getRs` : paramDB argument for MM kinetics must be a list now.
 ### Changed
 - README file.
 - Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
