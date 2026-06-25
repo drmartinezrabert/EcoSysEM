@@ -110,8 +110,10 @@ class KinRates:
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
-        paramDB : STR
+        paramDB : LIST of STR
             Name of parameter database, matching with csv name.
+                - If MM: paramDB = ['Michaelis-Menten DB']
+                - IF MM-Arrhenius: paramDB = ['Michaelis-Menten DB', 'Arrhenius DB']
         reactions : STR or LIST
             Requested reaction(s).
         Ct : DICT
@@ -159,18 +161,14 @@ class KinRates:
                 Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
         if typeKin == 'MM':
             params = ['qmax', 'Km']
-            """ # !!!
-            if len(paramDB) != 1:
-                print('!EcoSysEM.Error: only 1 database must be given: paramDB = "Michaelis-Menten DB"')
-                sys.exit()
-            """
+            if len(paramDB) != 1: raise ValueError('For MM equation, only 1 database must be given: paramDB = ["Michaelis-Menten DB"]')
             # Initialize results
             Rs = {}
             combNames = {}
             for idRxn, Rxn in enumerate(reactions):
                 # Initialize combNames[Rxn]
                 combNames[Rxn] = []
-                p, sampleNames = KinP.getKinP(paramDB, params, Rxn, sample, compounds)
+                p, sampleNames = KinP.getKinP(paramDB[0], params, Rxn, sample, compounds)
                 qmax = p['qmax']
                 # Select Km
                 Km = {k : p[k] for k in p if 'Km' in k}
