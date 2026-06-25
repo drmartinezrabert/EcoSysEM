@@ -203,7 +203,7 @@ class Environment:
                 elif data[key].ndim == 2:
                     data[key] = data[key][::-1, :]
                 else: continue
-        # Ensure ascending lontidue order
+        # Ensure ascending longitude order
         if lons[0] > lons[-1]:
             lons = lons[::-1]
             data['lon'] = lons
