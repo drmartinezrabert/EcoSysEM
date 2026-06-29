@@ -3910,14 +3910,15 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 > If you want to calculate the influence of T for one rate, use single value arrays in `Ct` dictionary with same shape as temperature:
 > ```python
 > import numpy as np
+> from reactions import KinRates
 > T = np.array([[273.15, 278.15, 283.15],
 >              [288.15, 293.15, 298.15],
 >              [303.15, 308.15, 313.15]])
 > Ct = {'Compound A': 1.0 * np.ones(T.shape);
 >      'Compound B': 2.0 * np.ones(T.shape);
 >      'Compound C': 3.0 * np.ones(T.shape)}
-> Rs, combNames, orderComb = typeKin = 'MM-Arrhenius', paramDB = ['qs_FFAM', 'ArrhCor'],
->               reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
+> Rs, combNames, orderComb = KinRates.getRs(typeKin = 'MM-Arrhenius', paramDB = ['qs_FFAM', 'ArrhCor'],
+>               							reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
 > ```
 
 **Parameters:**<br>
