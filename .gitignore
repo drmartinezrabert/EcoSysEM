@@ -4,6 +4,7 @@ z_test*
 ecosysem/reactions/*
 ecosysem/results/*.xlsx
 ecosysem/data/*.xlsx
+ecosysem/kinetics/*
 *.nc
 *.avi
 *.npz
