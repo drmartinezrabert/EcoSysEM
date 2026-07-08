@@ -5,7 +5,9 @@
 *· Funded by:*
 
 <table>
-<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>RGY0058/2022</td></tr>
+	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>RGY0058/2022</td></tr>
+	<tr><td>2026 - 2028:</td><td><img src="https://github.com/user-attachments/assets/39118790-96fa-4490-ac1e-d6d53bfa4a73" width="150"/>
+ </td><td>ID: 101115755</td></tr>
 </table>
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.<br>
