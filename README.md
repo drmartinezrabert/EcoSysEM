@@ -6,7 +6,7 @@
 
 <table>
 	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>HFSP: RGY0058/2022</td></tr>
-	<tr><td>2026 - 2028:</td><td><img align="centre" src="https://github.com/user-attachments/assets/62098f88-70fc-4d6d-8648-3309731db1ff" width="150" ></td><td>ERC: 101115755</td></tr>
+	<tr><td><b>2026 - 2028:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/62098f88-70fc-4d6d-8648-3309731db1ff" width="150" ></td><td>ERC: 101115755</td></tr>
 </table>
 
 *· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.<br>
