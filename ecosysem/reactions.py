@@ -89,7 +89,7 @@ class KinP:
                             dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
                             cVal = np.all(f'{iParam}_{comp}' == 0.0)
                             if cVal: raise ValueError(f'Limiting substrate ({comp}) not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
-                else: raise ValueError(f'You must to define the compounds for {iParam} with `comp` parameter.')
+                else: raise ValueError(f'You must define the compounds for {iParam} with `comp` parameter.')
         return dictR, sampleNames
     
 class KinRates:

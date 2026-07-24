@@ -1508,7 +1508,7 @@ class ISA(Atmosphere):
     
     def _getConcISA(self, phase, compound = None):
         """
-        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        Computation of vertical profiles of compounds (partial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
         and liquid concentration in sea water, Ci_L-SW).
         Gas concentrations (Ci_G) are calculated using Dalton's law and the 
@@ -1523,7 +1523,7 @@ class ISA(Atmosphere):
                         'L-FW' - Liquid fresh water.
                         'L-SW' - Liquid sea water.
                         'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phaes (G, L-FW, L-SW).
+                        'All' - All phases (G, L-FW, L-SW).
         compound : STR or LIST, optional
                 Interested compounds. The default is None. (i.e., all compounds are considered).
         """
@@ -2074,7 +2074,7 @@ class ISAMERRA2(Atmosphere):
     
     def _getConcISAMERRA2(self, phase, dataType, y, m = None, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
         """
-        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        Computation of vertical profiles of compounds (partial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
         and liquid concentration in sea water, Ci_L-SW).
         Gas concentrations (Ci_G) are calculated using Dalton's law and the 

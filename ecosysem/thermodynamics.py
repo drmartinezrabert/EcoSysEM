@@ -1172,7 +1172,7 @@ class ThEq:
         else:
             print('!EcosysEM.Error: No water type selected. Use one of the following wType:\n'+
               '                 \'FW\'      - Fresh Water.\n'+
-              '                 \'SW\'      - Sew Water.')
+              '                 \'SW\'      - Sea Water.')
             return None, None
     
     def get_concentrations_Henry(gas_composition, P, T = None, liquid_type = 'FW'):
@@ -1386,7 +1386,7 @@ class ThSA:
 
         Returns
         -------
-        DGr : np.array
+        DSr : np.array
             Non-standard entropy change values.
             Shape: (Z)x(Y)x(X)x(reactions).
         infoRxn : LIST
