@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - New functions in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()` and `ThSA.thermodynamic_limits()`.
 - New functions in `Environment` class (`environments.py`): `Environment.getDSr()` and `Environment.thermodynamic_limits()`.
 - New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
+- New function in `CSP` class (`bioenergetics.py`) : estimate_yield()
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
 - Bug in `_ODEsystem_MSMM_()` after upgrade from Scipy 1.16.3, needed `np.squeeze` in return array.

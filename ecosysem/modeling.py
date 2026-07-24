@@ -275,6 +275,7 @@ class MSMM:
             Blist = [Bg, Bm]
 
             Yx = -(DGr[self.metabolisms[i]] * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
+            Yx = CSP.estimate_yield(DGr[self.metabolisms[i]])      # cell growth yield [cell/mol eD]
             Btot = Bg + Bm
             # Compute biomass transfer between metabolic states
             Rm_g, Rg_m, Rm_rip = MSMM._Bflux(self, Blist, self.metabolisms[i])

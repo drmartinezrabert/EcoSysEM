@@ -590,6 +590,7 @@ ecosysem
   │           └── sobol_indices_DeltaGr
   ├── bioenergetics.py  
   │      └── CSP
+  │           ├── estimate_yield
   │           ├── getPcat
   │           ├── getPana
   │           ├── getPmg
@@ -3559,6 +3560,7 @@ Here is an example:
 >>> ISAcond.getCSP(typeKin, paramDB, typeMetabo, reaction, specComp)
 >>> csp = ISAcond.CSP
 ```
+### CSP.estimate_yield &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 
 ### CSP.getPcat &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4710,6 +4712,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.sobol_indices_DeltaGr](#thsasobol_indices_deltagr---back-to-function-navigation)<br>
 
 #### · <ins> Bioenergetics calculations (CSP)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.estimate_yield](#cspestimateyield---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPcat](#cspgetpcat---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPana](#cspgetpana---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPmg](#cspgetpmg---back-to-function-navigation)<br>
