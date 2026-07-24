@@ -434,9 +434,9 @@ class MSMM:
         soldict={}
         
         ### DEBUGGING ODE FOR COMPOUNDS
-        print (f't={t}')
-        for compound in self.compounds:
-             print (f'conc of {compound} in aerosol={Ct[compound]}') if self.scenario == 'Variable aerosol' else print (f'conc of {compound}: aerosol={Ct[compound]}, air={Ct_G[compound]}')
+       # print (f't={t}')
+       # for compound in self.compounds:
+           # print (f'conc of {compound} in aerosol={Ct[compound]}') if self.scenario == 'Variable aerosol' else print (f'conc of {compound}: aerosol={Ct[compound]}, air={Ct_G[compound]}')
         ###
         
         for comp_ in self.compounds:
@@ -543,21 +543,24 @@ class MSMM:
         ----------
         
         Bini : LIST of INT or FLOAT
-            Initial biomass in each state (Growth, Maintenance, Death),
-            plus initial molar concentration of compounds if dynamic
+            Initial biomass in each state (Growth, Maintenance, Death); followed by initial molar concentrations
+            of compounds in aerosol, then concentrations in atmosphere, depending on scenario. Compounds listed in 
+            same order as in MSMM.compounds.
         tSpan : LIST or np.array
             Time range over which the microbial dynamic is computed, in hours
         dt : INT or FLOAT, optional (default : 1h)
             Time step for the integration.
         solExport : BOOL, optional (default : False)
-            Command to export integrated biomass values as Excel document if set to True.
+            Command to export integrated biomass values as Excel document if set to True (currently only available 
+            for scenario 1, 'Constant').
         
         Returns
         -------
         
         None 
         ODE solutions (numpy.ndarray of shape [3*len(metabolisms), tSpan+1],
-                       or [3*len(metabolisms)+len(compounds, tSpan+1], are saved as MSMM attribute ('Bsol')
+                       or [3*len(metabolisms)+len(compounds), tSpan+1], or [3*len(metabolisms)+2*len(compounds), 
+                        tSpan+1]) are saved as MSMM attribute ('Bsol')
         If solExport is set to True, creates an Excel document of the results.
         
         """
