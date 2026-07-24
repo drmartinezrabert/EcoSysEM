@@ -427,7 +427,7 @@ class Environment:
         npz.close()
         return keys
 
-    def getDHr(self, typeRxn, input_, specComp = False):
+    def getDHr(self, typeRxn, input_, specComp = False, phase = None):
         """
         Compute (non-)standard enthalpy of reaction using information from
         environmental models.
@@ -441,6 +441,8 @@ class Environment:
             Name(s) of requested compound(s) or reaction(s).
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -450,7 +452,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance(phase, str): 
+            phase = self.phase
         if phase == 'L-FW' or 'L-SW':
             phase = 'L'
         T = self.temperature.copy()
@@ -460,7 +463,7 @@ class Environment:
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
 
-    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False):
+    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False, phase = None):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
@@ -476,6 +479,8 @@ class Environment:
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         solids : LIST or np.ndarray
             Name(s) of compound(s) in solid phase. The default is None.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -485,7 +490,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance (phase, str): 
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
@@ -589,7 +595,7 @@ class Environment:
                                                 molality, solvent, asm, solids, standard_enthalpy)
         self.limits = limit_value
     
-    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False):
+    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False, phase = None):
         """
         Compute (non-)standard entropy change using information from environmental models.
 
@@ -604,6 +610,8 @@ class Environment:
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         solids : LIST or np.ndarray
             Name(s) of compound(s) in solid phase. The default is None.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -613,7 +621,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance (phase, str): 
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
@@ -653,7 +662,7 @@ class Environment:
                         DSr_dict[f'{rxn}'] = DSr[..., idRxn]
         self.DSr = DSr_dict
     
-    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
+    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False, phase = None):
         """
         Compute reaction rates using information from environmental models.
         
@@ -675,6 +684,8 @@ class Environment:
             A command to compute the mean of sample combinations's values.
             If set to True, the returned dictionary contains a single np.ndarray
             for each reaction key instead of comb keys with their own subarray.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
                 
         Returns
         -------
@@ -691,7 +702,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance(phase,str): 
+            phase = self.phase
         T = self.temperature.copy()
         # check attributes type
         if self.model == 'GWB':
@@ -716,7 +728,7 @@ class Environment:
           
     def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp,
                sample = 'All', DGsynth = 9.54E-11, molality = True,
-               solvent = 'H2O', asm = 'stoich'):
+               solvent = 'H2O', asm = 'stoich', phase = None):
         """           
         Compute cell specific powers in fW/cell using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
@@ -755,6 +767,9 @@ class Environment:
         asm : STR, optional (default = 'stoich')
             Assumption when products are not present in the environment.
                 - 'stoich' : stoichiometric concentrations
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
+            
         Returns
         -------
         CSP dict saved as attribute of the model instance (modelName.CSP).
@@ -765,7 +780,8 @@ class Environment:
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         #import environment conditions from instance's attributes
-        phase = self.phase
+        if not isinstance (phase, str):
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         S = self.salinity
@@ -811,12 +827,12 @@ class Environment:
         #check DGr
         _DGr = getattr(self, 'DGr', None)
         if _DGr is None:
-            self.getDGr(typeMetabo, reactions, specComp)
+            self.getDGr(typeMetabo, reactions, specComp, phase = phase)
             _DGr = self.DGr.copy()
         for pH_ in pH:
             CSPargs['pH'] = pH_
             #get Rs
-            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
+            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True, phase = phase)
             _Rs = self.Rs.copy()
             #extract from _DGr, DGr keys for current pH (into DGr_aux)
             DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}

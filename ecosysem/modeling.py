@@ -163,7 +163,7 @@ class MSMM:
                           typeMetabo = self.typeMtb, reactions = self.metabolisms, 
                           specComp = [self.eD.get(metabolism) for metabolism in self.metabolisms],
                           sample = 'All', DGsynth = self.DGsynth, solvent = 'H2O', 
-                          molality = molality_, asm = asm_)
+                          molality = molality_, asm = asm_, phase = 'L-FW')
             self.DGr = {self.metabolisms[i] : ISAinst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
             self.Rs = {self.metabolisms[i] : ISAinst.Rs[f'{self.metabolisms[i]}'] / 3600 
@@ -197,7 +197,7 @@ class MSMM:
                             typeMetabo = self.typeMtb, reactions = self.metabolisms, 
                             specComp = [self.eD.get(metabolism) for metabolism in self.metabolisms],
                             sample = 'All', DGsynth = self.DGsynth, solvent = 'H2O', 
-                            molality = molality_, asm = asm_)
+                            molality = molality_, asm = asm_, phase= 'L-FW')
             self.DGr = {self.metabolisms[i] : ISAMERRA2inst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
             self.Rs = {self.metabolisms[i] : ISAMERRA2inst.Rs[f'{self.metabolisms[i]}'] / 3600 
@@ -231,7 +231,7 @@ class MSMM:
                             typeMetabo = self.typeMtb, reactions = self.metabolisms, 
                             specComp = [self.eD.get(metabolism) for metabolism in self.metabolisms],
                             sample = 'All', DGsynth = self.DGsynth, solvent = 'H2O', 
-                            molality = molality_, asm = asm_)
+                            molality = molality_, asm = asm_, phase = 'L-FW')
             self.DGr = {self.metabolisms[i] : CAMSMERRA2inst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
             self.Rs = {self.metabolisms[i] :CAMSMERRA2inst.Rs[f'{self.metabolisms[i]}'] / 3600  
