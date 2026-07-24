@@ -717,14 +717,20 @@ class Environment:
                 Ct = self.Ci_LSW.copy()
             else:
                 raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
-        Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
+        Rs_dict, _, _, specComp_dict = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
         self.Rs = Rs_dict
-        # replace sample combinations's values with their mean
+        self.specComp_Rs = specComp_dict
+        # replace sample combinations' values with their mean
         if combMean == True:
-            for key in Rs_dict.keys():
+            for key in Rs_dict.keys(): 
                 _rs = np.array(list(val for val in Rs_dict[key].values()))
                 _Rs = np.nanmean(_rs, axis = 0)
+                _specComp = list(set(specComp_dict[key].values()))
+                if len(_specComp) != 1:
+                    raise ValueError(f'More than 1 specComp for {key} have been found: {_specComp}')
                 self.Rs[key] = _Rs
+                self.specComp_Rs[key] = np.squeeze(_specComp)
+                
           
     def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp,
                sample = 'All', DGsynth = 9.54E-11, molality = True,
