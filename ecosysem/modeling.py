@@ -14,21 +14,25 @@ from scipy.integrate import ode
 
 # Import environment classes
 from environments import ISA, ISAMERRA2, CAMSMERRA2
+from bioenergetics import CSP
+from thermodynamics import ThEq
+from reactions import Reactions as Rxns
 
 class MSMM:
     """
     Class for Multi-State Metabolic Model
     """
 
-    def __init__(self, envModel, coord, typeMetabo, metabolism, K, mortality,
-                 DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
-                 Wtype = 'L-FW', pH = 7.0, Wcontent = 0.0,  fluidType = 'ideal',
-                 actMethods = None, molality = True, asm = 'stoich',
+    def __init__(self, envModel, coord, typeMetabo, metabolisms, K, mortality, scenario, humidity, 
+                 bioaerosolC, DeltaGsynth = 9.54E-11, steepness = 0.2, salinity = None,
+                 Wtype = 'All', pH = 7.0, Wcontent = 0.0, celldiameter=1.0e-06, hygroscopicity=0.1,
+                 fluidType = 'ideal', actMethods = None, molality = True, asm = 'stoich',
                  dataType = None, years = None, month = None, day = None,
                  turnoverRate = {'fast' : 1,'moderate': 5 ,'slow': 14}, degradPace = 'moderate',
                  kinDB = {'MM-Arrhenius': ['qs_FFAM', 'ArrhCor'], 'MM': ['qs_FFAM']},
                  typeKin = 'MM-Arrhenius', eD = {'Mth':'CH4', 'HOB': 'H2', 'COOB':'CO'},
                  microCommunity = {'Mth': 'Methanotrophs','HOB': 'Hydrogen-oxidizing bacteria','COOB': 'CO-oxidizing bacteria'}):
+    ### to add: new optional argument 'debugger' or 'extra attributes' to give user possibility to access extra attributes such as growth terms of ODE, decay rates etc.
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         validMetabo = ['Mth', 'HOB', 'COOB']
         if not isinstance(envModel, str):
@@ -59,7 +63,11 @@ class MSMM:
             if eD.get(metabolism, None) == None:
                 raise AttributeError(f'No {metabolism} key could be found in the eD dictionary. Please modify the corresponding argument.')
         self.eD = {metabolism: eD[metabolism] for metabolism in self.metabolisms}  #(specComp) based on given metabolisms
-        self.compounds = [eD.get(metabolism) for metabolism in self.metabolisms] + ['O2','CO2']
+        #self.compounds = [eD.get(metabolism) for metabolism in self.metabolisms] + ['O2','CO2']
+        self.compounds, self.mRxn, self.infoRxn = Rxns.getRxn(typeRxn=self.typeMtb, input_=self.metabolisms)
+        if 'H2O' in self.compounds: ## Ignore water generation for now
+            self.mRxn = np.delete(self.mRxn,self.compounds.index('H2O'),axis=0)
+            self.compounds.remove('H2O')   
         for metabolism in self.metabolisms:
             if microCommunity.get(metabolism, None) == None:
                 raise AttributeError(f'No {metabolism} key could be found in the microCommunity dictionary. Please modify the corresponding argument.')
@@ -68,6 +76,10 @@ class MSMM:
         self.coord = coord
         if envModel in atmModels:
             self.plotYlabel = 'Cell concentration (cell/m³ air)'
+            self.aerconcplotYlabel = 'Concentration (mol/m³ aerosol)'
+            self.atmconcplotYlabel = 'Concentration (mol/m³ air)'
+            self.aerconcplotTitle = f'Concentration of compounds in aerosol at {coord[0]}m altitude ({envModel})'
+            self.atmconcplotTitle = f'Concentration of compounds in atmosphere at {coord[0]}m altitude ({envModel})'
             if len(coord) == 1:
                 self.plotTitle = f"Community dynamic at {coord[0]}m altitude ({envModel})"
             elif len(coord) == 3:
@@ -75,8 +87,8 @@ class MSMM:
             else : raise AttributeError('Invalid coordinates. Atmospheric models admit vertical (ISA) or 3D position. See README for more details.')   
         if not isinstance(Wtype, str):
             raise TypeError(f'Wtype must be a string, current type:{type(Wtype)}.')
-        if not Wtype == 'L-FW' and not Wtype == 'L-SW':
-            raise NameError(f'Given Wtype invalid ({Wtype}). Did you mean "L-FW" or "L-SW"?')
+        if not Wtype == 'L-FW' and not Wtype == 'L-SW' and not Wtype == 'All':
+            raise NameError(f'Given Wtype invalid ({Wtype}). Did you mean "All", "L-FW" or "L-SW"?')
         self.Wtype = Wtype              # 'L_SW' or 'L_FW'
         if Wtype == 'L-SW':
             if not isinstance(salinity, list): salinity = [salinity]
@@ -102,10 +114,23 @@ class MSMM:
         if len(mortality) == 1: mortality *= 2
         elif len(mortality) != 2:
             raise AttributeError(f'Mortality rates must be either the same for both active states (Growth, Maintenance) or a list of 2 ordered Floats. Current input: {mortality}.')
-        self.mortality = mortality      #(LIST) mortality rates of each metabolic state [1/h]
+        self.mortality = mortality      #(LIST) mortality rates of each metabolic state [h^-1]
+        if not isinstance(scenario,str):
+            raise TypeError(f'scenario must be a str. Current type: {type(scenario)}')
+        elif not scenario in ['Constant','Variable aerosol', 'Variable aerosol and air']:
+                raise ValueError(f'Invalid input for variable/dynamic compounds. Valid inputs: Constant, Variable aerosol, Variable aerosol and air. Current value:{scenario}')
+        self.scenario = scenario
+        if not isinstance(humidity, (float)):
+            raise TypeError(f'Humidity must be a float between 0.5 and 0.95. Current type: {type(humidity)}')
+        elif not (0.5<=humidity and 0.95>=humidity):
+            raise AttributeError(f'Humidity must be a float between 0.5 and 0.95. Current value: {humidity}')
+        self.humidity = humidity #(FLOAT) relative humidity of the atmosphere[%]
         if not isinstance(DeltaGsynth, (float,int)):
             raise TypeError(f'DeltaGsynth must be a float or an int. Current type: {type(DeltaGsynth)}.')
         self.DGsynth = DeltaGsynth      #cell synthesis required energy [J/cell]
+        if not isinstance(bioaerosolC, (float,int)):
+            raise TypeError(f'bioaerosolC must be a float or an int. Current type: {type(bioaerosolC)}.')
+        self.concBA = bioaerosolC   #concentration of bioaerosols in the atmosphere [parts/m^3 air]
         if not isinstance(steepness, list): steepness = [steepness]
         if not all(isinstance(k, (float,int)) for k in steepness):
             raise TypeError(f'Steepness must be a float or an int. Current type: {type(steepness)}.')
@@ -137,9 +162,32 @@ class MSMM:
             raise TypeError(f'Argument molality must be a bool (True). Current type: {type(molality)}.')
         if not molality == True:
             raise AttributeError(f'Currently only admitted input for molality is True. invalid input: {molality}')
+        self.molality=molality
         if not asm == 'stoich':
             raise AttributeError(f'Currently only accepted input for asm is "stoich". Invalid input was given: {asm}.')
+        self.asm=asm
+        if not isinstance(celldiameter,(float)):
+            raise TypeError(f'Cell diameter must be a float. Current type:{type(celldiameter)}.')
+        self.celldiameter = celldiameter #Microbe cell diameter [m]
+        if not isinstance(hygroscopicity,(float)):
+            raise TypeError(f'Hygroscopicity must be a float. Current type:{type(hygroscopicity)}.')                  
+        self.hygroscopicity = hygroscopicity #Hygroscopicity parameter of microbial cells [-]
         self._callEnvP(salinity, pH, Wcontent, actMethods, molality, asm)
+        solHenry = {}
+        for compound in self.compounds: 
+            solHenry[compound], _ = ThEq.solubilityHenry(compound, t = self.envConditions.temperature) 
+        self.solubilityHenry = solHenry ## in partial pressure terms  [mol/m3/Pa]  
+        R = 8.31446261815324 # Universal gas constant [L * Pa / K / mol]  
+        Hcc = {}
+        for compound in self.compounds:
+            Hcc[compound] = self.solubilityHenry[compound] * R * self.envConditions.temperature
+        self.Hcc = Hcc # Henry solubility in concentration terms [-]
+        ## calculation of mass transfer coefficient in several steps:
+        self._BArad() #radius of bioaerosol [m]
+        self._ALWCvol() # liquid water content [m3 aerosol/m3 air]
+        self._meanmolvelocity() # [m/s]
+        self._gasphasediff() # gas-phase diffusivity [m/s2]
+        self._masstransfercoeffs() #[s-1]
     
     def _callEnvP(self, salinity_, pH_, H2O_, method_, molality_, asm_):
         """
@@ -166,8 +214,6 @@ class MSMM:
                           molality = molality_, asm = asm_, phase = 'L-FW')
             self.DGr = {self.metabolisms[i] : ISAinst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
-            self.Rs = {self.metabolisms[i] : ISAinst.Rs[f'{self.metabolisms[i]}'] / 3600 
-                        for i in range(len(self.metabolisms))} # reaction rates [moleD/(cell.s)]
             self.CSP = {self.metabolisms[i] : ISAinst.CSP[f'{self.metabolisms[i]}_pH:{pH_}'] 
                         for i in range(len(self.metabolisms))} # CSP [fW/cell]
             self.envConditions = ISAinst
@@ -200,8 +246,6 @@ class MSMM:
                             molality = molality_, asm = asm_, phase= 'L-FW')
             self.DGr = {self.metabolisms[i] : ISAMERRA2inst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
-            self.Rs = {self.metabolisms[i] : ISAMERRA2inst.Rs[f'{self.metabolisms[i]}'] / 3600 
-                        for i in range(len(self.metabolisms))} # reaction rates [moleD/(cell.s)]
             self.CSP = {self.metabolisms[i] : ISAMERRA2inst.CSP[f'{self.metabolisms[i]}_pH:{pH_}'] 
                         for i in range(len(self.metabolisms))} # CSP [fW/cell]
             self.envConditions = ISAMERRA2inst
@@ -234,8 +278,6 @@ class MSMM:
                             molality = molality_, asm = asm_, phase = 'L-FW')
             self.DGr = {self.metabolisms[i] : CAMSMERRA2inst.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
                         for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
-            self.Rs = {self.metabolisms[i] :CAMSMERRA2inst.Rs[f'{self.metabolisms[i]}'] / 3600  
-                        for i in range(len(self.metabolisms))} # reaction rates [moleD/(cell.s)]
             self.CSP = {self.metabolisms[i] :CAMSMERRA2inst.CSP[f'{self.metabolisms[i]}_pH:{pH_}'] 
                         for i in range(len(self.metabolisms))} # CSP [fW/cell]
             self.envConditions = CAMSMERRA2inst
@@ -244,15 +286,16 @@ class MSMM:
 
     def _ODEsystem_MSMM(self, t, y):
         """
-        Function for the model's system of differential equations.
+        Function for the model's system of differential equations, when concentrations of compounds in air 
+        and atmosphere are held constant. 
         
         Parameters
         ----------
         
         y : LIST of INT or FLOAT
-            Initial biomass in each metabolic state, e.g. [cell/m^3 air]
+            Biomass in each metabolic state, e.g. [cell/m^3 air]
         t : LIST or np.array
-            Time range over which biomass variation is computed
+            Time at which biomass variation is computed
             
         Returns
         -------
@@ -262,11 +305,11 @@ class MSMM:
         """
         #import self.attributes
         mortality = self.mortality.copy()
-        mG = mortality[0]   #mortality in growth state
-        mM = mortality[1]   #mortality in maintenance state
+        mG = mortality[0]   #mortality in growth state [h-1]
+        mM = mortality[1]   #mortality in maintenance state [h-1]
         K = self.K
-        DGr = self.DGr.copy()
-        Rs = self.Rs.copy()
+        DGr = self.DGr.copy() 
+        Rs = self.envConditions.Rs.copy() #[mol eD/cell/h]
         dB = []
         
         for i in range(len(self.metabolisms)):
@@ -274,7 +317,6 @@ class MSMM:
             Bm = y[1+3*i]
             Blist = [Bg, Bm]
 
-            Yx = -(DGr[self.metabolisms[i]] * (0.5 / 1.04e-10))      # cell growth yield [cell/mol eD]
             Yx = CSP.estimate_yield(DGr[self.metabolisms[i]])      # cell growth yield [cell/mol eD]
             Btot = Bg + Bm
             # Compute biomass transfer between metabolic states
@@ -283,13 +325,159 @@ class MSMM:
             dBg = Yx * Rs[self.metabolisms[i]] * Bg * (1 - (Btot / K)) - mG * Bg - Rg_m + Rm_g 
             dBm =  - mM * Bm - Rm_g - Rm_rip + Rg_m               
             dBrip = mG * Bg + mM * Bm + Rm_rip  
-            #print(f'cell growth yield for {self.metabolisms[i]}={Yx}')
-            #print(f'uptake rate for {self.metabolisms[i]}={Rs[self.metabolisms[i]]}')
+
             dB = np.append(dB,[np.squeeze(dBg), 
                        np.squeeze(dBm), 
                        np.squeeze(dBrip)])
+        
         return dB
 
+    def _ODEsystem_MSMM_variablecomposition(self, t, y):
+        """
+        Function for the model's system of differential equations, when concentrations of compounds are variable -
+        either in the bioaerosol only, or in both the bioaerosol and the surrounding parcel of atmosphere. 
+        
+        Parameters
+        ----------
+        
+        y : LIST of INT or FLOAT
+            Biomass in each metabolic state, e.g. [cell/m^3 air], followed by concentration of compounds 
+            in aerosol, then (if atmosphere is variable) concentration of compounds in atmosphere [mol/m3]. 
+            Compounds are listed in the same order as in MSMM.compounds
+        t : FLOAT
+            Time at which biomass and compound variation is computed
+            
+        Returns
+        -------
+        dB : LIST of FLOAT
+            Variation of biomass [cell/h] in each metabolic state (Growth, Maintenance, Death), then variation 
+            of molar concentration [mol/m^3/h] of compounds in aerosol, then in atmosphere if variable.
+        
+        """
+        #import self.attributes
+        mortality = self.mortality.copy()
+        mG = mortality[0]   # mortality in growth state [h-1]
+        mM = mortality[1]   # mortality in maintenance state [h-1]
+        K = self.K
+        pH_ = self.envConditions.pH[0]
+        
+        ## update environmental model attributes with concentrations of compounds in mol/L as array, 
+        ## given by ODE in mol/m3 as list. order of ODEs: biomass, concentration in aerosol, then concentration
+        ## in air (if applicable). compounds follow order of attribute MSMM.compounds.
+        Ct = {self.compounds[k]: y[3*len(self.metabolisms)+k] for k in range(len(self.compounds))} # mol/m3
+        if self.scenario == 'Variable aerosol':
+            Ct_G = {compound : self.envConditions.Ci_G[compound] * 1000 for compound in self.compounds}
+        elif self.scenario == 'Variable aerosol and air':
+            Ct_G = {self.compounds[k] : y[3*len(self.metabolisms)+len(self.compounds)+k] for k in range(len(self.compounds))} # mol/m^3 air
+        for compound in self.compounds: 
+                    if self.envModel == 'CAMSMERRA2': 
+                        conc_=np.ndarray((1,1,1))
+                        if self.scenario == 'Variable aerosol and air':
+                            concG_=np.ndarray((1,1,1))
+                    else: 
+                        conc_=np.ndarray((1))
+                        if self.scenario == 'Variable aerosol and air':
+                            concG_=np.ndarray((1))
+                    conc_[0] = Ct[compound]/1000  #[mol/L]
+                    self.envConditions.Ci_LFW[compound] = conc_
+                    if self.scenario == 'Variable aerosol and air':
+                        concG_[0] = Ct_G[compound]/1000  #[mol/L]
+                        self.envConditions.Ci_G[compound] = concG_
+        ## Recalculate Gibbs free energy of reactions 
+        specComp_ = [self.envConditions.specComp_Rs[metabolism] for metabolism in self.metabolisms]
+        self.envConditions.getDGr(self.typeMtb, self.metabolisms, specComp=specComp_, phase = 'L-FW')
+        self.DGr = {self.metabolisms[i] : self.envConditions.DGr[f'{self.metabolisms[i]}_pH:{pH_}'] * 1000 
+                    for i in range(len(self.metabolisms))} # Gibbs free energy [J/moleD]
+        DGr = self.DGr.copy()
+        
+        ## Recalculate uptake rates
+        self.envConditions.getRs(typeKin = self.typeKin, paramDB = self.kinDB, reactions = self.metabolisms, 
+                                 sample = 'All', pH = self.envConditions.pH, combMean = True, phase = 'L-FW')
+        Rs = self.envConditions.Rs.copy() # reaction rates [moleD/(cell.h)]
+        
+        ## Recalculate cell specific power
+        self.envConditions.getCSP(paramDB = self.kinDB, typeKin = self.typeKin, 
+                      typeMetabo = self.typeMtb, reactions = self.metabolisms, 
+                      specComp = [self.eD.get(metabolism) for metabolism in self.metabolisms], ## add argument (specComp_DGr : DICT)  to define separately from eD
+                      sample = 'All', DGsynth = self.DGsynth, solvent = 'H2O', 
+                      molality = self.molality, asm = self.asm, phase = 'L-FW')
+        self.CSP = {self.metabolisms[i] : self.envConditions.CSP[f'{self.metabolisms[i]}_pH:{pH_}'] 
+                    for i in range(len(self.metabolisms))} # CSP [fW/cell]
+        
+        dB = []
+        specCompCoeffdict={} ##could move to __init__ for MSMM
+        Blistdict={}
+        
+        for i in range(len(self.metabolisms)):
+            Bg = y[0+3*i]
+            #print(f'Bg ({i}) in _ODEsystem_MSMM ({t}h): {Bg}')
+            Bm = y[1+3*i]
+            Blist = [Bg, Bm]
+            mtb_ = self.metabolisms[i]
+            Blistdict[mtb_]=Blist
+            Yx = CSP.estimate_yield(DGr[mtb_])      # cell growth yield [cell/mol eD]
+            Btot = Bg + Bm
+            # Compute biomass transfer between metabolic states
+            Rm_g, Rg_m, Rm_rip = MSMM._Bflux(self, Blist, mtb_)
+            # Compute biomass variation       
+            dBg = ( Yx * Rs[mtb_] * Bg * (1 - (Btot / K)) - mG * Bg - Rg_m + Rm_g )
+            dBm =  ( - mM * Bm - Rm_g - Rm_rip + Rg_m )              
+            dBrip = ( mG * Bg + mM * Bm + Rm_rip )  
+
+            dB = np.append(dB,[np.squeeze(dBg), 
+                       np.squeeze(dBm), 
+                       np.squeeze(dBrip)])
+            ## in the future, move the below to __init__ and save as attribute: 
+            specCompCoeffdict[mtb_] = abs(self.mRxn[
+                self.compounds.index(self.envConditions.specComp_Rs[mtb_]),np.where(self.infoRxn == mtb_)])
+        
+        soldict={}
+        
+        ### DEBUGGING ODE FOR COMPOUNDS
+        print (f't={t}')
+        for compound in self.compounds:
+             print (f'conc of {compound} in aerosol={Ct[compound]}') if self.scenario == 'Variable aerosol' else print (f'conc of {compound}: aerosol={Ct[compound]}, air={Ct_G[compound]}')
+        ###
+        
+        for comp_ in self.compounds:
+            # calculate mass transfer/solubility term of ODE with mass transfer coeffs & equilibrium concentrations
+            kmt_ = self.kmt[comp_] # use calculated values for mass transfer coefficients [h-1]
+            
+            ### DEBUGGING
+            # kmt_ =  3600 * 1e6 # kmt value for O2 in Sander & Crutzen 1996 [s-1] used for all compounds in [h-1]
+            ###
+            
+            soltransfer_ = kmt_ * ((Ct_G[comp_] * self.Hcc[comp_]) - Ct[comp_]) # [mol/m3 aerosol/h]
+
+            ###DEBUGGING
+            # print(f'Solubility term for {comp_} = {soltransfer_}')
+            # soltransfer_ = 0 # isolate reaction/consumption term of ODE by setting solubility term to zero
+            # print(f'Difference from equilibrium concentration for {comp_} = {(Ct_G[comp_] * self.Hcc[comp_]) - Ct[comp_]}')
+            ###
+
+            soldict[comp_] = soltransfer_ 
+
+            #calculate consumption terms of ODE for aerosol using stoichiometric coeffecients and uptake rates
+            reac_ = 0
+            for metabolism in self.metabolisms:
+                coeff_=self.mRxn[self.compounds.index(comp_),np.where(self.infoRxn == metabolism)]
+                reac_ += (coeff_/specCompCoeffdict[metabolism]) * self.envConditions.Rs[metabolism] * sum(Blistdict[metabolism][0:2])
+            
+            ### DEBUGGING
+            # print(f'Reaction term for {comp_} = {reac_}')
+            #reac_ = 0 # isolate solubility/mass transfer term of ODE by setting reaction/consumption term to zero
+            ###
+            
+            dC = (soltransfer_ + reac_ )    
+            dB = np.append(dB,np.squeeze(dC))
+            
+        if self.scenario == 'Variable aerosol and air':
+            for compG_ in self.compounds:
+                dC_G = -soldict[compG_] * self.ALWCvol #inverse of mass transfer, converted to mol/m3 atmosphere/h
+                dB = np.append(dB,np.squeeze(dC_G))            
+    
+        return dB
+    
     def _Bflux(self, Blist, metabolism):
         """
         Function to compute biomass transfer between metabolic states.
@@ -355,7 +543,8 @@ class MSMM:
         ----------
         
         Bini : LIST of INT or FLOAT
-            Initial biomass in each state (Growth, Maintenance, Death)
+            Initial biomass in each state (Growth, Maintenance, Death),
+            plus initial molar concentration of compounds if dynamic
         tSpan : LIST or np.array
             Time range over which the microbial dynamic is computed, in hours
         dt : INT or FLOAT, optional (default : 1h)
@@ -367,23 +556,39 @@ class MSMM:
         -------
         
         None 
-        ODE solutions (numpy.ndarray of shape [3*len(metabolisms), tSpan+1]) are saved as MSMM attribute ('Bsol')
+        ODE solutions (numpy.ndarray of shape [3*len(metabolisms), tSpan+1],
+                       or [3*len(metabolisms)+len(compounds, tSpan+1], are saved as MSMM attribute ('Bsol')
         If solExport is set to True, creates an Excel document of the results.
         
         """
         # check Bini
         if not isinstance(Bini, np.ndarray): Bini = np.array(Bini)
-        if len(Bini) != 3*len(self.metabolisms):
-            raise ValueError(f'Bini must contain {3*len(self.metabolisms)} elements, current length: {len(Bini)}.')
+        if self.scenario == 'Constant':
+            if len(Bini) != 3*len(self.metabolisms):
+                raise ValueError(f'Bini must contain {3*len(self.metabolisms)} elements, current length: {len(Bini)}.')
+        elif self.scenario == 'Variable aerosol':
+            if len(Bini) != 3*len(self.metabolisms) + len(self.compounds):
+                raise ValueError(f'Bini must contain {3*len(self.metabolisms)+len(self.compounds)} elements, current length: {len(Bini)}.')
+        elif self.scenario == 'Variable aerosol and air': 
+            if len(Bini) != 3*len(self.metabolisms) + 2*len(self.compounds):
+                raise ValueError(f'Bini must contain {3*len(self.metabolisms)+2*len(self.compounds)} elements, current length: {len(Bini)}.')
         # create time array for later plotting
         self.t_plot = np.linspace(0, tSpan, int(tSpan/dt)+1)
-        #Initialize Bint matrix
-        Bint = np.empty(3*len(self.metabolisms))
+        # Initialize Bint matrix
+        if self.scenario == 'Constant':
+            Bint = np.empty(3*len(self.metabolisms))
+        elif self.scenario == 'Variable aerosol':
+            Bint = np.empty(3*len(self.metabolisms) + len(self.compounds))
+        elif self.scenario == 'Variable aerosol and air': 
+            Bint = np.empty(3*len(self.metabolisms) + 2*len(self.compounds))
         Bint = Bint[..., np.newaxis]    
         Bint = np.repeat(Bint, tSpan+1, axis = -1)
         Bint[:,0] = Bini
         #create ode instance & set initial values & integration method
-        ODEsol = ode(self._ODEsystem_MSMM)
+        if self.scenario == 'Constant':
+            ODEsol = ode(self._ODEsystem_MSMM)
+        elif self.scenario in ['Variable aerosol','Variable aerosol and air']:    
+            ODEsol = ode(self._ODEsystem_MSMM_variablecomposition)
         ODEsol.set_initial_value(Bini, 0)
         ODEsol.set_integrator('vode', method='adams')
         # compute solutions over given time range
@@ -392,7 +597,10 @@ class MSMM:
              time = int(ODEsol.t)
              Bint[:,time] = sol
         # save ODE solutions as MSMM attribute (rounded values)
-        self.Bsol = np.round(Bint, 2)
+        if self.scenario == 'Constant':
+            self.Bsol = np.round(Bint, 2)
+        elif self.scenario in ['Variable aerosol','Variable aerosol and air']:    
+            self.Bsol = np.round(Bint, 18)
         # export ODE solutions as .xlsx document
         if solExport == True:
             path = 'results/'
@@ -403,38 +611,41 @@ class MSMM:
                 if val == 'Y' or val == 'y':       
                     os.remove(self.fullPathSave)
             MSMM._writeExcel(self)
-    
+                
     def _writeExcel(self):
         """
         Write calculated metabolic state biomass in Excel document.
 
         """
-        Bstates = ['Growth', 'Maintenance', 'Death']
-        nameSheet_B = 'MSMM biomass'
-        metabolismnames = ', '.join([self.metabolisms[i] for i in range(len(self.metabolisms))])
-        # import solutions of the ODE and time array from MSMM attributes
-        time = pd.DataFrame(self.t_plot, columns = ['time (h)| states :'])
-
-        # adapt header to environment model
-        if self.envModel == 'ISA':
-            alt = self.coord[0]
-            introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolisms: {metabolismnames} | Altitude: {alt}m | Environment: {self.envModel}']))
-        elif self.envModel in ['ISAMERRA2', 'CAMSMERRA2']:
-            alt = self.coord[0]
-            lon = self.coord[1]
-            lat = self.coord[2]
-            introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolisms: {metabolismnames} | Coordinates: {lon}LON;{lat}LAT | Altitude: {alt}m | Environment: {self.envModel}']))
-        # write excel document 
-        if not os.path.isfile(self.fullPathSave):
-            with pd.ExcelWriter(self.fullPathSave) as writer:
-                introRowB.to_excel(writer, sheet_name = nameSheet_B, index = False, header = False)
-        with pd.ExcelWriter(self.fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
-            time.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 1, index = False, header = True)
-            #        Bdf = pd.DataFrame()
-            for i in range(len(self.metabolisms)):    
-                 Bdf_i = pd.DataFrame({self.metabolisms[i]+' '+Bstates[k] : self.Bsol[3*i+k] for k in range(3)})
-             #           Bdf = pd.concat([Bdf,Bdf_i])   
-                 Bdf_i.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 2+3*i, index = False, header = True)    
+        if self.scenario == 'Constant':
+            Bstates = ['Growth', 'Maintenance', 'Death']
+            nameSheet_B = 'MSMM biomass'
+            metabolismnames = ', '.join([self.metabolisms[i] for i in range(len(self.metabolisms))])
+            # import solutions of the ODE and time array from MSMM attributes
+            time = pd.DataFrame(self.t_plot, columns = ['time (h)| states :'])
+    
+            # adapt header to environment model
+            if self.envModel == 'ISA':
+                alt = self.coord[0]
+                introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolisms: {metabolismnames} | Altitude: {alt}m | Environment: {self.envModel}']))
+            elif self.envModel in ['ISAMERRA2', 'CAMSMERRA2']:
+                alt = self.coord[0]
+                lon = self.coord[1]
+                lat = self.coord[2]
+                introRowB = pd.DataFrame(np.array([f'States biomass [cell/m³ air] | Metabolisms: {metabolismnames} | Coordinates: {lon}LON;{lat}LAT | Altitude: {alt}m | Environment: {self.envModel}']))
+            # write excel document 
+            if not os.path.isfile(self.fullPathSave):
+                with pd.ExcelWriter(self.fullPathSave) as writer:
+                    introRowB.to_excel(writer, sheet_name = nameSheet_B, index = False, header = False)
+            with pd.ExcelWriter(self.fullPathSave, engine='openpyxl', mode = 'a', if_sheet_exists='overlay') as writer:
+                time.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 1, index = False, header = True)
+                #        Bdf = pd.DataFrame()
+                for i in range(len(self.metabolisms)):    
+                     Bdf_i = pd.DataFrame({self.metabolisms[i]+' '+Bstates[k] : self.Bsol[3*i+k] for k in range(3)})
+                 #           Bdf = pd.concat([Bdf,Bdf_i])   
+                     Bdf_i.to_excel(writer, sheet_name = nameSheet_B, startrow = 2, startcol = 2+3*i, index = False, header = True)    
+        elif self.scenario in ['Variable aerosol', 'Variable aerosol and air']:
+            pass ## need to code export to Excel for scenarios 2 and 3!
         
     def plotMSMM(self):
         
@@ -458,9 +669,12 @@ class MSMM:
                 axs[i].plot(self.t_plot, Bplot[2+3*i,:],'r--', linewidth=2.0 ,label='Dead cells')  #death state curve
                 axs[i].set_xlim(0)
                 #axs[i].set_ylim(0)
-                theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['GxM']),8)
-                theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['M-RIP']),8)
-                axs[i].set_title(f'{self.communityNames[self.metabolisms[i]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
+                if self.scenario == 'Constant':
+                    theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['GxM']),8)
+                    theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[i]]['M-RIP']),8)
+                    axs[i].set_title(f'{self.communityNames[self.metabolisms[i]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
+                else: 
+                    axs[i].set_title(f'{self.communityNames[self.metabolisms[i]]}')
                 axs[i].grid()
             axs[max(len(self.metabolisms)-2,0)].set_ylabel(self.plotYlabel)
             axs[len(self.metabolisms)-1].legend(bbox_to_anchor = (1.35, 0.8), title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
@@ -473,13 +687,115 @@ class MSMM:
             ax.plot(self.t_plot, Bplot[2,:],'r--', linewidth=2.0 ,label='Dead cells')  #death state curve
             ax.set_xlim(0)
             #ax.set_ylim(0)
-            theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['GxM']),8)
-            theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['M-RIP']),8)            
-            ax.set_title(f'{self.communityNames[self.metabolisms[i]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
+            if self.scenario == 'Constant':
+                theta1 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['GxM']),8)
+                theta2 = np.round(np.squeeze(self.MSctrls[self.metabolisms[0]]['M-RIP']),8)            
+                ax.set_title(f'{self.communityNames[self.metabolisms[0]]}, θ(GxM)={theta1}, θ(M-RIP)={theta2}')
+            else:
+                ax.set_title(f'{self.communityNames[self.metabolisms[0]]}')
             ax.grid()
             ax.set_ylabel(self.plotYlabel)
             ax.legend(bbox_to_anchor = (1.35, 0.8), title = 'Metabolic states:', title_fontproperties = {'size': 'large', 'weight': 'bold'})
             ax.set_xlabel('time (hours)')
         plt.suptitle(self.plotTitle)
-        plt.show()
+        plt.show()                
+        # plot concentration of compounds in aerosol
+        if self.scenario in ['Variable aerosol', 'Variable aerosol and air']:
+            fig, axs =plt.subplots(nrows=len(self.compounds),sharex=True,layout='tight')#,squeeze=False)
+            fig.set_size_inches(7, 10)
+            for k in range(len(self.compounds)):        
+                axs[k].plot(self.t_plot, Bplot[3*len(self.metabolisms)+k,:],'k-', linewidth=2.0, label=f'{self.compounds[k]}')    #compound concentrations
+                axs[k].set_xlim(0)
+                axs[k].set_ylim(0)
+                axs[k].set_title(f'{self.compounds[k]}')
+                axs[k].grid()
+            axs[max(len(self.metabolisms)-2,0)].set_ylabel(self.aerconcplotYlabel)
+            axs[len(self.metabolisms)-1].set_xlabel('time (hours)')
+            plt.suptitle(self.aerconcplotTitle)
+            plt.show()        
+        # plot concentration of compounds in atmosphere
+        if self.scenario == 'Variable aerosol and air':
+            fig, axs =plt.subplots(nrows=len(self.compounds),sharex=True,layout='tight')#,squeeze=False)
+            fig.set_size_inches(7, 10)
+            for k in range(len(self.compounds)):        
+                axs[k].plot(self.t_plot, Bplot[3*len(self.metabolisms)+len(self.compounds)+k,:],'k-', linewidth=2.0, label=f'{self.compounds[k]}')    #compound concentrations
+                axs[k].set_xlim(0)
+                axs[k].set_ylim(0)
+                axs[k].set_title(f'{self.compounds[k]}')
+                axs[k].grid()
+            axs[max(len(self.metabolisms)-2,0)].set_ylabel(self.atmconcplotYlabel)
+            axs[len(self.metabolisms)-1].set_xlabel('time (hours)')
+            plt.suptitle(self.atmconcplotTitle)
+            plt.show()        
         return
+
+    def _BArad(self):
+        """
+        Function to calculate radius of bioaerosol [m].
+
+        """
+        Dcell = self.celldiameter
+        Kcell = self.hygroscopicity
+        aW = self.humidity
+        rBA = (Dcell / 2) * ((aW * Kcell)/(1 - aW) + 1) ** (1 / 3)
+        self.rBA = rBA
+
+    def _ALWCvol(self): 
+        """
+        Function to calculate volumetric aerosol liquid water content [m^3 aerosol/m^3 air]
+
+        """
+        C_BA = self.concBA
+        ALWCvol = C_BA * (4/3) * np.pi * (self.rBA ** 3 - (self.celldiameter/2) ** 3 )
+        self.ALWCvol = ALWCvol
+
+    def _meanmolvelocity(self):
+        """
+        Function to calculate mean molecular velocity [m/s] at given temperature
+        """
+        Rerg = 8.3144626E07                   # Universal gas constant [erg/mol/K]
+        t = self.envConditions.temperature # [K]
+        # molecular weights [g/mol]
+        Mx = {'O2': 32.0,'CO2': 44.0,'CH4': 16.04, 'H2': 1.0, 'CO': 28.0}
+        
+        #calculate mean molecular velocities
+        vbar = {}
+        for compound in self.compounds: 
+            vbar[compound] = np.squeeze((8 * Rerg * t / (np.pi * Mx[compound])) ** 0.5 * 0.01)
+        self.vbar = vbar
+        
+    def _gasphasediff(self):
+        """
+        Function to calculate gas phase diffusivity of compounds [m2/s] under environmental conditions
+
+        """
+        t = self.envConditions.temperature # [K]
+        p = self.envConditions.pressure # [Pa]
+        
+        # gas-phase diffusivity of compounds at 0°C and 1.0 atm [m^2/s]
+        Dg01 = {'O2': 1.82e-05,'CO2': 1.38e-05,'CH4': 1.95e-05, 'H2': 6.68e-05, 'CO': 1.81e-05}
+        # calculate gas-phase diffusivities at conditions from environment model
+        Dg = {}
+        for compound in self.compounds: 
+            Dg[compound] = np.squeeze(Dg01[compound] * (101325.0/p) * ((t/273.15)**1.81))
+            
+        self.Dg = Dg       
+       
+    def _masstransfercoeffs(self): 
+        """
+        Function to calculate mass transfer coefficients [h-1] between atmosphere and bioaerosol. 
+
+        """
+        kmt = {}
+        for compound in self.compounds: 
+            # set aqueous-phase accommodation coefficient equal to upper limit,
+            # i.e. Henry’s solubility in concentration units. 
+            alpha = self.Hcc[compound]    
+            #calculate mass transfer coefficients
+            kmt[compound] = (((self.rBA**2)/(3*self.Dg[compound]) + 
+                             4 * self.rBA / (3 * self.vbar[compound] * alpha)) ** -1) * 3600 
+            
+        self.kmt = kmt
+
+            
+        

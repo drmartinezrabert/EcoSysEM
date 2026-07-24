@@ -3996,7 +3996,7 @@ nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp_Rs : _dict_** <br>
 
 #### <ins>Ecosystem modeling</ins>
 <a name="MSMM">**Multi State Metabolic Model**</a><br>
-A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
+A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state, plus one for each compound whose concentration varies in the liquid and gas phases under the modeled scenario). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
 Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in maintenance state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
 <img width="629" height="325" alt="schematic_updated" src="https://github.com/user-attachments/assets/fc020132-fb6d-4ba7-8691-70fa5754119b" />
@@ -4006,7 +4006,7 @@ _Consumption and production_ refer to the uptake of available energy source and 
 
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype='L-FW', pH=7.0, dataType='cyly', dataRange=[2020, 2024],
+instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolisms, K, mortality, humidity, bioaerosolC, Wtype='L-FW', pH=7.0, Wcontent = 0.0, celldiameter=1.0e-06, hygroscopicity=0.1, dataType='cyly', dataRange=[2020, 2024],
 					 DeltaGsynth=9.54E-11, steepness=0.2, degradPace='moderate', salinity=None, fluidType='ideal', actMethods=None)
 ```
 Create an instance of `MSMM` object :<p>
@@ -4029,7 +4029,12 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **K : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Carrying capacity of the microbial community [cell/volume unity].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mortality : _float or list_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state)[h-1].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **scenario : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scenario being modelled with regards to the variability of concentrations of compounds in the atmosphere and aerosol. E.g.: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Constant' : concentrations do not vary. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol' : concentrations of compounds dissolved in the bioaerosol liquid are modified by microbial consumption/production and by transfer to/from the surrounding parcel of atmospheric gas<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol and air' : As above, with atmospheric concentrations additionally modified by transfers in and out of the liquid phase. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **humidity : _float**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative humidity of the atmospheric 
 environment [%], given as a float between 0.5 and 0.95.<br>
@@ -4125,14 +4130,21 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.typeMtb : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of metabolism.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolism : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed by the microbial community.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolisms : _list or str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism(s) performed by the microbial community.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mtbRates : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Qualitative speed of metabolic processes based on the protein turnover rate of the strain.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.specMSrate : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specific metabolic shift rate in 1/hours (inverse of protein turnover rate).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.eD : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Electron donor of the metabolic reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.eD : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Electron donors of the metabolic reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compounds : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reactants and products of the metabolic reactions, excluding water.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mRxn : _ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Matrix of stoichiometric coefficients for each of the metabolic reactions and their reactants and products, excluding water.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.infoRxn : _ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Column labels of the reaction matrix, i.e. metabolic reactions in the same order found in the matrix.<br>
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Wtype : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Water type.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
@@ -4153,25 +4165,57 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.st : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Steepness values of the switch function used to compute each metabolic shift control.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shift controls indexing : [st_GxM, st_MxS, st_S-RIP] <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the non-standard Gibbs free energy (in J/mol eD) based on local environment conditions.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Rs : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the cell specific uptake rate (in mol eD/(cell.s)) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard Gibbs free energy (in J/mol eD) of each metabolic reaction based on local environment conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.CSP : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of cell specific powers (in fW/cell) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of dictionaries of cell specific powers (in fW/cell) based on local environment conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MSctrls : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of metabolic shifts controls (floats between 0 and 1) based on local environment conditions. Available only after running .solveODE().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of dictionaries of metabolic shifts controls (floats between 0 and 1) for each metabolism based on local environment conditions. Available only after running .solveODE().<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘GxM’] : Control of the shifts between growth and maintenance states <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘M-RIP’] : Control of the maintenance to death shift <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume. Available only after running .solveODE(). <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, death], tSpan+1).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityName : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community name based on metabolism. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume and mol/unit volume. Available only after running .solveODE(). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, death, compounds in aerosol, compounds in air], tSpan+1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityNames : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community names based on metabolism. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.scenario : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Scenario to be modelled concerning variability (or not) of concentrations of compounds in the bioaerosol and atmosphere. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGsynth : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Energy necessary to synthesize a cell [J/cell]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.concBA : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Concentration of bioaerosol particles in the unit volume of atmosphere. [parts/m^3 air] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.humidity : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Relative humidity in the atmosphere [%]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.celldiameter : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Diameter of a microbial cell [m]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.hygroscopicity : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Hygroscopicity parameter of microbial cells [-]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.solubilityHenry : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Henry's law constants for compounds in terms of pressure [mol/m3/Pa]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Hcc : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Henry's law constants for compounds in terms of concentration [-]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.rBA : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Radius of a bioaerosol particle [m]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.ALWCvol : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Volumetric aerosol liquid water content [m^3 aerosol/m^3 air]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.vbar : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Mean molecular velocity [m/s] of compounds at environmental temperature. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Dg : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas phase diffusivity of compounds [m2/s] under environmental conditions. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.kmt : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mass transfer coefficients of compounds [h-1] under environmental conditions. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotTitle : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting biomass from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.aerconcplotTitle : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting bioaerosol compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.atmconcplotTitle : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting atmospheric compound concentrationsfrom MSMM ODE solutions, based on environment model and conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotYlabel : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting biomass from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.aerconclotYlabel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting bioaerosol compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.atmconcplotYlabel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting atmospheric compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.t_plot : _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of floats of shape (tSpan,) containing a time index for solutions of the MSMM ODE in order to be plotted as function of time. Available only after running .solveODE().<p>
 
@@ -4181,7 +4225,7 @@ How to create an MSMM instance :
 >>> import numpy as np
 
 # create MSMM instance with ISA
->>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E5, 4.2E-4)
+>>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E8, 4.2E-4, 'Constant', 0.9, 10E7)
 > Creating ISA instance...
 > Done.
 >>> print(newMSMM.communityNames)
@@ -4194,7 +4238,7 @@ How to create an MSMM instance :
 {'Mth': {'Pcat': array([0.31509924]), 'Pana': array([0.14452148]), 'Pmg': array([1.97431531]), 'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11883679])}}
 
 # create MSMM instance with CAMSMERRA2
->>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E5, 4.2E-4, 0.6, 10E7, dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating CAMSMERRA2 instance...
 > Done.
 >>> print(newMSMM.communityNames)
@@ -4207,7 +4251,7 @@ How to create an MSMM instance :
 {'HOB': {'Pcat': array([[[0.00022213]]]), 'Pana': array([[[0.00010188]]]), 'Pmg': array([[[0.00393853]]]), 'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00404041]]])}}
 
 # create MSMM instance with ISAMERRA2
->>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', ['Mth', 'COOB'], 10E5, 4.2E-4, 0.6, 10E7, dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', ['Mth', 'COOB'], 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating ISAMERRA2 instance...
 > Done.
 >>> print(newMSMM.communityNames)
@@ -4237,20 +4281,24 @@ Once an MSMM instance has been created, it is possible to solve the correspondin
 >>> from modeling import MSMM
 
 #create instance 
->>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'Mth', 10E5, (0.01/24), dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'Mth', 10E8, [(0.01/24),(0.005/24)], 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating CAMSMERRA2 instance...
 > Done.
 
-# solve ODE system over 10 days (240 hours) with initial state biomass in cell/m3 of:
-# Growth = 5, Maintenance = 45, Dead cells = 0
->>> newMSMM.solveODE([5,45,0], 240, solExport = True)
+# solve ODE system over 10 days (240 hours) with sum of biomass equaling 
+# total concentration of bioaerosol per m3, 10% in Growth state and 90% in Maintenance
+
+>>> newMSMM.solveODE([.1*newMSMM.concBA,.9*newMSMM.concBA,0], 240, solExport = True)
 # => Excel document of solutions is created
 
 # print solutions (first 5 hours are shown here)
 >>> print(newMSMM.Bsol)
-array([[ 5.000e+00, 1.246e+01, 1.856e+01, 2.355e+01, 2.763e+01, 3.097e+01, …], 
-	[4.500e+01, 3.752e+01, 3.140e+01, 2.639e+01, 2.229e+01, 1.893e+01, …], 
-	[0.000e+00,  2.000e-02,  4.000e-02,  6.000e-02,  8.000e-02,  1.000e-01, …]])
+array([[1.00000000e+07, 2.49263834e+07, 3.71424441e+07, 4.71399147e+07,
+  5.53213313e+07, 6.20161960e+07, …], 
+	[9.00000000e+07, 7.50543034e+07, 6.28200928e+07, 5.28054251e+07,
+  4.46075917e+07, 3.78969494e+07, …], 
+	[0.00000000e+00, 2.45213500e+04, 5.18567200e+04, 8.14946400e+04,
+  1.13016390e+05, 1.46079240e+05, …]])
 
 # plot solutions
 >>> newMSMM.plotMSMM()
@@ -4264,7 +4312,7 @@ MSMM.solveODE(Bini, tSpan, dt = 1, solExport = False)
 Function to solve the MSMM ODE system and export the results as Excel document if needed.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Bini : _list of ints or floats_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Dead cells).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Death); followed by initial concentrations of compounds in aerosol [mol/m3 water], then concentrations in atmosphere [mol/m3 air], depending on scenario. Compounds listed in same order as in MSMM.compounds. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **tSpan : _list or np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time range over which the microbial dynamic is computed (in hours).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dt : _int or float_, _optional, default: 1_**<br>
@@ -4274,7 +4322,7 @@ Function to solve the MSMM ODE system and export the results as Excel document i
 **Returns:**<br>
 **New attribute (`.Bsol`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray of floats_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ODE solutions (shape: [4, tSpan+1]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ODE solutions (shape [3*len(metabolisms), tSpan+1], or [3*len(metabolisms)+len(compounds), tSpan+1], or [3*len(metabolisms)+2*len(compounds), tSpan+1]).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   If solExport is set to True, also creates an Excel document of the results.<br>
 
 ### MSMM.plotMSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
