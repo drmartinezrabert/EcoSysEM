@@ -16,15 +16,20 @@ All notable changes to this project will be documented in this file.
 ## [0.6] - yyyy/mm/dd
 ### Added
 - New optional arguments in `WaterColumn.plotVariables()`: `colors`, `title`, `title_fs`.
-- New optional arguments in `Environments.getDGr()`: `solids`, `printDG0r`,`printDH0r`.
+- New optional arguments in `Environment.getDGr()`: `solids`, `printDG0r`,`printDH0r`.
+- New optional argument in `Environment.getDHr()`, `Environment.getDGr()`, `Environment.getDSr()`, `Environment.getRs()`: `phase` allowing phase for these methods to differ from parent object (which can now safely equal 'All')
 - New optional argument in `ThSA.getDeltaGr()`: `solids`.
+- New arguments in `MSMM.__init__()`: `scenario`, `humidity`,`bioaerosolC`
+- New optional arguments in `MSMM.__init__()`: `celldiameter`, `hygroscopicity`
 - New function in `WaterColumn` class (`environments.py`): `WaterColumn.poly_fit()`.
 - New thermodynamic database: Entropy of compounds.
 - New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()`, `ThP.activity_coefficient()` and `ThP.getDeltaS0r()`.
 - New functions in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()` and `ThSA.thermodynamic_limits()`.
 - New functions in `Environment` class (`environments.py`): `Environment.getDSr()` and `Environment.thermodynamic_limits()`.
-- New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
+- New functions in `MSMM` object (`modeling.py`) : `_BArad()`, `_ALWCvol()`, `_meanmolvelocity()`, `_gasphasediff()`, `_masstransfercoeffs()`
 - New function in `CSP` class (`bioenergetics.py`) : estimate_yield()
+- New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).`
+- New column in kinetics database `qs_FFAM.csv` : `specComp` 
 ### Fixed
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
 - Bug in `_ODEsystem_MSMM_()` after upgrade from Scipy 1.16.3, needed `np.squeeze` in return array.
@@ -43,6 +48,9 @@ All notable changes to this project will be documented in this file.
 - Update `CAMSMERRA2._getConcCAMSMERRA2()` to calculate rho directly without using pyatmos
 - Update `MSMM` object: generalize to model simulate multiple metabolisms concurrently (changes to `MSMM.__init__()`, `MSMM._callEnvP()`, `MSMM._ODEsystem_MSMM()`, `MSMM._stShifts()`, `MSMM.solveODE`, `MSMM._writeExcel`, `MSMM.plotMSMM`)
 - Add theta 1 & 2 values to plot titles.
+- Update `KinRates.getRs` and `Environment.getRs` to return specific compounds in terms of which rates are calculated. 
+
+
 
 ## [0.5.1] - 2026/03/16
 ### Added
