@@ -4002,7 +4002,12 @@ Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basa
 <img width="629" height="325" alt="schematic_updated" src="https://github.com/user-attachments/assets/fc020132-fb6d-4ba7-8691-70fa5754119b" />
 
 **Figure 1. Schematic representation of the simulated metabolic states of cells, the associated metabolic processes and the interaction with the environment** <br>
-_Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).
+_Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).<p>	
+
+<img width="952" height="289" alt="figure2" src="https://github.com/user-attachments/assets/49716e5e-f001-4dcc-897a-906b50a89728" />
+
+**Figure 2. Schematic representation of the three possible situations of the compositions in aerosols (ϕ_k^L) and the air (ϕ_k^G).** <br>
+Constant concentrations are represented by ‘"\~" ’ symbol, and variable concentrations by ‘↕’ symbol.<p>
 
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4031,7 +4036,7 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mortality : _float or list_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state)[h-1].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **scenario : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scenario being modelled with regards to the variability of concentrations of compounds in the atmosphere and aerosol. E.g.: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scenario being modelled with regards to the variability of concentrations of compounds in the atmosphere and aerosol: <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Constant' : concentrations do not vary. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol' : concentrations of compounds dissolved in the bioaerosol liquid are modified by microbial consumption/production and by transfer to/from the surrounding parcel of atmospheric gas<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol and air' : As above, with atmospheric concentrations additionally modified by transfers in and out of the liquid phase. <br>
@@ -4235,7 +4240,8 @@ How to create an MSMM instance :
 >>> print(newMSMM.envConditions.temperature)
 [281.65] #np.ndarray of shape (1,) because ISA is a 1D model
 >>> print(newMSMM.CSP)
-{'Mth': {'Pcat': array([0.31509924]), 'Pana': array([0.14452148]), 'Pmg': array([1.97431531]), 'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11883679])}}
+{'Mth': {'Pcat': array([0.31509924]), 'Pana': array([0.14452148]), 'Pmg': array([1.97431531]),
+'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11883679])}}
 
 # create MSMM instance with CAMSMERRA2
 >>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
@@ -4248,7 +4254,8 @@ How to create an MSMM instance :
 >>> print(newMSMM.envConditions.temperature)
 [[[229.45488245]]] #np.ndarray of shape (1,1,1) because CAMSMERRA2 is a 3D model
 >>> print(newMSMM.CSP)
-{'HOB': {'Pcat': array([[[0.00022213]]]), 'Pana': array([[[0.00010188]]]), 'Pmg': array([[[0.00393853]]]), 'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00404041]]])}}
+{'HOB': {'Pcat': array([[[0.00022213]]]), 'Pana': array([[[0.00010188]]]), 'Pmg': array([[[0.00393853]]]),
+'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00404041]]])}}
 
 # create MSMM instance with ISAMERRA2
 >>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', ['Mth', 'COOB'], 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
@@ -4285,8 +4292,8 @@ Once an MSMM instance has been created, it is possible to solve the correspondin
 > Creating CAMSMERRA2 instance...
 > Done.
 
-# solve ODE system over 10 days (240 hours) with sum of biomass equaling 
-# total concentration of bioaerosol per m3, 10% in Growth state and 90% in Maintenance
+# solve ODE system over 10 days (240 hours) with sum of intial biomass equaling 
+# total concentration of bioaerosol per m3: 10% in Growth state, 90% in Maintenance
 
 >>> newMSMM.solveODE([.1*newMSMM.concBA,.9*newMSMM.concBA,0], 240, solExport = True)
 # => Excel document of solutions is created
@@ -4303,7 +4310,7 @@ array([[1.00000000e+07, 2.49263834e+07, 3.71424441e+07, 4.71399147e+07,
 # plot solutions
 >>> newMSMM.plotMSMM()
 ```
-<img width="776" height="383" alt="Sol" src="https://github.com/user-attachments/assets/24f06b0a-470b-44b4-af43-09b4f2016b67" />
+<img width="830" height="400" alt="Figure_1" src="https://github.com/user-attachments/assets/690c3671-5221-49ba-b984-eddb65eab24b" />
 
 ### MSMM.solveODE &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
