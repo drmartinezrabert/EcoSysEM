@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
-## [0.6] - yyyy/mm/dd
+## [0.5.2] - yyyy/mm/dd
 ### Added
 - New optional arguments in `WaterColumn.plotVariables()`: `colors`, `title`, `title_fs`.
 - New optional arguments in `Environment.getDGr()`: `solids`, `printDG0r`,`printDH0r`.
