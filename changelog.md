@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
 - Now `ThP.getThP()` drops duplicate values.
 - Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
+- Bugs in `plot_seasonality()`. Errors in representation of meridians and tickmarkets of 2D suplots have been solved.
 ### Changed
 - README file.
 - Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
