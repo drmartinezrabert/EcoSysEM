@@ -511,7 +511,7 @@ class ThP:
             Equilibrium constants. Shape: (Z)x(Y)x(X)x(compounds).
     
         """
-        R = 0.0083144598   # Universal gas constant [kJ/mol/K]
+        R = 0.0083144626   # Universal gas constant [kJ/mol/K]
         deltaG0f, notNaN = ThP.getThP('deltaG0f', compounds, phase)
         deltaG0r = ThP.getDeltaG0r(deltaG0f, mRxn)
         dG0r = [np.nan, np.nan, np.nan]
@@ -1172,7 +1172,7 @@ class ThEq:
         else:
             print('!EcosysEM.Error: No water type selected. Use one of the following wType:\n'+
               '                 \'FW\'      - Fresh Water.\n'+
-              '                 \'SW\'      - Sew Water.')
+              '                 \'SW\'      - Sea Water.')
             return None, None
     
     def get_concentrations_Henry(gas_composition, P, T = None, liquid_type = 'FW'):
@@ -1386,7 +1386,7 @@ class ThSA:
 
         Returns
         -------
-        DGr : np.array
+        DSr : np.array
             Non-standard entropy change values.
             Shape: (Z)x(Y)x(X)x(reactions).
         infoRxn : LIST
@@ -1403,7 +1403,7 @@ class ThSA:
         nRxn = infoRxn.size
         # Initialize variables
         Ts = 298.15                                                             # Standard temperature [K]
-        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        R = 0.0083144626                                                        # Universal gas constant [kJ/mol/K]
         # Initialize DHr matrix
         DSr = np.empty(T.shape)
         DSr = DSr[..., np.newaxis]
@@ -1649,7 +1649,7 @@ class ThSA:
         nRxn = infoRxn.size
         # Initialize variables
         Ts = 298.15                                                             # Standard temperature [K]
-        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        R = 0.0083144626                                                        # Universal gas constant [kJ/mol/K]
         # Initialize DGr matrix
         DGr = np.empty(T.shape)
         DGr = DGr[..., np.newaxis]
@@ -1790,7 +1790,7 @@ class ThSA:
         if not isinstance(T, np.ndarray): T = np.array(T)
         # Constants
         Ts = 298.15                                                             # Standard temperature [K]
-        R = 0.0083144598                                                        # Universal gas constant [kJ/mol/K]
+        R = 0.0083144626                                                        # Universal gas constant [kJ/mol/K]
         # Get reactions
         rComp, mRxn, _ = Rxn.getRxn(typeRxn, rxns)
         # Initialize results matrix

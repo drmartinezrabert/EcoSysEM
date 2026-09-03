@@ -203,7 +203,7 @@ class Environment:
                 elif data[key].ndim == 2:
                     data[key] = data[key][::-1, :]
                 else: continue
-        # Ensure ascending lontidue order
+        # Ensure ascending longitude order
         if lons[0] > lons[-1]:
             lons = lons[::-1]
             data['lon'] = lons
@@ -427,9 +427,9 @@ class Environment:
         npz.close()
         return keys
 
-    def getDHr(self, typeRxn, input_, specComp = False):
+    def getDHr(self, typeRxn, input_, specComp = False, phase = None):
         """
-        Compute (non-)standard enthaly of reaction using information from
+        Compute (non-)standard enthalpy of reaction using information from
         environmental models.
 
         Parameters
@@ -441,6 +441,8 @@ class Environment:
             Name(s) of requested compound(s) or reaction(s).
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -450,7 +452,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance(phase, str): 
+            phase = self.phase
         if phase == 'L-FW' or 'L-SW':
             phase = 'L'
         T = self.temperature.copy()
@@ -460,7 +463,7 @@ class Environment:
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
 
-    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False):
+    def getDGr(self, typeRxn, input_, specComp = False, solids = None, printDG0r = False, printDH0r = False, phase = None):
         """
         Compute (non-)standard Gibbs free energy using information from
         environmental models.
@@ -476,6 +479,8 @@ class Environment:
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         solids : LIST or np.ndarray
             Name(s) of compound(s) in solid phase. The default is None.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -485,7 +490,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance (phase, str): 
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
@@ -589,7 +595,7 @@ class Environment:
                                                 molality, solvent, asm, solids, standard_enthalpy)
         self.limits = limit_value
     
-    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False):
+    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False, phase = None):
         """
         Compute (non-)standard entropy change using information from environmental models.
 
@@ -604,6 +610,8 @@ class Environment:
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         solids : LIST or np.ndarray
             Name(s) of compound(s) in solid phase. The default is None.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
 
         Returns
         -------
@@ -613,7 +621,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB', 'WaterColumn'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance (phase, str): 
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         if not isinstance(pH, (list, np.ndarray)): pH = [pH]
@@ -653,7 +662,7 @@ class Environment:
                         DSr_dict[f'{rxn}'] = DSr[..., idRxn]
         self.DSr = DSr_dict
     
-    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False):
+    def getRs(self, typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False, phase = None):
         """
         Compute reaction rates using information from environmental models.
         
@@ -675,6 +684,8 @@ class Environment:
             A command to compute the mean of sample combinations's values.
             If set to True, the returned dictionary contains a single np.ndarray
             for each reaction key instead of comb keys with their own subarray.
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
                 
         Returns
         -------
@@ -691,7 +702,8 @@ class Environment:
         validModels = {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
-        phase = self.phase
+        if not isinstance(phase,str): 
+            phase = self.phase
         T = self.temperature.copy()
         # check attributes type
         if self.model == 'GWB':
@@ -705,18 +717,24 @@ class Environment:
                 Ct = self.Ci_LSW.copy()
             else:
                 raise NameError(f'Invalid phase ({self.phase}). Select \'G\' (gas), \'L-FW\' (freshwater liquid) or \'L-SW\' (seawater liquid) to calculate cell specific uptake rates.')
-        Rs_dict, _, _ = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
+        Rs_dict, _, _, specComp_dict = KinRates.getRs(typeKin, paramDB, reactions, Ct, sample = sample, pH = pH, T = T)
         self.Rs = Rs_dict
-        # replace sample combinations's values with their mean
+        self.specComp_Rs = specComp_dict
+        # replace sample combinations' values with their mean
         if combMean == True:
-            for key in Rs_dict.keys():
+            for key in Rs_dict.keys(): 
                 _rs = np.array(list(val for val in Rs_dict[key].values()))
                 _Rs = np.nanmean(_rs, axis = 0)
+                _specComp = list(set(specComp_dict[key].values()))
+                if len(_specComp) != 1:
+                    raise ValueError(f'More than 1 specComp for {key} have been found: {_specComp}')
                 self.Rs[key] = _Rs
+                self.specComp_Rs[key] = np.squeeze(_specComp)
+                
           
     def getCSP(self, typeKin, paramDB, typeMetabo, reactions, specComp,
                sample = 'All', DGsynth = 9.54E-11, molality = True,
-               solvent = 'H2O', asm = 'stoich'):
+               solvent = 'H2O', asm = 'stoich', phase = None):
         """           
         Compute cell specific powers in fW/cell using information from environmental models :
                 - 'Pcat' : Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs.
@@ -755,6 +773,9 @@ class Environment:
         asm : STR, optional (default = 'stoich')
             Assumption when products are not present in the environment.
                 - 'stoich' : stoichiometric concentrations
+        phase : STR, optional
+            Phase if different from .phase attribute of parent object.
+            
         Returns
         -------
         CSP dict saved as attribute of the model instance (modelName.CSP).
@@ -765,7 +786,8 @@ class Environment:
         if not self.model in validModels:
             raise NameError(f'Invalid model ({self.model}) to calculate non-standard Gibbs free energy. Valid models: {validModels}.')
         #import environment conditions from instance's attributes
-        phase = self.phase
+        if not isinstance (phase, str):
+            phase = self.phase
         T = self.temperature.copy()
         pH = self.pH.copy()
         S = self.salinity
@@ -811,12 +833,12 @@ class Environment:
         #check DGr
         _DGr = getattr(self, 'DGr', None)
         if _DGr is None:
-            self.getDGr(typeMetabo, reactions, specComp)
+            self.getDGr(typeMetabo, reactions, specComp, phase = phase)
             _DGr = self.DGr.copy()
         for pH_ in pH:
             CSPargs['pH'] = pH_
             #get Rs
-            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True)
+            self.getRs(typeKin, paramDB, reactions, sample, pH_, combMean = True, phase = phase)
             _Rs = self.Rs.copy()
             #extract from _DGr, DGr keys for current pH (into DGr_aux)
             DGr_aux = {k : _DGr[k] for k in _DGr if f'_pH:{pH_}' in k}
@@ -1508,7 +1530,7 @@ class ISA(Atmosphere):
     
     def _getConcISA(self, phase, compound = None):
         """
-        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        Computation of vertical profiles of compounds (partial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
         and liquid concentration in sea water, Ci_L-SW).
         Gas concentrations (Ci_G) are calculated using Dalton's law and the 
@@ -1523,7 +1545,7 @@ class ISA(Atmosphere):
                         'L-FW' - Liquid fresh water.
                         'L-SW' - Liquid sea water.
                         'L' - Both liquid phases (L-FW, L-SW).
-                        'All' - All phaes (G, L-FW, L-SW).
+                        'All' - All phases (G, L-FW, L-SW).
         compound : STR or LIST, optional
                 Interested compounds. The default is None. (i.e., all compounds are considered).
         """
@@ -2074,7 +2096,7 @@ class ISAMERRA2(Atmosphere):
     
     def _getConcISAMERRA2(self, phase, dataType, y, m = None, d = None, compound = None, bbox = (-180, -90, 180, 90), altArray = None, num = 50, surftrop = None):
         """
-        Computation of vertical profiles of compounds (parcial pressure, Pi;
+        Computation of vertical profiles of compounds (partial pressure, Pi;
         gas concentration, Ci_G; liquid concentration in fresh water, Ci_L-FW;
         and liquid concentration in sea water, Ci_L-SW).
         Gas concentrations (Ci_G) are calculated using Dalton's law and the 
@@ -3347,7 +3369,7 @@ class CAMSMERRA2(Atmosphere):
             Number of altitude steps to generate.
         
         """
-        from pyatmos import coesa76
+        # from pyatmos import coesa76
         
         cams_molecules = ('CO', 'CO2', 'CH4')
         molecule_data = {}
@@ -3378,17 +3400,16 @@ class CAMSMERRA2(Atmosphere):
         self.pressure = p_target
         self.altitude = z_m
         #-v1 (with pyatomos)-#
-        h_km = cams_alt * 1e-3 # km
-        rho_kg_m3 = coesa76(h_km).rho # kg/m3
-        rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
-        rho = rho_kg_L[:, None, None]
-        #-v2 (EcoSysEM)-#
-        # cams_t, _, _ = MERRA2._getTPAlt(self, dataType, year, month, day, bbox, cams_alt)
-        # shape_plev = (cams_t.shape[2], cams_t.shape[1], 1)
-        # cams_plev_ = np.transpose(np.tile(cams_plev, shape_plev))
-        # rho_kg_m3 = (cams_plev_ * 4.81e-26) / (1.380649e-23 * cams_t) # kg/m3
+        # h_km = cams_alt * 1e-3 # km
+        # rho_kg_m3 = coesa76(h_km).rho # kg/m3
         # rho_kg_L  = rho_kg_m3 * 1e-3 # kg/L
-        # rho = rho_kg_L
+        # rho = rho_kg_L[:, None, None]
+        #-v2 (EcoSysEM)-#
+        h_km = cams_alt * 1e-3 # km
+        cams_t_plev = 288.15 - 6.5 * (h_km - 0)
+        rho_g_m3 = (cams_plev * 28.9644) / (8.31432 * cams_t_plev) # g/m3
+        rho_kg_L = rho_g_m3 * 1e-6
+        rho = rho_kg_L[:, None, None]
         # Constants
         R_g = 8314.46261815324  # Universal gas constant [(L·Pa)/(K·mol)]
         # Dictionaries initialization
