@@ -866,7 +866,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     labels[section] = f'{"{:.1f}".format(section_coor[1])}°'
                 else:
                     labels[section] = f'{"{:.1f}".format(section_coor[1])}°S'
-            elif section_coor[1] == -90 and section_coor[2] == 90 and section_coor[0] == section_coor[2]:
+            elif section_coor[1] == -90 and section_coor[3] == 90 and section_coor[0] == section_coor[2]:
                 # Meridian
                 locusType[section] = 'meridian'
                 if section_coor[0] > 0:
