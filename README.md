@@ -1,4 +1,7 @@
 <style>
+  table#parameters&returns tr {
+    border: none;
+  }
   table#parameters&returns td {
     border: none;
   }
@@ -4024,7 +4027,7 @@ instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolisms, K, mortality, hum
 Create an instance of `MSMM` object :<p>
 **Parameters:**<br>
 <table id="parameters&returns">
-<tr><td>**envModel : _str_**</td>Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.</td></tr>
+<tr><td>**envModel : _str_**</td><td>Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.</td></tr>
 </table>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **envModel : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.<br>
