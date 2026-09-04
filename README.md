@@ -9,7 +9,7 @@
 	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>HFSP: RGY0058/2022</td></tr>
 </table>
 
-· Contributors: Eloi Martinez-Rabert<sup>📧</sup>, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney.<br>
+· **Contributors:** Eloi Martinez-Rabert<sup>📧</sup>, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney.<br>
 
 📧Contact: eloi.mrp@gmail.com.
 ____________________________
