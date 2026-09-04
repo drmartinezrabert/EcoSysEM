@@ -1,3 +1,8 @@
+<style>
+  table#parameters&returns td {
+    border: none;
+  }
+</style>
 # EcoSysEM. EcoSystem Evaluation &amp; Modelling
 
 <img src="https://github.com/drmartinezrabert/EcoSysEM/blob/main/Logo.png" width="516" height="161">
@@ -3997,8 +4002,8 @@ nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp_Rs : _dict_** <br>
 -->
 
 #### <ins>Ecosystem modeling</ins>
-<a name="MSMM">**Multi State Metabolic Model**</a><br>
-A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state, plus one for each compound whose concentration varies in the liquid and gas phases under the modeled scenario). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
+<a name="MSMM">**Multi-State Metabolic Model**</a><br>
+The Multi-State Metabolic Model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state, plus one for each compound whose concentration varies in the liquid and gas phases under the modeled scenario). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
 Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in maintenance state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
 <img width="629" height="325" alt="Figure 1" src="https://github.com/user-attachments/assets/13741182-2a3c-4ff4-945a-41bea91604d1" />
@@ -4018,6 +4023,9 @@ instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolisms, K, mortality, hum
 ```
 Create an instance of `MSMM` object :<p>
 **Parameters:**<br>
+<table id="parameters&returns">
+<tr><td>**envModel : _str_**</td>Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.</td></tr>
+</table>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **envModel : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **coord : _list_**<br>
