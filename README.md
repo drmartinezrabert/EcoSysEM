@@ -2,14 +2,16 @@
 
 <img src="https://github.com/drmartinezrabert/EcoSysEM/blob/main/Logo.png" width="516" height="161">
 
-*· Funded by:*
+**· Funded by:**
 
 <table>
-	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>HFSP: RGY0058/2022</td></tr>
 	<tr><td><b>2026 - 2028:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/62098f88-70fc-4d6d-8648-3309731db1ff" width="150" ></td><td>ERC: 101115755</td></tr>
+	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>HFSP: RGY0058/2022</td></tr>
 </table>
 
-*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney*.<br>
+· **Contributors:** Eloi Martinez-Rabert<sup>📧</sup>, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney.<br>
+
+📧Contact: eloi.mrp@gmail.com.
 ____________________________
 
 ## README Contents
@@ -39,7 +41,6 @@ ____________________________
         - Data visualization | [GO](#data-visualization)
 -  Function Navigation | [GO](#function-navigation)
 -  Error List | [GO](#error-list)
--  Contact | [GO](#contact)
 ____________________________
 
 ## Before having fun...
@@ -4881,12 +4882,6 @@ ValueError: Failed for yyyy-mm-dd/yyyy-mm-dd: Error occurred: CAMS_yyyy_mm_dd.nc
 [🔼 Back to **Contents**](#readme-contents)
 
 __________________________________________________
-
-## Contact
-
-**Eloi Martinez-Rabert**. :envelope: eloi.mrp@gmail.com
-
-[🔼 Back to **Top**](#ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### References
 
