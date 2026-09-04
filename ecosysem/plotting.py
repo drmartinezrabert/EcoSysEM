@@ -260,8 +260,6 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
     #-Plotting
     plt.rcParams["font.family"] = fontFamily
     plt.rcParams["font.size"] = fontSize
-    plt.rcParams['figure.dpi'] = 400
-    plt.rcParams['savefig.dpi'] = 400
     fig, ax = plt.subplots(figsize = figsize)
     if logScale:
         if lines[0]: plt.semilogy(x, maximum, ls = '-', lw = lw*0.5, color = color, marker = marker, ms = ms)
@@ -866,7 +864,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                     labels[section] = f'{"{:.1f}".format(section_coor[1])}°'
                 else:
                     labels[section] = f'{"{:.1f}".format(section_coor[1])}°S'
-            elif section_coor[1] == -90 and section_coor[2] == 90 and section_coor[0] == section_coor[2]:
+            elif section_coor[1] == -90 and section_coor[3] == 90 and section_coor[0] == section_coor[2]:
                 # Meridian
                 locusType[section] = 'meridian'
                 if section_coor[0] > 0:
@@ -899,6 +897,8 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                 numTick = numTicks[section]
             else:
                 if locusType[section] == 'parallel':
+                    numTick = 9
+                if locusType[section] == 'meridian':
                     numTick = 9
                 else:
                     numTick = 5
@@ -979,6 +979,7 @@ def plotCrossSections(data2D, data3D, varName, varUnits, cmap, altitude, bbox = 
                 elif coor[0] == coor[2]:
                     # Meridian section
                     tickLoc = np.linspace(coor[1], coor[3], numTick)
+                    tickLabels = []
                     for loc in tickLoc:
                         if loc > 0:
                             tickLabels += [f'{loc}°N']

@@ -15,6 +15,30 @@ class CSP:
     Rj = 8.314      #universal gas constant [J/mol/K]
     T0 = 298.15     #standard temperature [K]
     
+        
+    def estimate_yield(DGr, metaboleff = 0.5, Dgcell = 1.04e-10):
+        """
+        Function to estimate cell growth yield.
+        
+        Parameters
+        ----------
+        DGr : FLOAT 
+            Gibbs free energy of catabolism
+        metaboleff : FLOAT
+            Metabolic efficiency parameter
+        Dgcell : FLOAT
+            Gibbs free energy of the cell = sum of Gibbs free energy of anabolism and maintenance
+            
+        Returns
+        -------
+        Yx : FLOAT
+            Cell growth yield [cell/mol of eD]
+        """
+        f = metaboleff
+        Yx = -DGr * f / Dgcell
+        return Yx
+        
+    
     def getPcat(paramDB, typeKin, typeMetabo, reaction, specComp, Ct, 
                 T = 298.15, pH = 7., S = None, phase = 'L', sample = 'All',
                 fluidType = 'ideal', molality = True, methods = None,
@@ -25,7 +49,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
@@ -147,7 +171,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
@@ -257,7 +281,7 @@ class CSP:
         if not _DGr.shape == _Rs.shape :
             raise IndexError(f'Arrays of different shape cannot be used as operands (_Rs:{_Rs.shape} ; _DGr:{_DGr.shape}).')
         # compute cell-growth yield and Pana
-        Yx = -(_DGr * (0.5/1.04e-10))   # [cell/moleD]
+        Yx = CSP.estimate_yield(_DGr)   # [cell/moleD]
         Pana = Yx * _Rs * DGsynth * 1e15
         return Pana     #[fW/cell]
     
@@ -340,7 +364,7 @@ class CSP:
         Parameters
         ----------
         paramDB : STR or LIST
-            Name of parameter database, matching with csv name, E.g. 'ArrhCor_AtmMicr'
+            Name of parameter database, matching with csv name, E.g. 'qs_FFAM'
         typeKin : STR
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
@@ -428,7 +452,7 @@ class CSP:
                     os.remove(fullPathSave)
             CSP._writeExcel(CSP_dict, fullPathSave, reaction, T, pH, S, Ct)
         return CSP_dict  # [fW/cell]
-    
+
     def _writeExcel(CSPdict, fullPathSave, reaction, T, pH, S, Ct):
         """
         Write calculated cell specific powers in Excel document.

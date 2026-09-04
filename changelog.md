@@ -13,6 +13,46 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 -->
 
+## [0.5.2] - 2026/09/04
+### Added
+- New optional arguments in `WaterColumn.plotVariables()`: `colors`, `title`, `title_fs`.
+- New optional arguments in `Environment.getDGr()`: `solids`, `printDG0r`,`printDH0r`.
+- New optional argument in `Environment.getDHr()`, `Environment.getDGr()`, `Environment.getDSr()`, `Environment.getRs()`: `phase` allowing phase for these methods to differ from parent object (which can now safely equal 'All')
+- New optional argument in `ThSA.getDeltaGr()`: `solids`.
+- New arguments in `MSMM.__init__()`: `scenario`, `humidity`,`bioaerosolC`.
+- New optional arguments in `MSMM.__init__()`: `celldiameter`, `hygroscopicity`.
+- New function in `WaterColumn` class (`environments.py`): `WaterColumn.poly_fit()`.
+- New thermodynamic database: Entropy of compounds.
+- New functions in `ThP` class (`thermodynamics.py`): `ThP.Qr()`, `ThP.activity_coefficient()` and `ThP.getDeltaS0r()`.
+- New functions in `ThSA` class (`thermodynamics.py`): `ThSA.getDeltaSr()` and `ThSA.thermodynamic_limits()`.
+- New functions in `Environment` class (`environments.py`): `Environment.getDSr()` and `Environment.thermodynamic_limits()`.
+- New functions in `MSMM` object (`modeling.py`) : `_BArad()`, `_ALWCvol()`, `_meanmolvelocity()`, `_gasphasediff()`, `_masstransfercoeffs()`, `_ODEsystem_MSMM_variablecomposition()`.
+- New function in `CSP` class (`bioenergetics.py`) : `estimate_yield()`.
+- New thermodynamic database: standard entropy of compounds (S<sup>0</sup><sub>i</sub>).
+- New column in kinetics database `qs_FFAM.csv` : `specComp`.
+### Fixed
+- Bug in `ThSA.ionicStrength()`. Now it handles NaN value in compound concentration.
+- Bug in `_ODEsystem_MSMM_()` after upgrade from Scipy 1.16.3, needed `np.squeeze` in return array.
+- Now `ThP.getThP()` drops duplicate values.
+- Outdated file names for default kinetic data in `MSMM.__init__()`. Now consistent with current `ArrhCor.csv` and `qs_FFAM.csv` files in `kinetics` repository.
+- Bugs in `plot_seasonality()`. Errors in representation of meridians and tickmarkets of 2D suplots have been solved.
+- Fix plot display in `MSMM.plotMSMM()`.
+- Fix bug in `KinRates.getRs()` : paramDB argument for MM kinetics must be a list now.
+### Changed
+- README file.
+- Update `ThP.activity()`: Activity coefficients are estimated using an auxiliary function (`ThP.activity_coefficient()`) + code cleaning.
+- Update thermodynamic data.
+  - Standard Gibbs free energy of formation.
+  - Standard Enthalpy of formation.
+  - Specific heat capacity.
+- Remove 'Survival' state from `modeling.py`. 
+- Update `CAMSMERRA2._getConcCAMSMERRA2()` to calculate rho directly without using pyatmos.
+- Update `MSMM` object: generalize to model simulate multiple metabolisms concurrently (changes to `MSMM.__init__()`, `MSMM._callEnvP()`, `MSMM._ODEsystem_MSMM()`, `MSMM._stShifts()`, `MSMM.solveODE()`, `MSMM._writeExcel()`, `MSMM.plotMSMM()`).
+- Update `MSMM` object: model scenarios with variable concentrations of compounds in bioaerosol, or bioaerosol and atmoshere (chosen with argument `scenario`; changes to `MSMM.__init__()`, `MSMM._callEnvP()`, `MSMM.solveODE()`, `MSMM.plotMSMM()`, new function `_ODEsystem_MSMM_variablecomposition()`.
+- Update `MSMM.plotMSMM()` to add theta 1 & 2 values to plot titles.
+- Update `KinRates.getRs()` and `Environment.getRs()` to return specific compounds in terms of which rates are calculated. 
+- Update `MSMM._ODEsystem_MSMM()` to use consistent time units [h-1] throughout ODE system (uptake rates were previously in [s-1]) and removed redundant attribute `MSMM.Rs` (now `MSMM.envConditions.Rs` used throughout).
+
 ## [0.5.1] - 2026/03/16
 ### Added
 - New functions in `thermodynamics.py`:
@@ -24,7 +64,7 @@ All notable changes to this project will be documented in this file.
 - Bug in `ThSA.sobol_indices_DeltaGr`. A `TypeError` occurred when it shouldn't have.
 ### Changed
 - README file.
-- Update thermodynamic date.
+- Update thermodynamic data.
   - Specific heat capacity.
 
 ## [0.5] - 2026/03/13

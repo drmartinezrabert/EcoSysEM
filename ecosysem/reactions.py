@@ -15,7 +15,7 @@ class KinP:
     
     """
     # Direction of kinetic parameters
-    path = 'kinetics\\'
+    path = 'kinetics//'
     # Parameters associated to Compound (like 'Km', 'Ks' or 'Ki')
     assocParamComp = ['Km', 'Ks', 'Ki']
     
@@ -89,7 +89,7 @@ class KinP:
                             dictR[f'{iParam}_{comp}'] = dParam[comp].fillna(0).values
                             cVal = np.all(f'{iParam}_{comp}' == 0.0)
                             if cVal: raise ValueError(f'Limiting substrate ({comp}) not found. Check `Ct` argument in `getRs()`, and Km values in csv file.')
-                else: raise ValueError(f'You must to define the compounds for {iParam} with `comp` parameter.')
+                else: raise ValueError(f'You must define the compounds for {iParam} with `comp` parameter.')
         return dictR, sampleNames
     
 class KinRates:
@@ -110,8 +110,10 @@ class KinRates:
             Type of kinetic equations 
                 MM - 'Michaelis-Menten equation'.
                 MM-Arrhenius - 'Michaelis-Menten-Arrhenius equation'
-        paramDB : STR
+        paramDB : LIST of STR
             Name of parameter database, matching with csv name.
+                - If MM: paramDB = ['Michaelis-Menten DB']
+                - IF MM-Arrhenius: paramDB = ['Michaelis-Menten DB', 'Arrhenius DB']
         reactions : STR or LIST
             Requested reaction(s).
         Ct : DICT
@@ -131,6 +133,8 @@ class KinRates:
             Combination of samples (rows of `typeParam.csv`).
         orderComb : STR
             Order of samples in `combNames`.
+        specComp_Rs : DICT
+            Specific compound in terms of which rates are expressed.
 
         """
         # Dynamic import of ThEq
@@ -158,33 +162,35 @@ class KinRates:
             for comp in compounds:
                 Ct[comp] = ThEq.pHSpeciation(comp, pH, T, Ct[comp])
         if typeKin == 'MM':
-            params = ['qmax', 'Km']
-            """ # !!!
-            if len(paramDB) != 1:
-                print('!EcoSysEM.Error: only 1 database must be given: paramDB = "Michaelis-Menten DB"')
-                sys.exit()
-            """
+            params = ['qmax', 'Km','specComp']
+            if len(paramDB) != 1: raise ValueError('For MM equation, only 1 database must be given: paramDB = ["Michaelis-Menten DB"]')
             # Initialize results
             Rs = {}
             combNames = {}
+            specComp_Rs = {}
             for idRxn, Rxn in enumerate(reactions):
                 # Initialize combNames[Rxn]
                 combNames[Rxn] = []
-                p, sampleNames = KinP.getKinP(paramDB, params, Rxn, sample, compounds)
+                p, sampleNames = KinP.getKinP(paramDB[0], params, Rxn, sample, compounds)
                 qmax = p['qmax']
+                complist = p['specComp']
                 # Select Km
                 Km = {k : p[k] for k in p if 'Km' in k}
                 rs = {}
+                comps = {}
                 for idMM, sample_MM in enumerate(sampleNames):
                     # Rates
                     qmax_ = qmax[idMM]
+                    compname_ = complist[idMM]
                     Km_ = {k : Km[k][idMM] for k in Km}
                     rs[f'comb_{idMM+1}'] = KinRates._rMM(qmax_, Km_, Ct)
+                    comps[f'comb_{idMM+1}'] = compname_
                     # CombNames
                     combNames[Rxn].append(sample_MM)
                 Rs[Rxn] = rs
+                specComp_Rs[Rxn] = comps
             orderComb = 'MM'
-            return Rs, combNames, orderComb
+            return Rs, combNames, orderComb, specComp_Rs
         elif typeKin == 'MM-Arrhenius':
             if len(paramDB) != 2: raise ValueError('For MM-Arrhenius equation, 2 databases must be given: paramDB = ["Michaelis-Menten DB", "Arrhenius DB"]')
             paramDB_MM = paramDB[0]
@@ -192,12 +198,15 @@ class KinRates:
             # Initialize results
             Rs = {}
             combNames = {}
+            specComp_Rs = {}
             for idRxn, Rxn in enumerate(reactions):
                 # Initialize combNames[Rxn]
                 combNames[Rxn] = []
                 ## Michaelis-Menten parameters
-                p, sampleNames_MM = KinP.getKinP(paramDB_MM, ['qmax', 'Km'], Rxn, sample, compounds)
+                params = ['qmax', 'Km','specComp']
+                p, sampleNames_MM = KinP.getKinP(paramDB_MM, params, Rxn, sample, compounds)
                 qmax = p['qmax']
+                complist = p['specComp']
                 # Select Km
                 Km = {k : p[k] for k in p if 'Km' in k}
                 ## Arrhenius parameters
@@ -208,6 +217,7 @@ class KinRates:
                 ## Rate calculation (combinations of MM and Arrhenius)
                 c = 1
                 rs = {}
+                comps = {}
                 for idMM, sample_MM in enumerate(sampleNames_MM):
                     for idArrh, sample_Arrh in enumerate(sampleNames_Arrh):
                         #-DEBUGGING-#
@@ -215,18 +225,21 @@ class KinRates:
                         #-----------#
                         ## Michaelis-Menten
                         qmax_ = qmax[idMM]
+                        compname_ = complist[idMM]
                         Km_ = {k : Km[k][idMM] for k in Km}
                         rs_ = KinRates._rMM(qmax_, Km_, Ct)
                         ## Arrhenius
                         O_ = O[idArrh]
                         Texp_ = Texp[idMM]
                         rs[f'comb_{c}'] = KinRates._arrhCorr(rs_, O_, Texp_, T)
+                        comps[f'comb_{c}'] = compname_
                         c += 1
                         # CombNames
                         combNames[Rxn].append(sampleComb)
                 Rs[Rxn] = rs
+                specComp_Rs[Rxn] = comps
             orderComb = 'MM - Arrhenius'
-            return Rs, combNames, orderComb
+            return Rs, combNames, orderComb, specComp_Rs
         else: raise ValueError(f'Unknown typeKin ({typeKin}). Existing typeKin: "MM" (Michaelis-Menten eq.); "MM-Arrhenius" (Michaelis-Menten-Arrhenius eq.).')
     
     def _rMM(qmax, Km, C):
@@ -295,7 +308,7 @@ class KinRates:
 
 class Reactions:
     # Directory of reactions
-    path = 'reactions\\'
+    path = 'reactions//'
     
     def getRxn(typeRxn, input_ = 'All', warnings = False):
         """

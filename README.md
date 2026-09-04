@@ -5,10 +5,11 @@
 *· Funded by:*
 
 <table>
-<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>RGY0058/2022</td></tr>
+	<tr><td><b>2024 - 2026:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/d03a5160-9186-46e3-8bf4-b55681ee1841" width="150"></td><td>HFSP: RGY0058/2022</td></tr>
+	<tr><td><b>2026 - 2028:</b></td><td><img align="centre" src="https://github.com/user-attachments/assets/62098f88-70fc-4d6d-8648-3309731db1ff" width="150" ></td><td>ERC: 101115755</td></tr>
 </table>
 
-*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire*.<br>
+*· Contributors: Eloi Martinez-Rabert, Begüm Nisa Kasaplı, Zoé Lemaire, Ezra Finney*.<br>
 ____________________________
 
 ## README Contents
@@ -46,7 +47,7 @@ ____________________________
 > To open the links in a new tab: right click on the link + "Open link in new tab".
 
 ### :gear: Anaconda Python installation
-EcoSysEM platform is built up in Python. To execute this Python scripts is recommended the installation of **Anaconda**. **Anaconda Python** is a free, open-source platform that allows to write and execute code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, managment and development, and alos comes with a large number of libraries/packages that can be you for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download teh installer for your operating system.
+EcoSysEM platform is built up in Python. To execute these Python scripts it is recommended to install **Anaconda**. **Anaconda Python** is a free, open-source platform that allows writing and execution of code in the programming language Python ([Python Tutorial](https://docs.python.org/3/tutorial/index.html)). This platform simplifies package installation, management and development, and also comes with a large number of libraries/packages that can be used for your projects. To install **Anaconda**, just head to the [Anaconda Documentation website](https://docs.anaconda.com/free/anaconda/install/index.html) and follow the instructions to download the installer for your operating system.
 
 [🔼 Back to **Contents**](#readme-contents)
 
@@ -69,27 +70,27 @@ Spyder is a Python development environment with many features for working with P
 A **Python package** is a collection of files containing Python code (i.e., modules). To execute **EcoSysEM platform**, the following packages must to be installed:
 - **<ins>NumPy</ins>**. NumPy is the fundamental package for scientific computing in Python. It is a Python library that provides a multidimensional array object, various derived objects (such as masked arrays and matrices), and an assortment of routines for fast operations on arrays, including mathematical, logical, shape manipulation, sorting, selecting, I/O, discrete Fourier transforms, basic linear algebra, basic statistical operations, random simulation and much more. For more info and tutorials, click [here](https://numpy.org/).
 - **<ins>Pandas</ins>**. Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of the Python programming language. For more info and tutorials, click [here](https://pandas.pydata.org/).
-- **<ins>Matplotlib</ins>**. Matplotlib is a library for creatinc static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
-- **<ins>SciPy</ins>**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy . It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
-- **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iteratiors and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
-- **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info ant tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
+- **<ins>Matplotlib</ins>**. Matplotlib is a library for creating static, animated and interactive visualizations in Python. For more info and tutorials, click [here](https://matplotlib.org/).
+- **<ins>SciPy</ins>**. SciPy is a collection of mathematical algorithms and convenience functions built on NumPy. It adds significant power to Python by providing the user with high-level commands and classes for manipulating and visualizing data. For more info and tutorials, click [here](https://scipy.github.io/devdocs/tutorial/index.html).
+- **<ins>iteration_utilites</ins>**. Iteration_utilities is a collection of functional programming based on and utilizing iterators and generators. Most of the functions are inspiered by the _itertools_ module, but implemented in C to achieve a better overall performance. For more info and tutorials, click [here](https://iteration-utilities.readthedocs.io/).
+- **<ins>Xarray</ins>**. Xarray introduces labels in the form of dimensions, coordinates and attributes on top of raw NumPy-like multidimensional arrays, which allows for a more intuitive, more concise, and less error-prone developer experience. xarray is better suited for more complex tasks that involve labeled arrays or multi-dimensional arrays with missing or incomplete data. For more info and tutorials, click [here](https://docs.xarray.dev/en/stable/user-guide/index.html).
 - **<ins>Earthaccess</ins>**. Earthaccess is a python library to search for, and download or stream NASA Earth science data with just a few lines of code. For more info and tutorials, click [here](https://earthaccess.readthedocs.io/en/latest/).
 - **<ins>cdsapi</ins>**. The Climate Data Store (CDS) Application Program Interface (API) is a service providing programmatic access to CDS and ADS data. For more info and tutorials, click [here](https://cds.climate.copernicus.eu/how-to-api).
 - **<ins>molmass</ins>**. Molmass is a Python library, console script, and web application to calculate the molecular mass (average, nominal, and isotopic pure), the elemental composition, and the mass distribution spectrum of a molecule given by its chemical formula, relative element weights, or sequence. For more info and tutorials, click [here](https://pypi.org/project/molmass/).
-- **<ins>pyatmos</ins>**. Pyatmos is an archive of scientific routines that estimates the vertical structure of atmosphere with various atmospheric density models. For more info and tutorials, click [here](https://pypi.org/project/pyatmos/).
 - **<ins>basemap</ins>**. Basemap is a matplotlib toolkit for plotting 2D data on maps in Python. It is similar in functionality to GrADS, GMT, the MATLAB Mapping Toolbox and the IDL Mapping Facilities. CDAT and PyNGL are other Python libraries with similar capabilities. For more info and tutorials, click [here](https://matplotlib.org/basemap/stable/index.html).
 - **<ins>python-dateutil</ins>**. Dateutil module provides powerful extensions to the standard datetime module, available in Python. For more info and tutorials, click [here](https://dateutil.readthedocs.io/en/stable/).
-- **<ins>geokernels</ins>**. Geokernels module proides fast geospatial distance computation and geodesic distance kenrels to accelerate geospatial machine learning and distance matrix calculations. For more info and tutorials, click [here](https://github.com/sigmaterra/geokernels).
+- **<ins>geokernels</ins>**. Geokernels module provides fast geospatial distance computation and geodesic distance kernels to accelerate geospatial machine learning and distance matrix calculations. For more info and tutorials, click [here](https://github.com/sigmaterra/geokernels).
+- **<ins>openpyxl</ins>**. Openpyxl is a Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files. For more info, click [here] (https://pypi.org/project/openpyxl)
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### Installation of packages using Anaconda Navigator
-You can install any Python package using the **Anaconda Navigator**. For this, execute the navigator and click to **Environments**. In this section you can install new packages and delete the already installed. For more info, click [here](https://docs.anaconda.com/free/navigator/).
+You can install any Python package using the **Anaconda Navigator**. For this, execute the navigator and click on **Environments**. In this section you can install new packages and delete those already installed. For more info, click [here](https://docs.anaconda.com/free/navigator/).
 
 [🔼 Back to **Contents**](#readme-contents)
 
 ### Installation of packages using pip
-**pip** is the package installer for Python. In general, pip installs the minimal instalation requirements automatically, but not the optionals requirements. To install the mentioned packages using pip, you have only to write the following command lines in **Anaconda Prompt or Terminal**:
+**pip** is the package installer for Python. In general, pip installs the minimal installation requirements automatically, but not the optional requirements. To install the mentioned packages using pip, you have only to write the following command lines in **Anaconda Prompt or Terminal**:
 #### · <ins>Anaconda Prompt</ins>
 **NumPy**:
 ```
@@ -127,10 +128,6 @@ pip install cdsapi
 ```
 pip install -U "molmass[all]"
 ```
-**pyatmos**:
-```
-pip install pyatmos
-```
 **netCDF4 (h5netcdf)**
 ```
 pip install netCDF4 h5netcdf
@@ -146,6 +143,10 @@ pip install python-dateutil
 **geokernels**
 ```
 pip install geokernels
+```
+**openpyxl**
+```
+pip install openpyxl
 ```
 ____________________________
 
@@ -186,10 +187,6 @@ python -m pip install cdsapi
 ```
 python -m pip install -U "molmass[all]"
 ```
-**pyatmos**:
-```
-python -m pip install pyatmos
-```
 **netCDF4 (h5netcdf)**
 ```
 python -m pip install netCDF4 h5netcdf
@@ -205,6 +202,10 @@ python -m pip install python-dateutil
 **geokernels**
 ```
 python -m pip install geokernels
+```
+**openpyxl**
+```
+python -m pip install openpyxl
 ```
 
 [🔼 Back to **Contents**](#readme-contents)
@@ -227,7 +228,7 @@ All important parameters are saved using local databases in .csv format (read by
 - Henry's law constant of solubility at standard temperature (H<sub>S</sub><sup>0</sup>).
 - Temperature dependence of Henry's law constant of solubility (B).
 
-To modify existing databases (_i.e.,_ include new parameter values), open de .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
+To modify existing databases (_i.e.,_ include new parameter values), open the .xlsx file in `ecosysem\db\Excels\*.xlsx`. Once finished, **1)** _Save_ Excel file in `\ecosysem\db\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\db\` folder. All parameter databases have the same structure:
 
 |  IUPAC  |  Formula  |  Phase  |  Value  |  REF  |
 | ------- | --------- | ------- | ------- | ----- |
@@ -263,11 +264,11 @@ The ΔG<sub>f</sub><sup>0</sup> and ΔH<sub>f</sub><sup>0</sup> parameters have 
 [🔼 Back to **Instructions (Downloading & Setting up)**](#clipboard-instructions-for-downloading-and-setting-up-ecosysem-platform) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 ### How to modify reaction databases
-Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stocihiometric matrix of reactions is defined. For now, the following reaction databases are included:
+Like parameter databases, all chemical and biotic reactions are defined using local databases in .csv format (read by code) and .xlsx format (to create/modify databases). In reaction databases, stoichiometric matrix of reactions is defined. For now, the following reaction databases are included:
 - pHSpeciation. Stoichiometric matrix of acid-base equilibrium reactions.
 - Metabolisms. Stoichiometrix matrix of metabolic reactions.
 
-To modify existing databases open de .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
+To modify existing databases open the .xlsx file in `ecosysem\reactions\Excels\*.xlsx`. The user can also create a new database reaction. Once finished, **1)** _Save_ Excel file in `\ecosysem\reactions\Excels\` folder and **2)** _Save as_ the document in .csv format in `\ecosysem\reactions\` folder. All reaction databases have the same structure:
 
 |  Compounds  |  Reaction n<sup>o</sup> 1  |  Reaction n<sup>o</sup> 2  |  ...  |  Reaction n<sup>o</sup> N  |
 | ----------- | -------------------------- | -------------------------- | ----- | -------------------------- |
@@ -309,7 +310,7 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 
 · Guidelines for formulating compounds:
 - Use the same chemical symbol of elements. For example: _H_ for hydrogen, _O_ for oxygen, _Ar_ for argon, _Na_ for sodium...
-- If the compound is charged (like ion ammonium, NH<sub>4</sub><sup>+</sup>; or sulphate, SO<sub>4</sub><sup>2-</sup>), the charge sign (+ or -) is always precedes the number of charges of the ion, that is, in reverse of the normal formulizaton of ions. **Use only '+' and '-' to represent the charge of the ion.** For example: _SO4-2_ for sulphate (SO<sub>4</sub><sup>2-</sup>), _SO3-2_ for sulfite (SO<sub>3</sub><sup>2-</sup>) or _CO3-2_ for carbonate (CO<sub>3</sub><sup>2-</sup>.
+- If the compound is charged (like ion ammonium, NH<sub>4</sub><sup>+</sup>; or sulphate, SO<sub>4</sub><sup>2-</sup>), the charge sign (+ or -) always precedes the number of charges of the ion, that is, in reverse of the normal formulizaton of ions. **Use only '+' and '-' to represent the charge of the ion.** For example: _SO4-2_ for sulphate (SO<sub>4</sub><sup>2-</sup>), _SO3-2_ for sulfite (SO<sub>3</sub><sup>2-</sup>) or _CO3-2_ for carbonate (CO<sub>3</sub><sup>2-</sup>.
 - For free radicals, the compound formulization starts with 'rad' and followed by the symbol of element/compound. For example: _radOH_ for hydroxyl radical (OH·), _radBr_ for bromine radical (Br·), or _radCH3_ for methyl radical (CH<sub>3</sub>·).
 - For organic compounds, you can use the chemical formula or an abbreviation. For example: _CH3COOH_ or _AcOH_ for acetic acid, _C3H7COOH_ or _ButyOH_ for butyric acid or _C6H1206_ or _Glc_ for glucose.
 
@@ -327,12 +328,10 @@ To identify the differents compounds across the **EcoSysEM platform** and associ
 [🔼 Back to **Contents**](#readme-contents)
 
 ## :clipboard: Instructions to use EcoSysEM platform via Command Line Interface (CLI)
-1. Download .zip code. Last version: `v0.5.1` **(Pre-release)**. [Download release](https://github.com/soundslikealloy/EcoSysEM/archive/refs/tags/v0.5.1.zip).
-2. Extract files to a destination (Recommendation - Desktop).
-3. Open **Anaconda Prompt or Terminal**.
-4. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
+1. Open **Anaconda Prompt or Terminal**.
+2. Go to the **Code folder<sup>2</sup>** using `cd` command (more info about [Using Terminal](https://docs.anaconda.com/ae-notebooks/user-guide/basic-tasks/apps/use-terminal/?highlight=Using%20Terminal)).
     &#09;<br><sup><sup>2</sup>Code folder: folder with `ecosysem_cmd.py` file (Folder: `EcoSysEM\ecosysem`). </sup>
-5. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
+3. Execute one of the **EcoSysEM** blocks/functions using the following command lines:
 ```
 python cmd_functionName.py _arg1 value1 _arg2 value2 _arg3 value3
 ```
@@ -431,6 +430,8 @@ ecosysem
   │      │    ├── combData
   │      │    ├── getDHr
   │      │    ├── getDGr
+  │      │    ├── thermodynamic_limits
+  │      │    ├── getDSr
   │      │    ├── getRs
   │      │    ├── getCSP
   │      │    ├── smmryDGr
@@ -451,7 +452,9 @@ ecosysem
   │      │    ├── .H2O
   │      │    ├── .layers
   │      │    ├── .resolution
+  │      │    ├── .DSr (if ISA.getDSr() is called)
   │      │    ├── .DGr (if ISA.getDGr() is called)
+  │      │    ├── .limits (if ISA.thermodynamic_limits() is called)
   │      │    ├── .DHr (if ISA.getDHr() is called)
   │      │    ├── setComposition
   │      │    ├── plotTandP
@@ -482,7 +485,9 @@ ecosysem
   │      │    ├── .lon
   │      │    ├── .compounds
   │      │    ├── .compositions
+  │      │    ├── .DSr (if ISAMERRA2.getDSr() is called)
   │      │    ├── .DGr (if ISAMERRA2.getDGr() is called)
+  │      │    ├── .limits (if ISAMERRA2.thermodynamic_limits() is called)
   │      │    ├── .DHr (if ISAMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      ├── CAMS # Attributes can be different
@@ -507,7 +512,9 @@ ecosysem
   │      │    ├── .lat
   │      │    ├── .lon
   │      │    ├── .compounds
+  │      │    ├── .DSr (if CAMSMERRA2.getDSr() is called)
   │      │    ├── .DGr (if CAMSMERRA2.getDGr() is called)
+  │      │    ├── .limits (if CAMSMERRA2.thermodynamic_limits() is called)
   │      │    ├── .DHr (if CAMSMERRA2.getDHr() is called)
   │      │    └── # Dynamic attributes from MERRA2 (if keysAsAttributes = True)
   │      │── GWB
@@ -518,8 +525,10 @@ ecosysem
   │      │    ├── .methods
   │      │    ├── .fluidType
   │      │    ├── .compounds
+  │      │    ├── .DSr (if GWB.getDSr() is called)
   │      │    ├── .DGr (if GWB.getDGr() is called)
-  │      │    ├── .DHr (if GWB.getDGr() is called)
+  │      │    ├── .limits (if GWB.thermodynamic_limits() is called)
+  │      │    ├── .DHr (if GWB.getDHr() is called)
   │      │    └── .sobol_DGr (if GWB.sobol_indices_DGr() is called)
   │      └── WaterColumn
   │           ├── .depth
@@ -531,10 +540,13 @@ ecosysem
   │           ├── .Ci_L
   │           ├── .methods
   │           ├── .fluidType
+  │           ├── .DSr (if WaterColumn.getDSr() is called)
   │           ├── .DGr (if WaterColumn.getDGr() is called)
+  │           ├── .limits (if WaterColumn.thermodynamic_limits() is called)
   │           ├── .DHr (if WaterColumn.getDGr() is called)
   │           ├── .sd (if standard deviations is given using 'sd' argument or in .csv file)
   │           ├── # Extra attributes (if more parameters is given using 'extraParam' argument)
+  │           ├── poly_fit
   │           └── plotVariables
   ├── reactions.py
   │      ├── KinP
@@ -553,10 +565,13 @@ ecosysem
   │      │    ├── vapor_pressure
   │      │    ├── osmotic_coefficient
   │      │    ├── water_activity
+  │      │    ├── Qr
+  │      │    ├── getDeltaS0r
   │      │    ├── getDeltaG0r
   │      │    ├── getDeltaH0r
   │      │    ├── getDeltaCp
   │      │    ├── ionicStrength
+  │      │    ├── activity_coefficient
   │      │    ├── activity
   │      │    └── getKeq
   │      ├── ThEq
@@ -566,14 +581,17 @@ ecosysem
   │      │    └── plotpHSpeciation
   │      └── ThSA
   │           ├── exportDeltaGr
+  │           ├── getDeltaSr
   │           ├── getDeltaHr
   │           ├── getDeltaGr
+  │           ├── thermodynamic_limits
   │           ├── smmryDeltaGr
   │           ├── conc_var_DeltaGr
   │           ├── local_sa_DeltaGr
   │           └── sobol_indices_DeltaGr
   ├── bioenergetics.py  
   │      └── CSP
+  │           ├── estimate_yield
   │           ├── getPcat
   │           ├── getPana
   │           ├── getPmg
@@ -648,12 +666,12 @@ This section clarifies concepts, design decisions and technical details of this 
 
 #### <ins>Environment definition and instance calling</ins>
 One of the advantages of Python is that supports both **Object-Oriented Programming (OOP)** and functional programming paradigms. The definition of environments are based on <ins>OOP paradigm</ins>. OOP is based on the following four principles: _Encapsulation_, _Inheritance_, _Abstraction_ and _Polymorphism_. For more info about OOP principles, click [here](https://fluxtech.me/blog/object-oriented-programming-vs-functional-programming/). 
-- _Encapsulation_ principle allows to hide he internal state and behaviour of an object, and the object can only be acessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code hat uses the object.
+- _Encapsulation_ principle allows one to hide the internal state and behaviour of an object, and the object can only be accessed through a well-defined interface. With this, the user can change the properties of the environment without affecting the code that uses the object.
 - _Inheritance_ principle allows a new class to be defined based on an existing class, inheriting its attributes and methods.
-- _Abstraction_ principle makes possible to work with objecs of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
+- _Abstraction_ principle makes it possible to work with objects of a class without knowing the details of their implementation, which can make the code more robust and less error-prone.
 - _Polymorphism_ principle enables the use of a common interface for different classes, making it possible to write code that can work with object of different types without knowing their specific class.
 
-The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of proceudre and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
+The benefits of OOP are _i_) organization, _ii_) state definition and tracking, _iii_) encapsulation of procedure and data (_i.e.,_ specific functions and data can be stored together in a single class), _iv_) inheritance (making development more efficient and easier to maintain). For more information about OOP in Python, click [here](https://realpython.com/python3-object-oriented-programming/).
 
 #
 
@@ -746,7 +764,7 @@ Return attribute names of an Environment object as a list. This behaviour is ava
 
 ### Environment.getDHr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getDHr(typeRxn, input_, specComp=False)
+Environment.getDHr(typeRxn, input_, specComp=False, phase=None)
 ```
 Compute (non-)stadard enthalpy of reaction(s) using the information from environmental models (e.g., temperature). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
 **Parameters:**<br>
@@ -758,7 +776,10 @@ Compute (non-)stadard enthalpy of reaction(s) using the information from environ
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase if different from .phase attribute of parent object.<p>
+
 **Returns:** <br>
 **New attribute (`.DHr`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DHr : _dict_**<br>
@@ -766,7 +787,7 @@ Compute (non-)stadard enthalpy of reaction(s) using the information from environ
 
 ### Environment.getDGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getDGr(typeRxn, input_, specComp=False)
+Environment.getDGr(typeRxn, input_, specComp=False, solids=None, printDG0r=False, printDH0r=False, phase=None)
 ```
 Compute (non-)stadard Gibbs free energy using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
 **Parameters:**<br>
@@ -778,15 +799,82 @@ Compute (non-)stadard Gibbs free energy using the information from environmental
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDG0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard Gibbs free energy of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDH0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard enthalpy of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase if different from .phase attribute of parent object.<p>
 **Returns:** <br>
 **New attribute (`.DGr`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy values. `{'rxnName_pH:#.#': [DGr]}` or `{'rxnName: [DGr]}`<br>
 
+### Environment.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+Environment.thermodynamic_limits(typeRxn, rxns, C0i=1.0, variables='All', specComp=None, molality=True, solvent='H2O', asm='stoich',
+								 solids=None, standard_enthalpy=False)
+```
+Estimate thermodynamic limit(s) using information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rxns : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C0i : _float_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_, _list of strs_, _ndarray of strs_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _str_, _list of strs_, _ndarray of strs_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **standard_enthalpy : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the standard (True) or non-standard (False) enthalpy is used in estimations.<p>
+**Returns:** <br>
+**New attribute (`.limits`) is created in object instance.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **limit_value : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with thermodynamic limits.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
+
+### Environment.getDSr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+Environment.getDSr(typeRxn, input_, specComp=False, solids=None, printDS0r=False, phase=None)
+```
+Compute (non-)stadard entropy change of reaction(s) using the information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2`, `GWB` and `WaterColumn` objects.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDS0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard entropy change of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase if different from .phase attribute of parent object.<p>
+**Returns:** <br>
+**New attribute (`.DSr`) is created in object instance.**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DSr : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Entropy change values. `{'rxnName_pH:#.#': [DSr]}` or `{'rxnName: [DSr]}`<br>
+
 ### Environment.getRs &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getRs(typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False)
+Environment.getRs(typeKin, paramDB, reactions, sample = 'All', pH = None, combMean = False, phase=None)
 ```
 Compute reaction rates using information from environmental models. (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2` and `GWB` objects.<p>
 **Parameters:**<br>
@@ -806,15 +894,19 @@ Compute reaction rates using information from environmental models. (e.g., tempe
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pH value.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If given, ion speciation of compounds is computed. <br>                                     
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **combMean : _Bool_, _optional, default: False_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A command to compute the mean of sample combinations's values. If set to True, the returned dictionary contains a single np.ndarray for each reaction key instead of comb keys with their own subarray. <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A command to compute the mean of sample combinations's values. If set to True, the returned dictionary contains a single np.ndarray for each reaction key instead of comb keys with their own subarray.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase if different from .phase attribute of parent object. <p>
 **Returns:** <br>
-**New attribute (`.Rs`) is created in object instance.**<br>
+**New attributes (`.Rs` and .`specComp_Rs`) are created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Rs : _dict_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; reaction rates. `{'rxnName': [Rs]}`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.specComp_Rs : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; specific compound. `{'rxnName': [specComp_Rs]}`<br>
 
 ### Environment.getCSP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-Environment.getCSP(paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True)
+Environment.getCSP(paramDB, typeKin, typeMetabo, reactions, specComp, sample = 'All', DGsynth = 9.54E-11, EnvAttributes = True, phase = None)
 ```
 Compute cell specific powers using information from environmental models (e.g., temperature, pH, concentrations, and so on). This behaviour is available for `ISA`, `ISAMERRA2`, `CAMSMERRA2` and `GWB` objects. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Pcat' - Catabolic cell-specific power: energy flux produced by the cell, using environmental resources or internal reservoirs. <br>
@@ -849,7 +941,9 @@ Compute cell specific powers using information from environmental models (e.g., 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str_, _optional, default: stoich (stoichiometric concentrations)_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment. <p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase if different from .phase attribute of parent object.<p>
 **Returns:** <br>
 **New attribute (`.CSP`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.CSP : _dict_**<br>
@@ -1148,7 +1242,7 @@ Create an instance of `ISA` object.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selCompounds : _str_ or _list of str_, _optional, default: None_ (i.e., all compounds are considered)**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interested compounds.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selAlt : _float_ or _list of float_, _optional, default: None_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected altitude region (in meters). 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected altitude region (in meters).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When selAlt : _float_, the region is from 0.0 to selAlt.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When selAlt : _list of float_ (length = 2), the region is [min_selAlt, max_selAlt].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **resolution : _int_ or _float_, _optional, default: 1000_**<br>
@@ -2261,6 +2355,59 @@ new_WaterColumn_readMode.getDGr('microprony', ['AO', 'NO'], ['NH3', 'NO2-'])
  'POC': array([8.88e-07, 3.07e-07, 2.27e-07]),
  'PON': array([1.77e-07, 6.40e-08, 4.70e-08])}
 ```
+### WaterColumn.poly_fit &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+WaterColumn.poly_fit(variables, deg, rcond=None, w=None, new_depth=None, replace_data=False, plot_fitting=False, figsize=None, show_equation=False,
+					 loc_legend='best', legend_bbox_to_anchor=None, x_label_name=None, set_x_limits=None, set_y_limits=(None, 0), plot_title=None,
+					 fontfamily='Arial', fontsize=12, xlabel_tick_format=None, xlog_format=None, show_legend=True)
+``` 
+Least squares polynomial fit of attributes of a `WaterColumn` instance based on `numpy.polyfit()`.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str or list_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables, corresponding to attributes of `WaterColumn` instance. For example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'temperature' - Temperature profile.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'pH' - pH profile.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'conc_NH3' - Profile of ammonia concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deg : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Degree of the fitting polynomial. E.g., `{'variable 1': [1, 2, 3], 'variable 2': [0, 1]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rcond : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative condition number of the fit. For more info, check `numpy.polyfit()` documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **w : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Weights. For more info, check `numpy.polyfit()` documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **new_depth : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; New depth array to evaluate the polynomial result.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **replace_data : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the original data is replaced with polynomial results.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **plot_fitting : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether fitting plot is shown.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **figsize : _(float, float)_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Figure size in inches. (Width, Height).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **show_equation : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the resultant fitting polynomial is shown in Console.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **loc_legend : _str_, _optional, default: 'best'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set the location of the legend. For more info, see `matplotlib` documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **legend_bbox_to_anchor : _2- or 4-tuple of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Box that is used to position the legend in conjunction with loc. For more info, see `matplotlib` documentation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **x_label_name : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set label name of x-coordinate. E.g., `{'variable 1': 'name 1', 'variable 2': 'name 2'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_x_limits : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of x-coordinate (left, right). E.g., `{'variable 1': (0, 100), 'variable 2': (200, 300)}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **set_y_limits : _(float, float)_, _optional, default: (None, 0)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set limits of y-coordinate (bottom, top).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **plot_title : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set title of fitting plot.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontfamily : _str_, _optonal, default: 'Arial'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font family of plots.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fontsize : _float_, _optional, default: 12.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of plots.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xlabel_tick_format : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set tick format. E.g., `{'variable 1': '{x:0.1f}', 'variable 2': '{x:0.1e}'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **xlog_format : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If True, variable is plotted using symmetrical log coordinate. E.g., `{'variable 1': True, 'variable 2': False}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **show_legend : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether if the legend of plot is shown. <p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Update attribute(s) in WaterColumn instance (if `replace_data=True`), info in Console (if `show_equation=True`) and/or show plots (if `plot_fitting=True`).**<br>
 
 ### WaterColumn.plotVariables &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -2271,7 +2418,12 @@ WaterColumn.plotVariables(variables, pH_speciation=False, specComp=None, varName
 Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr and so on). Variables are in _x-coordinate_ and depth (meters) in _y-coorindate_.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str or list_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of variables, corresponding to attributes of `WaterColumn` instance. For example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'temperature' - Temperature profile.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'pH' - pH profile.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'conc_NH3' - Profile of ammonia concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DGr_AO' - Profile of the Gibbs free energy of AO reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'dict_{attribute name}_{key name}' - Created attribute in dictionary form.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH_speciation : _bool_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether pH speciation is compute on compound concentrations.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _list_, _optional, default: None_** <br>
@@ -2307,9 +2459,9 @@ Plotting variables of water column (e.g., temperature, pH, concentrations, ∆Gr
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title : _str_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set title of plot.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **title_fs : _float_, _optional, default: 12_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of title.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set font size of title.<p>
 **Returns:** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot**<br>
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -2481,6 +2633,58 @@ Resultant ΔG<sub>r</sub> is plotted in Spyder or written in an Excel file.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Spyder plot** (if _modeExport='plot'_)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Excel file in `results\` folder** (if _modeExport='Excel'_)<br>
 
+### ThSA.getDeltaSr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.getDeltaSr(typeRxn, input_, phase, solids=None, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal',
+				molality=True, methods=None, solvent='H2O', asm='stoich', printDS0r=False, warnings=False)
+```
+Compute the nonstandard entropy change of reaction (ΔS<sub>r</sub>) along the given conditions.<br> 
+Return a n-dimension array with ΔS<sub>r</sub> values.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **input_ : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _str_, _list of strs_ or _ndarray of strs_ if `input_` are reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **printDS0r : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard entropy change of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **warnings : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Display function warnings.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DSr : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Nonstandard entropy change of reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: _(Z)x(Y)x(X)x(reactions)_.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
+
 ### ThSA.getDeltaHr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThSA.getDeltaHr(typeRxn, input_, phase, specComp=False, T=298.15, warnings=False, printDH0r=False)
@@ -2514,8 +2718,8 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 
 ### ThSA.getDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-ThSA.getDeltaGr(typeRxn, input_, phase, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal', molality=True,
-                methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
+ThSA.getDeltaGr(typeRxn, input_, phase, solids=None, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal',
+				molality=True, methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Return a n-dimension array with ΔG<sub>r</sub> values.<p>
@@ -2526,6 +2730,8 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested compound(s) or reaction(s).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _bool_, _str_, _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _Bool_ if `input_` are compounds.<br>
@@ -2563,6 +2769,55 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For atmosphere: (Altitude)x(Latitude)x(Longitude)x(compounds).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **infoRxn : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of reactions given by the user.<br>
+
+### ThSA.thermodynamic_limits &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.thermodynamic_limits(typeRxn, rxns, phase, Ct, C0i=1.0, T=298.15, pH=7.0, S=None, variables='All',  specComp=None, fluidType='ideal', methods=None,
+						  molality=True, solvent='H2O', asm='stoich', solids=None, standard_enthalpy=False)
+```
+Estimate thermodynamic limit(s) of temperature, pH and/or concentration of substrate and products at specific conditions.<br> 
+Return a dictionary with thermodynamic limits for each reaction `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeRxn : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; What reaction database is used, matching with CSV name in `reactions\` folder.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rxns : _str_ or _list of strs_ or _ndarray of strs_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of requested reaction(s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C0i : _float_, _optional, default: 1.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Standard concentration.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **variables : _str_, _list of strs_, _ndarray of strs_, _optional, default: 'All'_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variable(s) for thermodynamic limit estimations: 'Temperature', 'pH', 'Concentration' or 'All'.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _str_, _list of strs_, _ndarray of strs_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **standard_enthalpy : _bool_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the standard (True) or non-standard (False) enthalpy is used in estimations.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **limit_value : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with thermodynamic limits.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Format: `{'rxn_1': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}, 'rxn_2': {'variable_1': [np.ndarray], 'variable_2': [np.ndarray]}}`<br>
 
 ### ThSA.smmryDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -2968,7 +3223,7 @@ Return a dictionary with liquid concentrations.<p>
 ```python
 ThP.density(T, S, compound='H2O')
 ```
-Compute density of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute density of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Millero et al. (1980), doi: 10.1016/0198-0149(80)90016-3; Hare & Sorensen (1987), doi: 10.1063/1.453710.<br>
 Return a n-dimensional array with density values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -2987,7 +3242,7 @@ Return a n-dimensional array with density values (same shape as temperature (`T`
 ```python
 ThP.surface_tension(T, S, compound='H2O')
 ```
-Compute surface tension of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute surface tension of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Vinš et al. (2019), doi: 10.1016/j.marchem.2019.05.001.<br>
 Return a n-dimensional array with surface tension values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -3006,7 +3261,7 @@ Return a n-dimensional array with surface tension values (same shape as temperat
 ```python
 ThP.vapor_pressure(T, S, compound='H2O')
 ```
-Compute vapor pressure of a compound in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
+Compute vapor pressure of a compound as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg).<br>
 **References:** Roll H. (1965), doi: 10.1002/qj.49709239233; Kulkarni et al. (2011), doi: 10.1002/9781118001684; Sippola & Taskinen (2018), doi: 10.1021/acs.jced.8b00251.<br>
 Return a n-dimensional array with vapor pressure values (same shape as temperature (`T`) and salinity (`S`)).<p>
 **Parameters:**<br>
@@ -3025,7 +3280,7 @@ Return a n-dimensional array with vapor pressure values (same shape as temperatu
 ```python
 ThP.osmotic_coefficient(T, S=None, composition=None, solution='seawater')
 ```
-Compute osmotic coefficient of water in function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg) or composition (molality; mol/kg).<br>
+Compute osmotic coefficient of water as a function of temperature (`T`, in K) and salinity (`S`, in ppt or g/kg) or composition (molality; mol/kg).<br>
 **References:** Millero & Leung (1976), doi: 10.2475/ajs.276.9.1035.<br>
 Return a n-dimensional array with osmotic coefficient (same shape as temperature (`T`) and salinity (`S`) or concentration (`composition`)).<p>
 **Parameters:**<br>
@@ -3046,7 +3301,7 @@ Return a n-dimensional array with osmotic coefficient (same shape as temperature
 ```python
 ThP.water_activity(T, composition, solution='seawater')
 ```
-Compute water activity in function of temperature (`T`, in K) and composition (molality; mol/kg).<br>
+Compute water activity as a function of temperature (`T`, in K) and composition (molality; mol/kg).<br>
 Return a n-dimensional array with water activity (same shape as temperature (`T`) and concentration (`composition`)).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float, list or np.ndarray_** <br>
@@ -3059,6 +3314,50 @@ Return a n-dimensional array with water activity (same shape as temperature (`T`
 **Returns:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **aw : _np.ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water activity [unitless].<br>
+
+### ThP.Qr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThP.Qr(Ct, phase, rComp, mRxn, T=298.15, pH=7.0, S=None, specComp=False, fluidType='ideal', methods=None, molality=True, solvent='H2O', asm='stoich',
+	   solids=None, elude_compounds=[])
+```
+Compute the reaction quotient of a single reaction (Q<sub>r</sub>).<br>
+Return the value of reaction quotient as a function of composition (concentrations or pressures).<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total concentrations of compounds `{'compounds': [concentrations]}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **phase : _str ('G' or 'L')_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phase in which reaction(s) occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **rComp : _LIST or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Compounds of reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _LIST or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reaction array/matrix with stoichiometric coefficients, following order of rComp.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: 298.15_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: 7.0_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp : _list of strs_, _ndarray of strs_, _optional, default: False_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_ ('ideal' or 'non-ideal'), _optional, default: ideal_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid (ideal or non-ideal).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **asm : _str ('asm')_, _optional, default: asm (stoichiometric concentrations)_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Assumption to calculate concentration of products not present in the environment.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solids : _list or np.ndarray_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) in solid phase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **elude_compounds : _list or np.ndarray_, _optional, default: []** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name(s) of compound(s) to be eluded in Qr calculations.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Qr : _FLOAT or np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Value(s) of reaction quotient(s). Same shape as T, pH, salinity and Ct.<br>
 
 ### ThP.getThP &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -3078,6 +3377,21 @@ Return a n-dimensional array with thermodynamic parameters and an array with the
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of requested parameters.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **notNaN : _ndarray_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The `compounds` indices of parameters that are available.<br>
+
+### ThP.getDeltaS0r &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThP.getDeltaS0r(S0i, mRxn)
+```
+Compute the entropy change of reaction from the standard entropy of substrates and products.<br>
+Return a n-dimension array with the values of standard entropy change of reactions.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **S0i : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard entropy of compounds.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mRxn : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stoichiometric matrix of reactions.<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **deltaS0r : _ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Values of the standard entropy change of reactions.<br>
 
 ### ThP.getDeltaG0r &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -3156,6 +3470,35 @@ Compute ionic strength of solution.<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **I : _float_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ionic strength of solution.<br>
 
+### ThP.activity_coefficient &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThP.activity_coefficient(methods, composition, T=None, pH=None, salinity=None, molality=True, solvent='H2O', selComp=None)
+```
+Compute activity coefficients of compounds.<br>
+Return a dictionary with activities of compound(s) in solution and their chemical species (if pH is given).<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **methods : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Method for coefficient activity estimation `{'compounds': 'methods'}`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'DH-ext'    - Debye-Hückel equation extended version.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'SS'        - Setschenow-Shumpe equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **composition : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Composition of solution (`{'compounds': [concentrations]}`).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperature values [K].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of pH values.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity : _float_, _list of floats_, _ndarray of floats_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **molality : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select if activity units are in molality (True) or molarity (False).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **solvent : _str_, _optional, default: H2O_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Solvent name.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **selComp : _str_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To obtain the activity of a specific compound (must be in `methods` and `composition`).<p>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **activity_coefficient : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Activity coefficients of compounds (`{'compounds': [activity_coefficient]}`)<br>
+
 ### ThP.activity &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThP.activity(methods, composition, T=None, pH=None, salinity=None, molality=True, solvent='H2O', selComp=None)
@@ -3188,7 +3531,7 @@ Return a dictionary with activities of compound(s) in solution and their chemica
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
 #### <ins>Bioenergetics</ins>
-With the <ins>Bioenergetics</ins> module, the user can evaluate the dynamic energy yield of reactions (_i.e.,_ the amount of energy produce per cell per time) considering the environmental conditions. Moreover, the cellular requirments for growth, maintenance and survival can be estimated in function of temperature based on literature values. The functions to obtain the required cell-specific powers (CSP) are found in `bioenergetics.py` module, more specifically under the class `CSP` . The main function is `CSP.getAllCSP`.
+With the <ins>Bioenergetics</ins> module, the user can evaluate the dynamic energy yield of reactions (_i.e.,_ the amount of energy produced per cell per time) considering the environmental conditions. Moreover, the cellular requirements for growth, maintenance and survival can be estimated as a function of temperature based on literature values. The functions to obtain the required cell-specific powers (CSP) are found in `bioenergetics.py` module, more specifically under the class `CSP`. The main function is `CSP.getAllCSP`.
 > [!NOTE]
 > CSP can only be calculated for one metabolism (and specific compound) at a time.
 > When required, non-standard Gibbs free energy and uptake rates can either be given as float (or np.ndarray of floats) or set to None.
@@ -3201,7 +3544,7 @@ Here is an example:
 >>> from environments import ISA
 
 # set arguments for CSP.getAllCSP()
->>> paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr']
+>>> paramDB = ['qs_FFAM', 'ArrhCor']
 >>> typeKin = 'MM-Arrhenius'
 >>> typeMetabo = 'metabolisms'
 >>> reaction = 'Mth'
@@ -3231,6 +3574,22 @@ Here is an example:
 >>> ISAcond.getCSP(typeKin, paramDB, typeMetabo, reaction, specComp)
 >>> csp = ISAcond.CSP
 ```
+### CSP.estimate_yield &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+CSP.estimate_yield(DGr, metaboleff = 0.5, Dgcell = 1.04e-10):
+```
+Function to estimate cell growth yield [cell/mol of electron donor], i.e. the amount of new cells able to be produced by cells in the growth state, per quantity of the chosen electron donor.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DGr : _float_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy of catabolism.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **metaboleff : _float_, _optional, default: 0.5_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolic efficiency parameter.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Dgcell : _float_, _optional, default: 1.04e-10_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gibbs free energy of the cell, equal to Gibbs free energy of anabolism + maintenance.<br>
+
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Yx : _float_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cell growth yield [cell/mol of eD]. <br>
 
 ### CSP.getPcat &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -3582,32 +3941,35 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 > If you want to calculate the influence of T for one rate, use single value arrays in `Ct` dictionary with same shape as temperature:
 > ```python
 > import numpy as np
+> from reactions import KinRates
 > T = np.array([[273.15, 278.15, 283.15],
 >              [288.15, 293.15, 298.15],
 >              [303.15, 308.15, 313.15]])
 > Ct = {'Compound A': 1.0 * np.ones(T.shape);
 >      'Compound B': 2.0 * np.ones(T.shape);
 >      'Compound C': 3.0 * np.ones(T.shape)}
-> Rs, combNames, orderComb = typeKin = 'MM-Arrhenius', paramDB = ['MM_AtmMicr', 'ArrhCor_AtmMicr'],
->               reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
+> Rs, combNames, orderComb = KinRates.getRs(typeKin = 'MM-Arrhenius', paramDB = ['qs_FFAM', 'ArrhCor'],
+>               							reactions = 'Rxn1', Ct = Ct, sample = 'All', pH = 8.0, T = T)
 > ```
 
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeKin : _str_ ('MM' or 'MM-Arrhenius')** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of kinetic equations.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM': Michaelis-Menten equation.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM-Arrhenius': Michaelis-Menten-Arrhenius equation.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **paramDB : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM': Michaelis-Menten equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM-Arrhenius': Michaelis-Menten-Arrhenius equation.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **paramDB : _list of str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name of parameter database, matching with csv name in `kinetics\` folder (without '.csv').<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If 'MM': paramDB = ['Michaelis-Menten DB']<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'MM-Arrhenius': paramDB = ['Michaelis-Menten DB', 'Arrhenius DB']<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Rxn : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested reaction.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict of np.ndarray_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Ct : _dict of np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of substrates, products and/or inhibitors {'compound': np.array([concentrations])}.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **sample : _str or list_, _optional, default: 'All'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested samples (rows of `paramDB.csv`).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **pH : _float or list_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH value.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If pH value is given, ion speciation of compounds is computed.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If pH value is given, ion speciation of compounds is computed.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **T : _np.ndarray_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set of temperatures. It must have the same size as concentrations of `Ct` dictionary.<p>
 **Returns:**<br>
@@ -3617,6 +3979,8 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Combination of samples (rows of `typeParam.csv`). {'reaction: [combinations]'}<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **orderComb : _str_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Order of samples (rows of `typeParam.csv`) in `combNames` (e.g., 'MM - Arrhenius').<br>
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **specComp_Rs : _dict_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specific compound in terms of which rates are expressed. 
 
 [🔼 Back to **Fundamentals and usage**](#fundamentals-and-usage) &nbsp;&nbsp;&nbsp;|| &nbsp;&nbsp;&nbsp;[🔼 Back to **Contents**](#readme-contents)
 
@@ -3633,18 +3997,23 @@ Return a n-dimension array with the calculated kinetic rates and an array with t
 -->
 
 #### <ins>Ecosystem modeling</ins>
-<a name="MSMM">**Multi State Metabolic Model**</a><br>
-A multi-state metabolic model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
-Here, four distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_), survival (_B<sub>S</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance, which is more demanding than survival. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in survival state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
+<a name="MSMM">**Multi-State Metabolic Model**</a><br>
+The Multi-State Metabolic Model (MSMM) provides a mathematical description of microbial dynamics in their environment. It rests upon the division of a microbial community into subpopulations characterized by their biological state (e.g. cellular cycle phases, aerobic vs anaerobic respiration, dormancy vs activity, etc.). Depending on thermodynamic limitations and bioenergetic requirements, each cell can undergo successive state transitions (or ‘shifts’). The model in itself comprises a system of ordinary differential equations (one for each metabolic state, plus one for each compound whose concentration varies in the liquid and gas phases under the modeled scenario). From a bigger perspective, biomass fluctuations modeling in every state allows to assess the viability of microorganisms in a given habitat. Some involved biological parameters (e.g. protein turnover rates) are derived from accepted estimates in biology. For the time being, this model can only be applied to EcoSysEM’s atmospheric environments (among _ISA, ISAMERRA2_ and _CAMSMERRA2_) and for atmospheric autotrophic microorganisms (methanotrophs: ‘_Mth_’, hydrogen-oxidizing bacteria: ‘_HOB_’, carbon-monoxide-oxidizing bacteria: ‘_COOB_’). However, the MSMM is generic and therefore not restricted to atmospheric communities. <br>
+Here, three distinct states are defined: activity/growth (_B<sub>G</sub>_), basal functional/maintenance (_B<sub>M</sub>_) and death (_B<sub>RIP</sub>_). The conceptual representation of the multiple-state microbial system dynamics is shown in **Figure 1**. Cells in viable states take their energy from the environment based on its availability and the relative needs of their functional state. In turn, they can also produce and release sources of energy into the environment. Growth is more demanding than maintenance. When appropriate conditions are not met, a cell will retreat to a less-energy-demanding state. Resources shortage (in maintenance state) and physicochemical stress (or ‘physicochemical decay’) lead to death where dead cells cannot shift back to any viable state. <p>
 
-<img width="867" height="309" alt="image" src="https://github.com/user-attachments/assets/83897c5a-8eb1-4d29-a246-0f34a4b6bcaf" />
+<img width="629" height="325" alt="Figure 1" src="https://github.com/user-attachments/assets/13741182-2a3c-4ff4-945a-41bea91604d1" />
 
 **Figure 1. Schematic representation of the simulated metabolic states of cells, the associated metabolic processes and the interaction with the environment** <br>
-_Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).
+_Consumption and production_ refer to the uptake of available energy source and the synthesis of new/existing ones, respectively. The orange gradient depicts the available environmental energy and the contribution of each metabolic state to the energetic source. Red arrows represent the _physicochemical decay_ (PhCh. decay).<p>	
+
+<img width="952" height="289" alt="Figure 2" src="https://github.com/user-attachments/assets/74f2de22-6971-4a16-83be-7bebd69599ae" />
+
+**Figure 2. Schematic representation of the three possible situations of the compositions in aerosols (ϕ<sub>k</sub><sup>L</sup>) and the air (ϕ<sub>k</sub><sup>G</sup>).** <br>
+Constant concentrations are represented by ‘"\~" ’ symbol, and variable concentrations by ‘↕’ symbol.<p>
 
 ### MSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
-instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolism, K, mortality,  Wtype='L-FW', pH=7.0, dataType='cyly', dataRange=[2020, 2024],
+instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolisms, K, mortality, humidity, bioaerosolC, Wtype='L-FW', pH=7.0, Wcontent = 0.0, celldiameter=1.0e-06, hygroscopicity=0.1, dataType='cyly', dataRange=[2020, 2024],
 					 DeltaGsynth=9.54E-11, steepness=0.2, degradPace='moderate', salinity=None, fluidType='ideal', actMethods=None)
 ```
 Create an instance of `MSMM` object :<p>
@@ -3659,20 +4028,29 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Requested metabolism type, matching with csv name in `reactions\` folder (without '.csv'). E.g.:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'metabolisms' : aerobic metabolisms <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'AnMetabolisms' : anaerobic metabolisms <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **metabolism : _str_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed  by the microbial community. E.g.: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **metabolisms : _list or str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism(s) performed by the microbial community. E.g.: <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Mth' : methanotrophy <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'COOB' : carbon monoxide oxidation <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'HOB' : hydrogen oxidation <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **K : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Carrying capacity of the microbial community [cell/volume unity].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **mortality : _float or list_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state, mortality in the survival state).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all states have the same mortality rate. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mortality rates of metabolic states (in the order: mortality in the growth state, mortality in the maintenance state)[h-1].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **scenario : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Scenario being modelled with regards to the variability of concentrations of compounds in the atmosphere and aerosol: <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Constant' : concentrations do not vary. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol' : concentrations of compounds dissolved in the bioaerosol liquid are modified by microbial consumption/production and by transfer to/from the surrounding parcel of atmospheric gas<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Variable aerosol and air' : As above, with atmospheric concentrations additionally modified by transfers in and out of the liquid phase. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **humidity : _float**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Relative humidity of the atmospheric 
+environment [%], given as a float between 0.5 and 0.95.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **bioaerosolC : _float**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Concentration of bioaerosols [particle/m^3 air].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **DeltaGsynth : _float_, _optional, default: 9.54E-11_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Energy requirement for cell synthesis in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **steepness : _float or list_, _optional, default: 0.2_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the switch function used to calculate metabolic shifts controls (in the order: Growth-Mainteance shift's steepness, Maintenance-Survival shift's steepness, Survival to Death shift's steepness).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Steepness of the switch function used to calculate metabolic shifts controls (in the order: Growth-Mainteance shift's steepness, Maintenance to Death shift's steepness).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NB: If a single value is given, all shift controls have the same steepness parameter. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **salinity :  _float, list or np.ndarray of floats_, _optional, default: None_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Salinity [ppt]. If None is given, salinity set to 0.0 .<br>
@@ -3684,6 +4062,10 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pH value.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Wcontent : _float_, _optional, default: 0.0_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Water vapor volume fraction in atmosphere (used for ISA only to compute wet compositions of N2, O2 & Ar).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **celldiameter : _float_, _optional, default: 1.0e-06_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Diameter of a microbial cell [m].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **hygroscopicity : _float_, _optional, default: 0.1_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hygroscopicity parameter of microbial cells [-].<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **fluidType : _str_, _optional, default: 'ideal'_** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of fluid ('ideal' or 'non-ideal').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **actMethods :  _dict_, _optional, default: None_** <br>
@@ -3715,7 +4097,7 @@ Create an instance of `MSMM` object :<p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Command to select protein turnover rate of the microbial community and the corresponding metabolic shift rate. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  If a float (protein turnover rate, in hours) is given, default turnover rates (see _turnoverRate_) will be ignored.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default strs are ‘fast’ (PTR = 1 h), ‘moderate’ (PTR = 5 h), ‘slow’ (PTR = 14 h). <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **kinDB : _dict_, _optional, default: {'MM-Arrhenius': ['MM_AtmMicr', 'ArrhCor_AtmMicr'], 'MM': ['MM_AtmMicr']}** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **kinDB : _dict_, _optional, default: {'MM-Arrhenius': ['qs_FFAM', 'ArrhCor'], 'MM': ['qs_FFAM']}** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of database(s) for kinetic parameters depending on typeKin. Each database must match with csv name in `kinetics\` folder (without '.csv').<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **typeKin : _str_ ('MM' or 'MM-Arrhenius')** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of kinetic equations to choose database(s) from (see _kinDB_).<br>
@@ -3755,14 +4137,21 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.typeMtb : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type of metabolism.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolism : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism performed  by the microbial community.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.metabolisms : _list or str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Metabolism(s) performed by the microbial community.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mtbRates : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Qualitative speed of metabolic processes based on the protein turnover rate of the strain.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.specMSrate : _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Specific metabolic shift rate in 1/hours (inverse of protein turnover rate).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.eD : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Electron donor of the metabolic reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.eD : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Electron donors of the metabolic reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.compounds : _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Reactants and products of the metabolic reactions, excluding water.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mRxn : _ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Matrix of stoichiometric coefficients for each of the metabolic reactions and their reactants and products, excluding water.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.infoRxn : _ndarray_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Column labels of the reaction matrix, i.e. metabolic reactions in the same order found in the matrix.<br>
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Wtype : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Water type.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'L-FW' : liquid fresh water <br>
@@ -3777,32 +4166,63 @@ Type of environment data (available for ISAMERRA2 and CAMSMERRA2 only).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Carrying capacity of the microbial community in cell/unit volume.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.mortality : _list_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of mortality rates for each metabolic state in 1/hours.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; State indexing : [m_growth, m_maintenance, m_survival] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; State indexing : [m_growth, m_maintenance] <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGsynth: _float_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Energy requirement for cell synthesis in J/cell.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.st : _list of floats_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Steepness values of the switch function used to compute each metabolic shift control.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shift controls indexing : [st_GxM, st_MxS, st_S-RIP] <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the non-standard Gibbs free energy (in J/mol eD) based on local environment conditions.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Rs : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of shape (1,) containing the cell specific uptake rate (in mol eD/(cell.s)) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGr : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Non-standard Gibbs free energy (in J/mol eD) of each metabolic reaction based on local environment conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.CSP : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of cell specific powers (in fW/cell) based on local environment conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of dictionaries of cell specific powers (in fW/cell) based on local environment conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.MSctrls : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of metabolic shifts controls (floats between 0 and 1) based on local environment conditions. Available only after running .solveODE().<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary of dictionaries of metabolic shifts controls (floats between 0 and 1) for each metabolism based on local environment conditions. Available only after running .solveODE().<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘GxM’] : Control of the shifts between growth and maintenance states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘MxS’] : Control of the shifts between maintenance and survival states <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘S-RIP’] : Control of the survival to death shift <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [‘M-RIP’] : Control of the maintenance to death shift <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume. Available only after running .solveODE(). <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, survival, death], tSpan+1).<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityName : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community name based on metabolism. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of MSMM ODE solutions in cell/ unit volume and mol/unit volume. Available only after running .solveODE(). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Shape: ([growth, maintenance, death, compounds in aerosol, compounds in air], tSpan+1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.communityNames : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Microbial community names based on metabolism. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.scenario : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Scenario to be modelled concerning variability (or not) of concentrations of compounds in the bioaerosol and atmosphere. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.DGsynth : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Energy necessary to synthesize a cell [J/cell]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.concBA : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Concentration of bioaerosol particles in the unit volume of atmosphere. [parts/m^3 air] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.humidity : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Relative humidity in the atmosphere [%]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.celldiameter : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Diameter of a microbial cell [m]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.hygroscopicity : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Hygroscopicity parameter of microbial cells [-]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.solubilityHenry : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Henry's law constants for compounds in terms of pressure [mol/m3/Pa]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Hcc : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Henry's law constants for compounds in terms of concentration [-]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.rBA : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Radius of a bioaerosol particle [m]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.ALWCvol : _float_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Volumetric aerosol liquid water content [m^3 aerosol/m^3 air]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.vbar : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Mean molecular velocity [m/s] of compounds at environmental temperature. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Dg : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gas phase diffusivity of compounds [m2/s] under environmental conditions. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.kmt : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mass transfer coefficients of compounds [h-1] under environmental conditions. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotTitle : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting biomass from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.aerconcplotTitle : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting bioaerosol compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.atmconcplotTitle : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Title for plotting atmospheric compound concentrationsfrom MSMM ODE solutions, based on environment model and conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.plotYlabel : _str_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting of MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting biomass from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.aerconclotYlabel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting bioaerosol compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.atmconcplotYlabel : _str_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label of y axis for plotting atmospheric compound concentrations from MSMM ODE solutions, based on environment model and conditions.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.t_plot : _np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Array of floats of shape (tSpan,) containing a time index for solutions of the MSMM ODE in order to be plotted as function of time. Available only after running .solveODE().<p>
 
@@ -3812,39 +4232,41 @@ How to create an MSMM instance :
 >>> import numpy as np
 
 # create MSMM instance with ISA
->>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E5, 4.2E-4)
+>>> newMSMM = MSMM('ISA', [1000], 'metabolisms', 'Mth', 10E8, 4.2E-4, 'Constant', 0.9, 10E7)
 > Creating ISA instance...
 > Done.
->>> print(newMSMM.communityName)
-Methanotrophs
+>>> print(newMSMM.communityNames)
+{'Mth': 'Methanotrophs'}
 >>> print(newMSMM.eD)
-CH4
+{'Mth': 'CH4'}
 >>> print(newMSMM.envConditions.temperature)
 [281.65] #np.ndarray of shape (1,) because ISA is a 1D model
 >>> print(newMSMM.CSP)
-{'Pcat': array([0.31505687]), 'Pana': array([0.14450204]), 'Pmg': array([1.97431531]), 'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11881735])}
+{'Mth': {'Pcat': array([0.31509924]), 'Pana': array([0.14452148]), 'Pmg': array([1.97431531]),
+'Pm0': array([0.0001993]), 'Ps': array([6.97461209e-07]), 'Pcell': array([2.11883679])}}
 
 # create MSMM instance with CAMSMERRA2
->>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'HOB', 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating CAMSMERRA2 instance...
 > Done.
->>> print(newMSMM.communityName)
-Hydrogen-oxidizing bacteria
+>>> print(newMSMM.communityNames)
+{'HOB': 'Hydrogen-oxidizing bacteria'}
 >>> print(newMSMM.eD)
-H2
+{'HOB': 'H2'}
 >>> print(newMSMM.envConditions.temperature)
 [[[229.45488245]]] #np.ndarray of shape (1,1,1) because CAMSMERRA2 is a 3D model
 >>> print(newMSMM.CSP)
-{'Pcat': array([[[0.00022071]]]), 'Pana': array([[[0.00010123]]]), 'Pmg': array([[[0.00393853]]]), 'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00403975]]])}
+{'HOB': {'Pcat': array([[[0.00022213]]]), 'Pana': array([[[0.00010188]]]), 'Pmg': array([[[0.00393853]]]),
+'Pm0': array([[[2.97157623e-08]]]), 'Ps': array([[[2.80024836e-09]]]), 'Pcell': array([[[0.00404041]]])}}
 
 # create MSMM instance with ISAMERRA2
->>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', 'COOB', 10E5, 4.2E-4, dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('ISAMERRA2', [5000, 0, 45], 'metabolisms', ['Mth', 'COOB'], 10E8, 4.2E-4, 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating ISAMERRA2 instance...
 > Done.
->>> print(newMSMM.communityName)
-CO-oxidizing bacteria
+>>> print(newMSMM.communityNames)
+{'Mth': 'Methanotrophs', 'COOB': 'CO-oxidizing bacteria'}
 >>> print(newMSMM.eD)
-CO
+{'Mth': 'CH4', 'COOB': 'CO'}
 # .copy() -> assigns a copy of the attribute to prevent following operations to affect the attribute (non immutable) itself.
 # np.round(a, decimals) -> NumPy function: Evenly round to the given number of decimals.
 # np.squeeze( a, axis=None) -> NumPy function: Remove axes of length one from `a`.
@@ -3852,7 +4274,7 @@ CO
 >>> T = np.round(np.squeeze(T), 2)
 >>> T
 np.float64(255.35)
->>> dCSP = newMSMM.CSP.copy()
+>>> dCSP = newMSMM.CSP[newMSMM.metabolisms[1]].copy()
 >>> for k in dCSP:
 >>>    dCSP[k] = np.round(np.squeeze(dCSP[k]), 5)
 >>> dCSP
@@ -3868,26 +4290,29 @@ Once an MSMM instance has been created, it is possible to solve the correspondin
 >>> from modeling import MSMM
 
 #create instance 
->>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'Mth', 10E5, (0.01/24), dataType = 'cyly', years = [2020,2024])
+>>> newMSMM = MSMM('CAMSMERRA2', [9000, 0, 45], 'metabolisms', 'Mth', 10E8, [(0.01/24),(0.005/24)], 'Constant', 0.9, 10E7, dataType = 'cyly', years = [2020,2024])
 > Creating CAMSMERRA2 instance...
 > Done.
 
-# solve ODE system over 10 days (240 hours) with initial state biomass in cell/m3 of:
-# Growth = 5, Maintenance = 30, Survival = 15, Dead cells = 0
->>> newMSMM.solveODE([5,30,15,0], 240, solExport = True)
+# solve ODE system over 10 days (240 hours) with sum of intial biomass equaling 
+# total concentration of bioaerosol per m3: 10% in Growth state, 90% in Maintenance
+
+>>> newMSMM.solveODE([.1*newMSMM.concBA,.9*newMSMM.concBA,0], 240, solExport = True)
 # => Excel document of solutions is created
 
 # print solutions (first 5 hours are shown here)
 >>> print(newMSMM.Bsol)
-array([[ 5.000e+00,  1.015e+01,  1.477e+01,  1.889e+01,  2.253e+01, 2.572e+01, …], 
-	[3.000e+01,  2.755e+01,  2.514e+01,  2.283e+01,  2.066e+01, 1.867e+01, …], 
-	[1.500e+01,  1.228e+01,  1.005e+01,  8.220e+00,  6.730e+00, 5.510e+00, …],
-	[0.000e+00,  2.000e-02,  4.000e-02,  6.000e-02,  8.000e-02, 1.000e-01, …]])
+array([[1.00000000e+07, 2.49263834e+07, 3.71424441e+07, 4.71399147e+07,
+  5.53213313e+07, 6.20161960e+07, …], 
+	[9.00000000e+07, 7.50543034e+07, 6.28200928e+07, 5.28054251e+07,
+  4.46075917e+07, 3.78969494e+07, …], 
+	[0.00000000e+00, 2.45213500e+04, 5.18567200e+04, 8.14946400e+04,
+  1.13016390e+05, 1.46079240e+05, …]])
 
 # plot solutions
 >>> newMSMM.plotMSMM()
 ```
-<img width="945" height="494" alt="image" src="https://github.com/user-attachments/assets/086fc83f-1908-49f9-8bbc-5a36431c3900" />
+<img width="830" height="400" alt="Figure_1" src="https://github.com/user-attachments/assets/690c3671-5221-49ba-b984-eddb65eab24b" />
 
 ### MSMM.solveODE &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -3895,8 +4320,8 @@ MSMM.solveODE(Bini, tSpan, dt = 1, solExport = False)
 ```
 Function to solve the MSMM ODE system and export the results as Excel document if needed.<p>
 **Parameters:**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Bini : _list of ints_** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Survival).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Bini : _list of ints or floats_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial biomass in each state (Growth, Maintenance, Death); followed by initial concentrations of compounds in aerosol [mol/m3 water], then concentrations in atmosphere [mol/m3 air], depending on scenario. Compounds listed in same order as in MSMM.compounds. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **tSpan : _list or np.ndarray_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time range over which the microbial dynamic is computed (in hours).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dt : _int or float_, _optional, default: 1_**<br>
@@ -3906,7 +4331,7 @@ Function to solve the MSMM ODE system and export the results as Excel document i
 **Returns:**<br>
 **New attribute (`.Bsol`) is created in object instance.**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **.Bsol : _np.ndarray of floats_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ODE solutions (shape: [4, tSpan+1]).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ODE solutions (shape [3*len(metabolisms), tSpan+1], or [3*len(metabolisms)+len(compounds), tSpan+1], or [3*len(metabolisms)+2*len(compounds), tSpan+1]).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   If solExport is set to True, also creates an Excel document of the results.<br>
 
 ### MSMM.plotMSMM &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
@@ -4309,6 +4734,8 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getAttributeNames](#environmentgetattributenames---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDHr](#environmentgetdhr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDGr](#environmentgetdgr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.thermodynamic_limits](#environmentthermodynamic_limits---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getDSr](#environmentgetdsr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getRs](#environmentgetrs---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.getCSP](#environmentgetcsp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [Environment.smmryDGr](#environmentsmmrydgr---back-to-function-navigation)<br>
@@ -4342,6 +4769,7 @@ Plot three dimensional data on a world map (2D data) and different section plots
 
 #### · <ins>Water column (Hydrosphere)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WaterColumn](#watercolumn---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WaterColumn.poly_fit](#watercolumnpoly_fit---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [WaterColumn.plotVariables](#watercolumnplotvariables---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic equilibrium (ThEq)</ins>
@@ -4356,24 +4784,30 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.vapor_pressure](#thpvapor_pressure---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.osmotic_coefficient](#thposmotic_coefficient---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.water_activity](#thpwater_activity---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.Qr](#thpqr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getThP](#thpgetthp---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaS0r](#thpgetdeltas0r---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaG0r](#thpgetdeltag0r---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaH0r](#thpgetdeltah0r---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getDeltaCp](#thpgetdeltacp---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.getKeq](#thpgetkeq---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.ionicStrength](#thpionicstrength---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.activity_coefficient](#thpactivity_coefficient---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.activity](#thpactivity---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic State Analysis (ThSA)</ins>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.exportDeltaGr](#thsaexportdeltagr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaSr](#thsagetdeltasr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaHr](#thsagetdeltahr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaGr](#thsagetdeltagr---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.thermodynamic_limits](#thsathermodynamic_limits---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.smmryDeltaGr](#thsasmmrydeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.conc_var_DeltaGr](#thsaconc_var_deltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.local_sa_DeltaGr](#thsalocal_sa_deltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.sobol_indices_DeltaGr](#thsasobol_indices_deltagr---back-to-function-navigation)<br>
 
 #### · <ins> Bioenergetics calculations (CSP)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.estimate_yield](#cspestimateyield---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPcat](#cspgetpcat---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPana](#cspgetpana---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [CSP.getPmg](#cspgetpmg---back-to-function-navigation)<br>
