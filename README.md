@@ -1,11 +1,3 @@
-<style>
-  table#parameters_returns tr {
-    border: none;
-  }
-  table#parameters_returns td {
-    border: none;
-  }
-</style>
 # EcoSysEM. EcoSystem Evaluation &amp; Modelling
 
 <img src="https://github.com/drmartinezrabert/EcoSysEM/blob/main/Logo.png" width="516" height="161">
@@ -4026,9 +4018,6 @@ instance_MSMM = MSMM(envModel, coord, typeMetabo, metabolisms, K, mortality, hum
 ```
 Create an instance of `MSMM` object :<p>
 **Parameters:**<br>
-<table id="parameters_returns">
-<tr><td><b>envModel:</b></td><td><b>_str_</b></td><td>Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.</td></tr>
-</table>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **envModel : _str_**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Environment to import local conditions from (temperature, concentrations, etc.). Currently accepted environments: 'ISA', 'ISAMERRA2' and 'CAMSMERRA2'.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **coord : _list_**<br>
