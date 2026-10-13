@@ -1666,7 +1666,12 @@ class ThSA:
                 tSpecComp = 'reactions'
                 if isinstance(specComp, str): specComp = [specComp]
                 n_specComp = len(specComp)
-                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+                if nRxn != n_specComp:
+                    if nRxn < len(input_):
+                        missing_rxns = np.setxor1d(infoRxn, input_)
+                    else:
+                        missing_rxns = ['None']
+                    raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}. Missing reactions: {missing_rxns}.')
         # Select reactions w/ requested compounds as substrates (if input_ = compounds) (How ?)
         for idRxn, iRxn in enumerate(infoRxn):
             # iVariables definition
