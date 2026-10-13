@@ -22,6 +22,12 @@ All notable changes to this project will be documented in this file.
 - _Lorem ipsum..._
 ### Changed
 - README file.
+- Update thermodynamic data.
+  - Standard Gibbs free energy of formation.
+  - Standard Enthalpy of formation.
+- Update reaction data.
+  - `metabolisms.csv` and `metabolisms.xlsx`.
+- Error message of `ThSA.getDeltaGr()` gives now missing reactions when number of reactions and number of specific compounds are different.
 
 ## [0.5.2] - 2026/09/04
 ### Added
