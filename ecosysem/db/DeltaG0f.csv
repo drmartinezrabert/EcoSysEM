@@ -52,3 +52,15 @@ Acetic acid,CH3COOH,L,-396.48,Amend2001
 Acetate,CH3COO-,L,-369.41,Thauer1997
 Dinitrogen,N2,L,18.8,Amend2001
 Biomass,CH1.8O0.5N0.2,S,-67,Kleerebezem2010
+Methanol,CH3OH,L,-175.4,Kleerebezem2010
+Lactate,CH3CHOHCOO-,L,-517.1,Kleerebezem2010
+Ethanol,CH3CH2OH,L,-181.8,Kleerebezem2010
+Propionic acid,CH3CH2CO2H,L,-391.00,Amend2001
+Propionate,CH3CH2CO2-,L,-361.1,Kleerebezem2010
+Glycerol,C3H5(OH)3,L,-488.5,Kleerebezem2010
+Acetone,CH3COCH3,L,-159.8,Kleerebezem2010
+Propanol,CH3(CH2)2OH,L,-175.36,Kleerebezem2010
+Butanoic acid,CH3CH2CH2COOH,L,-381.6,Amend2001
+Butyrate,CH3CH2CH2COO-,L,-352.6,Kleerebezem2010
+Butanol,CH3CH2CH2CH2OH,L,-162.51,Amend2001
+Benzoate,C6H5COO-,L,-435.17,Kleerebezem2010

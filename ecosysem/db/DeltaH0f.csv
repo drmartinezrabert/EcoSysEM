@@ -1,4 +1,4 @@
-IUPAC,Formula,Phase,Value,REF
+﻿IUPAC,Formula,Phase,Value,REF
 Carbon monoxide,CO,G,-110.5,Speight2005
 Carbon monoxide,CO,L,-110.5,Est.
 Carbon dioxide,CO2,G,-393.5,Speight2005
@@ -52,3 +52,15 @@ Acetic acid,CH3COOH,L,-484.13,Speight2005
 Acetate,CH3COO-,L,-486,Speight2005
 Dinitrogen,N2,L,0,Asm.
 Biomass,CH1.8O0.5N0.2,S,-91,Kleerebezem2010
+Methanol,CH3OH,L,-245.9,Kleerebezem2010
+Lactate,CH3CHOHCOO-,L,-687,Kleerebezem2010
+Ethanol,CH3CH2OH,L,-288.3,Kleerebezem2010
+Propionic acid,CH3CH2CO2H,L,-510.8,NIST Chemistry WebBook
+Propionate,CH3CH2CO2-,L,-510.4,Kleerebezem2010
+Glycerol,C3H5(OH)3,L,-676,Kleerebezem2010
+Acetone,CH3COCH3,L,-221.9,Kleerebezem2010
+2-propanol,CH3(CH2)2OH,L,-331,Kleerebezem2010
+Butanoic acid,CH3CH2CH2COOH,L,-533.9,NIST Chemistry WebBook
+Butyrate,CH3CH2CH2COO-,L,-535,Kleerebezem2010
+Butanol,CH3CH2CH2CH2OH,L,-328.4,NIST Chemistry WebBook
+Benzoate,C6H5COO-,L,-385.2,NIST Chemistry WebBook
