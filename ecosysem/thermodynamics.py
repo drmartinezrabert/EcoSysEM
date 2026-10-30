@@ -1573,7 +1573,7 @@ class ThSA:
     
     def getDeltaGr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
                    Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
-                   warnings = False, printDG0r = False, printDH0r = False):
+                   correct_pH = False, warnings = False, printDG0r = False, printDH0r = False):
         """
         Calculate DeltaGr in function of pH, temperature and compound
         concentrations.
@@ -1613,6 +1613,8 @@ class ThSA:
         asm : STRING, optional
             Assumption when products are not present in the environment.
             The default is 'stoich' (stoichiometric concentrations).
+        correct_pH : BOOL, optional
+            Set whether DeltaGr is corrected at given pH (by default pH = 7.0). The default is False.
         warnings : BOOL, optional
             Display function warnings. The default is False.
         printDG0r : BOOL, optional
@@ -1726,6 +1728,16 @@ class ThSA:
                 Qr = ThP.Qr(Ct = Ct, phase = phase, rComp = i_rComp, mRxn = i_mRxn, T = T, pH = pH, S = S, specComp = i_specComp, 
                             fluidType = fluidType, methods = methods, molality = molality, solvent = solvent, asm = asm, solids = solids)
                 deltaGr = deltaGTr + R * T * np.log(Qr)
+                rDGr = deltaGr
+            elif not isinstance(Ct, dict) and correct_pH:
+                conc_H = 10**(-pH) * np.ones(T.shape)
+                try: 
+                    idComp = list(i_rComp).index('H+')
+                except:
+                    deltaGr = deltaGTr
+                else:
+                    v_H = i_mRxn[idComp] / vSelected
+                    deltaGr = deltaGTr + R * T * v_H * np.log(conc_H)
                 rDGr = deltaGr
             else:
                 rDGr = deltaGTr
