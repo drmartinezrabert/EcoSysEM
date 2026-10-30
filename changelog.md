@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - yyyy/mm/dd
 ### Added
-- _Lorem ipsum..._
+- New optional argument in `ThSA.getDeltaGr()`: `control_pH`.
 ### Removed
 - _Lorem ipsum..._
 ### Fixed
