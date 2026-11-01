@@ -581,6 +581,8 @@ ecosysem
   │      │    ├── pHSpeciation
   │      │    └── plotpHSpeciation
   │      └── ThSA
+  │           ├── anabolic_star_equation
+  │           ├── anabolic_equation
   │           ├── exportDeltaGr
   │           ├── getDeltaSr
   │           ├── getDeltaHr
@@ -2579,6 +2581,48 @@ The main and auxiliary functions to perform the ThSA are located in `thermodynam
 - `ThSA`. Class with the functions to perform the ThSA and export the results.
 - `ThP`. Class with the functions to get thermodynamic parameters and calculate Gibbs energies and enthalpies of reactions.
 - `ThEq`. Class with the functions to compute thermodynamic equilibriums (such as Henry solubility and pH speciation).
+
+### ThSA.anabolic_star_equation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.anabolic_star_equation(C_source, N_source)
+```
+Estimate half reaction for biomass production from a carbon and nitrogen source. Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.<br> 
+Return stoichiometry coefficients of reaction in a dictionary. Shape: {'v_Compound': float}.<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C_source : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Molecular formula of carbon source.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **N_source : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard enthalpy of reactions.<p>
+**Returns:** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **v : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and positive values for products. Shape: {'v_Compound': float}.<br>
+
+### ThSA.anabolic_equation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
+```python
+ThSA.anabolic_equation(C_source, N_source, anabolic_eD_eA=None, tol_decimals=None, dict_format=True)
+```
+Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction. Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.<br> 
+Return stoichiometry coefficients of reaction in a dictionary (shape: {'v_Compound': float}) or two list (compounds and stoichiometric parameters).<p>
+**Parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C_source : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Molecular formula of carbon source.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **N_source : _str_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard enthalpy of reactions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **anabolic_eD_eA : _dict_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Half reaction of external electron donor/acceptor reaction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **tol_decimals : _int_, _optional, default: None_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Maximum number of decials considered in stoichometries.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **dict_format : _bool_, _optional, default: True_** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set whether the reaction stoichiometry is given as a dictionary (True) or <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; splitting compounds and stoichiometric parameters in two lists (False).<p>
+**Returns (if `dict_format=True`):** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **v_ana : _dict_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and positive values for products. Shape: {'v_Compound': float}.<br>
+**Returns (if `dict_format=False`):** <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compounds, stoichiometry : _list_, _list_**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; List of reaction compounds (`compounds`) and stoichiometric parameters (`stoichiometry`).<br>
 
 ### ThSA.exportDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
@@ -4799,6 +4843,8 @@ Plot three dimensional data on a world map (2D data) and different section plots
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThP.activity](#thpactivity---back-to-function-navigation)<br>
 
 #### · <ins>Thermodynamic State Analysis (ThSA)</ins>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.anabolic_star_equation](#thsaanabolic_star_equation---back-to-function-navigation)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.anabolic_equation](#thsaanabolic_equation---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.exportDeltaGr](#thsaexportdeltagr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaSr](#thsagetdeltasr---back-to-function-navigation)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [ThSA.getDeltaHr](#thsagetdeltahr---back-to-function-navigation)<br>
