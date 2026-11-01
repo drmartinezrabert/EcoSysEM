@@ -2595,7 +2595,7 @@ Return stoichiometry coefficients of reaction in a dictionary. Shape: {'v_Compou
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Print in console the values of standard enthalpy of reactions.<p>
 **Returns:** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **v : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and positive values for products. Shape: {'v_Compound': float}.<br>
 
 ### ThSA.anabolic_equation &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
@@ -2618,7 +2618,7 @@ Return stoichiometry coefficients of reaction in a dictionary (shape: {'v_Compou
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; splitting compounds and stoichiometric parameters in two lists (False).<p>
 **Returns (if `dict_format=True`):** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **v_ana : _dict_**<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and positive values for products. Shape: {'v_Compound': float}.<br>
 **Returns (if `dict_format=False`):** <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **compounds, stoichiometry : _list_, _list_**<br>
