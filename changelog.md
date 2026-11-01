@@ -22,10 +22,6 @@ All notable changes to this project will be documented in this file.
 - New functions in `thermodynamics.py`:
   - `ThSA.anabolic_star_equation()`: Estimate half reaction for biomass production from a carbon and nitrogen source.
   - `ThSA.anabolic_equation()`: Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction.
-### Removed
-- _Lorem ipsum..._
-### Fixed
-- _Lorem ipsum..._
 ### Changed
 - README file.
 - Update thermodynamic data.
