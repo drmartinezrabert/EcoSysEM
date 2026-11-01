@@ -1376,6 +1376,65 @@ class ThSA:
         else: 
             raise ValueError('Equation balancing was not possible.')
 
+    def anabolic_equation(C_source, N_source, anabolic_eD_eA = None, tol_decimals = None, dict_format = True):
+        """
+        Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction.
+        Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.
+
+        Parameters
+        ----------
+        C_source : STR
+            Molecular formula of carbon source.
+        N_source : STR
+            Molecular formula of nitrogen source.
+        anabolic_eD_eA : DICT, optional
+            Half reaction of external electron donor/acceptor reaction. The default is None.
+        tol_decimals : INT, optional
+            Maximum number of decials considered in stoichometries. The default is None.
+        dict_format : BOOL, optional
+            Set whether the reaction stoichiometry is given as a dictionary (True) or splitting compounds and
+            stoichiometric parameters in two lists (False). The default is True.
+
+        Returns
+        -------
+        v_ana : DICT
+            Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+            and positive values for products. Shape: {'v_Compound': float}.
+        compounds, stoichiometry : LIST, LIST
+            List of reaction compounds (`compounds`) and stoichiometric parameters (`stoichiometry`)
+
+        """
+        v_ana_star = ThSA.anabolic_star_equation(C_source, N_source)
+        v_e_An = v_ana_star['v_e-']
+        if v_e_An == 0:
+            v_ana = v_ana_star
+        else:
+            if not isinstance(anabolic_eD_eA, dict): raise ValueError('An electron donor/acceptor half-reaction must be given.')
+            try: 
+                v_e_DA = anabolic_eD_eA['v_e-']
+            except:
+                raise ValueError('An electron donor/acceptor half-reaction must be given.')
+            else:
+                if (v_e_An < 0) and (v_e_DA < 0): raise ValueError('An electron donor half-reaction must be given.')
+                if (v_e_An > 0) and (v_e_DA > 0): raise ValueError('An electron acceptor half-reaction must be given.')
+                Y_e = v_e_An / v_e_DA
+                if isinstance(tol_decimals, int):
+                    v_ana = {i: round(v_ana_star.get(i, 0) - Y_e * anabolic_eD_eA.get(i, 0), tol_decimals) 
+                             for i in set(v_ana_star).union(anabolic_eD_eA)}
+                else:
+                    v_ana = {i: v_ana_star.get(i, 0) - Y_e * anabolic_eD_eA.get(i, 0)
+                             for i in set(v_ana_star).union(anabolic_eD_eA)}
+        if aux._check_equation(v_ana):
+            if dict_format:
+                return v_ana
+            else:
+                compounds = [s.replace('v_', '') for s in list(v_ana.keys())]
+                stoichiometry = list(v_ana.values())
+                return compounds, stoichiometry
+        else:
+            raise ValueError(f'Equation balancing was not possible. Try to increase the number of decimals: `tol_decimals` > {tol_decimals}).')
+
+    
     def getDeltaSr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
                    Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    printDS0r = False, warnings = False):
