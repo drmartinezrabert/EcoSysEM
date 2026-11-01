@@ -5,6 +5,7 @@ Created on Tue Mar  3 08:50:57 2026
 @author: emartinez
 """
 
+import re
 import numpy as np
 from geokernels.distance import geodist
 
@@ -79,3 +80,93 @@ def _grid_weights(lon, lat, alt = None, NaN_values = None):
     if isinstance(NaN_values, (list, np.ndarray)):
         V_grid = np.where(~np.isnan(NaN_values), V_grid, 0)
     return np.squeeze(V_grid / np.sum(V_grid))
+
+def _elements(compound, minimum_elements = None):
+    """
+    Get elements of a compound.
+
+    Parameters
+    ----------
+    compound : STR
+        Molecular formula of compound.
+    minimum_elements : LIST, optional
+        Elements that must be check, in addition to elements of `compounds`. The default is None.
+
+    Returns
+    -------
+    c_i : DICT
+        Dictionary with elements of compound. Shape: {'Element': float}
+
+    """
+    def _is_decimal(string):
+        dot = r'\.'
+        number = r'[0-9]'
+        check = bool(re.match(dot, string)) or bool(re.match(number, string))
+        return check
+    
+    ind_v = [i for i, c in enumerate(compound) if c.isupper()]
+    c_i = {}
+    elements = []
+    if '+' in compound:
+        z_ind = compound.index('+')
+        ind_v += [z_ind]
+        sign = 1
+    elif '-' in compound:
+        z_ind = compound.index('-')
+        ind_v += [z_ind]
+        sign = -1
+    else:
+        ind_v += [len(compound)]
+        sign = 0
+    for ind in range(len(ind_v)-1):
+        ind1, ind2 = int(ind_v[ind]), int(ind_v[ind+1])
+        element = ''.join(list(filter(str.isalpha, compound[ind1:ind2])))
+        elements += [element]
+        ci_ = ''.join(list(filter(_is_decimal, compound[ind1:ind2])))
+        if len(ci_) == 0: ci_ = 1.0
+        c_i[element] = float(ci_)
+    if isinstance(minimum_elements, (list, np.ndarray)):
+        for other_element in minimum_elements:
+            if not other_element in elements:
+                c_i[other_element] = 0.0
+    if sign != 0:
+        if len(compound[z_ind+1:]) == 0:
+            c_i['z'] = sign * 1.0
+        else:
+            c_i['z'] = sign * float(compound[z_ind+1:])
+    else:
+        c_i['z'] = 0.0
+    return c_i
+
+def _check_equation(equation, tol_decimals = 5, print_balance = False):
+    """
+    Check if an equation is well balanced.
+
+    Parameters
+    ----------
+    equation : DICT
+        Dictionary with stoichiometric parameters of equations. Negative values for substrates,
+        and positive values for products. Shape: {'v_Compound': float}.
+    tol_decimals : int, optional
+        Maximum number of decials considered in stoichometries. The default is 5.
+    print_balance : BOOL, optional
+        Set whether resultance element balance is printed in console. The default is False.
+
+    Returns
+    -------
+    check_balance : BOOL
+        True if equation is well balanced and False when not.
+
+    """
+    if not isinstance(equation, dict): raise TypeError("Equation must be given as a dictionary: {'v_A': float, 'v_B': float}")
+    check_equation = {}
+    for v_i in equation:
+        i = v_i.replace('v_', '')
+        c_i = _elements(i)
+        c_i.update((x, equation[v_i] * y) for x, y in c_i.items())
+        check_equation = {i: round(check_equation.get(i, 0) + c_i.get(i, 0), tol_decimals) 
+                          for i in set(check_equation).union(c_i)}
+    if print_balance:
+        print(f'· Balance: {check_equation}')
+    check_balance = sum(list(check_equation.values())) == 0.0
+    return check_balance
