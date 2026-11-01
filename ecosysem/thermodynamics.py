@@ -5,6 +5,7 @@ Created on Wed Aug  7 18:09:14 2024
 @author: 2424069M
 """
 from reactions import Reactions as Rxn
+import auxiliaries as aux
 
 import pandas as pd
 import numpy as np
@@ -1338,6 +1339,43 @@ class ThSA:
             varType_str = str(varType).replace('<class \'','').replace('\'>', '').replace(',', ' or').replace('(', '').replace(')','')
             if not isinstance(varValue, varType): raise TypeError(f'Argument `{varName}` must be {varType_str}.')
     
+    def anabolic_star_equation(C_source, N_source):
+        """
+        Estimate half reaction for biomass production from a carbon and nitrogen source.
+        Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.
+
+        Parameters
+        ----------
+        C_source : STR
+            Molecular formula of carbon source.
+        N_source : STR
+            Molecular formula of nitrogen source.
+
+        Returns
+        -------
+        v : DICT
+            Dictionary with stoichiometry coefficients of reaction. Negative values for substrates,
+            and positive values for products. Shape: {'v_Compound': float}.
+
+        """
+        Cs = aux._elements(C_source, minimum_elements = ['C', 'H', 'O', 'N', 'S'])
+        Ns = aux._elements(N_source, minimum_elements = ['C', 'H', 'O', 'N', 'S'])
+        cc, ch, co, cn, cs, cz = Cs['C'], Cs['H'], Cs['O'], Cs['N'], Cs['S'], Cs['z']
+        nc, nh, no, nn, _, nz = Ns['C'], Ns['H'], Ns['O'], Ns['N'], Ns['S'], Ns['z']
+        alpha = (cn/cc - 0.2)/(nn - cn*nc/cc)
+        v = {f'v_{C_source}': -1/cc * (1 + nc*alpha),
+             f'v_{N_source}': alpha,
+             'v_HS-': (cs/cc) * (1 + nc*alpha),
+             'v_CH1.8O0.5N0.2': 1.0,
+             'v_H2O': (co/cc)*(1+nc*alpha) - no*alpha - 0.5,
+             'v_H+': (ch/cc)*(1+nc*alpha) - nh*alpha - (cs/cc)*(1+nc*alpha) - 1.8 - 2*((co/cc)*(1+nc*alpha) - no*alpha - 0.5),
+             'v_e-': -(cz/cc)*(1+nc*alpha) + nz*alpha - (cs/cc)*(1+nc*alpha) + (ch/cc)*(1+nc*alpha) - nh*alpha - \
+                      (cs/cc)*(1+nc*alpha) - 1.8 - 2*((co/cc)*(1+nc*alpha) - no*alpha - 0.5)}
+        if aux._check_equation(v): 
+            return v
+        else: 
+            raise ValueError('Equation balancing was not possible.')
+
     def getDeltaSr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
                    Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    printDS0r = False, warnings = False):
