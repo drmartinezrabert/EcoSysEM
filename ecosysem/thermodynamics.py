@@ -1434,8 +1434,7 @@ class ThSA:
         else:
             raise ValueError(f'Equation balancing was not possible. Try to increase the number of decimals: `tol_decimals` > {tol_decimals}).')
 
-    
-    def getDeltaSr(typeRxn, input_, phase, solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
+    def getDeltaSr(input_, phase, typeRxn = 'None', solids = None, specComp = False, T = 298.15, pH = 7.0, S = None, 
                    Ct = 1.0, fluidType = 'ideal', molality = True, methods = None, solvent = 'H2O', asm = 'stoich', 
                    printDS0r = False, warnings = False):
         """
@@ -1443,13 +1442,14 @@ class ThSA:
 
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
         solids : LIST or np.ndarray, optional
             Name(s) of compound(s) in solid phase. The default is None.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
@@ -1490,34 +1490,83 @@ class ThSA:
             Name of reactions given by the user (see reaction/{typeRxn}.csv).
 
         """
-        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
-        if not isinstance(input_, list): input_ = [input_]
+        # Constants
+        Ts = 298.15                                                             # Standard temperature [K]
+        R = 0.0083144626                                                        # Universal gas constant [kJ/mol/K]
         if phase != 'G' and phase != 'L': raise ValueError('Argument `phase` must be \'G\' (gas) or \'L\' (liquid).')
         if isinstance(T, int): T = float(T)
         if isinstance(T, float): T = [T]
         if not isinstance(T, np.ndarray): T = np.array(T)
-        rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
-        nRxn = infoRxn.size
-        # Initialize variables
-        Ts = 298.15                                                             # Standard temperature [K]
-        R = 0.0083144626                                                        # Universal gas constant [kJ/mol/K]
-        # Initialize DHr matrix
-        DSr = np.empty(T.shape)
-        DSr = DSr[..., np.newaxis]
-        DSr = np.repeat(DSr, len(input_), axis = -1)
-        if specComp:
-            if specComp == True:
-                tSpecComp = 'compounds'
-                specComp = input_.copy()
-                for iSpecComp in specComp:
-                    c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
-                    if c_specComp.size == 0: 
-                        raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
-            else:
-                tSpecComp = 'reactions'
-                if isinstance(specComp, str): specComp = [specComp]
-                n_specComp = len(specComp)
-                if nRxn != n_specComp: raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}.')
+        if isinstance(pH, int): pH = float(pH)
+        # Check shape of temperature (if `Ct` is a dictionary)
+        if isinstance(Ct, dict):
+            shapeT = T.shape
+            shapeC = Ct[list(Ct.keys())[0]].shape
+            if shapeT != shapeC:
+                if shapeT[0] == 1:
+                    T = T * np.ones(shapeC)
+                else: raise ValueError(f' Argument T ({T.shape}) and argument `Ct` keys ({shapeC}) must have the same shape.')
+        if not isinstance(typeRxn, str): typeRxn = str(typeRxn)
+        # Get reactions
+        if isinstance(input_, (str, list, np.ndarray)):
+            if not isinstance(input_, list): input_ = [input_]
+            rComp, mRxn, infoRxn = Rxn.getRxn(typeRxn, input_, warnings)
+            nRxn = infoRxn.size
+            # Initialize DSr matrix
+            DSr = np.empty(T.shape)
+            DSr = DSr[..., np.newaxis]
+            DSr = np.repeat(DSr, len(input_), axis = -1)
+            if specComp:
+                if specComp == True:
+                    tSpecComp = 'compounds'
+                    specComp = input_.copy()
+                    for iSpecComp in specComp:
+                        c_specComp = np.squeeze(np.where(np.array(rComp) == iSpecComp))
+                        if c_specComp.size == 0: 
+                            raise ValueError(f'{iSpecComp} was not found as a compound in {typeRxn}.csv file. Use the `specComp` argument to specify compounds or set it to False.')
+                else:
+                    tSpecComp = 'reactions'
+                    if isinstance(specComp, str): specComp = [specComp]
+                    n_specComp = len(specComp)
+                    if nRxn != n_specComp:
+                        if nRxn < len(input_):
+                            missing_rxns = np.setxor1d(infoRxn, input_)
+                        else:
+                            missing_rxns = ['None']
+                        raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}. Missing reactions: {missing_rxns}.')
+        elif isinstance(input_, dict):
+            tSpecComp = 'reactions'
+            mRxn = np.empty(0)
+            rComp = []
+            infoRxn = []
+            v_met = {}
+            for id_rxn, rxn in enumerate(input_):
+                infoRxn += [rxn]
+                if id_rxn == 0:
+                    v_met = input_[rxn]
+                else:
+                    v_met = {i: np.append([v_met.get(i, 0)], [input_[rxn].get(i, 0)]).tolist() 
+                             for i in set(v_met).union(input_[rxn])}
+            for id_compound, key in enumerate(list(v_met.keys())):
+                if len(mRxn) == 0:
+                    mRxn = v_met[key]
+                else:
+                    mRxn = np.vstack((mRxn, v_met[key]))
+                rComp += [key.replace('v_', '')]
+            nRxn = len(infoRxn)
+            if isinstance(specComp, str): specComp = [specComp]
+            n_specComp = len(specComp)
+            if nRxn != n_specComp:
+                if nRxn < len(input_):
+                    missing_rxns = np.setxor1d(infoRxn, input_)
+                else:
+                    missing_rxns = ['None']
+                raise ValueError(f'Different number of reactions and specific compounds was found. # reactions: {nRxn}; # specific compounds: {n_specComp}. Missing reactions: {missing_rxns}.')
+            # Initialize DSr matrix
+            DSr = np.empty(T.shape)
+            DSr = DSr[..., np.newaxis]
+            DSr = np.repeat(DSr, nRxn, axis = -1)
+        # Computation
         for idRxn, iRxn in enumerate(infoRxn):
             # iVariables definition
             i_mRxn = np.c_[mRxn[:, idRxn]]      # mRxn_aux
