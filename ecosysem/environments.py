@@ -427,18 +427,19 @@ class Environment:
         npz.close()
         return keys
 
-    def getDHr(self, typeRxn, input_, specComp = False, phase = None):
+    def getDHr(self, input_, typeRxn = 'None', specComp = False, phase = None):
         """
         Compute (non-)standard enthalpy of reaction using information from
         environmental models.
 
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         phase : STR, optional
@@ -458,7 +459,7 @@ class Environment:
             phase = 'L'
         T = self.temperature.copy()
         DHr_dict = {}
-        DHr, infoRxn = ThSA.getDeltaHr(typeRxn, input_, phase, specComp = specComp, T = T)
+        DHr, infoRxn = ThSA.getDeltaHr(typeRxn = typeRxn, input_ = input_, phase = phase, specComp = specComp, T = T)
         for idRxn, rxn in enumerate(infoRxn):
             DHr_dict[f'{rxn}'] = DHr[..., idRxn]
         self.DHr = DHr_dict
