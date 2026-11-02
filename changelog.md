@@ -1,5 +1,5 @@
 # Changelog
-All notable changes to this project will be documented in this file.
+All notable changes to this project are documented in this file.
 
 <!--
 ## [Unreleased] - yyyy/mm/dd
@@ -22,13 +22,23 @@ All notable changes to this project will be documented in this file.
 - New functions in `thermodynamics.py`:
   - `ThSA.anabolic_star_equation()`: Estimate half reaction for biomass production from a carbon and nitrogen source.
   - `ThSA.anabolic_equation()`: Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction.
+- Reactions for thermodynamic calculations can be defined with a nested dictionary.
+  - Implemented functions: `ThSA.getDeltaGr()`, `ThSA.exportDeltaGr()`, `ThSA.smmryDeltaGr()`, `ThSA.getDeltaHr()`, `ThSA.getDeltaSr()`, `Environment.getDGr()`, `Environment.smmryDGr()`, `Environment.getDHr()`, `Environment.getDSr()`.
+  ```python
+  input_ = {'rxn1': {'v_A': float, 'v_B': float}, 'rxn2': {'v_A': float, 'v_B': float}}
+  ```
+### Removed
+- Script `envdef.py`.
 ### Changed
 - README file.
+- Argument `typeRxn` of `ThSA.getDeltaGr()`, `ThSA.exportDeltaGr()`, `ThSA.smmryDeltaGr()`, `ThSA.getDeltaHr()`, `ThSA.getDeltaSr()`, `Environment.getDGr()`, `Environment.smmryDGr()`, `Environment.getDHr()` and `Environment.getDSr()` is now optional (_default : 'None'_).
 - Update thermodynamic data.
   - Standard Gibbs free energy of formation.
   - Standard Enthalpy of formation.
 - Update reaction data.
   - `metabolisms.csv` and `metabolisms.xlsx`.
+- Update thermodynamic data.
+  - Standard entropy values: `S0.csv` and `S0.xlsx`.  
 - Error message of `ThSA.getDeltaGr()` gives now missing reactions when number of reactions and number of specific compounds are different.
 
 ## [0.5.2] - 2026/09/04
@@ -212,14 +222,5 @@ First pre-release of EcoSysEM platform (v0.1).
     - Estimation of equilibrium constants (Keq).
 - Framework based on `.csv` files to define reactions.
 - Framework based on `.csv` files to define constants (Henry's solubility constants) and thermodynamic parameters (DG0f, DH0f...).
-- Proper README file.
-<!--
-### Added
-- Lorem ipsum...
-### Changed
-- Lorem ipsum...
-### Fixed
-- Lorem ipsum...
-### Removed
-- Lorem ipsum...
--->
+- README file.
+- changelog.md file.
