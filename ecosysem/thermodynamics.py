@@ -2125,7 +2125,7 @@ class ThSA:
             limit_value[rxn] = limit_value_rxn
         return limit_value
     
-    def exportDeltaGr(modeExport, typeRxn, input_, phase, T, pH = 7.0, S = None, Ct = 1.0,
+    def exportDeltaGr(modeExport, input_, phase, typeRxn = 'None', T = [298.15], pH = 7.0, S = None, Ct = 1.0,
                       specComp = False, altitude = False, fluidType = 'ideal', molality = True, 
                       methods = None, solvent = 'H2O', asm = 'stoich', warnings = False,
                       printDG0r = False, printDH0r = False):
@@ -2136,15 +2136,16 @@ class ThSA:
         ----------
         modeExport : STR
             How DeltaGr is exported: 'plot': plot in Spyder; 'Excel': write in Excel document.
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
-        T : LIST or np.array
-            Set of temperatures [K].
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
+        T : LIST or np.array, optional
+            Set of temperatures [K]. The default is 298.15K
         pH : LIST or np.array, optional
             Set of pH values. The default is 7.0.
         S : FLOAT, LIST or np.array
@@ -2197,9 +2198,10 @@ class ThSA:
         DGr = DGr[..., np.newaxis]
         DGr = np.repeat(DGr, len(pH), axis = -1) # pH
         for idpH, pH_ in enumerate(pH):
-            DGr_, infoRxn  = ThSA.getDeltaGr(typeRxn, input_, phase, specComp, T, pH_, S, Ct,
-                                             fluidType, molality, methods, solvent, asm, 
-                                             warnings, printDG0r, printDH0r)
+            DGr_, infoRxn  = ThSA.getDeltaGr(typeRxn = typeRxn, input_ = input_, phase = phase, specComp = specComp, 
+                                             T = T, pH = pH_, S = S, Ct = Ct, fluidType = fluidType, molality = molality, 
+                                             methods = methods, solvent = solvent, asm = asm, warnings = warnings, 
+                                             printDG0r = printDG0r, printDH0r = printDH0r)
             DGr[..., idpH] = DGr_
         if modeExport == 'Excel':
             path = 'results/'
