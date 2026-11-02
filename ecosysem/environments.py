@@ -861,7 +861,7 @@ class Environment:
                 CSP_dict[f'{rxn}_pH:{pH_}'] = CSP.getAllCSP(**CSPargs)
         self.CSP = CSP_dict
     
-    def smmryDGr(self, typeRxn, input_, specComp, molality = True, renameRxn = None, write_results_csv = False, 
+    def smmryDGr(self, input_, specComp, typeRxn = 'None', molality = True, renameRxn = None, write_results_csv = False, 
                  logScaleX = True, vmin = None, vmax = None, printDG0r = False, printDH0r = False, 
                  showMessage = True):
         """
@@ -870,15 +870,14 @@ class Environment:
 
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
-        phase: STR
-            Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
         molality : BOOL, optional
             Select if activity units are in molality (True) or molarity (False). The default is True.
         renameRxn : None or DICT, optional
