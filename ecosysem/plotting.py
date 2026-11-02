@@ -229,7 +229,7 @@ def plot_seasonality(model, dataType, start_date, end_date, variable, delta_time
                                     showMessage  = showMessage,
                                     fillMissing = fillMissing)
         if calc_DGr:
-            model_inst.getDGr(typeRxn, rxn, specComp)
+            model_inst.getDGr(typeRxn = typeRxn, input_ = rxn, specComp = specComp)
         if weights:
             lon = model_inst.lon
             lat = model_inst.lat
