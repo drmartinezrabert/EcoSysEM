@@ -2767,7 +2767,7 @@ Return a n-dimension array with ΔG<sub>r</sub> values.<p>
 ### ThSA.getDeltaGr &nbsp;&nbsp;&nbsp;&nbsp; <sup><sub>[🔽 Back to Function Navigation](#function-navigation)</sub></sup>
 ```python
 ThSA.getDeltaGr(input_, phase, typeRxn='None', solids=None, specComp=False, T=298.15, pH=7.0, S=None, Ct=1.0, fluidType='ideal',
-				molality=True, methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
+molality=True, methods=None, solvent='H2O', asm='stoich', warnings=False, printDG0r=False, printDH0r=False)
 ```
 Compute the nonstandard Gibbs free energy of reaction (ΔG<sub>r</sub>) along the given conditions.<br> 
 Return a n-dimension array with ΔG<sub>r</sub> values.<p>
