@@ -2224,7 +2224,7 @@ class ThSA:
                     ThSA._contourfT(pH, T, DGr[:, idRxn, :], rxn, text_)
         else: raise ValueError(f'Unknown modeExport ({modeExport}). Existing modeExport: \'plot\' (for plotting in Spyder) or \'Excel\' (for writing in Excel document).')
     
-    def smmryDeltaGr(typeRxn, input_, specComp, phase, T, pH, S, Ct, fluidType = 'ideal', molality = True, 
+    def smmryDeltaGr(input_, specComp, phase, T, pH, S, Ct, typeRxn = 'None', fluidType = 'ideal', molality = True, 
                      methods = None, renameRxn = None, write_results_csv = False, logScaleX = True, vmin = None,
                      vmax = None, printDG0r = False, printDH0r = False, showMessage = True):
         """
@@ -2233,11 +2233,9 @@ class ThSA:
 
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
         phase: STR
             Phase in which reaction(s) ocurr. 'G' - Gas, 'L' - Liquid.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
@@ -2251,6 +2249,9 @@ class ThSA:
         Ct : DICT
             Total concentrations of compounds {'compounds': [concentrations]}.
             All compounds of a reaction with the same number of concentrations.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
         fluidType : STR, optional
             Type of fluid (ideal or non-ideal). The default is ideal.
         molality : BOOL, optional
@@ -2550,7 +2551,7 @@ class ThSA:
                         f = u[counts > 1][0]
                     C[f] = np.tile(Ct[f][0, 0], (num, num))
                 # DGr calculation
-                DGr, _ = ThSA.getDeltaGr(typeRxn = 'microprony',
+                DGr, _ = ThSA.getDeltaGr(typeRxn = typeRxn,
                                          input_ = rxn, 
                                          phase = phase, 
                                          specComp = specCp_,
