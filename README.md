@@ -2586,7 +2586,7 @@ The main and auxiliary functions to perform the ThSA are located in `thermodynam
 ```python
 ThSA.anabolic_star_equation(C_source, N_source)
 ```
-Estimate half reaction for biomass production from a carbon and nitrogen source. Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.<br> 
+Estimate half reaction for biomass production from a carbon and nitrogen source. Biomass formula (simplified elemental composition): CH<sub>1.8</sub>O<sub>0.5</sub>N<sub>0.2</sub>.<br> 
 Return stoichiometry coefficients of reaction in a dictionary. Shape: {'v_Compound': float}.<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C_source : _str_** <br>
@@ -2602,7 +2602,7 @@ Return stoichiometry coefficients of reaction in a dictionary. Shape: {'v_Compou
 ```python
 ThSA.anabolic_equation(C_source, N_source, anabolic_eD_eA=None, tol_decimals=None, dict_format=True)
 ```
-Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction. Biomass formula (simplified elemental composition): CH1.8O0.5N0.2.<br> 
+Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction. Biomass formula (simplified elemental composition): CH<sub>1.8</sub>O<sub>0.5</sub>N<sub>0.2</sub>.<br> 
 Return stoichiometry coefficients of reaction in a dictionary (shape: {'v_Compound': float}) or two list (compounds and stoichiometric parameters).<p>
 **Parameters:**<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **C_source : _str_** <br>
