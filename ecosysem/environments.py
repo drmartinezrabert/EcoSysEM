@@ -599,17 +599,18 @@ class Environment:
                                                 molality, solvent, asm, solids, standard_enthalpy)
         self.limits = limit_value
     
-    def getDSr(self, typeRxn, input_, specComp = False, solids = None, printDS0r = False, phase = None):
+    def getDSr(self, input_, typeRxn = 'None', specComp = False, solids = None, printDS0r = False, phase = None):
         """
         Compute (non-)standard entropy change using information from environmental models.
 
         Parameters
         ----------
-        typeRxn : STR
-            What reaction(s) type are requested, matching with csv name. E.g.:
-                - 'metabolisms': metabolic activities.
-        input_ : STR or LIST
-            Name(s) of requested compound(s) or reaction(s).
+        input_ : STR, LIST or DICT
+            STR or LIST: Name(s) of requested compound(s) or reaction(s).
+            DICT: Nested dictionary with reactions. Shape: {'Rxn-1': {'v_Compound': float}, 'Rxn-2': {'v_Compound': float}}.
+        typeRxn : STR, optional
+            What reaction(s) type are requested, matching with csv name. The default is 'None'.
+            E.g.: 'metabolisms': metabolic activities.
         specComp : (if input_ is reactions; STR or LIST) or (if input_ is compounds; BOOL - True), optional
             Name(s) of compound(s) to calculate specific deltaGr (kJ/mol-compound). The default is False.
         solids : LIST or np.ndarray
@@ -649,16 +650,17 @@ class Environment:
         DSr_dict = {}
         if self.model in {'ISA', 'ISAMERRA2', 'CAMSMERRA2', 'GWB'}:
             for pH_ in pH:
-                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids, T = T, pH = pH_, S = S, Ct = Ct,
-                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                DSr, infoRxn = ThSA.getDeltaSr(input_ = input_, phase = phase, typeRxn = typeRxn, specComp = specComp,
+                                               solids = solids, T = T, pH = pH_, S = S, Ct = Ct, fluidType = fluidType, 
+                                               methods = methods, printDS0r = printDS0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     DSr_dict[f'{rxn}_pH:{pH_}'] = DSr[..., idRxn]
         elif self.model in {'WaterColumn'}:
             for idDepth, iDepth in enumerate(self.depth):
                 C = {f'{comp}': Ct[comp][idDepth] for comp in Ct}
-                DSr, infoRxn = ThSA.getDeltaSr(typeRxn, input_, phase, specComp = specComp, solids = solids,
-                                               T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], Ct = C,
-                                               fluidType = fluidType, methods = methods, printDS0r = printDS0r)
+                DSr, infoRxn = ThSA.getDeltaSr(input_ = input_, phase = phase, typeRxn = typeRxn, specComp = specComp, 
+                                               solids = solids, T = [T[idDepth]], pH = pH[idDepth], S = [S[idDepth]], 
+                                               Ct = C, fluidType = fluidType, methods = methods, printDS0r = printDS0r)
                 for idRxn, rxn in enumerate(infoRxn):
                     try:
                         DSr_dict[f'{rxn}'] = np.append(DSr_dict[f'{rxn}'], DSr[..., idRxn])
