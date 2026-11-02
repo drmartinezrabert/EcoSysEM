@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file.
 - New optional argument in `ThSA.getDeltaGr()`: `control_pH`.
 - New auxiliary functions in `auxiliary.py`:
   - `_elements()`: Get elements of a compound.
-  - `_check_equation()`: Check if an equation is well balanced.
+  - `_check_equation()`: Check if an equation is balanced.
 - New functions in `thermodynamics.py`:
   - `ThSA.anabolic_star_equation()`: Estimate half reaction for biomass production from a carbon and nitrogen source.
   - `ThSA.anabolic_equation()`: Estimate overall anabolic reaction from a carbon source, nitrogen source and electron donor/acceptor half reaction.
