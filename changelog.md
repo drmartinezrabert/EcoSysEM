@@ -29,6 +29,7 @@ All notable changes to this project are documented in this file.
   ```
 ### Removed
 - Script `envdef.py`.
+- Script `ecosystem.py`.
 ### Changed
 - README file.
 - Argument `typeRxn` of `ThSA.getDeltaGr()`, `ThSA.exportDeltaGr()`, `ThSA.smmryDeltaGr()`, `ThSA.getDeltaHr()`, `ThSA.getDeltaSr()`, `Environment.getDGr()`, `Environment.smmryDGr()`, `Environment.getDHr()` and `Environment.getDSr()` is now optional (_default : 'None'_).
